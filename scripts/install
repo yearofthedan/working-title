@@ -1,0 +1,6 @@
+#!/bin/bash
+# Installs dependencies with a frozen lockfile. Usage: ./do install
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Installing dependencies...${RESET_COLOR}"
+pnpm install --frozen-lockfile "$@"
+

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Runs a security audit for dependencies. Usage: ./do audit
+
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Running dependency audit...${RESET_COLOR}"
+pnpm audit "$@"
+

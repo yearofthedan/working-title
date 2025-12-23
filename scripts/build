@@ -1,0 +1,7 @@
+#!/bin/bash
+# Builds the project for production. Usage: ./do build
+
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Building project...${RESET_COLOR}"
+pnpm run build "$@"
+

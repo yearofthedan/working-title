@@ -1,0 +1,9 @@
+# scripts/colors.sh
+
+# Define ANSI color codes with semantic names
+export ERROR_COLOR='\033[0;31m'   # Typically red
+export SUCCESS_COLOR='\033[0;32m' # Typically green
+export WARNING_COLOR='\033[0;33m' # Typically yellow or orange
+export INFO_COLOR='\033[0;36m'    # Typically cyan for general information
+export RESET_COLOR='\033[0m'      # Resets the text color to default
+

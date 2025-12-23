@@ -1,0 +1,9 @@
+#!/bin/bash
+# Checks for outdated dependencies, respecting minimumReleaseAge.
+# Renovate automatically handles most dependency updates, but this can be used for manual checks.
+# For information on minimumReleaseAge, refer to the .npmrc file.
+
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Checking for outdated dependencies...${RESET_COLOR}"
+pnpm outdated "$@"
+

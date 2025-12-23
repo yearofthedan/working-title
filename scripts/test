@@ -1,0 +1,5 @@
+#!/bin/bash
+# Runs tests via vitest. Usage: ./do test [--watch]
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Running tests...${RESET_COLOR}"
+pnpm test "$@"
