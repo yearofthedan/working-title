@@ -35,5 +35,8 @@ jobs:
       - name: Build Project
         run: ./do build
 
+      - name: Install Playwright Browsers
+        run: ./do playwright-install
+
       - name: Run Tests
         run: ./do test
