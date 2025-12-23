@@ -15,6 +15,7 @@ This project uses a `./do` script to standardize development commands. You can l
 - `dev`: Starts development server via Vite.
 - `build`: Builds the project for production.
 - `install`: Installs dependencies with a frozen lockfile.
+- `playwright-install`: Installs playwright browsers for use in tests
 - `lint`: Lints the project files. Usage: `./do lint [--fix]`
 - `storybook`: Starts Storybook development server.
 - `test`: Runs tests via vitest. Usage: `./do test [--watch]`

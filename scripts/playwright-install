@@ -1,0 +1,7 @@
+#!/bin/bash
+# Installs Playwright browsers and system dependencies. Usage: ./do playwright-install
+
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Installing Playwright browsers and dependencies...${RESET_COLOR}"
+pnpm exec playwright install --with-deps "$@"
+
