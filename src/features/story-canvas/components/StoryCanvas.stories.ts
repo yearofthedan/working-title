@@ -65,9 +65,7 @@ export const Default: Story = {
 
     if (editors.length > 0) {
       const editor = editors[0]!
-      console.log('owner', editor.ownerDocument)
       await step('Interact with first node', async () => {
-        // await userEvent.click(editor)
         await userEvent.clear(editor)
         await userEvent.type(editor, 'Updated content in Canvas Storybook.')
       })
