@@ -1,0 +1,5 @@
+#!/bin/bash
+# Starts development server via Vite. Usage: ./do dev
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Starting dev server...${RESET_COLOR}"
+pnpm dev "$@"

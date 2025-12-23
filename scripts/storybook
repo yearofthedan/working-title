@@ -1,0 +1,5 @@
+#!/bin/bash
+# Starts Storybook development server. Usage: ./do storybook
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Starting Storybook...${RESET_COLOR}"
+pnpm storybook "$@"
