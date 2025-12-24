@@ -3,5 +3,19 @@
   "extends": ["config:base"],
   "schedule": ["every weekend"],
   "prHourlyLimit": 0,
-  "minimumReleaseAge": "3 days"
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "description": "Group all minor/patch devDependencies into one PR",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all dev dependencies"
+    },
+    {
+      "description": "Group all minor/patch production dependencies into one separate PR",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all production dependencies"
+    }
+  ]
 }
