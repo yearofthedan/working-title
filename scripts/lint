@@ -1,4 +1,4 @@
 #!/bin/bash
 # Lints the project files. Usage: ./do lint [--fix]
 
-pnpm eslint . "$@"
+pnpm run lint "$@"
