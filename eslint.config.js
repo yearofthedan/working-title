@@ -1,4 +1,5 @@
 import js from '@eslint/js'
+import { defineConfig } from 'eslint/config'
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 import eslintConfigPrettier from 'eslint-config-prettier'
@@ -19,6 +20,7 @@ const globals = {
     process: 'readonly',
     __dirname: 'readonly',
     module: 'readonly',
+    URL: 'readonly',
   },
   vue: {
     defineProps: 'readonly',
@@ -30,27 +32,29 @@ const globals = {
 
 const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
 
-export default tseslint.config(
+export default defineConfig([
   includeIgnoreFile(gitignorePath),
   js.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...pluginVue.configs['flat/recommended'],
   {
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+      globals: {
         ...globals.vue,
       },
     },
   },
-  ...tseslint.configs.recommended,
-  ...pluginVue.configs['flat/recommended'],
   eslintConfigPrettier,
-  {
-    files: ['*.vue', '**/*.vue'],
-    languageOptions: {
-      parserOptions: {
-        parser: tseslint.parser, // This tells Vue to use TS for the <script> block
-      },
-    },
-  }
-)
+])
