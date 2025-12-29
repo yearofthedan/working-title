@@ -6,7 +6,7 @@ const meta: Meta<typeof RichTextNode> = {
   component: RichTextNode,
   tags: ['autodocs'],
   argTypes: {
-    content: { control: 'text' },
+    data: { control: 'object' },
   },
   parameters: {
     a11y: {
@@ -24,7 +24,10 @@ type Story = StoryObj<typeof RichTextNode>
 
 export const Default: Story = {
   args: {
-    content: '<p>This is a <strong>Rich Text Node</strong>.</p>',
+    data: {
+      label: 'Rich Text Node',
+      content: '<p>This is a <strong>Rich Text Node</strong>.</p>',
+    },
   },
   play: async ({ canvas, step, userEvent }) => {
     const editor = await canvas.findByRole('textbox')
