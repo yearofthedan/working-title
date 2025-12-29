@@ -58,7 +58,7 @@ const onNodeContentChange = (nodeId: string, content: string) => {
 <style>
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
-
+@import '@vue-flow/controls/dist/style.css';
 .vue-flow__node {
   border: 1px solid #ccc;
   padding: 8px;
