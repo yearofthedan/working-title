@@ -41,9 +41,8 @@ export const mapProjectToVueFlowElements = (
 
   const dagreGraph = new dagre.graphlib.Graph()
   dagreGraph.setDefaultEdgeLabel(() => ({}))
-  dagreGraph.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 100 })
+  dagreGraph.setGraph({ rankdir: 'TB', nodesep: 150, ranksep: 100 })
   const nodeWidth = 400
-  const nodeHeight = 200
 
   const mappedNodes = canvasNodes.map((node) => {
     const step = template.steps[node.stepId]
@@ -59,7 +58,9 @@ export const mapProjectToVueFlowElements = (
   })
 
   mappedNodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
+    const charCount = node.data.content.length
+    const estimatedHeight = 100 + Math.ceil(charCount / 60) * 20
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: estimatedHeight })
   })
 
   const edges: Edge[] = data.edges.map((edge) => {
@@ -87,12 +88,13 @@ export const mapProjectToVueFlowElements = (
 
   const vueFlowNodes: Node[] = mappedNodes.map((node) => {
     const dagreNode = dagreGraph.node(node.id)
-    let x = dagreNode.x - nodeWidth / 2
-    const y = dagreNode.y - nodeHeight / 2
+    const width = dagreNode.width
+    const height = dagreNode.height
+    let x = dagreNode.x - width / 2
+    const y = dagreNode.y - height / 2
 
-    // Shift character nodes to the right "space"
     if (node.category === 'character') {
-      x = characterOffset + x * 0.5 // Squish character X-flow slightly and offset
+      x = characterOffset + dagreNode.x
     }
 
     return {
