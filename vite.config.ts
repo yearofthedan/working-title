@@ -14,4 +14,12 @@ export default defineConfig({
       '@common': path.resolve(__dirname, './src/common'),
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['web-worker'],
+    },
+  },
+  optimizeDeps: {
+    exclude: ['web-worker'],
+  },
 })

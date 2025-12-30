@@ -1,6 +1,6 @@
-import type { StoryCanvasProject } from '@features/shared/dataSpec'
+import type { StoryProject } from '@features/shared/dataSpec'
 
-export const sampleData: StoryCanvasProject = {
+export const sampleData: StoryProject = {
   schemaVersion: '1.0.0',
   projectId: 'proj_1984_orwell',
   templateId: 'snowflake-method-v1',
@@ -84,7 +84,7 @@ export const sampleData: StoryCanvasProject = {
     },
   ],
 }
-export const fullSampleData: StoryCanvasProject = {
+export const fullSampleData: StoryProject = {
   schemaVersion: '1.0.0',
   projectId: 'proj_1984_complete',
   templateId: 'snowflake-method-v1',

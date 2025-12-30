@@ -35,6 +35,7 @@ const inlineTemplate: NarrativeTemplate = {
   steps: {
     'step-initial-idea': {
       id: 'step-initial-idea',
+      stage: 1,
       category: 'structure',
       labelText: 'Initial Idea',
       instructionText: 'Write your initial idea here.',
@@ -46,6 +47,7 @@ const inlineTemplate: NarrativeTemplate = {
     },
     'step-character-development': {
       id: 'step-character-development',
+      stage: 2,
       category: 'structure',
       labelText: 'Character Development',
       instructionText: 'Develop your characters.',
@@ -57,6 +59,7 @@ const inlineTemplate: NarrativeTemplate = {
     },
     'step-plot-outline': {
       id: 'step-plot-outline',
+      stage: 2,
       category: 'structure',
       labelText: 'Plot Outline',
       instructionText: 'Outline your plot.',
@@ -71,7 +74,7 @@ const inlineTemplate: NarrativeTemplate = {
 
 export const Default: Story = {
   args: {
-    projectData: {
+    data: {
       schemaVersion: '1.0.0',
       projectId: 'proj_1984_orwell',
       templateId: 'snowflake-method-v1',

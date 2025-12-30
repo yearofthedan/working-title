@@ -24,6 +24,28 @@ export interface NarrativeTemplate {
    * Keys should be unique IDs (e.g., 'step-storyline').
    */
   steps: Record<string, StepDefinition>
+
+  /**
+   * Optional layout configuration for canvas visualization.
+   * Defines how steps are grouped into horizontal tracks.
+   */
+  layout?: TemplateLayout
+}
+
+export interface TemplateLayout {
+  /**
+   * Defines all horizontal tracks for the canvas.
+   * Each track is laid out independently and positioned side-by-side (left to right).
+   * Key is a track name, value is an array of root step IDs for that track.
+   * Child nodes inherit their track from their parent via graph connectivity.
+   *
+   * Example:
+   *   tracks: {
+   *     main: ['step-summary'],
+   *     characters: ['step-char-summary', 'step-minor-char'],
+   *   }
+   */
+  tracks?: Record<string, string[]>
 }
 
 export interface RootAction {
@@ -36,6 +58,13 @@ export interface StepDefinition {
   id: string
   /** High-level grouping for UI styling (e.g., 'structure', 'character') */
   category: StepCategory
+
+  /**
+   * The writing stage this step belongs to (1-based).
+   * Steps with the same stage appear at the same vertical level in the canvas.
+   * Lower stages = earlier in the writing process.
+   */
+  stage: number
 
   /** i18n key for the node title */
   labelText: string

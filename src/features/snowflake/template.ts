@@ -31,6 +31,7 @@ export const template: NarrativeTemplate = {
     'step-genre': {
       id: 'step-genre',
       category: 'context',
+      stage: 0,
       labelText: 'step.genre.label',
       instructionText: 'step.genre.instruction',
       content: {
@@ -42,6 +43,7 @@ export const template: NarrativeTemplate = {
     'step-target-audience': {
       id: 'step-target-audience',
       category: 'context',
+      stage: 0,
       labelText: 'step.target_audience.label',
       instructionText: 'step.target_audience.instruction',
       content: {
@@ -53,6 +55,7 @@ export const template: NarrativeTemplate = {
     'step-theme': {
       id: 'step-theme',
       category: 'context',
+      stage: 0,
       labelText: 'step.theme.label',
       instructionText: 'step.theme.instruction',
       content: {
@@ -64,6 +67,7 @@ export const template: NarrativeTemplate = {
     'step-summary': {
       id: 'step-summary',
       category: 'structure',
+      stage: 1,
       labelText: 'step.summary.label',
       instructionText: 'step.summary.instruction',
       content: {
@@ -81,6 +85,7 @@ export const template: NarrativeTemplate = {
     'step-storyline': {
       id: 'step-storyline',
       category: 'structure',
+      stage: 2,
       labelText: 'step.storyline.label',
       instructionText: 'step.storyline.instruction',
       content: {
@@ -108,6 +113,7 @@ export const template: NarrativeTemplate = {
     'step-char-summary': {
       id: 'step-char-summary',
       category: 'character',
+      stage: 3,
       labelText: 'step.char_summary.label',
       instructionText: 'step.char_summary.instruction',
       content: {
@@ -130,6 +136,7 @@ export const template: NarrativeTemplate = {
     'step-plot-synopsis': {
       id: 'step-plot-synopsis',
       category: 'structure',
+      stage: 3,
       labelText: 'step.plot_synopsis.label',
       instructionText: 'step.plot_synopsis.instruction',
       content: {
@@ -155,6 +162,7 @@ export const template: NarrativeTemplate = {
     'step-major-char': {
       id: 'step-major-char',
       category: 'character',
+      stage: 4,
       labelText: 'step.major_char.label',
       instructionText: 'step.major_char.instruction',
       content: {
@@ -166,6 +174,7 @@ export const template: NarrativeTemplate = {
     'step-minor-char': {
       id: 'step-minor-char',
       category: 'character',
+      stage: 4,
       labelText: 'step.minor_char.label',
       instructionText: 'step.minor_char.instruction',
       content: {
@@ -177,6 +186,7 @@ export const template: NarrativeTemplate = {
     'step-detailed-synopsis': {
       id: 'step-detailed-synopsis',
       category: 'structure',
+      stage: 4,
       labelText: 'step.detailed_synopsis.label',
       instructionText: 'step.detailed_synopsis.instruction',
       content: {
@@ -218,6 +228,7 @@ export const template: NarrativeTemplate = {
     'step-char-chart': {
       id: 'step-char-chart',
       category: 'character',
+      stage: 5,
       labelText: 'step.char_chart.label',
       instructionText: 'step.char_chart.instruction',
       content: {
@@ -229,6 +240,7 @@ export const template: NarrativeTemplate = {
     'step-scene-overview': {
       id: 'step-scene-overview',
       category: 'drafting',
+      stage: 5,
       labelText: 'step.scene_overview.label',
       instructionText: 'step.scene_overview.instruction',
       content: {
@@ -259,6 +271,7 @@ export const template: NarrativeTemplate = {
     'step-scene-expansion': {
       id: 'step-scene-expansion',
       category: 'drafting',
+      stage: 6,
       labelText: 'step.scene_expansion.label',
       instructionText: 'step.scene_expansion.instruction',
       content: {
@@ -276,6 +289,7 @@ export const template: NarrativeTemplate = {
     'step-chapter': {
       id: 'step-chapter',
       category: 'drafting',
+      stage: 7,
       labelText: 'step.chapter.label',
       instructionText: 'step.chapter.instruction',
       content: {
@@ -283,6 +297,13 @@ export const template: NarrativeTemplate = {
         placeholderText: 'step.chapter.placeholder',
       },
       actions: [],
+    },
+  },
+
+  layout: {
+    tracks: {
+      main: ['step-summary'],
+      characters: ['step-char-summary', 'step-minor-char'],
     },
   },
 }

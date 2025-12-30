@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100vw; height: 100vh">
     <StoryCanvas
-      :project-data="data"
+      :data="data"
       :template="template"
       :strings="strings"
       @update:node-content-change="onNodeContentChange"
