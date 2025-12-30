@@ -95,11 +95,24 @@ watchEffect(async () => {
   border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+[data-theme='dark'] .project-sidebar {
+  background-color: #1a1a1a;
+  border-right-color: #334155;
 }
 
 .sidebar-header {
   padding: 16px;
   border-bottom: 1px solid #e2e8f0;
+  transition: border-color 0.3s;
+}
+
+[data-theme='dark'] .sidebar-header {
+  border-bottom-color: #334155;
 }
 
 .sidebar-header h2 {
@@ -107,6 +120,11 @@ watchEffect(async () => {
   font-weight: 700;
   color: #1e293b;
   margin: 0;
+  transition: color 0.3s;
+}
+
+[data-theme='dark'] .sidebar-header h2 {
+  color: #ffffff;
 }
 
 .sidebar-content {
@@ -125,6 +143,11 @@ watchEffect(async () => {
   text-transform: uppercase;
   color: #64748b;
   margin-bottom: 8px;
+  transition: color 0.3s;
+}
+
+[data-theme='dark'] .context-item label {
+  color: #94a3b8;
 }
 
 .context-value {
@@ -135,6 +158,16 @@ watchEffect(async () => {
   font-size: 0.9rem;
   color: #334155;
   line-height: 1.5;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+
+[data-theme='dark'] .context-value {
+  background: #0f0f0f;
+  border-color: #334155;
+  color: #e2e8f0;
 }
 
 .canvas-viewport {
@@ -143,9 +176,14 @@ watchEffect(async () => {
 }
 
 .vue-flow__node {
-  border: 1px solid #ccc;
-  padding: 8px;
-  border-radius: 5px;
-  background-color: white;
+  padding: 16px;
+}
+
+[data-theme='dark'] .vue-flow__node {
+  border-color: #334155;
+}
+
+[data-theme='dark'] .vue-flow__edge-path {
+  stroke: #666;
 }
 </style>

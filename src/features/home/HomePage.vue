@@ -1,7 +1,12 @@
 <template>
-  <div style="width: 100vw; height: 100vh">
-    <h1>Home</h1>
-    <RouterLink :to="{ name: RouteNames.Demo }">Demo</RouterLink>
+  <div class="flex flex-col items-center justify-center gap-6 py-12">
+    <h1 class="text-3xl font-bold underline dark:text-white">Home</h1>
+    <RouterLink
+      :to="{ name: RouteNames.Demo }"
+      class="px-6 py-3 rounded-lg font-semibold transition-colors hover:bg-opacity-80 dark:bg-gray-700 dark:text-white"
+    >
+      Demo
+    </RouterLink>
   </div>
 </template>
 
