@@ -1,4 +1,4 @@
-export interface StoryCanvasNode {
+export interface StoryProjectNode {
   id: string
   stepId: string
   content: {
@@ -6,13 +6,13 @@ export interface StoryCanvasNode {
   }
 }
 
-export interface StoryCanvasEdge {
+export interface StoryProjectEdge {
   id: string
   source: string
   target: string
 }
 
-export interface StoryCanvasProject {
+export interface StoryProject {
   schemaVersion: string
   projectId: string
   templateId: string
@@ -22,6 +22,6 @@ export interface StoryCanvasProject {
     created: string
     lastModified: string
   }
-  nodes: StoryCanvasNode[]
-  edges: StoryCanvasEdge[]
+  nodes: StoryProjectNode[]
+  edges: StoryProjectEdge[]
 }

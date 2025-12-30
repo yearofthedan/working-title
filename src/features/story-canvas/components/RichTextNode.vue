@@ -11,7 +11,7 @@
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch, onBeforeUnmount } from 'vue'
-import type { NodeData } from '@features/story-canvas/components/vueFlowMapper'
+import type { NodeData } from '@features/story-canvas/layout/trackLayout'
 
 const props = defineProps<{
   data: NodeData
