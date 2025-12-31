@@ -3,20 +3,38 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Light mode variables */
+  /* Light mode (Default) */
   --color-background: #ffffff;
   --color-text: #213547;
   --color-link: #646cff;
   --color-link-hover: #535bf2;
   --color-primary: #1d4ed8;
+  --color-paper: #fdfcfb;
+  --color-ink: #1e293b;
+  --color-edge: #cbd5e1;
 }
 
-@theme (dark) {
-  /* Dark mode variables */
+/* Manual Dark Mode Override */
+html[data-theme='dark'] {
   --color-background: #242424;
   --color-text: rgba(255, 255, 255, 0.87);
-  --color-link: #646cff;
-  --color-link-hover: #535bf2;
+  --color-link: #818cf8;
+  --color-link-hover: #a5b4fc;
+  --color-paper: #1a1a1b;
+  --color-ink: #e2e8f0;
+  --color-edge: #334155;
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@utility flex-stack {
+  @apply flex flex-col;
+}
+
+@utility flex-stack-center {
+  @apply flex flex-col items-center justify-center;
 }
 
 @layer base {
@@ -32,51 +50,11 @@
   }
 
   body {
-    @apply m-0 flex place-items-center min-w-80 min-h-screen;
+    @apply m-0 flex flex-center min-w-80 min-h-screen;
     background-color: var(--color-background);
     color: var(--color-text);
     transition:
       background-color 0.3s,
       color 0.3s;
-  }
-
-  a {
-    @apply font-semibold;
-    color: var(--color-link);
-    text-decoration: inherit;
-  }
-
-  a:hover {
-    color: var(--color-link-hover);
-  }
-
-  h1 {
-    @apply text-4xl leading-tight;
-  }
-
-  h2 {
-    @apply text-3xl leading-tight;
-  }
-
-  h3 {
-    @apply text-2xl leading-tight;
-  }
-
-  button {
-    @apply rounded px-5 py-2 font-medium border border-transparent cursor-pointer transition-colors;
-    background-color: #1a1a1a;
-  }
-
-  button:hover {
-    border-color: var(--color-link);
-  }
-
-  button:focus,
-  button:focus-visible {
-    @apply outline-4 outline-blue-400;
-  }
-
-  #app {
-    @apply w-full h-full;
   }
 }
