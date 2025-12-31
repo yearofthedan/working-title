@@ -1,20 +1,30 @@
 <template>
-  <div class="story-canvas-wrapper">
-    <aside class="project-sidebar">
-      <div class="sidebar-header">
-        <h2>Project Context</h2>
+  <div class="flex w-full h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside
+      class="w-[300px] flex flex-col bg-paper border-r border-edge transition-colors duration-300"
+    >
+      <div class="p-4 border-b border-edge">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-ink/80">Project Context</h2>
       </div>
-      <div class="sidebar-content">
-        <div v-for="node in sidebarNodes" :key="node.id" class="context-item">
-          <label>{{ node.label }}</label>
-          <div class="context-value">
+
+      <div class="p-4 overflow-y-auto flex-1 space-y-6">
+        <div v-for="node in sidebarNodes" :key="node.id" class="space-y-2">
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-ink/50">
+            {{ node.label }}
+          </label>
+          <!-- Removed elevation/shadow. Using a subtle 'field' look for future editability -->
+          <div
+            class="text-sm leading-relaxed text-ink p-3 bg-ink/4 rounded-sm transition-colors border border-transparent focus-within:border-edge"
+          >
             {{ node.content }}
           </div>
         </div>
       </div>
     </aside>
 
-    <div class="canvas-viewport">
+    <!-- Canvas -->
+    <div class="flex-grow relative">
       <VueFlow :nodes="nodes" :edges="edges" :apply-default="false">
         <template #node-richText="{ id, data: nodeData }">
           <RichTextNode
@@ -22,15 +32,20 @@
             @update:content="(content) => onNodeContentChange(id, content)"
           />
         </template>
+
         <template #node-plainText="{ id, data: nodeData }">
           <RichTextNode :data="nodeData" @update:content="(c) => onNodeContentChange(id, c)" />
         </template>
+
         <template #node-globalText="{ id, data: nodeData }">
           <RichTextNode :data="nodeData" @update:content="(c) => onNodeContentChange(id, c)" />
         </template>
+
         <Background />
-        <Controls />
-        <MiniMap />
+
+        <Controls class="border border-edge bg-paper fill-ink" />
+
+        <MiniMap class="border border-edge bg-paper" />
       </VueFlow>
     </div>
   </div>
@@ -89,101 +104,16 @@ watchEffect(async () => {
   overflow: hidden;
 }
 
-.project-sidebar {
-  width: 300px;
-  background-color: #f8fafc;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  transition:
-    background-color 0.3s,
-    border-color 0.3s;
+.vue-flow__connection-path {
+  stroke: var(--color-edge);
 }
 
-[data-theme='dark'] .project-sidebar {
-  background-color: #1a1a1a;
-  border-right-color: #334155;
+.vue-flow__controls-button {
+  border-bottom: 1px solid var(--color-edge);
+  background-color: transparent;
 }
 
-.sidebar-header {
-  padding: 16px;
-  border-bottom: 1px solid #e2e8f0;
-  transition: border-color 0.3s;
-}
-
-[data-theme='dark'] .sidebar-header {
-  border-bottom-color: #334155;
-}
-
-.sidebar-header h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-  transition: color 0.3s;
-}
-
-[data-theme='dark'] .sidebar-header h2 {
-  color: #ffffff;
-}
-
-.sidebar-content {
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.context-item {
-  margin-bottom: 24px;
-}
-
-.context-item label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #64748b;
-  margin-bottom: 8px;
-  transition: color 0.3s;
-}
-
-[data-theme='dark'] .context-item label {
-  color: #94a3b8;
-}
-
-.context-value {
-  padding: 12px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  color: #334155;
-  line-height: 1.5;
-  transition:
-    background-color 0.3s,
-    border-color 0.3s,
-    color 0.3s;
-}
-
-[data-theme='dark'] .context-value {
-  background: #0f0f0f;
-  border-color: #334155;
-  color: #e2e8f0;
-}
-
-.canvas-viewport {
-  flex-grow: 1;
-  position: relative;
-}
-
-.vue-flow__node {
-  padding: 16px;
-}
-
-[data-theme='dark'] .vue-flow__node {
-  border-color: #334155;
-}
-
-[data-theme='dark'] .vue-flow__edge-path {
-  stroke: #666;
+.vue-flow__controls-button:last-child {
+  border-bottom: none;
 }
 </style>

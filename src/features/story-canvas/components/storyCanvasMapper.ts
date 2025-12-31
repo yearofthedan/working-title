@@ -115,6 +115,7 @@ const mapToCanvas = async (
     id: e.id,
     source: e.source,
     target: e.target,
+    type: 'smoothstep',
   }))
 
   const stepRank = Object.fromEntries(Object.keys(template.steps).map((id, index) => [id, index]))

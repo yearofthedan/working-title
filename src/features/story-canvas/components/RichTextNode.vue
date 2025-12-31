@@ -1,15 +1,11 @@
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-slate-900 p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-md dark:shadow-lg hover:shadow-lg dark:hover:shadow-xl transition-shadow duration-300"
+    class="rounded-sm bg-paper border border-edge p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-sm hover:shadow-md transition-all duration-300"
   >
-    <div
-      class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2"
-    >
+    <div class="text-[10px] font-bold uppercase tracking-widest text-ink opacity-50 mb-2">
       {{ data.label }}
     </div>
-    <div
-      class="content nodrag flex-1 overflow-x-hidden text-left text-sm leading-relaxed text-gray-900 dark:text-gray-100"
-    >
+    <div class="content nodrag flex-1 overflow-x-hidden text-left text-sm leading-relaxed text-ink">
       <editor-content :editor="editor" />
     </div>
   </div>
@@ -51,4 +47,9 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped></style>
+<style>
+/* Remove default Tiptap focus ring to keep it clean */
+.ProseMirror:focus {
+  outline: none;
+}
+</style>
