@@ -1,0 +1,82 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  /* Light mode variables */
+  --color-background: #ffffff;
+  --color-text: #213547;
+  --color-link: #646cff;
+  --color-link-hover: #535bf2;
+  --color-primary: #1d4ed8;
+}
+
+@theme (dark) {
+  /* Dark mode variables */
+  --color-background: #242424;
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-link: #646cff;
+  --color-link-hover: #535bf2;
+}
+
+@layer base {
+  html {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: light dark;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply m-0 flex place-items-center min-w-80 min-h-screen;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  a {
+    @apply font-semibold;
+    color: var(--color-link);
+    text-decoration: inherit;
+  }
+
+  a:hover {
+    color: var(--color-link-hover);
+  }
+
+  h1 {
+    @apply text-4xl leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl leading-tight;
+  }
+
+  button {
+    @apply rounded px-5 py-2 font-medium border border-transparent cursor-pointer transition-colors;
+    background-color: #1a1a1a;
+  }
+
+  button:hover {
+    border-color: var(--color-link);
+  }
+
+  button:focus,
+  button:focus-visible {
+    @apply outline-4 outline-blue-400;
+  }
+
+  #app {
+    @apply w-full h-full;
+  }
+}
