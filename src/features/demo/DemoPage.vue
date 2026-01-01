@@ -8,7 +8,7 @@
 import { fullSampleData } from '@/features/demo/project-data'
 import { template } from '@features/snowflake/template'
 import { strings } from '@features/snowflake/strings'
-import StoryCanvas from '@features/story-canvas/components/StoryCanvas.vue'
+import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 </script>
 
 <style scoped></style>

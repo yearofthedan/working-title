@@ -1,5 +1,5 @@
 import type { LayoutTrack } from '@/features/shared/layout/types'
-import type { CanvasLayoutNode, LayoutEdge } from './types'
+import type { StepCategory } from '@/features/shared/storySpec'
 
 export interface NodeData {
   label: string
@@ -8,7 +8,29 @@ export interface NodeData {
   stage?: number
 }
 
-const buildAdjacencyList = (edges: LayoutEdge[]): Map<string, string[]> => {
+export interface CanvasEdge {
+  id: string
+  source: string
+  target: string
+}
+
+export interface CanvasNodeSpec {
+  stepId: string
+  stage: number
+  category: StepCategory
+  content: string
+  label: string
+}
+
+export interface CanvasNode {
+  type: string
+  spec: CanvasNodeSpec
+  id: string
+  width: number
+  height: number
+}
+
+const buildAdjacencyList = (edges: CanvasEdge[]): Map<string, string[]> => {
   const adjacency = new Map<string, string[]>()
   edges.forEach((e) => {
     const existing = adjacency.get(e.source) ?? []
@@ -18,8 +40,8 @@ const buildAdjacencyList = (edges: LayoutEdge[]): Map<string, string[]> => {
   return adjacency
 }
 
-const groupNodesByStepId = (nodes: CanvasLayoutNode[]): Map<string, CanvasLayoutNode[]> => {
-  const map = new Map<string, CanvasLayoutNode[]>()
+const groupNodesByStepId = (nodes: CanvasNode[]): Map<string, CanvasNode[]> => {
+  const map = new Map<string, CanvasNode[]>()
   nodes.forEach((n) => {
     const stepId = n.spec.stepId
     const existing = map.get(stepId) ?? []
@@ -34,8 +56,8 @@ const groupNodesByStepId = (nodes: CanvasLayoutNode[]): Map<string, CanvasLayout
  * Nodes reachable from a track's root stepIds belong to that track.
  */
 const deriveTrackMembership = (
-  nodes: CanvasLayoutNode[],
-  edges: LayoutEdge[],
+  nodes: CanvasNode[],
+  edges: CanvasEdge[],
   tracks: Record<string, string[]> | undefined
 ): Map<string, string> => {
   const nodeToTrack = new Map<string, string>()
@@ -73,11 +95,11 @@ const deriveTrackMembership = (
 
 /** Orphan nodes (not reachable from any track root) fall back to the default track. */
 const groupNodesByTrack = (
-  nodes: CanvasLayoutNode[],
+  nodes: CanvasNode[],
   nodeToTrack: Map<string, string>,
   defaultTrack: string
-): Map<string, CanvasLayoutNode[]> => {
-  const nodesByTrack = new Map<string, CanvasLayoutNode[]>()
+): Map<string, CanvasNode[]> => {
+  const nodesByTrack = new Map<string, CanvasNode[]>()
 
   nodes.forEach((node) => {
     const trackName = nodeToTrack.get(node.id) ?? defaultTrack
@@ -90,10 +112,10 @@ const groupNodesByTrack = (
 }
 
 const prepareTrackInputs = (
-  nodesByTrack: Map<string, CanvasLayoutNode[]>,
+  nodesByTrack: Map<string, CanvasNode[]>,
   trackNames: string[],
-  edges: LayoutEdge[]
-): LayoutTrack<CanvasLayoutNode>[] => {
+  edges: CanvasEdge[]
+): LayoutTrack<CanvasNode>[] => {
   return trackNames
     .filter((trackName) => (nodesByTrack.get(trackName) ?? []).length > 0)
     .map((trackName) => {
@@ -118,7 +140,7 @@ const extractTrackNames = (tracks: Record<string, string[]> = {}): string[] => {
  * Track offset defines the starting layer; nodes are placed relative based on stage differences.
  */
 const calculateNodeLayers = (
-  trackInputs: LayoutTrack<CanvasLayoutNode>[],
+  trackInputs: LayoutTrack<CanvasNode>[],
   trackOffsets: Record<string, number> = {}
 ): Map<string, number> => {
   const nodeLayers = new Map<string, number>()
@@ -136,20 +158,20 @@ const calculateNodeLayers = (
 }
 
 export interface TrackLayoutResult {
-  tracks: LayoutTrack<CanvasLayoutNode>[]
+  tracks: LayoutTrack<CanvasNode>[]
   nodeLayers: Map<string, number>
 }
 
 export const buildTrackLayout = (
-  layoutNodes: CanvasLayoutNode[],
-  edges: LayoutEdge[],
+  layoutNodes: CanvasNode[],
+  edges: CanvasEdge[],
   tracks?: Record<string, string[]>,
   trackOffsets?: Record<string, number>
 ): TrackLayoutResult => {
   const trackNames = extractTrackNames(tracks)
   const defaultTrack = trackNames[0]
 
-  let trackInputs: LayoutTrack<CanvasLayoutNode>[]
+  let trackInputs: LayoutTrack<CanvasNode>[]
 
   if (!defaultTrack) {
     // No tracks defined — single implicit track with all nodes

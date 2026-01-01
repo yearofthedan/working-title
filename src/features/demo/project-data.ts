@@ -1,6 +1,6 @@
-import type { StoryProject } from '@features/shared/dataSpec'
+import type { Project } from '@features/shared/dataSpec'
 
-export const fullSampleData: StoryProject = {
+export const fullSampleData: Project = {
   schemaVersion: '1.0.0',
   projectId: 'proj_1984_complete',
   templateId: 'snowflake-method-v1',
@@ -10,7 +10,7 @@ export const fullSampleData: StoryProject = {
     created: '1948-06-08T10:00:00Z',
     lastModified: '2025-12-29T14:30:00Z',
   },
-  nodes: [
+  steps: [
     // --- Context ---
     { id: 'n_genre', stepId: 'step-genre', content: { text: 'Dystopian / Political Fiction' } },
     { id: 'n_audience', stepId: 'step-target-audience', content: { text: 'Adult / Literary' } },
@@ -372,7 +372,7 @@ export const fullSampleData: StoryProject = {
     { id: 'a3_sc2', stepId: 'step-scene-overview', content: { text: 'Scene 3.2: The Rats.' } },
     { id: 'a3_ch24', stepId: 'step-chapter', content: { text: 'Chapter 24: "Do it to Julia!"' } },
   ],
-  edges: [
+  connections: [
     { id: 'e_s1', source: 'n_sum', target: 'n_story' },
 
     // Character Branching

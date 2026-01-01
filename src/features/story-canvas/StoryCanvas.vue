@@ -24,7 +24,7 @@
     </aside>
 
     <!-- Canvas -->
-    <div class="flex-grow relative">
+    <div class="grow relative">
       <VueFlow :nodes="nodes" :edges="edges" :apply-default="false">
         <template #node-richText="{ id, data: nodeData }">
           <RichTextNode
@@ -56,15 +56,15 @@ import { VueFlow, type Node, type Edge } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
-import RichTextNode from '@features/story-canvas/components/RichTextNode.vue'
-import type { StoryProject } from '@features/shared/dataSpec'
+import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
+import type { Project } from '@features/shared/dataSpec'
 import type { NarrativeTemplate } from '@features/shared/storySpec'
 import { shallowRef, watchEffect } from 'vue'
-import { mapProjectToVueFlow } from '@features/story-canvas/components/storyCanvasMapper'
-import type { SidebarNode } from '@features/story-canvas/components/storyCanvasMapper'
+import { mapProjectToViewModel } from '@features/story-canvas/model/viewModelMapper'
+import type { SidebarNode } from '@features/story-canvas/types'
 
 const props = defineProps<{
-  data: StoryProject
+  data: Project
   template: NarrativeTemplate
   strings: Record<string, unknown>
 }>()
@@ -83,7 +83,7 @@ const onNodeContentChange = (nodeId: string, content: string) => {
 
 watchEffect(async () => {
   try {
-    const result = await mapProjectToVueFlow(props.data, props.template, props.strings)
+    const result = await mapProjectToViewModel(props.data, props.template, props.strings)
     nodes.value = result.canvas.nodes
     edges.value = result.canvas.edges
     sidebarNodes.value = result.sidebar.nodes
