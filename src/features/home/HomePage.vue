@@ -26,7 +26,7 @@
 
       <!-- New Project Link -->
       <RouterLink
-        :to="{ name: RouteNames.Demo }"
+        :to="{ name: RouteNames.Story }"
         class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-stack-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
         aria-labelledby="label-new"
       >
