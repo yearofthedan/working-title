@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 export const RouteNames = {
   Home: 'home',
   Demo: 'demo',
+  Story: 'story',
   NotFound: 'not-found',
 } as const
 
@@ -16,6 +17,11 @@ export const router = createRouter({
       path: '/demo',
       name: RouteNames.Demo,
       component: () => import('@/features/demo/DemoPage.vue'),
+    },
+    {
+      path: '/story',
+      name: RouteNames.Story,
+      component: () => import('@/features/story/StoryPage.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

@@ -113,24 +113,57 @@ const extractTrackNames = (tracks: Record<string, string[]> = {}): string[] => {
   return Object.keys(tracks)
 }
 
-export const buildTrackInputs = (
+/**
+ * Calculate the layer for each node based on track membership and offsets.
+ * Track offset defines the starting layer; nodes are placed relative based on stage differences.
+ */
+const calculateNodeLayers = (
+  trackInputs: LayoutTrack<CanvasLayoutNode>[],
+  trackOffsets: Record<string, number> = {}
+): Map<string, number> => {
+  const nodeLayers = new Map<string, number>()
+
+  trackInputs.forEach((track) => {
+    const trackOffset = trackOffsets[track.trackName] ?? 0
+    const minStage = Math.min(...track.nodes.map((n) => n.spec.stage))
+
+    track.nodes.forEach((node) => {
+      nodeLayers.set(node.id, trackOffset + (node.spec.stage - minStage))
+    })
+  })
+
+  return nodeLayers
+}
+
+export interface TrackLayoutResult {
+  tracks: LayoutTrack<CanvasLayoutNode>[]
+  nodeLayers: Map<string, number>
+}
+
+export const buildTrackLayout = (
   layoutNodes: CanvasLayoutNode[],
   edges: LayoutEdge[],
-  tracks?: Record<string, string[]>
-): LayoutTrack<CanvasLayoutNode>[] => {
+  tracks?: Record<string, string[]>,
+  trackOffsets?: Record<string, number>
+): TrackLayoutResult => {
   const trackNames = extractTrackNames(tracks)
   const defaultTrack = trackNames[0]
 
+  let trackInputs: LayoutTrack<CanvasLayoutNode>[]
+
   if (!defaultTrack) {
     // No tracks defined — single implicit track with all nodes
-    return prepareTrackInputs(new Map([['_default', layoutNodes]]), ['_default'], edges)
+    trackInputs = prepareTrackInputs(new Map([['_default', layoutNodes]]), ['_default'], edges)
+  } else {
+    const nodesByTrack = groupNodesByTrack(
+      layoutNodes,
+      deriveTrackMembership(layoutNodes, edges, tracks),
+      defaultTrack
+    )
+    trackInputs = prepareTrackInputs(nodesByTrack, trackNames, edges)
   }
 
-  const nodesByTrack = groupNodesByTrack(
-    layoutNodes,
-    deriveTrackMembership(layoutNodes, edges, tracks),
-    defaultTrack
-  )
+  const nodeLayers = calculateNodeLayers(trackInputs, trackOffsets)
 
-  return prepareTrackInputs(nodesByTrack, trackNames, edges)
+  return { tracks: trackInputs, nodeLayers }
 }

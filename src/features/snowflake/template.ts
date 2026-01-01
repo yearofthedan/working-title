@@ -5,6 +5,7 @@ export const template: NarrativeTemplate = {
   version: '1.0.0',
   nameText: 'template.snowflake.name',
   descriptionText: 'template.snowflake.description',
+
   rootActions: [
     {
       labelText: 'root.actions.create_summary',
@@ -27,52 +28,65 @@ export const template: NarrativeTemplate = {
       targetType: 'step-target-audience',
     },
   ],
-  steps: {
-    'step-genre': {
+
+  steps: [
+    {
       id: 'step-genre',
       category: 'context',
-      stage: 0,
       labelText: 'step.genre.label',
       instructionText: 'step.genre.instruction',
+      isInitial: true,
       content: {
-        contentType: 'globalText',
+        format: 'plain',
         placeholderText: 'step.genre.placeholder',
       },
+      ui: {
+        visibility: ['sidebar'],
+      },
       actions: [],
     },
-    'step-target-audience': {
+    {
       id: 'step-target-audience',
       category: 'context',
-      stage: 0,
       labelText: 'step.target_audience.label',
       instructionText: 'step.target_audience.instruction',
+      isInitial: true,
       content: {
-        contentType: 'globalText',
+        format: 'plain',
         placeholderText: 'step.target_audience.placeholder',
       },
-      actions: [],
-    },
-    'step-theme': {
-      id: 'step-theme',
-      category: 'context',
-      stage: 0,
-      labelText: 'step.theme.label',
-      instructionText: 'step.theme.instruction',
-      content: {
-        contentType: 'globalText',
-        placeholderText: 'step.theme.placeholder',
+      ui: {
+        visibility: ['sidebar'],
       },
       actions: [],
     },
-    'step-summary': {
+    {
+      id: 'step-theme',
+      category: 'context',
+      labelText: 'step.theme.label',
+      instructionText: 'step.theme.instruction',
+      isInitial: true,
+      content: {
+        format: 'plain',
+        placeholderText: 'step.theme.placeholder',
+      },
+      ui: {
+        visibility: ['sidebar'],
+      },
+      actions: [],
+    },
+    {
       id: 'step-summary',
       category: 'structure',
       stage: 1,
       labelText: 'step.summary.label',
       instructionText: 'step.summary.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.summary.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -82,15 +96,18 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-storyline': {
+    {
       id: 'step-storyline',
       category: 'structure',
       stage: 2,
       labelText: 'step.storyline.label',
       instructionText: 'step.storyline.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.storyline.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -110,15 +127,18 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-char-summary': {
+    {
       id: 'step-char-summary',
       category: 'character',
       stage: 3,
       labelText: 'step.char_summary.label',
       instructionText: 'step.char_summary.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.char_summary.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -133,15 +153,18 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-plot-synopsis': {
+    {
       id: 'step-plot-synopsis',
       category: 'structure',
       stage: 3,
       labelText: 'step.plot_synopsis.label',
       instructionText: 'step.plot_synopsis.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.plot_synopsis.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -159,39 +182,48 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-major-char': {
+    {
       id: 'step-major-char',
       category: 'character',
       stage: 4,
       labelText: 'step.major_char.label',
       instructionText: 'step.major_char.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.major_char.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-    'step-minor-char': {
+    {
       id: 'step-minor-char',
       category: 'character',
       stage: 4,
       labelText: 'step.minor_char.label',
       instructionText: 'step.minor_char.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.minor_char.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-    'step-detailed-synopsis': {
+    {
       id: 'step-detailed-synopsis',
       category: 'structure',
       stage: 4,
       labelText: 'step.detailed_synopsis.label',
       instructionText: 'step.detailed_synopsis.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.detailed_synopsis.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       validations: [
         {
@@ -225,27 +257,33 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-char-chart': {
+    {
       id: 'step-char-chart',
       category: 'character',
       stage: 5,
       labelText: 'step.char_chart.label',
       instructionText: 'step.char_chart.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.char_chart.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-    'step-scene-overview': {
+    {
       id: 'step-scene-overview',
       category: 'drafting',
       stage: 5,
       labelText: 'step.scene_overview.label',
       instructionText: 'step.scene_overview.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.scene_overview.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -268,15 +306,18 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-scene-expansion': {
+    {
       id: 'step-scene-expansion',
       category: 'drafting',
       stage: 6,
       labelText: 'step.scene_expansion.label',
       instructionText: 'step.scene_expansion.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.scene_expansion.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [
         {
@@ -286,24 +327,30 @@ export const template: NarrativeTemplate = {
         },
       ],
     },
-    'step-chapter': {
+    {
       id: 'step-chapter',
       category: 'drafting',
       stage: 7,
       labelText: 'step.chapter.label',
       instructionText: 'step.chapter.instruction',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'step.chapter.placeholder',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-  },
+  ],
 
-  layout: {
+  ui: {
     tracks: {
       main: ['step-summary'],
       characters: ['step-char-summary', 'step-minor-char'],
+    },
+    trackOffsets: {
+      characters: 1,
     },
   },
 }

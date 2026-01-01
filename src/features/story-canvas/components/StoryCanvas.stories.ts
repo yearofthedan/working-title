@@ -32,42 +32,60 @@ const inlineTemplate: NarrativeTemplate = {
   nameText: 'storybook.template.name',
   descriptionText: 'storybook.template.description',
   rootActions: [],
-  steps: {
-    'step-initial-idea': {
+  steps: [
+    {
       id: 'step-initial-idea',
       stage: 1,
       category: 'structure',
       labelText: 'Initial Idea',
       instructionText: 'Write your initial idea here.',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: "What's your big idea?",
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-    'step-character-development': {
+    {
       id: 'step-character-development',
       stage: 2,
       category: 'structure',
       labelText: 'Character Development',
       instructionText: 'Develop your characters.',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'Who are your characters?',
+      },
+      ui: {
+        visibility: ['canvas'],
       },
       actions: [],
     },
-    'step-plot-outline': {
+    {
       id: 'step-plot-outline',
       stage: 2,
       category: 'structure',
       labelText: 'Plot Outline',
       instructionText: 'Outline your plot.',
       content: {
-        contentType: 'richText',
+        format: 'rich',
         placeholderText: 'What happens in your story?',
       },
+      ui: {
+        visibility: ['canvas'],
+      },
       actions: [],
+    },
+  ],
+  ui: {
+    tracks: {
+      main: ['step-initial-idea'],
+      characters: ['step-character-development'],
+    },
+    trackOffsets: {
+      characters: 1,
     },
   },
 }
