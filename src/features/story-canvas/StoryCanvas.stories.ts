@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import StoryCanvas from '@features/story-canvas/components/StoryCanvas.vue'
+import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { expect } from 'storybook/test'
 import { strings } from '@/features/snowflake/strings'
 import type { NarrativeTemplate } from '@/features/shared/storySpec'
@@ -102,7 +102,7 @@ export const Default: Story = {
         created: '1948-06-08T10:00:00Z',
         lastModified: '1949-06-08T14:30:00Z',
       },
-      nodes: [
+      steps: [
         {
           id: '1',
           stepId: 'step-initial-idea',
@@ -125,7 +125,7 @@ export const Default: Story = {
           },
         },
       ],
-      edges: [
+      connections: [
         { id: 'e1-2', source: '1', target: '2' },
         { id: 'e1-3', source: '1', target: '3' },
       ],

@@ -3,35 +3,35 @@
  * Represents the persisted state of a story project.
  */
 
-export interface NodeContent {
+export interface StepContent {
   /**
    * The primary narrative content. Expects HTML or Markdown strings from the editor.
    */
   text: string
-  assets?: StoryAsset[]
+  assets?: AssetData[]
   metadata?: Record<string, unknown>
 }
 
-export interface StoryProjectNode {
+export interface Step {
   id: string
   stepId: string
-  content: NodeContent
+  content: StepContent
 }
 
-export interface StoryAsset {
+export interface AssetData {
   id: string
   type: 'image' | 'link' | 'file'
   url: string
   caption?: string
 }
 
-export interface StoryProjectEdge {
+export interface Connection {
   id: string
   source: string
   target: string
 }
 
-export interface StoryProject {
+export interface Project {
   schemaVersion: string
   projectId: string
   templateId: string
@@ -41,6 +41,6 @@ export interface StoryProject {
     created: string
     lastModified: string
   }
-  nodes: StoryProjectNode[]
-  edges: StoryProjectEdge[]
+  steps: Step[]
+  connections: Connection[]
 }

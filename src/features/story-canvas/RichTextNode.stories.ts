@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import RichTextNode from '@features/story-canvas/components/RichTextNode.vue'
+import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
 import { expect } from 'storybook/test'
 
 const meta: Meta<typeof RichTextNode> = {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import SnowflakeCanvas from '@features/story-canvas/components/StoryCanvas.vue'
+import SnowflakeCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { template } from '@/features/snowflake/template'
 import { strings } from '@/features/snowflake/strings'
 import { fullSampleData } from '@/features/demo/project-data'
