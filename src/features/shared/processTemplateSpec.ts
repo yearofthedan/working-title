@@ -1,10 +1,10 @@
 /**
- * NARRATIVE TEMPLATE SPECIFICATION (v1.0)
+ * PROCESS TEMPLATE SPECIFICATION (v1.0)
  * * This file defines the schema for any process template (Snowflake, Hero's Journey, etc.)
  * that runs on the Narrative Engine.
  */
 
-export interface NarrativeTemplate {
+export interface ProcessTemplate {
   /** Unique identifier for the template (e.g., 'snowflake-v1') */
   id: string
   /** Template version */
@@ -22,7 +22,7 @@ export interface NarrativeTemplate {
   /**
    * The list of all possible steps in this process.
    */
-  steps: StepDefinition[]
+  stepDefinitions: StepDefinition[]
 
   ui?: {
     /** Map of track IDs to ordered step IDs for spatial organization (e.g. columns). */
@@ -35,7 +35,7 @@ export interface NarrativeTemplate {
 export interface RootAction {
   labelText: string
   trigger: 'append'
-  targetType: string // Must match a key in the 'steps' record
+  targetStepId: string // Must match the id of a step in the 'steps' record
 }
 
 export interface StepDefinition {
@@ -58,7 +58,7 @@ export interface StepDefinition {
    */
   isInitial?: boolean
 
-  content: StepContent
+  editorConfig: EditorConfig
 
   /** * UI-specific hints for this step.
    */
@@ -76,7 +76,7 @@ export interface StepDefinition {
 
 export type StepCategory = 'structure' | 'character' | 'context' | 'drafting' | string
 
-export interface StepContent {
+export interface EditorConfig {
   /** Determines which editor component to render */
   format: 'plain' | 'rich'
   /** i18n key for the empty state text */

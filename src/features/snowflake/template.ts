@@ -1,6 +1,6 @@
-import type { NarrativeTemplate } from '@/features/shared/storySpec'
+import type { ProcessTemplate } from '@/features/shared/processTemplateSpec'
 
-export const template: NarrativeTemplate = {
+export const template: ProcessTemplate = {
   id: 'snowflake-method-v1',
   version: '1.0.0',
   nameText: 'template.snowflake.name',
@@ -10,33 +10,33 @@ export const template: NarrativeTemplate = {
     {
       labelText: 'root.actions.create_summary',
       trigger: 'append',
-      targetType: 'step-summary',
+      targetStepId: 'step-summary',
     },
     {
       labelText: 'root.actions.add_genre',
       trigger: 'append',
-      targetType: 'step-genre',
+      targetStepId: 'step-genre',
     },
     {
       labelText: 'root.actions.add_theme',
       trigger: 'append',
-      targetType: 'step-theme',
+      targetStepId: 'step-theme',
     },
     {
       labelText: 'root.actions.add_audience',
       trigger: 'append',
-      targetType: 'step-target-audience',
+      targetStepId: 'step-target-audience',
     },
   ],
 
-  steps: [
+  stepDefinitions: [
     {
       id: 'step-genre',
       category: 'context',
       labelText: 'step.genre.label',
       instructionText: 'step.genre.instruction',
       isInitial: true,
-      content: {
+      editorConfig: {
         format: 'plain',
         placeholderText: 'step.genre.placeholder',
       },
@@ -51,7 +51,7 @@ export const template: NarrativeTemplate = {
       labelText: 'step.target_audience.label',
       instructionText: 'step.target_audience.instruction',
       isInitial: true,
-      content: {
+      editorConfig: {
         format: 'plain',
         placeholderText: 'step.target_audience.placeholder',
       },
@@ -66,7 +66,7 @@ export const template: NarrativeTemplate = {
       labelText: 'step.theme.label',
       instructionText: 'step.theme.instruction',
       isInitial: true,
-      content: {
+      editorConfig: {
         format: 'plain',
         placeholderText: 'step.theme.placeholder',
       },
@@ -81,7 +81,7 @@ export const template: NarrativeTemplate = {
       stage: 1,
       labelText: 'step.summary.label',
       instructionText: 'step.summary.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.summary.placeholder',
       },
@@ -102,7 +102,7 @@ export const template: NarrativeTemplate = {
       stage: 2,
       labelText: 'step.storyline.label',
       instructionText: 'step.storyline.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.storyline.placeholder',
       },
@@ -133,7 +133,7 @@ export const template: NarrativeTemplate = {
       stage: 3,
       labelText: 'step.char_summary.label',
       instructionText: 'step.char_summary.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.char_summary.placeholder',
       },
@@ -159,7 +159,7 @@ export const template: NarrativeTemplate = {
       stage: 3,
       labelText: 'step.plot_synopsis.label',
       instructionText: 'step.plot_synopsis.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.plot_synopsis.placeholder',
       },
@@ -188,7 +188,7 @@ export const template: NarrativeTemplate = {
       stage: 4,
       labelText: 'step.major_char.label',
       instructionText: 'step.major_char.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.major_char.placeholder',
       },
@@ -203,7 +203,7 @@ export const template: NarrativeTemplate = {
       stage: 4,
       labelText: 'step.minor_char.label',
       instructionText: 'step.minor_char.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.minor_char.placeholder',
       },
@@ -218,7 +218,7 @@ export const template: NarrativeTemplate = {
       stage: 4,
       labelText: 'step.detailed_synopsis.label',
       instructionText: 'step.detailed_synopsis.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.detailed_synopsis.placeholder',
       },
@@ -263,7 +263,7 @@ export const template: NarrativeTemplate = {
       stage: 5,
       labelText: 'step.char_chart.label',
       instructionText: 'step.char_chart.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.char_chart.placeholder',
       },
@@ -278,7 +278,7 @@ export const template: NarrativeTemplate = {
       stage: 5,
       labelText: 'step.scene_overview.label',
       instructionText: 'step.scene_overview.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.scene_overview.placeholder',
       },
@@ -312,7 +312,7 @@ export const template: NarrativeTemplate = {
       stage: 6,
       labelText: 'step.scene_expansion.label',
       instructionText: 'step.scene_expansion.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.scene_expansion.placeholder',
       },
@@ -333,7 +333,7 @@ export const template: NarrativeTemplate = {
       stage: 7,
       labelText: 'step.chapter.label',
       instructionText: 'step.chapter.instruction',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'step.chapter.placeholder',
       },

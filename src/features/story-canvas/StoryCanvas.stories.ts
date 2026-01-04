@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { expect } from 'storybook/test'
 import { strings } from '@/features/snowflake/strings'
-import type { NarrativeTemplate } from '@/features/shared/storySpec'
+import type { ProcessTemplate } from '@/features/shared/processTemplateSpec'
 
 const meta = {
   component: StoryCanvas,
@@ -26,20 +26,20 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof StoryCanvas>
 
-const inlineTemplate: NarrativeTemplate = {
+const inlineTemplate: ProcessTemplate = {
   id: 'storybook-test-template',
   version: '1.0.0',
   nameText: 'storybook.template.name',
   descriptionText: 'storybook.template.description',
   rootActions: [],
-  steps: [
+  stepDefinitions: [
     {
       id: 'step-initial-idea',
       stage: 1,
       category: 'structure',
       labelText: 'Initial Idea',
       instructionText: 'Write your initial idea here.',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: "What's your big idea?",
       },
@@ -54,7 +54,7 @@ const inlineTemplate: NarrativeTemplate = {
       category: 'structure',
       labelText: 'Character Development',
       instructionText: 'Develop your characters.',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'Who are your characters?',
       },
@@ -69,7 +69,7 @@ const inlineTemplate: NarrativeTemplate = {
       category: 'structure',
       labelText: 'Plot Outline',
       instructionText: 'Outline your plot.',
-      content: {
+      editorConfig: {
         format: 'rich',
         placeholderText: 'What happens in your story?',
       },

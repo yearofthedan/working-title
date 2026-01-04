@@ -57,15 +57,15 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
-import type { Project } from '@features/shared/dataSpec'
-import type { NarrativeTemplate } from '@features/shared/storySpec'
+import type { ProjectData } from '@/features/shared/projectDataSpec'
+import type { ProcessTemplate } from '@/features/shared/processTemplateSpec'
 import { shallowRef, watchEffect } from 'vue'
 import { mapProjectToViewModel } from '@features/story-canvas/model/viewModelMapper'
 import type { SidebarNode } from '@features/story-canvas/types'
 
 const props = defineProps<{
-  data: Project
-  template: NarrativeTemplate
+  data: ProjectData
+  template: ProcessTemplate
   strings: Record<string, unknown>
 }>()
 

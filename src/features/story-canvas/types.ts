@@ -6,9 +6,9 @@ export interface SidebarNode {
   content: string
 }
 
-export interface ViewModel {
+export interface ViewModel<NodeData> {
   canvas: {
-    nodes: Node[]
+    nodes: Node<NodeData>[]
     edges: Edge[]
   }
   sidebar: {
