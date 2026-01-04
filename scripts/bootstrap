@@ -1,0 +1,13 @@
+#!/bin/bash
+# Bootstraps the project by installing dependencies and Playwright browsers. Usage: ./do bootstrap
+
+. "$(dirname "$0")"/_common
+PROJECT_ROOT=$(dirname "$0")/..
+
+echo -e "${INFO_COLOR}Bootstrapping project...${RESET_COLOR}"
+
+"$PROJECT_ROOT/do" install
+"$PROJECT_ROOT/do" playwright-install
+
+echo -e "${SUCCESS_COLOR}Bootstrap complete! Run './do dev' to start development.${RESET_COLOR}"
+

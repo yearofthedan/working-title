@@ -1,5 +1,14 @@
 import type { Preview } from '@storybook/vue3-vite'
-import '../src/tailwind.css' // ← ADD THIS
+import '../src/tailwind.css'
+import { useDark } from '@vueuse/core'
+
+useDark({
+  selector: 'html',
+  attribute: 'data-theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+})
+
 
 const preview: Preview = {
   parameters: {
