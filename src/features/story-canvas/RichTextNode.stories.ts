@@ -25,6 +25,7 @@ type Story = StoryObj<typeof RichTextNode>
 export const Default: Story = {
   args: {
     data: {
+      category: 'structure',
       label: 'Rich Text Node',
       content: '<p>This is a <strong>Rich Text Node</strong>.</p>',
     },

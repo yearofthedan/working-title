@@ -1,6 +1,6 @@
-import type { Project } from '@features/shared/dataSpec'
+import type { ProjectData } from '@/features/shared/projectDataSpec'
 
-export const fullSampleData: Project = {
+export const fullSampleData: ProjectData = {
   schemaVersion: '1.0.0',
   projectId: 'proj_1984_complete',
   templateId: 'snowflake-method-v1',

@@ -31,7 +31,7 @@ export interface Connection {
   target: string
 }
 
-export interface Project {
+export interface ProjectData {
   schemaVersion: string
   projectId: string
   templateId: string

@@ -1,6 +1,10 @@
 import type { Node } from '@vue-flow/core'
-import type { Project, Step, Connection } from '@features/shared/dataSpec'
-import type { NarrativeTemplate, StepCategory, StepDefinition } from '@features/shared/storySpec'
+import type { ProjectData, Step, Connection } from '@/features/shared/projectDataSpec'
+import type {
+  ProcessTemplate,
+  StepCategory,
+  StepDefinition,
+} from '@/features/shared/processTemplateSpec'
 import { getValueAtPath } from '@/utils/objects'
 import { runLayout } from '@/features/shared/layout/elk'
 import {
@@ -26,7 +30,7 @@ const mapToSidebar = (
   steps: Step[],
   stepDefinitionMap: Map<string, StepDefinition>,
   strings: Record<string, unknown>
-): ViewModel['sidebar'] => {
+): ViewModel<NodeData>['sidebar'] => {
   return {
     nodes: steps.map((step) => {
       const stepDfn = stepDefinitionMap.get(step.stepId)
@@ -48,16 +52,16 @@ const toCanvasNode = (
   const label = stepDefinition
     ? (getValueAtPath(strings, stepDefinition.labelText) as string)
     : step.stepId
-  const stage = stepDefinition?.stage ?? 0
+  const stage = stepDefinition?.stage
 
   return {
     id: step.id,
     width: NODE_WIDTH,
     height: getEstimatedNodeHeight(step.content.text),
-    type: stepDefinition?.content.format === 'plain' ? 'plainText' : 'richText',
-    spec: {
+    stepData: {
       stepId: step.stepId,
       stage,
+      type: stepDefinition?.editorConfig?.format === 'plain' ? 'plainText' : 'richText',
       category: stepDefinition?.category as StepCategory,
       content: step.content.text,
       label,
@@ -70,13 +74,14 @@ const toVueFlowNode = (
   position: { x: number; y: number }
 ): Node<NodeData> => ({
   id: canvasNode.id,
-  type: canvasNode.type,
+  type: canvasNode.stepData.type,
   position,
   data: {
-    label: canvasNode.spec.label,
-    content: canvasNode.spec.content,
-    stepId: canvasNode.spec.stepId,
-    stage: canvasNode.spec.stage,
+    label: canvasNode.stepData.label,
+    content: canvasNode.stepData.content,
+    category: canvasNode.stepData.category,
+    stepId: canvasNode.stepData.stepId,
+    stage: canvasNode.stepData.stage,
   },
 })
 
@@ -90,9 +95,9 @@ const mapToCanvas = async (
   steps: Step[],
   connections: Connection[],
   stepDefinitionMap: Map<string, StepDefinition>,
-  template: NarrativeTemplate,
+  template: ProcessTemplate,
   strings: Record<string, unknown>
-): Promise<ViewModel['canvas']> => {
+): Promise<ViewModel<NodeData>['canvas']> => {
   const canvasNodes = steps.map(
     (n: Step): CanvasNode => toCanvasNode(n, stepDefinitionMap, strings)
   )
@@ -115,10 +120,10 @@ const mapToCanvas = async (
   const positions = await runLayout(tracks, {
     layerSelector: (node: CanvasNode) => nodeLayers.get(node.id)!,
     nodeComparator: (a, b) => {
-      const stageDiff = a.spec.stage - b.spec.stage
+      const stageDiff = (a.stepData.stage ?? 0) - (b.stepData.stage ?? 0)
       if (stageDiff !== 0) return stageDiff
 
-      return stepOrder.indexOf(a.spec.stepId) - stepOrder.indexOf(b.spec.stepId)
+      return stepOrder.indexOf(a.stepData.stepId) - stepOrder.indexOf(b.stepData.stepId)
     },
   })
 
@@ -132,11 +137,11 @@ const mapToCanvas = async (
 }
 
 export const mapProjectToViewModel = async (
-  projectData: Project,
-  template: NarrativeTemplate,
+  projectData: ProjectData,
+  template: ProcessTemplate,
   strings: Record<string, unknown>
-): Promise<ViewModel> => {
-  const stepDefinitionMap = new Map(template.steps.map((s) => [s.id, s]))
+): Promise<ViewModel<NodeData>> => {
+  const stepDefinitionMap = new Map(template.stepDefinitions.map((s) => [s.id, s]))
   const validSteps = projectData.steps.filter((s) => stepDefinitionMap.has(s.stepId))
   const canvasSteps = validSteps.filter((s) =>
     stepDefinitionMap.get(s.stepId)?.ui.visibility.includes('canvas')

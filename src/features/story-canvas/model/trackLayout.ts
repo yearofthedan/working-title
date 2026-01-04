@@ -1,9 +1,10 @@
 import type { LayoutTrack } from '@/features/shared/layout/types'
-import type { StepCategory } from '@/features/shared/storySpec'
+import type { StepCategory } from '@/features/shared/processTemplateSpec'
 
 export interface NodeData {
   label: string
   content: string
+  category: StepCategory
   stepId?: string
   stage?: number
 }
@@ -14,18 +15,18 @@ export interface CanvasEdge {
   target: string
 }
 
-export interface CanvasNodeSpec {
+export interface CanvasStepData {
   stepId: string
-  stage: number
+  stage?: number
+  type: 'plainText' | 'richText'
   category: StepCategory
   content: string
   label: string
 }
 
 export interface CanvasNode {
-  type: string
-  spec: CanvasNodeSpec
   id: string
+  stepData: CanvasStepData
   width: number
   height: number
 }
@@ -43,7 +44,7 @@ const buildAdjacencyList = (edges: CanvasEdge[]): Map<string, string[]> => {
 const groupNodesByStepId = (nodes: CanvasNode[]): Map<string, CanvasNode[]> => {
   const map = new Map<string, CanvasNode[]>()
   nodes.forEach((n) => {
-    const stepId = n.spec.stepId
+    const stepId = n.stepData.stepId
     const existing = map.get(stepId) ?? []
     existing.push(n)
     map.set(stepId, existing)
@@ -147,10 +148,10 @@ const calculateNodeLayers = (
 
   trackInputs.forEach((track) => {
     const trackOffset = trackOffsets[track.trackName] ?? 0
-    const minStage = Math.min(...track.nodes.map((n) => n.spec.stage))
+    const minStage = Math.min(...track.nodes.map((n) => n.stepData.stage ?? 0))
 
     track.nodes.forEach((node) => {
-      nodeLayers.set(node.id, trackOffset + (node.spec.stage - minStage))
+      nodeLayers.set(node.id, trackOffset + (node.stepData.stage ?? 0 - minStage))
     })
   })
 

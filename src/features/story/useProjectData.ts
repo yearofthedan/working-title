@@ -1,10 +1,10 @@
 import { ref } from 'vue'
-import type { Project } from '@features/shared/dataSpec'
+import type { ProjectData } from '@/features/shared/projectDataSpec'
 import { now } from '@/utils/dates'
 import { strings } from '../snowflake/strings'
 import { template } from '../snowflake/template'
 
-const createNewProject = (): Project => {
+const createNewProject = (): ProjectData => {
   const created = now()
   return {
     schemaVersion: '1.0.0',
@@ -22,6 +22,6 @@ const createNewProject = (): Project => {
 }
 
 export const useProjectData = () => {
-  const projectData = ref<Project>(createNewProject())
+  const projectData = ref<ProjectData>(createNewProject())
   return { project: projectData, template: template, strings: strings }
 }
