@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/vue3-vite'
-import '../src/tailwind.css'
+import '../src/styles/main.css'
 import { useDark } from '@vueuse/core'
 
 useDark({

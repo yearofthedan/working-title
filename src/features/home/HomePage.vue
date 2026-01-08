@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-paper flex-stack-center p-6 transition-colors duration-300">
+  <div class="min-h-screen bg-paper flex-y-center p-6 transition-colors duration-300">
     <header class="mb-12 text-center">
       <h1 class="text-4xl font-serif tracking-tight text-ink mb-2 italic">Working Title</h1>
       <p class="text-[10px] text-ink/40 uppercase tracking-[0.3em]">Manuscript Environment</p>
@@ -9,7 +9,7 @@
       <!-- Demo Link -->
       <RouterLink
         :to="{ name: RouteNames.Demo }"
-        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-stack-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
+        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-y-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
         aria-labelledby="label-demo"
       >
         <span
@@ -27,7 +27,7 @@
       <!-- New Project Link -->
       <RouterLink
         :to="{ name: RouteNames.Story }"
-        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-stack-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
+        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-y-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
         aria-labelledby="label-new"
       >
         <span
