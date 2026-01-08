@@ -50,7 +50,7 @@
       }
     }
   },
-
+  "onCreateCommand": "sudo chown -R node:node ${containerWorkspaceFolder}",
   "postCreateCommand": "./do bootstrap",
   "forwardPorts": [5173, 6006],
   "portsAttributes": {
@@ -63,11 +63,10 @@
       "onAutoForward": "notify"
     }
   },
-
   "remoteUser": "node",
-
   "mounts": [
-    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
+    "source=working-title-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
 
   "containerEnv": {
