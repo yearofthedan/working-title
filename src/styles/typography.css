@@ -1,0 +1,37 @@
+@theme {
+  --text-field-label: var(--text-xs);
+  --text-field-hint: var(--text-xs);
+  --text-field-input: var(--text-sm);
+
+  --font-weight-field-label: var(--font-weight-bold);
+  --letter-spacing-field-label: var(--tracking-widest);
+
+  --line-height-field-input: var(--leading-normal);
+}
+
+@layer components {
+  .label-text {
+    font-size: var(--text-field-label);
+    font-weight: var(--font-weight-field-label);
+    letter-spacing: var(--letter-spacing-field-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .hint-text {
+    font-size: var(--text-field-hint);
+    color: var(--color-ink-dim);
+  }
+
+  .error-text {
+    font-size: var(--text-field-hint);
+    color: var(--color-error);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .field-text {
+    font-size: var(--text-field-input);
+    line-height: var(--line-height-field-input);
+    color: var(--color-ink);
+  }
+}

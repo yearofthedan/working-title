@@ -1,0 +1,23 @@
+@utility flex-h {
+  display: flex;
+  flex-direction: row;
+}
+
+@utility flex-h-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+@utility flex-y {
+  display: flex;
+  flex-direction: column;
+}
+
+@utility flex-y-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
