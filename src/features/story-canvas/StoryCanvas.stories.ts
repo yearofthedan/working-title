@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { expect } from 'storybook/test'
 import { strings } from '@/features/snowflake/strings'
-import type { ProcessTemplate } from '@/features/shared/processTemplateSpec'
+import type { ProcessTemplate } from '@/specs/processTemplateSpec'
 
 const meta = {
   component: StoryCanvas,
@@ -80,13 +80,10 @@ const inlineTemplate: ProcessTemplate = {
     },
   ],
   ui: {
-    tracks: {
-      main: ['step-initial-idea'],
-      characters: ['step-character-development'],
-    },
-    trackOffsets: {
-      characters: 1,
-    },
+    tracks: [
+      { id: 'main', rootStepIds: ['step-initial-idea'] },
+      { id: 'characters', rootStepIds: ['step-character-development'], layerOffset: 1 },
+    ],
   },
 }
 

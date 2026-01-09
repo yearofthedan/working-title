@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
 import { expect } from 'storybook/test'
+import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
+import { createCanvasNode } from '@/features/story-canvas/composables/__testHelpers__/builders'
 
-const meta: Meta<typeof RichTextNode> = {
-  component: RichTextNode,
+const meta: Meta<ComponentExposed<typeof RichTextNode<CanvasNode>>> = {
+  component: RichTextNode as ComponentExposed<typeof RichTextNode<CanvasNode>>,
   tags: ['autodocs'],
   argTypes: {
     data: { control: 'object' },
@@ -24,11 +27,11 @@ type Story = StoryObj<typeof RichTextNode>
 
 export const Default: Story = {
   args: {
-    data: {
+    data: createCanvasNode({
       category: 'structure',
       label: 'Rich Text Node',
       content: '<p>This is a <strong>Rich Text Node</strong>.</p>',
-    },
+    }),
   },
   play: async ({ canvas, step, userEvent }) => {
     const editor = await canvas.findByRole('textbox')

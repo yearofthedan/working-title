@@ -1,8 +1,9 @@
 /**
- * PROCESS TEMPLATE SPECIFICATION (v1.0)
+ * PROCESS TEMPLATE SPECIFICATION (v0.1)
  * * This file defines the schema for any process template (Snowflake, Hero's Journey, etc.)
  * that runs on the Narrative Engine.
  */
+type i18nKey = string
 
 export interface ProcessTemplate {
   /** Unique identifier for the template (e.g., 'snowflake-v1') */
@@ -10,9 +11,9 @@ export interface ProcessTemplate {
   /** Template version */
   version: string
   /** i18n key for the display name */
-  nameText: string
+  nameText: i18nKey
   /** i18n key for the description */
-  descriptionText: string
+  descriptionText: i18nKey
 
   /**
    * The entry points for the template. These are the actions available when the project is empty.
@@ -25,15 +26,23 @@ export interface ProcessTemplate {
   stepDefinitions: StepDefinition[]
 
   ui?: {
-    /** Map of track IDs to ordered step IDs for spatial organization (e.g. columns). */
-    tracks?: Record<string, string[]>
-    /** Layer offset per track. Nodes in a track have this added to their stage. */
-    trackOffsets?: Record<string, number>
+    /** Ordered list of tracks from left to right */
+    tracks?: TrackDefinition[]
   }
+}
+export interface TrackDefinition {
+  /** Unique ID for the track category (e.g., 'main', 'characters') */
+  id: string
+  /** The step types that act as roots for this track */
+  rootStepIds: string[]
+  /** Vertical offset for this track's layers */
+  layerOffset?: number
+  /** Optional: Display name for the track header in the UI */
+  labelText?: i18nKey
 }
 
 export interface RootAction {
-  labelText: string
+  labelText: i18nKey
   trigger: 'append'
   targetStepId: string // Must match the id of a step in the 'steps' record
 }
@@ -49,9 +58,9 @@ export interface StepDefinition {
   stage?: number
 
   /** i18n key for the node title */
-  labelText: string
+  labelText: i18nKey
   /** i18n key for the sidebar help text */
-  instructionText: string
+  instructionText: i18nKey
 
   /**
    * If true, this node is created automatically when a new project starts.
@@ -80,7 +89,7 @@ export interface EditorConfig {
   /** Determines which editor component to render */
   format: 'plain' | 'rich'
   /** i18n key for the empty state text */
-  placeholderText: string
+  placeholderText: i18nKey
 }
 
 export interface ValidationRule {
@@ -88,12 +97,12 @@ export interface ValidationRule {
   /** The specific type of node looked for */
   targetType: string
   severity: 'warning' | 'error'
-  messageText: string
+  messageText: i18nKey
 }
 
 export interface StepAction {
   /** i18n key for the button label */
-  labelText: string
+  labelText: i18nKey
 
   /** * The mechanism of the action:
    * - 'append': Adds a new child node (One-to-Many).

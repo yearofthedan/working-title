@@ -11,16 +11,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends CanvasNode">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch, onBeforeUnmount } from 'vue'
-import type { NodeData } from '@/features/story-canvas/model/trackLayout'
+import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
 
 const props = defineProps<{
-  data: NodeData
+  data: T
 }>()
-
 const emit = defineEmits<{
   (e: 'update:content', content: string): void
 }>()

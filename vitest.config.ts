@@ -19,8 +19,13 @@ export default mergeConfig(
           extends: true,
           test: {
             name: 'unit',
+            browser: {
+              enabled: true,
+              provider: playwright({}),
+              headless: true,
+              instances: [{ browser: 'chromium' }],
+            },
             include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
-            environment: 'node',
           },
         },
         {

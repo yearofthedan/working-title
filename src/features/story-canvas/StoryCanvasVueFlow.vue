@@ -1,14 +1,19 @@
 <template>
-  <div class="grow relative bg-background">
+  <div v-show="hasInitialLayout" class="grow relative bg-background">
     <VueFlow :nodes="nodes" :edges="edges" :apply-default="false">
       <template #node-richText="{ id, data: nodeData }">
         <RichTextNode
+          :ref="(el: any) => registerNode(id, el?.$el || el)"
           :data="nodeData"
           @update:content="(content) => updateNodeContent(id, content)"
         />
       </template>
       <template #node-plainText="{ id, data: nodeData }">
-        <RichTextNode :data="nodeData" @update:content="(c) => updateNodeContent(id, c)" />
+        <RichTextNode
+          :ref="(el: any) => registerNode(id, el?.$el || el)"
+          :data="nodeData"
+          @update:content="(content) => updateNodeContent(id, content)"
+        />
       </template>
       <Background />
       <Controls class="border border-edge bg-paper fill-ink" />
@@ -17,26 +22,32 @@
   </div>
 </template>
 <script setup lang="ts">
-import { VueFlow, type Node, type Edge } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
+import { toRef } from 'vue'
+import { VueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
+import { Background } from '@vue-flow/background'
+import { useLayout } from '@/features/story-canvas/composables/useLayout'
+import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
+import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
 
-const nodes = defineModel<Node[]>('nodes', { required: true })
-const edges = defineModel<Edge[]>('edges', { required: true })
+const props = defineProps<{
+  tracks: TracksViewModel
+}>()
 
 const emit = defineEmits<{
   (e: 'update:nodeContent', payload: { id: string; content: string }): void
 }>()
 
-const updateNodeContent = (nodeId: string, content: string) => {
-  const node = nodes.value.find((n) => n.id === nodeId)
-  if (node?.data) {
-    node.data.content = content
-  }
+const { dimensions, registerNode } = useNodeSizeObserver()
+const { nodes, edges, hasInitialLayout } = useLayout(
+  toRef(() => props.tracks),
+  dimensions
+)
 
-  emit('update:nodeContent', { id: nodeId, content })
+const updateNodeContent = (id: string, content: string) => {
+  emit('update:nodeContent', { id, content })
 }
 </script>
 

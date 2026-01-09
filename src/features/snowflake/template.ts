@@ -1,4 +1,4 @@
-import type { ProcessTemplate } from '@/features/shared/processTemplateSpec'
+import type { ProcessTemplate } from '@/specs/processTemplateSpec'
 
 export const template: ProcessTemplate = {
   id: 'snowflake-method-v1',
@@ -345,12 +345,9 @@ export const template: ProcessTemplate = {
   ],
 
   ui: {
-    tracks: {
-      main: ['step-summary'],
-      characters: ['step-char-summary', 'step-minor-char'],
-    },
-    trackOffsets: {
-      characters: 1,
-    },
+    tracks: [
+      { id: 'main', rootStepIds: ['step-summary'] },
+      { id: 'characters', rootStepIds: ['step-char-summary', 'step-minor-char'], layerOffset: 1 },
+    ],
   },
 }
