@@ -17,6 +17,7 @@ dist-ssr
 coverage/
 storybook-static/
 *.local
+__screenshots__/
 
 # Editor directories and files
 .vscode/*

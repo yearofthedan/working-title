@@ -1,4 +1,4 @@
-import type { ProjectData } from '@/features/shared/projectDataSpec'
+import type { ProjectData } from '@/specs/projectDataSpec'
 
 export const fullSampleData: ProjectData = {
   schemaVersion: '1.0.0',

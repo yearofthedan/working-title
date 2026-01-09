@@ -76,7 +76,7 @@ export const WithLabel: Story = {
 export const WithPlaceholder: Story = {
   args: {
     ...Default.args,
-    modelValue: undefined,
+    modelValue: '',
     label: 'With Placeholder',
     placeholder: 'Write your thoughts here...',
   },

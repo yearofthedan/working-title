@@ -9,7 +9,6 @@ useDark({
   valueLight: 'light',
 })
 
-
 const preview: Preview = {
   parameters: {
     controls: {

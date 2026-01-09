@@ -1,5 +1,5 @@
-import type { ProjectData, Step, Connection } from '@/features/shared/projectDataSpec'
-import type { ProcessTemplate, StepDefinition } from '@/features/shared/processTemplateSpec'
+import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
+import type { ProcessTemplate, StepDefinition, TrackDefinition } from '@/specs/processTemplateSpec'
 
 export const createStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
@@ -51,5 +51,16 @@ export const createProcessTemplate = (
   descriptionText: 'test.description',
   rootActions: [],
   stepDefinitions: [],
+  ui: { tracks: [] },
+  ...overrides,
+})
+
+export const createTrackDefinition = (
+  overrides: Partial<TrackDefinition> = {}
+): TrackDefinition => ({
+  id: 'track-1',
+  rootStepIds: ['step-1'],
+  layerOffset: 0,
+  labelText: 'test.track.label',
   ...overrides,
 })
