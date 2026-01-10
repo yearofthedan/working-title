@@ -1,7 +1,7 @@
 import { shallowRef, ref, watch, toValue, type Ref } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { type Node, type Edge } from '@vue-flow/core'
-import { runProcessLayout } from '@/features/story-canvas/utils/elk'
+import { calculateTrackedLayout } from '@/features/story-canvas/utils/elkLayoutAdapter'
 import type {
   CanvasNode,
   TracksViewModel,
@@ -12,25 +12,25 @@ const GHOST_HEIGHT = 150
 const LAYOUT_DEBOUNCE_TIME = 50
 
 export function useLayout(
-  tracksData: Ref<TracksViewModel | undefined>,
+  tracksData: Ref<TracksViewModel>,
   dimensions: Ref<Map<string, { w: number; h: number }>>
 ) {
   // Use shallowRef for performance—Vue Flow handles its own internal reactivity
-  const nodes = shallowRef<Node<CanvasNode>[]>([])
-  const edges = shallowRef<Edge[]>([])
+  const laidOutNodes = shallowRef<Node<CanvasNode>[]>([])
+  const laidOutEdges = shallowRef<Edge[]>([])
   const isLayoutRunning = ref(false)
   const hasInitialLayout = ref(false)
 
   const calculateLayout = useDebounceFn(async () => {
-    const data = toValue(tracksData)
+    const { tracks, edges } = toValue(tracksData)
     const dims = toValue(dimensions)
 
-    if (!data || data.tracks.length === 0) return
+    if (tracks.length === 0) return
 
     isLayoutRunning.value = true
     try {
-      const positions = await runProcessLayout(data, dims)
-      nodes.value = data.tracks.flatMap((track) =>
+      const positions = await calculateTrackedLayout(tracks, edges, dims)
+      laidOutNodes.value = tracks.flatMap((track) =>
         track.nodes.map((node) => ({
           id: node.id,
           type: node.type,
@@ -41,7 +41,7 @@ export function useLayout(
         }))
       )
 
-      edges.value = data.edges.map((e) => ({
+      laidOutEdges.value = edges.map((e) => ({
         id: e.id,
         source: e.source,
         target: e.target,
@@ -55,11 +55,13 @@ export function useLayout(
     }
   }, LAYOUT_DEBOUNCE_TIME)
 
-  watch([tracksData, dimensions], calculateLayout, { immediate: true })
+  watch([() => toValue(tracksData), () => toValue(dimensions)], () => calculateLayout(), {
+    immediate: true,
+  })
 
   return {
-    nodes,
-    edges,
+    nodes: laidOutNodes,
+    edges: laidOutEdges,
     isLayoutRunning,
     hasInitialLayout,
   }
