@@ -11,8 +11,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@features': path.resolve(__dirname, './src/features'),
-      '@shared': path.resolve(__dirname, './src/features/shared'),
-      '@common': path.resolve(__dirname, './src/common'),
+      '@specs': path.resolve(__dirname, './src/specs'),
     },
   },
   build: {
