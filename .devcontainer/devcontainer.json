@@ -1,14 +1,14 @@
 {
   "name": "Working Title Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
   "runArgs": ["--memory=4g", "--memory-swap=4g"],
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest",
       "ppa": true
     },
-    "ghcr.io/devcontainers-contrib/features/pnpm:2": {
-      "version": "10.26.2"
+    "ghcr.io/devcontainers-extra/features/pnpm:2": {
+      "version": "10.0.0"
     }
   },
 
@@ -19,7 +19,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "RooVeterinaryInc.roo-cline"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -51,7 +52,7 @@
     }
   },
   "onCreateCommand": "sudo chown -R node:node ${containerWorkspaceFolder}",
-  "postCreateCommand": "./do bootstrap",
+  "postCreateCommand": "./do bootstrap && ln -sfn .agents .roo && ln -sfn .agents .cursor",
   "forwardPorts": [5173, 6006],
   "portsAttributes": {
     "5173": {

@@ -1,0 +1,45 @@
+# Testing
+
+## Methodology
+
+The project uses a combination of unit, component, and interaction testing.
+
+### Tools
+
+- **Vitest**: Primary test runner for unit and component tests.
+- **Storybook**: Used for UI documentation and interaction testing via the `play` function.
+- **Playwright**: Used by Storybook and Vitest for browser-based testing.
+
+## Testing Patterns
+
+### Test Builders
+
+Use factory functions to create consistent test data for specs and view models.
+
+- **Location**: Look for `__testHelpers__/builders.ts` within features or specs.
+
+### Async Testing
+
+When testing reactive changes or layout calculations, use `vi.waitUntil` to wait for expected states.
+
+```typescript
+await vi.waitUntil(() => nodes.value.length > 0)
+```
+
+### Storybook Interaction Tests
+
+Use the Storybook `play` function to automate component interactions and verify behavior in the browser.
+
+```typescript
+play: async ({ canvas, step, userEvent }) => {
+  await step('Example step', async () => {
+    const element = await canvas.findByRole('textbox')
+    await userEvent.type(element, 'Test content')
+    await expect(element).toHaveValue('Test content')
+  })
+}
+```
+
+### Accessibility (a11y)
+
+Ensure components are accessible. Storybook is configured with `addon-a11y` for automated checks.
