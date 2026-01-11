@@ -34,3 +34,7 @@ __screenshots__/
 .env
 .env.local
 .env.*.local
+
+# AI Agent symlinks (created by devcontainer)
+.roo
+.cursor
