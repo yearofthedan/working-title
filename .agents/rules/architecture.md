@@ -21,7 +21,7 @@ Use aliases to keep imports clean and readable:
 
 - `@/*` -> `src/*`
 - `@features/*` -> `src/features/*`
-- `@shared/*` -> `src/specs/*` (Note: points to specs, not features/shared)
+- `@specs/*` -> `src/specs/*`
 - `@common/*` -> configured for `src/common/*` but directory is deprecated; use `@/utils/*` instead.
 
 **CAUTION**: Always verify path aliases in `tsconfig.app.json` and `vite.config.ts` before using as some mappings may be inconsistent.

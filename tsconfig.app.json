@@ -12,8 +12,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@features/*": ["src/features/*"],
-      "@shared/*": ["src/specs/*"],
-      "@common/*": ["src/common/*"]
+      "@specs/*": ["src/specs/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]

@@ -38,3 +38,6 @@ __screenshots__/
 # AI Agent symlinks (created by devcontainer)
 .roo
 .cursor
+
+# AI planning and scratchpad
+plans/
