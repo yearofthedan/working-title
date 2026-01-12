@@ -1,31 +1,42 @@
 # AI Agent Context & Rules
 
 This project uses a universal Context Engineering system to provide consistent
-guidance to AI assistants like Roo, Cursor, and others.
+guidance to AI assistants like Roo and others.
 
 ## 📂 Structure
 
 All agent context lives in the `.agents/` directory:
 
-- **[Tech Stack](.agents/rules/tech-stack.md)** - Vue 3, TypeScript, pnpm, Vite
+### Common Rules (All Modes)
+
 - **[Architecture](.agents/rules/architecture.md)** - Feature isolation, patterns, structure
-- **[Code Style](.agents/rules/code-style.md)** - Vue conventions, naming, templates
-- **[Domain](.agents/rules/domain.md)** - Product context and domain terminology
-- **[Styling](.agents/rules/styling.md)** - Tailwind CSS v4 and theming
-- **[Testing](.agents/rules/testing.md)** - Vitest and Storybook patterns
-- **[Advanced Patterns](.agents/rules/advanced-patterns.md)** - Specialized Vue and architectural patterns
-- **[Behaviours](.agents/rules/behaviours.md)** - Agent behavioral guidelines
 - **[Budget](.agents/rules/budget.md)** - Resource usage limits
+- **[Domain](.agents/rules/domain.md)** - Product context and domain terminology
+- **[Tech Stack](.agents/rules/tech-stack.md)** - Vue 3, TypeScript, pnpm, Vite
+
+### Code-Specific Rules (Code & Debug Modes)
+
+- **[Contributing](.agents/rules-code/contributing.md)** - General advice for making changes
+- **[Code Style](.agents/rules-code/code-style.md)** - Vue conventions, naming, TypeScript patterns
+- **[Testing](.agents/rules-code/testing.md)** - Vitest and Storybook patterns
+- **[Styling](.agents/rules-code/styling.md)** - Tailwind CSS v4 and theming
 
 ## 🔗 Tool Integration
 
-- `.roo/` → Symlink to `.agents/` for Roo
-- `.cursor/` → Symlink to `.agents/` for Cursor
+- `.roo/rules/` → Symlink to `.agents/rules/` (loaded by all modes)
+- `.roo/rules-code/` → Symlink to `.agents/rules-code/` (loaded by Code mode)
+- `.roo/rules-debug/` → Symlink to `.agents/rules-code/` (loaded by Debug mode; shares rules with Code mode)
 - Direct access via `.agents/` for all other tools
 
 ## 🚀 Quick Start for AI Assistants
 
+### All Modes
 1. Read this file first for navigation
-2. Review [behaviours.md](.agents/rules/behaviours.md) for core principles
-3. Check [tech-stack.md](.agents/rules/tech-stack.md) for technology constraints
-4. Reference other files as needed for specific guidance
+2. Check [domain.md](.agents/rules/domain.md) for business context
+3. Review [architecture.md](.agents/rules/architecture.md) for structure and patterns
+4. Check [tech-stack.md](.agents/rules/tech-stack.md) for technology constraints
+
+### Code & Debug Modes (Additional)
+5. Review [Contributing](.agents/rules-code/contributing.md) for advice for making changes
+6. Review [code-style.md](.agents/rules-code/code-style.md) for implementation standards
+7. Reference [testing.md](.agents/rules-code/testing.md) and [styling.md](.agents/rules-code/styling.md) as needed

@@ -12,6 +12,38 @@ The project uses a combination of unit, component, and interaction testing.
 
 ## Testing Patterns
 
+### Test Structure Conventions
+
+Organize test suites with a consistent hierarchy:
+
+```typescript
+describe('filename', () => {
+  describe('methodName', () => {
+    it('does something specific', () => {
+      // test implementation
+    })
+
+    describe('logical grouping', () => {
+      it('handles edge case A', () => {
+        // test implementation
+      })
+
+      it('handles edge case B', () => {
+        // test implementation
+      })
+    })
+  })
+})
+```
+
+**Structure**:
+
+1. **Outer `describe`**: File or module name (e.g., `'graphs'`, `'useLayout'`)
+2. **Method `describe`**: Function or method being tested (e.g., `'partitionNodesByRoot'`)
+3. **Logical group `describe`** (optional): Group related test cases when needed
+4. **`it` statements**: Individual test cases with clear descriptions
+
+
 ### Test Builders
 
 Use factory functions to create consistent test data for specs and view models.
