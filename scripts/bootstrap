@@ -8,6 +8,7 @@ echo -e "${INFO_COLOR}Bootstrapping project...${RESET_COLOR}"
 
 "$PROJECT_ROOT/do" install
 "$PROJECT_ROOT/do" playwright-install
+"$PROJECT_ROOT/do" setup-agent-links
 
 echo -e "${SUCCESS_COLOR}Bootstrap complete! Run './do dev' to start development.${RESET_COLOR}"
 

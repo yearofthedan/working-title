@@ -52,7 +52,7 @@
     }
   },
   "onCreateCommand": "sudo chown -R node:node ${containerWorkspaceFolder}",
-  "postCreateCommand": "./do bootstrap && ln -sfn .agents .roo && ln -sfn .agents .cursor",
+  "postCreateCommand": "./do bootstrap",
   "forwardPorts": [5173, 6006],
   "portsAttributes": {
     "5173": {

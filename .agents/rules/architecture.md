@@ -15,13 +15,24 @@ We want to promote high cohesion and low coupling. Therefore we treat features a
 - **No Cross-Feature Imports**: A feature (e.g., `snowflake`) should RARELY import from the internals of another feature (e.g., `canvas`) and only ever from the root level.
 - **Shared only**: If logic or a component is needed by multiple features, it should be moved to `src/features/common/` or `src/utils/`.
 
-## Path Aliases
-
-Use aliases to keep imports clean and readable:
-
-- `@/*` -> `src/*`
-- `@features/*` -> `src/features/*`
-- `@specs/*` -> `src/specs/*`
-- `@common/*` -> configured for `src/common/*` but directory is deprecated; use `@/utils/*` instead.
-
 **CAUTION**: Always verify path aliases in `tsconfig.app.json` and `vite.config.ts` before using as some mappings may be inconsistent.
+
+## Architectural Patterns
+
+### View Model Pattern
+
+Separate data transformation logic from components by creating dedicated view models. This keeps components focused on rendering and user interaction.
+
+- **Location**: Typically found in feature-specific `composables/`.
+- **Purpose**: Transform raw project data into view-specific models
+- **Example**: Canvas (Steps → Graph nodes) vs Sidebar (Steps → Ordered list)
+
+See [`src/features/story-canvas/composables/useProjectViewModel.ts`](../../src/features/story-canvas/composables/useProjectViewModel.ts)
+
+### Specification Pattern
+
+Use dedicated spec files to define data shapes and contracts used across the application.
+
+- **Location**: `src/specs/`
+- **Purpose**: Define type specifications and data contracts
+- **Examples**: `projectDataSpec.ts`, `processTemplateSpec.ts`
