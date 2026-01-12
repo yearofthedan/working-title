@@ -15,18 +15,6 @@ export const createConnection = (overrides: Partial<Connection> = {}): Connectio
   ...overrides,
 })
 
-export const createStepDefinition = (overrides: Partial<StepDefinition> = {}): StepDefinition => ({
-  id: 'premise',
-  category: 'structure',
-  stage: 1,
-  labelText: 'step.premise.label',
-  instructionText: 'step.premise.instruction',
-  editorConfig: { format: 'rich', placeholderText: 'step.premise.placeholder' },
-  ui: { visibility: ['canvas'] },
-  actions: [],
-  ...overrides,
-})
-
 export const createProjectData = (overrides: Partial<ProjectData> = {}): ProjectData => ({
   schemaVersion: '1.0',
   projectId: 'proj-1',
@@ -37,8 +25,20 @@ export const createProjectData = (overrides: Partial<ProjectData> = {}): Project
     created: '2024-01-01',
     lastModified: '2024-01-01',
   },
-  steps: [],
+  steps: [createStep()],
   connections: [],
+  ...overrides,
+})
+
+export const createStepDefinition = (overrides: Partial<StepDefinition> = {}): StepDefinition => ({
+  id: 'premise',
+  category: 'structure',
+  stage: 1,
+  labelText: 'step.premise.label',
+  instructionText: 'step.premise.instruction',
+  editorConfig: { format: 'rich', placeholderText: 'step.premise.placeholder' },
+  ui: { visibility: ['canvas'] },
+  actions: [],
   ...overrides,
 })
 
