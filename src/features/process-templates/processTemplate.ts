@@ -3,7 +3,8 @@
  * * This file defines the schema for any process template (Snowflake, Hero's Journey, etc.)
  * that runs on the Narrative Engine.
  */
-type i18nKey = string
+
+import type { i18nKey, RootAction, StepAction } from './types'
 
 export interface ProcessTemplate {
   /** Unique identifier for the template (e.g., 'snowflake-v1') */
@@ -39,12 +40,6 @@ export interface TrackDefinition {
   layerOffset?: number
   /** Optional: Display name for the track header in the UI */
   labelText?: i18nKey
-}
-
-export interface RootAction {
-  labelText: i18nKey
-  trigger: 'append'
-  targetStepId: string // Must match the id of a step in the 'steps' record
 }
 
 export interface StepDefinition {
@@ -98,25 +93,4 @@ export interface ValidationRule {
   targetType: string
   severity: 'warning' | 'error'
   messageText: i18nKey
-}
-
-export interface StepAction {
-  /** i18n key for the button label */
-  labelText: i18nKey
-
-  /** * The mechanism of the action:
-   * - 'append': Adds a new child node (One-to-Many).
-   * - 'advance': Moves this node to the next stage (One-to-One).
-   * - 'connect': Draws a line to an existing node.
-   */
-  trigger: 'append' | 'advance' | 'connect'
-
-  /** The ID of the step definition to create or link to */
-  targetType: string
-
-  /** Metadata for UI behavior or constraints */
-  meta?: {
-    /** If true, this link is structural/mandatory */
-    required?: boolean
-  }
 }
