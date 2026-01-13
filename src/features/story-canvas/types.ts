@@ -4,6 +4,8 @@ export interface SidebarNode {
   id: string
   label: string
   content: string
+  placeholder?: string
+  instruction?: string
 }
 
 export interface ViewModel<NodeData> {
