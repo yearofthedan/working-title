@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import type { ProjectData } from '@/specs/projectDataSpec'
 import { now } from '@/utils/dates'
-import { strings } from '../snowflake/strings'
-import { template } from '../snowflake/template'
+import { strings } from '@/features/process-templates/snowflake/strings'
+import { template } from '@/features/process-templates/snowflake/template'
 
 const createNewProject = (): ProjectData => {
   const created = now()

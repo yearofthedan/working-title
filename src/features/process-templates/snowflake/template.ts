@@ -1,4 +1,4 @@
-import type { ProcessTemplate } from '@/specs/processTemplateSpec'
+import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 
 export const template: ProcessTemplate = {
   id: 'snowflake-method-v1',
@@ -8,24 +8,28 @@ export const template: ProcessTemplate = {
 
   rootActions: [
     {
+      id: 'root-action-add-summary',
       labelText: 'root.actions.create_summary',
       trigger: 'append',
-      targetStepId: 'step-summary',
+      targetType: 'step-summary',
     },
     {
+      id: 'root-action-add-genre',
       labelText: 'root.actions.add_genre',
       trigger: 'append',
-      targetStepId: 'step-genre',
+      targetType: 'step-genre',
     },
     {
+      id: 'root-action-add-theme',
       labelText: 'root.actions.add_theme',
       trigger: 'append',
-      targetStepId: 'step-theme',
+      targetType: 'step-theme',
     },
     {
+      id: 'root-action-add-audience',
       labelText: 'root.actions.add_audience',
       trigger: 'append',
-      targetStepId: 'step-target-audience',
+      targetType: 'step-target-audience',
     },
   ],
 
@@ -90,6 +94,7 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
+          id: 'step-action-expand-to-storyline',
           labelText: 'step.summary.actions.expand_to_storyline',
           trigger: 'advance',
           targetType: 'step-storyline',
@@ -111,16 +116,19 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
+          id: 'step-action-add-character',
           labelText: 'step.storyline.actions.add_character',
           trigger: 'append',
           targetType: 'step-char-summary',
         },
         {
+          id: 'step-action-add-minor-character',
           labelText: 'step.storyline.actions.add_minor_character',
           trigger: 'append',
           targetType: 'step-minor-char',
         },
         {
+          id: 'step-action-add-plot-synposis',
           labelText: 'step.storyline.actions.add_plot_synopsis',
           trigger: 'append',
           targetType: 'step-plot-synopsis',
@@ -142,11 +150,13 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
+          id: 'step-action-extend-to-char-deep-dive',
           labelText: 'step.char_summary.actions.deep_dive_major',
           trigger: 'advance',
           targetType: 'step-major-char',
         },
         {
+          id: 'step-action-extend-to-char-chart',
           labelText: 'step.char_summary.actions.create_char_chart',
           trigger: 'advance',
           targetType: 'step-char-chart',
@@ -168,14 +178,7 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
-          labelText: 'step.plot_synopsis.actions.link_pov_character',
-          trigger: 'connect',
-          targetType: 'step-char-summary',
-          meta: {
-            required: true,
-          },
-        },
-        {
+          id: 'step-action-extend-to-detailed-synopsis',
           labelText: 'step.plot_synopsis.actions.expand_detailed_synopsis',
           trigger: 'advance',
           targetType: 'step-detailed-synopsis',
@@ -235,22 +238,7 @@ export const template: ProcessTemplate = {
       ],
       actions: [
         {
-          labelText: 'step.detailed_synopsis.actions.link_major_char',
-          trigger: 'connect',
-          targetType: 'step-major-char',
-          meta: {
-            required: true,
-          },
-        },
-        {
-          labelText: 'step.detailed_synopsis.actions.link_minor_char',
-          trigger: 'connect',
-          targetType: 'step-minor-char',
-          meta: {
-            required: false,
-          },
-        },
-        {
+          id: 'step-action-extend-to-scene-overview',
           labelText: 'step.detailed_synopsis.actions.create_scene_overview',
           trigger: 'advance',
           targetType: 'step-scene-overview',
@@ -287,19 +275,13 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
-          labelText: 'step.scene_overview.actions.link_pov',
-          trigger: 'connect',
-          targetType: 'step-char-summary',
-          meta: {
-            required: true,
-          },
-        },
-        {
+          id: 'step-action-add-scene-expansion',
           labelText: 'step.scene_overview.actions.write_scene_expansion',
           trigger: 'append',
           targetType: 'step-scene-expansion',
         },
         {
+          id: 'step-action-add-chapter',
           labelText: 'step.scene_overview.actions.write_chapter',
           trigger: 'append',
           targetType: 'step-chapter',
@@ -321,6 +303,7 @@ export const template: ProcessTemplate = {
       },
       actions: [
         {
+          id: 'step-action-add-chapter',
           labelText: 'step.scene_expansion.actions.write_chapter',
           trigger: 'append',
           targetType: 'step-chapter',

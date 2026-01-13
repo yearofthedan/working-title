@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import type { ProjectData } from '@/specs/projectDataSpec'
-import type { ProcessTemplate } from '@/specs/processTemplateSpec'
+import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { toRef } from 'vue'
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
 import StoryCanvasVueFlow from '@/features/story-canvas/StoryCanvasVueFlow.vue'

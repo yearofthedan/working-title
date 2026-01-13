@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { expect } from 'storybook/test'
-import { strings } from '@/features/snowflake/strings'
-import type { ProcessTemplate } from '@/specs/processTemplateSpec'
-
+import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
+import { strings } from '@features/process-templates/snowflake/strings'
 const meta = {
   component: StoryCanvas,
   tags: ['autodocs'],

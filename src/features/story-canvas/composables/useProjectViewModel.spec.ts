@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest'
 import {
   createProjectData,
   createStep,
-  createProcessTemplate,
   createStepDefinition,
   createTrackDefinition,
 } from '../../../specs/__testHelpers__/builders'
 import { useProjectViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import { ref } from 'vue'
+import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
 
 describe('useProjectViewModel', () => {
   it('maps nodes to correct targets (canvas, sidebar, both)', () => {
@@ -21,7 +21,7 @@ describe('useProjectViewModel', () => {
       })
     )
     const template = ref(
-      createProcessTemplate({
+      buildProcessTemplate({
         stepDefinitions: [
           createStepDefinition({ id: 'canvas-only-step', ui: { visibility: ['canvas'] } }),
           createStepDefinition({ id: 'sidebar-only-step', ui: { visibility: ['sidebar'] } }),
@@ -52,7 +52,7 @@ describe('useProjectViewModel', () => {
           })
         )
         const template = ref(
-          createProcessTemplate({
+          buildProcessTemplate({
             stepDefinitions: [
               createStepDefinition({
                 id: 'p1',
@@ -80,7 +80,7 @@ describe('useProjectViewModel', () => {
           })
         )
         const template = ref(
-          createProcessTemplate({
+          buildProcessTemplate({
             stepDefinitions: [
               createStepDefinition({
                 id: 'plain-step',
@@ -102,7 +102,7 @@ describe('useProjectViewModel', () => {
           })
         )
         const template = ref(
-          createProcessTemplate({
+          buildProcessTemplate({
             stepDefinitions: [
               createStepDefinition({
                 id: 'rich-step',
@@ -124,7 +124,7 @@ describe('useProjectViewModel', () => {
           })
         )
         const template = ref(
-          createProcessTemplate({
+          buildProcessTemplate({
             stepDefinitions: [
               createStepDefinition({
                 id: 'premise',
@@ -148,7 +148,7 @@ describe('useProjectViewModel', () => {
           })
         )
         const template = ref(
-          createProcessTemplate({
+          buildProcessTemplate({
             stepDefinitions: [
               createStepDefinition({
                 id: 'premise',
@@ -176,7 +176,7 @@ describe('useProjectViewModel', () => {
       )
 
       const template = ref(
-        createProcessTemplate({
+        buildProcessTemplate({
           stepDefinitions: [
             createStepDefinition({ id: 'def-1', ui: { visibility: ['canvas'] } }),
             createStepDefinition({ id: 'def-2', ui: { visibility: ['canvas'] } }),
@@ -208,7 +208,7 @@ describe('useProjectViewModel', () => {
         })
       )
       const template = ref(
-        createProcessTemplate({
+        buildProcessTemplate({
           stepDefinitions: [
             createStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
             createStepDefinition({ id: 'char-backstory', ui: { visibility: ['canvas'] } }),
@@ -244,7 +244,7 @@ describe('useProjectViewModel', () => {
         })
       )
       const template = ref(
-        createProcessTemplate({
+        buildProcessTemplate({
           stepDefinitions: [
             createStepDefinition({ id: 'plot-point', ui: { visibility: ['canvas'] } }),
             createStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
@@ -280,7 +280,7 @@ describe('useProjectViewModel', () => {
         })
       )
       const template = ref(
-        createProcessTemplate({
+        buildProcessTemplate({
           stepDefinitions: [
             createStepDefinition({ id: 'main-step', ui: { visibility: ['canvas'] } }),
             createStepDefinition({ id: 'other-step', ui: { visibility: ['canvas'] } }),

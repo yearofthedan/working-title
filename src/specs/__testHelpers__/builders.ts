@@ -1,5 +1,9 @@
 import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
-import type { ProcessTemplate, StepDefinition, TrackDefinition } from '@/specs/processTemplateSpec'
+import type {
+  ProcessTemplate,
+  StepDefinition,
+  TrackDefinition,
+} from '@/features/process-templates/processTemplate'
 
 export const createStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
@@ -42,7 +46,7 @@ export const createStepDefinition = (overrides: Partial<StepDefinition> = {}): S
   ...overrides,
 })
 
-export const createProcessTemplate = (
+export const buildProcessTemplate = (
   overrides: Partial<ProcessTemplate> = {}
 ): ProcessTemplate => ({
   id: 'test-template',

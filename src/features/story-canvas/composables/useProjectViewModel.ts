@@ -5,7 +5,7 @@ import type {
   StepCategory,
   StepDefinition,
   TrackDefinition,
-} from '@/specs/processTemplateSpec'
+} from '@/features/process-templates/processTemplate'
 import { getValueAtPath } from '@/utils/objects'
 import type { SidebarNode } from '../types'
 import { partitionNodesByRoot } from '@/utils/graphs'
