@@ -1,13 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createProjectData,
-  createStep,
-  createStepDefinition,
-  createTrackDefinition,
-} from '../../../specs/__testHelpers__/builders'
+import { createProjectData, createStep } from '../../../specs/__testHelpers__/builders'
 import { useProjectViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import { ref } from 'vue'
-import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
+import {
+  buildProcessTemplate,
+  buildStepDefinition,
+  buildTrackDefinition,
+} from '@/features/process-templates/__testHelpers__/builders'
 
 describe('useProjectViewModel', () => {
   it('maps nodes to correct targets (canvas, sidebar, both)', () => {
@@ -23,9 +22,9 @@ describe('useProjectViewModel', () => {
     const template = ref(
       buildProcessTemplate({
         stepDefinitions: [
-          createStepDefinition({ id: 'canvas-only-step', ui: { visibility: ['canvas'] } }),
-          createStepDefinition({ id: 'sidebar-only-step', ui: { visibility: ['sidebar'] } }),
-          createStepDefinition({ id: 'both-step', ui: { visibility: ['canvas', 'sidebar'] } }),
+          buildStepDefinition({ id: 'canvas-only-step', ui: { visibility: ['canvas'] } }),
+          buildStepDefinition({ id: 'sidebar-only-step', ui: { visibility: ['sidebar'] } }),
+          buildStepDefinition({ id: 'both-step', ui: { visibility: ['canvas', 'sidebar'] } }),
         ],
       })
     )
@@ -54,7 +53,7 @@ describe('useProjectViewModel', () => {
         const template = ref(
           buildProcessTemplate({
             stepDefinitions: [
-              createStepDefinition({
+              buildStepDefinition({
                 id: 'p1',
                 category: 'structure',
                 stage: 5,
@@ -82,7 +81,7 @@ describe('useProjectViewModel', () => {
         const template = ref(
           buildProcessTemplate({
             stepDefinitions: [
-              createStepDefinition({
+              buildStepDefinition({
                 id: 'plain-step',
                 ui: { visibility: ['canvas'] },
                 editorConfig: { format: 'plain', placeholderText: 'placeholder' },
@@ -104,7 +103,7 @@ describe('useProjectViewModel', () => {
         const template = ref(
           buildProcessTemplate({
             stepDefinitions: [
-              createStepDefinition({
+              buildStepDefinition({
                 id: 'rich-step',
                 ui: { visibility: ['canvas'] },
                 editorConfig: { format: 'rich', placeholderText: 'placeholder' },
@@ -126,7 +125,7 @@ describe('useProjectViewModel', () => {
         const template = ref(
           buildProcessTemplate({
             stepDefinitions: [
-              createStepDefinition({
+              buildStepDefinition({
                 id: 'premise',
                 labelText: 'step.premise.label',
                 ui: { visibility: ['canvas'] },
@@ -150,7 +149,7 @@ describe('useProjectViewModel', () => {
         const template = ref(
           buildProcessTemplate({
             stepDefinitions: [
-              createStepDefinition({
+              buildStepDefinition({
                 id: 'premise',
                 labelText: 'step.missing.label',
                 ui: { visibility: ['canvas'] },
@@ -178,8 +177,8 @@ describe('useProjectViewModel', () => {
       const template = ref(
         buildProcessTemplate({
           stepDefinitions: [
-            createStepDefinition({ id: 'def-1', ui: { visibility: ['canvas'] } }),
-            createStepDefinition({ id: 'def-2', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'def-1', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'def-2', ui: { visibility: ['canvas'] } }),
           ],
         })
       )
@@ -210,13 +209,13 @@ describe('useProjectViewModel', () => {
       const template = ref(
         buildProcessTemplate({
           stepDefinitions: [
-            createStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
-            createStepDefinition({ id: 'char-backstory', ui: { visibility: ['canvas'] } }),
-            createStepDefinition({ id: 'char-detail', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'char-backstory', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'char-detail', ui: { visibility: ['canvas'] } }),
           ],
           ui: {
             tracks: [
-              createTrackDefinition({
+              buildTrackDefinition({
                 id: 'characters',
                 rootStepIds: ['char-summary', 'char-backstory'],
               }),
@@ -246,13 +245,13 @@ describe('useProjectViewModel', () => {
       const template = ref(
         buildProcessTemplate({
           stepDefinitions: [
-            createStepDefinition({ id: 'plot-point', ui: { visibility: ['canvas'] } }),
-            createStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'plot-point', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'char-summary', ui: { visibility: ['canvas'] } }),
           ],
           ui: {
             tracks: [
-              createTrackDefinition({ id: 'main', rootStepIds: ['plot-point'], layerOffset: 0 }),
-              createTrackDefinition({
+              buildTrackDefinition({ id: 'main', rootStepIds: ['plot-point'], layerOffset: 0 }),
+              buildTrackDefinition({
                 id: 'characters',
                 rootStepIds: ['char-summary'],
                 layerOffset: 2,
@@ -282,10 +281,10 @@ describe('useProjectViewModel', () => {
       const template = ref(
         buildProcessTemplate({
           stepDefinitions: [
-            createStepDefinition({ id: 'main-step', ui: { visibility: ['canvas'] } }),
-            createStepDefinition({ id: 'other-step', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'main-step', ui: { visibility: ['canvas'] } }),
+            buildStepDefinition({ id: 'other-step', ui: { visibility: ['canvas'] } }),
           ],
-          ui: { tracks: [createTrackDefinition({ id: 'main', rootStepIds: ['main-step'] })] },
+          ui: { tracks: [buildTrackDefinition({ id: 'main', rootStepIds: ['main-step'] })] },
         })
       )
 

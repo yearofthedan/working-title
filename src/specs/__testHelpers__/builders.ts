@@ -1,9 +1,4 @@
 import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
-import type {
-  ProcessTemplate,
-  StepDefinition,
-  TrackDefinition,
-} from '@/features/process-templates/processTemplate'
 
 export const createStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
@@ -31,40 +26,5 @@ export const createProjectData = (overrides: Partial<ProjectData> = {}): Project
   },
   steps: [createStep()],
   connections: [],
-  ...overrides,
-})
-
-export const createStepDefinition = (overrides: Partial<StepDefinition> = {}): StepDefinition => ({
-  id: 'premise',
-  category: 'structure',
-  stage: 1,
-  labelText: 'step.premise.label',
-  instructionText: 'step.premise.instruction',
-  editorConfig: { format: 'rich', placeholderText: 'step.premise.placeholder' },
-  ui: { visibility: ['canvas'] },
-  actions: [],
-  ...overrides,
-})
-
-export const buildProcessTemplate = (
-  overrides: Partial<ProcessTemplate> = {}
-): ProcessTemplate => ({
-  id: 'test-template',
-  version: '1.0',
-  nameText: 'test.name',
-  descriptionText: 'test.description',
-  rootActions: [],
-  stepDefinitions: [],
-  ui: { tracks: [] },
-  ...overrides,
-})
-
-export const createTrackDefinition = (
-  overrides: Partial<TrackDefinition> = {}
-): TrackDefinition => ({
-  id: 'track-1',
-  rootStepIds: ['step-1'],
-  layerOffset: 0,
-  labelText: 'test.track.label',
   ...overrides,
 })

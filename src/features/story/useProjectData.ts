@@ -1,27 +1,47 @@
 import { ref } from 'vue'
-import type { ProjectData } from '@/specs/projectDataSpec'
+import type { ProjectData, Step } from '@/specs/projectDataSpec'
 import { now } from '@/utils/dates'
 import { strings } from '@/features/process-templates/snowflake/strings'
 import { template } from '@/features/process-templates/snowflake/template'
+import { generateId } from '@/utils/ids'
+import { useProjectMutations } from './composables/useProjectMutations'
 
 const createNewProject = (): ProjectData => {
   const created = now()
+
+  const initialSteps: Step[] = template.stepDefinitions
+    .filter((def) => def.isInitial)
+    .map((def) => ({
+      id: generateId(),
+      stepId: def.id,
+      content: {
+        text: '',
+      },
+    }))
+
   return {
     schemaVersion: '1.0.0',
-    projectId: 'PLACE_HOLDER_PROJECT_ID',
-    templateId: 'snowflake-method-v1',
-    templateVersion: '1.0.0',
+    projectId: generateId(),
+    templateId: template.id,
+    templateVersion: template.version,
     meta: {
-      name: 'PLACEHOLDER_PROJECT_NAME',
+      name: 'Untitled Story',
       created: created,
       lastModified: created,
     },
-    steps: [],
+    steps: initialSteps,
     connections: [],
   }
 }
 
 export const useProjectData = () => {
   const projectData = ref<ProjectData>(createNewProject())
-  return { project: projectData, template: template, strings: strings }
+  const mutations = useProjectMutations(projectData)
+
+  return {
+    project: projectData,
+    template: template,
+    strings: strings,
+    mutations,
+  }
 }

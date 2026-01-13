@@ -64,14 +64,21 @@ const mapToSidebar = (
   strings: Record<string, unknown>
 ): ViewModel['sidebar'] => {
   return {
-    nodes: steps.map((step) => {
-      const stepDfn = stepDefinitionMap.get(step.stepId)
-      return {
-        id: step.id,
-        label: getValueAtPath(strings, stepDfn?.labelText ?? step.stepId) as string,
-        content: step.content.text,
-      }
-    }),
+    nodes: steps
+      .map((step) => {
+        const stepDfn = stepDefinitionMap.get(step.stepId)
+        if (!stepDfn) {
+          return undefined
+        }
+        return {
+          id: step.id,
+          label: getValueAtPath(strings, stepDfn.labelText),
+          content: step.content.text,
+          placeholder: getValueAtPath(strings, stepDfn.editorConfig.placeholderText),
+          instruction: getValueAtPath(strings, stepDfn.instructionText),
+        }
+      })
+      .filter((node) => !!node),
   }
 }
 
@@ -81,9 +88,7 @@ const toCanvasNode = (
   stepDefinition?: StepDefinition,
   sortOrder: number = 0
 ): CanvasNode => {
-  const label = stepDefinition
-    ? (getValueAtPath(strings, stepDefinition.labelText) as string)
-    : step.stepId
+  const label = stepDefinition ? getValueAtPath(strings, stepDefinition.labelText) : step.stepId
   const stage = stepDefinition?.stage
 
   return {

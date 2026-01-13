@@ -3,11 +3,11 @@ import { ref } from 'vue'
 import { useStepActions } from './useStepActions'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import type { ProjectMutations } from '@/features/story/composables/useProjectMutations'
-import { buildProcessTemplate } from '@/specs/__testHelpers__/builders'
 import {
   buildRootAction,
   buildStepAction,
   buildStepDefinition,
+  buildProcessTemplate,
 } from '@/features/process-templates/__testHelpers__/builders'
 
 describe('useStepActions', () => {
