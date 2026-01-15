@@ -1,7 +1,7 @@
 {
   "name": "Working Title Dev Container",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
-  "runArgs": ["--memory=4g", "--memory-swap=4g"],
+  "runArgs": ["--memory=6g", "--memory-swap=6g"],
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest",
@@ -16,6 +16,7 @@
     "vscode": {
       "extensions": [
         "Vue.volar",
+        "Codeium.codeium",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
