@@ -10,7 +10,14 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    watch: {
+      usePolling: false,
+    },
+    hmr: {
+      clientPort: 5173,
+    },
   },
+  cacheDir: './.vite',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,11 +26,19 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      external: ['web-worker'],
-    },
+    rollupOptions: {},
   },
   optimizeDeps: {
-    exclude: ['web-worker'],
+    include: [
+      'vue',
+      'vue-router',
+      '@vue-flow/core',
+      '@tiptap/vue-3',
+      '@tiptap/starter-kit',
+      '@vue-flow/background',
+      '@vue-flow/controls',
+      '@vue-flow/minimap',
+      '@vueuse/core',
+    ],
   },
 })

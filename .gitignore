@@ -7,9 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Ignore Linux core dumps
+core
+core.[0-9]*
+
 #Dependencies
 node_modules
 .pnpm-store
+.vite
 
 #Build artifacts
 dist
