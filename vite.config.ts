@@ -16,6 +16,14 @@ export default defineConfig({
     hmr: {
       clientPort: 5173,
     },
+    warmup: {
+      clientFiles: [
+        './src/features/story-canvas/StoryCanvasVueFlow.vue',
+        './src/features/story-canvas/StoryCanvas.vue',
+        './src/features/demo/DemoPage.vue',
+        './src/features/story/StoryPage.vue',
+      ],
+    },
   },
   cacheDir: './.vite',
   resolve: {
@@ -39,6 +47,7 @@ export default defineConfig({
       '@vue-flow/controls',
       '@vue-flow/minimap',
       '@vueuse/core',
+      'elkjs/lib/elk.bundled.js',
     ],
   },
 })
