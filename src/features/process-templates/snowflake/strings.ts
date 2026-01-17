@@ -8,6 +8,9 @@ export const strings = {
   root: {
     actions: {
       create_summary: 'Create One Sentence Summary',
+      add_genre: 'Add Genre',
+      add_theme: 'Add Theme',
+      add_audience: 'Add Audience',
     },
   },
   step: {

@@ -1,4 +1,5 @@
 import { getValueAtPath } from '@/utils/objects'
+import type { ProjectData } from '@/specs/projectDataSpec'
 import type { ProcessTemplate } from './processTemplate'
 import type { RootAction, StepAction } from './types'
 
@@ -19,6 +20,31 @@ export const parseRootAction = (action: RootAction, strings: Record<string, unkn
   label: getValueAtPath(strings, action.labelText),
   targetType: action.targetType,
 })
+
+export interface ParsedAction {
+  id: string
+  label: string
+  targetType: string
+}
+
+export const getCanvasRootActions = (
+  template: ProcessTemplate,
+  projectData: ProjectData,
+  strings: Record<string, unknown>
+): ParsedAction[] => {
+  const stepDefMap = new Map(template.stepDefinitions.map((def) => [def.id, def]))
+
+  const existingStepTypes = new Set(projectData.steps.map((step) => step.stepId))
+
+  return template.rootActions
+    .filter((action) => {
+      const stepDef = stepDefMap.get(action.targetType)
+      if (!stepDef?.ui.visibility.includes('canvas')) return false
+      if (existingStepTypes.has(action.targetType)) return false
+      return true
+    })
+    .map((action) => parseRootAction(action, strings))
+}
 
 export const parseRootActions = (template: ProcessTemplate, strings: Record<string, unknown>) =>
   template.rootActions.map((action) => parseRootAction(action, strings))

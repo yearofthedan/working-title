@@ -25,9 +25,6 @@ export function useLayout(
     const dims = toValue(dimensions)
 
     if (tracks.length === 0) {
-      console.warn(
-        '[useLayout] No tracks to layout. This likely means no valid steps with canvas visibility.'
-      )
       hasInitialLayout.value = true
       return
     }
@@ -52,7 +49,9 @@ export function useLayout(
         target: e.target,
         type: 'smoothstep',
       }))
-      hasInitialLayout.value = true
+      if (!hasInitialLayout.value) {
+        hasInitialLayout.value = true
+      }
     } catch (err) {
       console.error('Track Layout calculation failed', err)
     } finally {
