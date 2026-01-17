@@ -18,9 +18,9 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import { useDebounceFn } from '@vueuse/core'
 import { watch, onBeforeUnmount } from 'vue'
 import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
+import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
 
 const CONTENT_UPDATE_DEBOUNCE = 300
 
@@ -31,15 +31,12 @@ const emit = defineEmits<{
   (e: 'update:content', content: string): void
 }>()
 
-const debouncedEmit = useDebounceFn(
+const { emit: emitContent, flush: flushContent } = useDebouncedEmit(
   (content: string) => {
     emit('update:content', content)
   },
-  CONTENT_UPDATE_DEBOUNCE,
-  { maxWait: 1000 }
+  { delay: CONTENT_UPDATE_DEBOUNCE, maxWait: 1000 }
 )
-
-let latestContent: string | null = null
 
 const editor = useEditor({
   content: props.data.content,
@@ -48,15 +45,11 @@ const editor = useEditor({
   onUpdate: ({ editor: e }) => {
     const newContent = e.getHTML()
     if (newContent !== props.data.content) {
-      latestContent = newContent
-      debouncedEmit(newContent)
+      emitContent(newContent)
     }
   },
   onBlur: () => {
-    if (latestContent && latestContent !== props.data.content) {
-      emit('update:content', latestContent)
-      latestContent = null
-    }
+    flushContent()
   },
 })
 
