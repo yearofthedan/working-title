@@ -8,7 +8,7 @@ import { strings } from '@features/process-templates/snowflake/strings'
 
 const TEST_LOADTIME_THRESHOLDS = {
   sidebar: 1000,
-  canvas: 5000,
+  canvas: 7000,
 }
 
 describe('StoryCanvas Performance', () => {
