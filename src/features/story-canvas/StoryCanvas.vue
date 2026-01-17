@@ -17,6 +17,7 @@ import { toRef, defineAsyncComponent } from 'vue'
 import type { ProjectData } from '@/specs/projectDataSpec'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
+import { useProjectMutations } from '@/features/story/composables/useProjectMutations'
 import StoryCanvasSidebar from '@/features/story-canvas/sidebar/StoryCanvasSidebar.vue'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 
@@ -30,8 +31,10 @@ const props = defineProps<{
   strings: Record<string, unknown>
 }>()
 
+const { updateStepContent } = useProjectMutations(toRef(() => props.data))
+
 const onContentChange = (payload: { id: string; content: string }) => {
-  console.log('canvas node changed', payload)
+  updateStepContent(payload.id, payload.content)
 }
 
 const { viewModel } = useProjectViewModel(
@@ -41,7 +44,7 @@ const { viewModel } = useProjectViewModel(
 )
 
 const onSidebarChange = (payload: { id: string; content: string }) => {
-  console.log('sidebar node changed', payload)
+  updateStepContent(payload.id, payload.content)
 }
 </script>
 

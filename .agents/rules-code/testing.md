@@ -48,6 +48,7 @@ describe('filename', () => {
 Use factory functions to create consistent test data for specs and view models.
 
 - **Location**: Look for `__testHelpers__/builders.ts` within features or specs.
+- **Strict Requirement**: Always use builders (e.g., `buildProjectData`, `buildStep`) within `it` or `beforeEach` blocks to create fresh data for each test. Never use shared mutable objects defined at the `describe` level, as this causes test isolation failures when tests are run in groups.
 
 ### Async Testing
 

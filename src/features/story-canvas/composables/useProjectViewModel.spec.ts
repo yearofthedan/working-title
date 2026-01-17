@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createProjectData, createStep } from '../../../specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '../../../specs/__testHelpers__/builders'
 import { useProjectViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import { ref } from 'vue'
 import {
@@ -11,11 +11,11 @@ import {
 describe('useProjectViewModel', () => {
   it('maps nodes to correct targets (canvas, sidebar, both)', () => {
     const project = ref(
-      createProjectData({
+      buildProjectData({
         steps: [
-          createStep({ id: 'step-1', stepId: 'canvas-only-step' }),
-          createStep({ id: 'step-2', stepId: 'sidebar-only-step' }),
-          createStep({ id: 'step-3', stepId: 'both-step' }),
+          buildStep({ id: 'step-1', stepId: 'canvas-only-step' }),
+          buildStep({ id: 'step-2', stepId: 'sidebar-only-step' }),
+          buildStep({ id: 'step-3', stepId: 'both-step' }),
         ],
       })
     )
@@ -46,8 +46,8 @@ describe('useProjectViewModel', () => {
     describe('node mapping', () => {
       it('maps step content, category, and stage correctly', async () => {
         const project = ref(
-          createProjectData({
-            steps: [createStep({ id: 's1', stepId: 'p1', content: { text: 'Hello' } })],
+          buildProjectData({
+            steps: [buildStep({ id: 's1', stepId: 'p1', content: { text: 'Hello' } })],
           })
         )
         const template = ref(
@@ -74,8 +74,8 @@ describe('useProjectViewModel', () => {
 
       it('maps step format "plain" to node type "plainText"', async () => {
         const project = ref(
-          createProjectData({
-            steps: [createStep({ id: 'step-1', stepId: 'plain-step' })],
+          buildProjectData({
+            steps: [buildStep({ id: 'step-1', stepId: 'plain-step' })],
           })
         )
         const template = ref(
@@ -96,8 +96,8 @@ describe('useProjectViewModel', () => {
 
       it('maps step format "rich" to node type "richText"', async () => {
         const project = ref(
-          createProjectData({
-            steps: [createStep({ id: 'step-1', stepId: 'rich-step' })],
+          buildProjectData({
+            steps: [buildStep({ id: 'step-1', stepId: 'rich-step' })],
           })
         )
         const template = ref(
@@ -118,8 +118,8 @@ describe('useProjectViewModel', () => {
 
       it('maps the label from strings via labelText key', async () => {
         const project = ref(
-          createProjectData({
-            steps: [createStep({ id: 'step-1', stepId: 'premise' })],
+          buildProjectData({
+            steps: [buildStep({ id: 'step-1', stepId: 'premise' })],
           })
         )
         const template = ref(
@@ -142,8 +142,8 @@ describe('useProjectViewModel', () => {
 
       it('falls back to the labelText key when strings are missing', async () => {
         const project = ref(
-          createProjectData({
-            steps: [createStep({ id: 'step-1', stepId: 'premise' })],
+          buildProjectData({
+            steps: [buildStep({ id: 'step-1', stepId: 'premise' })],
           })
         )
         const template = ref(
@@ -166,10 +166,10 @@ describe('useProjectViewModel', () => {
 
     it('assigns sortOrder based on the step definition sequence in the template', () => {
       const project = ref(
-        createProjectData({
+        buildProjectData({
           steps: [
-            createStep({ id: 'step-B', stepId: 'def-2' }),
-            createStep({ id: 'step-A', stepId: 'def-1' }),
+            buildStep({ id: 'step-B', stepId: 'def-2' }),
+            buildStep({ id: 'step-A', stepId: 'def-1' }),
           ],
         })
       )
@@ -193,12 +193,12 @@ describe('useProjectViewModel', () => {
 
     it('creates separate tracks for different root types defined for the same track defn', () => {
       const project = ref(
-        createProjectData({
+        buildProjectData({
           steps: [
-            createStep({ id: 'winston-summary', stepId: 'char-summary' }),
-            createStep({ id: 'winston-detail', stepId: 'char-detail' }),
-            createStep({ id: 'julia-backstory', stepId: 'char-backstory' }),
-            createStep({ id: 'julia-detail', stepId: 'char-detail' }),
+            buildStep({ id: 'winston-summary', stepId: 'char-summary' }),
+            buildStep({ id: 'winston-detail', stepId: 'char-detail' }),
+            buildStep({ id: 'julia-backstory', stepId: 'char-backstory' }),
+            buildStep({ id: 'julia-detail', stepId: 'char-detail' }),
           ],
           connections: [
             { id: 'e1', source: 'winston-summary', target: 'winston-detail' },
@@ -235,10 +235,10 @@ describe('useProjectViewModel', () => {
 
     it('creates separate tracks with layerOffsets from the track defn', () => {
       const project = ref(
-        createProjectData({
+        buildProjectData({
           steps: [
-            createStep({ id: 'plot-1', stepId: 'plot-point' }),
-            createStep({ id: 'winston-1', stepId: 'char-summary' }),
+            buildStep({ id: 'plot-1', stepId: 'plot-point' }),
+            buildStep({ id: 'winston-1', stepId: 'char-summary' }),
           ],
         })
       )
@@ -271,10 +271,10 @@ describe('useProjectViewModel', () => {
 
     it('places steps that are not reachable from any root into an orphans track', () => {
       const project = ref(
-        createProjectData({
+        buildProjectData({
           steps: [
-            createStep({ id: 'root-node', stepId: 'main-step' }),
-            createStep({ id: 'lonely-node', stepId: 'other-step' }),
+            buildStep({ id: 'root-node', stepId: 'main-step' }),
+            buildStep({ id: 'lonely-node', stepId: 'other-step' }),
           ],
         })
       )

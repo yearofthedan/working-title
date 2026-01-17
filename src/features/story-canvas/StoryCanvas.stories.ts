@@ -153,3 +153,34 @@ export const Default: Story = {
     })
   },
 }
+
+export const Empty: Story = {
+  args: {
+    data: {
+      schemaVersion: '1.0.0',
+      projectId: 'proj_empty',
+      templateId: 'snowflake-method-v1',
+      templateVersion: '1.0.0',
+      meta: {
+        name: 'Empty Project',
+        created: new Date().toISOString(),
+        lastModified: new Date().toISOString(),
+      },
+      steps: [],
+      connections: [],
+    },
+    template: inlineTemplate,
+    strings: strings,
+  },
+  play: async ({ canvas, step }) => {
+    await step('Wait for canvas to load', async () => {
+      await waitFor(() => expect(canvas.queryByText('Loading canvas...')).not.toBeInTheDocument(), {
+        timeout: 1000,
+      })
+    })
+
+    await step('Verify empty state', async () => {
+      await expect(canvas.getByText('No Canvas Steps')).toBeInTheDocument()
+    })
+  },
+}
