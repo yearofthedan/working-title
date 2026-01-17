@@ -53,7 +53,6 @@
     }
   },
   "onCreateCommand": "sudo chown -R node:node ${containerWorkspaceFolder}",
-  "postCreateCommand": "./do bootstrap",
   "forwardPorts": [5173, 6006],
   "portsAttributes": {
     "5173": {
@@ -68,9 +67,9 @@
   "remoteUser": "node",
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
-    "source=working-title-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    "source=${localWorkspaceFolderBasename}-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
-
+  "postCreateCommand": "./do bootstrap",
   "containerEnv": {
     "PLAYWRIGHT_BROWSERS_PATH": "/home/node/.cache/ms-playwright",
     "GIT_CONFIG_COUNT": "1",

@@ -1,4 +1,4 @@
-import type { Meta, StoryContext, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3'
 import { expect } from 'storybook/test'
 import AppTextField from './AppTextField.vue'
 
@@ -43,9 +43,7 @@ const meta = {
 
 export default meta
 
-type Story = StoryObj<typeof AppTextField> & {
-  play?: (context: StoryContext<Story['args']>) => Promise<void> | void
-}
+type Story = StoryObj<typeof AppTextField>
 
 export const Default: Story = {
   args: {

@@ -1,4 +1,3 @@
-import ELK from 'elkjs/lib/elk.bundled.js'
 import type { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk-api'
 import type {
   CanvasNode,
@@ -6,7 +5,15 @@ import type {
   CanvasEdge,
 } from '@/features/story-canvas/composables/useProjectViewModel'
 
-const elk = new ELK()
+let elkInstance: unknown = null
+
+async function getElk() {
+  if (!elkInstance) {
+    const ELK = await import('elkjs/lib/elk.bundled.js')
+    elkInstance = new ELK.default()
+  }
+  return elkInstance as import('elkjs/lib/elk-api').ELK
+}
 
 const LAYER_SPACING = 50
 const TRACK_GAP = 150
@@ -143,6 +150,8 @@ const prepareTrackForElk = async (
       width: dimensions.get(n.id)?.w ?? 400,
       height: dimensions.get(n.id)?.h ?? 150,
     }))
+
+  const elk = await getElk()
 
   const { children } = await elk.layout({
     id: `track-${track.id}`,

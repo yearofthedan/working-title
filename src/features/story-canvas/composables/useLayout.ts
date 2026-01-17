@@ -20,7 +20,6 @@ export function useLayout(
   const laidOutEdges = shallowRef<Edge[]>([])
   const isLayoutRunning = ref(false)
   const hasInitialLayout = ref(false)
-
   const calculateLayout = useDebounceFn(async () => {
     const { tracks, edges } = toValue(tracksData)
     const dims = toValue(dimensions)
@@ -55,9 +54,15 @@ export function useLayout(
     }
   }, LAYOUT_DEBOUNCE_TIME)
 
-  watch([() => toValue(tracksData), () => toValue(dimensions)], () => calculateLayout(), {
-    immediate: true,
-  })
+  watch(
+    [() => toValue(tracksData), () => toValue(dimensions)],
+    () => {
+      calculateLayout()
+    },
+    {
+      immediate: true,
+    }
+  )
 
   return {
     nodes: laidOutNodes,

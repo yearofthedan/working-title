@@ -11,14 +11,14 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="T extends CanvasNode">
+<script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch, onBeforeUnmount } from 'vue'
 import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
 
 const props = defineProps<{
-  data: T
+  data: CanvasNode
 }>()
 const emit = defineEmits<{
   (e: 'update:content', content: string): void

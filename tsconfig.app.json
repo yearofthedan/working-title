@@ -15,5 +15,11 @@
       "@specs/*": ["src/specs/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
+  ]
 }
