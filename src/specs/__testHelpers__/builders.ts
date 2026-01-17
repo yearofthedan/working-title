@@ -1,20 +1,20 @@
 import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
 
-export const createStep = (overrides: Partial<Step> = {}): Step => ({
+export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
   stepId: 'premise',
   content: { text: 'Test content' },
   ...overrides,
 })
 
-export const createConnection = (overrides: Partial<Connection> = {}): Connection => ({
+export const buildConnection = (overrides: Partial<Connection> = {}): Connection => ({
   id: 'conn-1',
   source: 'step-1',
   target: 'step-2',
   ...overrides,
 })
 
-export const createProjectData = (overrides: Partial<ProjectData> = {}): ProjectData => ({
+export const buildProjectData = (overrides: Partial<ProjectData> = {}): ProjectData => ({
   schemaVersion: '1.0',
   projectId: 'proj-1',
   templateId: 'test-template',
@@ -24,7 +24,7 @@ export const createProjectData = (overrides: Partial<ProjectData> = {}): Project
     created: '2024-01-01',
     lastModified: '2024-01-01',
   },
-  steps: [createStep()],
+  steps: [buildStep()],
   connections: [],
   ...overrides,
 })

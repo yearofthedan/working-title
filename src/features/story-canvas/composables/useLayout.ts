@@ -24,7 +24,13 @@ export function useLayout(
     const { tracks, edges } = toValue(tracksData)
     const dims = toValue(dimensions)
 
-    if (tracks.length === 0) return
+    if (tracks.length === 0) {
+      console.warn(
+        '[useLayout] No tracks to layout. This likely means no valid steps with canvas visibility.'
+      )
+      hasInitialLayout.value = true
+      return
+    }
 
     isLayoutRunning.value = true
     try {

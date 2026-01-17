@@ -6,7 +6,15 @@
       aria-label="Story canvas is loading"
     />
 
-    <VueFlow v-show="hasInitialLayout" :nodes="nodes" :edges="edges" :apply-default="false">
+    <EmptyCanvas v-if="hasInitialLayout && nodes.length === 0" />
+
+    <VueFlow
+      v-if="nodes.length > 0"
+      :nodes="nodes"
+      :edges="edges"
+      :apply-default="false"
+      :class="{ 'opacity-0': !hasInitialLayout }"
+    >
       <template #node-richText="{ id, data: nodeData }">
         <RichTextNode
           :ref="(el: any) => registerNode(id, el?.$el || el)"
@@ -38,6 +46,7 @@ import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
 import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
+import EmptyCanvas from '@/features/story-canvas/components/EmptyCanvas.vue'
 
 const props = defineProps<{
   tracks: TracksViewModel

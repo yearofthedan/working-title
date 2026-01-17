@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
 import { useProjectMutations } from './useProjectMutations'
 import type { ProjectData } from '@/specs/projectDataSpec'
-import { createProjectData, createStep } from '@/specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),
@@ -20,7 +20,7 @@ describe('useProjectMutations', () => {
   describe('addStep', () => {
     it('adds a new step and updates lastModified', () => {
       const project = ref<ProjectData>(
-        createProjectData({
+        buildProjectData({
           steps: [],
           connections: [],
         })
@@ -41,8 +41,8 @@ describe('useProjectMutations', () => {
 
     it('creates a connection if sourceStepId is provided', () => {
       const project = ref<ProjectData>(
-        createProjectData({
-          steps: [createStep({ id: 'step1Id' })],
+        buildProjectData({
+          steps: [buildStep({ id: 'step1Id' })],
           connections: [],
         })
       )
@@ -61,9 +61,9 @@ describe('useProjectMutations', () => {
   describe('updateStepContent', () => {
     it('updates content and lastModified', () => {
       const project = ref<ProjectData>(
-        createProjectData({
+        buildProjectData({
           steps: [
-            createStep({
+            buildStep({
               id: 'step1Id',
               content: {
                 text: '',
@@ -89,8 +89,8 @@ describe('useProjectMutations', () => {
   describe('addConnection', () => {
     it('adds a connection and updates lastModified', () => {
       const project = ref<ProjectData>(
-        createProjectData({
-          steps: [createStep({ id: 'step1Id' }), createStep({ id: 'step2Id' })],
+        buildProjectData({
+          steps: [buildStep({ id: 'step1Id' }), buildStep({ id: 'step2Id' })],
           connections: [],
         })
       )
