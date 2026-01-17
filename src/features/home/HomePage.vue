@@ -50,10 +50,16 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { RouteNames } from '@/router/routes'
-</script>
 
-<style scoped>
-/* No extra CSS needed, relying on Tailwind and Theme variables */
-</style>
+const router = useRouter()
+
+onMounted(() => {
+  window.setTimeout(() => {
+    router.resolve({ name: RouteNames.Demo })
+    router.resolve({ name: RouteNames.Story })
+  }, 500)
+})
+</script>

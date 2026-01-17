@@ -1,17 +1,28 @@
 <template>
   <div class="flex w-full h-screen overflow-hidden">
     <StoryCanvasSidebar :nodes="viewModel.sidebar.nodes" @update:content="onSidebarChange" />
-    <StoryCanvasVueFlow :tracks="viewModel.tracks" @update:node-content="onContentChange" />
+    <Suspense>
+      <StoryCanvasVueFlow :tracks="viewModel.tracks" @update:node-content="onContentChange" />
+      <template #fallback>
+        <div class="grow flex items-center justify-center bg-background">
+          <AppLoadingOverlay :is-loading="true" message="Loading canvas..." />
+        </div>
+      </template>
+    </Suspense>
   </div>
 </template>
 
 <script setup lang="ts">
+import { toRef, defineAsyncComponent } from 'vue'
 import type { ProjectData } from '@/specs/projectDataSpec'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
-import { toRef } from 'vue'
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
-import StoryCanvasVueFlow from '@/features/story-canvas/StoryCanvasVueFlow.vue'
 import StoryCanvasSidebar from '@/features/story-canvas/sidebar/StoryCanvasSidebar.vue'
+import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
+
+const StoryCanvasVueFlow = defineAsyncComponent(
+  () => import('@/features/story-canvas/StoryCanvasVueFlow.vue')
+)
 
 const props = defineProps<{
   data: ProjectData
