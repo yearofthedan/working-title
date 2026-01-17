@@ -5,7 +5,11 @@
     <div class="text-[10px] font-bold uppercase tracking-widest text-ink opacity-50 mb-2">
       {{ data.label }}
     </div>
-    <div class="content nodrag flex-1 overflow-x-hidden text-left text-sm leading-relaxed text-ink">
+    <div
+      class="content nodrag flex-1 overflow-x-hidden text-left text-sm leading-relaxed text-ink"
+      :class="{ 'cursor-pointer': !editor?.isEditable }"
+      @click="makeEditable"
+    >
       <editor-content :editor="editor" />
     </div>
   </div>
@@ -27,10 +31,18 @@ const emit = defineEmits<{
 const editor = useEditor({
   content: props.data.content,
   extensions: [StarterKit],
-  onUpdate: ({ editor }) => {
-    emit('update:content', editor.getHTML())
+  editable: false,
+  onUpdate: ({ editor: e }) => {
+    emit('update:content', e.getHTML())
   },
 })
+
+const makeEditable = () => {
+  if (editor.value && !editor.value.isEditable) {
+    editor.value.setEditable(true)
+    editor.value.commands.focus()
+  }
+}
 
 watch(
   () => props.data.content,

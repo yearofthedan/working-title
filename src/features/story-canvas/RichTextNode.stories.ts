@@ -28,14 +28,20 @@ export const Default: Story = {
     data: createCanvasNode({
       category: 'structure',
       label: 'Rich Text Node',
-      content: '<p>This is a <strong>Rich Text Node</strong>.</p>',
+      content: '<p>This is a <strong>Node</strong>.</p>',
     }),
   },
   play: async ({ canvas, step, userEvent }) => {
-    const editor = await canvas.findByRole('textbox')
+    const contentEl = await canvas.findByText(/This is a/i)
+
+    await step('Node becomes editable after click', async () => {
+      await userEvent.click(contentEl)
+      const editor = await canvas.findByRole('textbox')
+      await expect(editor).toBeInTheDocument()
+    })
 
     await step('Can type into a node', async () => {
-      await userEvent.click(editor)
+      const editor = await canvas.findByRole('textbox')
       await userEvent.clear(editor)
       await userEvent.type(editor, 'This is updated content from the play function.')
       await expect(editor).toHaveTextContent('This is updated content from the play function.')

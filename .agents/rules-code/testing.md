@@ -43,7 +43,6 @@ describe('filename', () => {
 3. **Logical group `describe`** (optional): Group related test cases when needed
 4. **`it` statements**: Individual test cases with clear descriptions
 
-
 ### Test Builders
 
 Use factory functions to create consistent test data for specs and view models.
@@ -60,7 +59,7 @@ await vi.waitUntil(() => nodes.value.length > 0)
 
 ### Storybook Interaction Tests
 
-Use the Storybook `play` function to automate component interactions and verify behavior in the browser.
+Use the Storybook `play` function to automate component interactions and verify behavior in the browser. Prefer the 'canvas' property directly.
 
 ```typescript
 play: async ({ canvas, step, userEvent }) => {
@@ -69,6 +68,37 @@ play: async ({ canvas, step, userEvent }) => {
     await userEvent.type(element, 'Test content')
     await expect(element).toHaveValue('Test content')
   })
+}
+```
+
+### Vitest Browser Mode
+
+For integration tests requiring a real browser environment (e.g., navigation, end-to-end component flows, performance assertions):
+
+- **Imports**:
+  - `render` from `vitest-browser-vue`
+  - `page` from `vitest/browser`
+- **Locators**: Use Playwright-style locators via `page.getByText()`, `page.getByRole()`, etc.
+- **Assertions**: Use `await expect.element(locator).toBeVisible()`.
+- **Async Handling**: Use `await expect.poll(() => ...)` for custom timing assertions.
+- **Patterns**: Use Page Objects to encapsulate complex selectors and common navigation tasks.
+
+**When to use**: Multi-page flows, performance assertions, or complex DOM interactions that cross component boundaries.
+
+**When to use Storybook instead**: Isolated component behavior and interaction tests.
+
+#### Example: Page Object Pattern
+
+```typescript
+// src/features/[feature]/__testHelpers__/MyPageObject.ts
+import { type BrowserPage } from 'vitest/browser'
+
+export class MyPageObject {
+  constructor(private page: BrowserPage) {}
+
+  get header() {
+    return this.page.getByRole('heading', { name: 'My Page' })
+  }
 }
 ```
 
