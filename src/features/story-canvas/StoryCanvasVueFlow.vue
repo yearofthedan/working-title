@@ -1,6 +1,12 @@
 <template>
-  <div v-show="hasInitialLayout" class="grow relative bg-background">
-    <VueFlow :nodes="nodes" :edges="edges" :apply-default="false">
+  <div class="grow relative bg-background" :aria-busy="isLoading">
+    <AppLoadingOverlay
+      :is-loading="isLoading"
+      message="Loading canvas..."
+      aria-label="Story canvas is loading"
+    />
+
+    <VueFlow v-show="hasInitialLayout" :nodes="nodes" :edges="edges" :apply-default="false">
       <template #node-richText="{ id, data: nodeData }">
         <RichTextNode
           :ref="(el: any) => registerNode(id, el?.$el || el)"
@@ -22,11 +28,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { toRef } from 'vue'
+import { toRef, computed } from 'vue'
 import { VueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
+import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
 import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
@@ -41,10 +48,12 @@ const emit = defineEmits<{
 }>()
 
 const { dimensions, registerNode } = useNodeSizeObserver()
-const { nodes, edges, hasInitialLayout } = useLayout(
+const { nodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
   toRef(() => props.tracks),
   dimensions
 )
+
+const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)
 
 const updateNodeContent = (id: string, content: string) => {
   emit('update:nodeContent', { id, content })

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
-import { expect } from 'storybook/test'
+import { expect, within, waitFor } from 'storybook/test'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { strings } from '@features/process-templates/snowflake/strings'
 const meta = {
@@ -129,7 +129,16 @@ export const Default: Story = {
     template: inlineTemplate,
     strings: strings,
   },
-  play: async ({ canvas, step, userEvent }) => {
+  play: async ({ canvasElement, step, userEvent }) => {
+    const canvas = within(canvasElement)
+
+    // Wait for loading to finish
+    await step('Wait for canvas to load', async () => {
+      await waitFor(() => expect(canvas.queryByText('Loading canvas...')).not.toBeInTheDocument(), {
+        timeout: 10000,
+      })
+    })
+
     const editors = await canvas.findAllByRole('textbox')
 
     if (editors.length > 0) {

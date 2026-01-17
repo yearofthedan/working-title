@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { ref } from 'vue'
 import { useLayout } from './useLayout'
 import {
@@ -9,6 +9,11 @@ import {
 } from './__testHelpers__/builders'
 
 describe('useLayout', () => {
+  beforeAll(async () => {
+    // Preload elkjs for tests to avoid dynamic import timeouts
+    await import('elkjs/lib/elk.bundled.js')
+  })
+
   it('maps CanvasNodes to Vue Flow nodes with correct data and status', async () => {
     const tracksData = ref(
       createTracksViewModel({
