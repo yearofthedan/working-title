@@ -42,4 +42,36 @@ describe('StoryCanvas Integration', () => {
       expect(data.value.steps[0]!.content.text).toContain('Updated via integration')
     )
   })
+
+  it('adds a new root step when clicking the action button in EmptyCanvas', async () => {
+    const data = ref(
+      buildProjectData({
+        steps: [],
+      })
+    )
+    render(StoryCanvas, {
+      props: {
+        data: data.value,
+        template,
+        strings,
+      },
+      attrs: {
+        style: 'height: 100vh; width: 100vw;',
+      },
+    })
+
+    const startHeading = page.getByText('Start Your Story')
+    await expect.element(startHeading).toBeVisible()
+
+    const createButton = page.getByRole('button', { name: /Create One Sentence Summary/i })
+    await expect.element(createButton).toBeVisible()
+
+    await createButton.click()
+
+    await vi.waitFor(() => expect(data.value.steps.length).toBe(1))
+    expect(data.value.steps[0]!.stepId).toBe('step-summary')
+
+    await expect.element(startHeading).not.toBeInTheDocument()
+    await expect.element(page.getByText('One Sentence Summary')).toBeVisible()
+  })
 })

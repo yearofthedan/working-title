@@ -2,7 +2,14 @@
   <div class="flex w-full h-screen overflow-hidden">
     <StoryCanvasSidebar :nodes="viewModel.sidebar.nodes" @update:content="onSidebarChange" />
     <Suspense>
-      <StoryCanvasVueFlow :tracks="viewModel.tracks" @update:node-content="onContentChange" />
+      <StoryCanvasVueFlow
+        :tracks="viewModel.tracks"
+        :template="template"
+        :project-data="data"
+        :strings="strings"
+        @update:node-content="onContentChange"
+        @add-root-step="onAddRootStep"
+      />
       <template #fallback>
         <div class="grow flex items-center justify-center bg-background">
           <AppLoadingOverlay :is-loading="true" message="Loading canvas..." />
@@ -31,7 +38,7 @@ const props = defineProps<{
   strings: Record<string, unknown>
 }>()
 
-const { updateStepContent } = useProjectMutations(toRef(() => props.data))
+const { updateStepContent, addStep } = useProjectMutations(toRef(() => props.data))
 
 const onContentChange = (payload: { id: string; content: string }) => {
   updateStepContent(payload.id, payload.content)
@@ -45,6 +52,10 @@ const { viewModel } = useProjectViewModel(
 
 const onSidebarChange = (payload: { id: string; content: string }) => {
   updateStepContent(payload.id, payload.content)
+}
+
+const onAddRootStep = (stepId: string) => {
+  addStep(stepId)
 }
 </script>
 

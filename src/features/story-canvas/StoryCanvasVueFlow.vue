@@ -6,7 +6,13 @@
       aria-label="Story canvas is loading"
     />
 
-    <EmptyCanvas v-if="hasInitialLayout && nodes.length === 0" />
+    <EmptyCanvas
+      v-if="hasInitialLayout && nodes.length === 0"
+      :template="template"
+      :project-data="projectData"
+      :strings="strings"
+      @add-root-step="(stepId) => emit('add-root-step', stepId)"
+    />
 
     <VueFlow
       v-if="nodes.length > 0"
@@ -14,6 +20,7 @@
       :edges="edges"
       :apply-default="false"
       :class="{ 'opacity-0': !hasInitialLayout }"
+      :fit-view-on-init="true"
     >
       <template #node-richText="{ id, data: nodeData }">
         <RichTextNode
@@ -41,6 +48,8 @@ import { VueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
+import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
+import type { ProjectData } from '@/specs/projectDataSpec'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
@@ -50,10 +59,14 @@ import EmptyCanvas from '@/features/story-canvas/components/EmptyCanvas.vue'
 
 const props = defineProps<{
   tracks: TracksViewModel
+  template: ProcessTemplate
+  projectData: ProjectData
+  strings: Record<string, unknown>
 }>()
 
 const emit = defineEmits<{
   (e: 'update:nodeContent', payload: { id: string; content: string }): void
+  (e: 'add-root-step', stepId: string): void
 }>()
 
 const { dimensions, registerNode } = useNodeSizeObserver()

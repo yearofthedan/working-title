@@ -180,7 +180,7 @@ export const Empty: Story = {
     })
 
     await step('Verify empty state', async () => {
-      await expect(canvas.getByText('No Canvas Steps')).toBeInTheDocument()
+      await expect(canvas.getByText('Start Your Story')).toBeInTheDocument()
     })
   },
 }

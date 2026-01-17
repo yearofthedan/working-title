@@ -20,6 +20,11 @@ export default mergeConfig(viteConfig, {
           browser: {
             enabled: true,
             provider: playwright({}),
+            providerOptions: {
+              launch: {
+                args: ['--disable-dev-shm-usage'],
+              },
+            },
             headless: true,
             instances: [{ browser: 'chromium' }],
             viewport: { width: 1920, height: 1080 },
@@ -42,6 +47,11 @@ export default mergeConfig(viteConfig, {
             provider: playwright({}),
             headless: true,
             instances: [{ browser: 'chromium' }],
+            providerOptions: {
+              launch: {
+                args: ['--disable-dev-shm-usage'],
+              },
+            },
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },
