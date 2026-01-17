@@ -33,6 +33,24 @@ See [`src/features/story-canvas/composables/useProjectViewModel.ts`](../../src/f
 
 Use dedicated spec files to define data shapes and contracts used across the application.
 
+## Performance Patterns
+
+### Async Component Loading
+
+Use `defineAsyncComponent` + `Suspense` for components with heavy dependencies (>1MB) like specialized editors or graph engines. This allows lighter parts of the UI (e.g., sidebars) to render immediately.
+
+### Background Prefetching
+
+Implement proactive background prefetching for primary routes to eliminate navigation latency. Use `router.resolve({ name })` after the initial page is interactive.
+
+### Dormant Third-Party Components
+
+Initialize heavy third-party libraries (e.g., Tiptap, specialized renderers) in lightweight read-only mode during component setup. Activate full functionality only on user interaction (e.g., click-to-edit) to reduce initial CPU and memory overhead.
+
+### Singleton Dependency Management
+
+Encapsulate heavy external libraries behind singleton adapters. This ensures dependencies are loaded exactly once and shared across all consumers.
+
 - **Location**: `src/specs/`
 - **Purpose**: Define type specifications and data contracts
 - **Examples**: `projectDataSpec.ts`, `processTemplateSpec.ts`

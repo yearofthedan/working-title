@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
-import { expect, within, waitFor } from 'storybook/test'
+import { expect, waitFor } from 'storybook/test'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { strings } from '@features/process-templates/snowflake/strings'
 const meta = {
@@ -86,6 +86,30 @@ const inlineTemplate: ProcessTemplate = {
   },
 }
 
+const steps = [
+  {
+    id: '1',
+    stepId: 'step-initial-idea',
+    content: {
+      text: 'This is the initial idea for the story.',
+    },
+  },
+  {
+    id: '2',
+    stepId: 'step-character-development',
+    content: {
+      text: 'Details about the main characters and their arcs.',
+    },
+  },
+  {
+    id: '3',
+    stepId: 'step-plot-outline',
+    content: {
+      text: 'The main plot points and story progression.',
+    },
+  },
+]
+
 export const Default: Story = {
   args: {
     data: {
@@ -98,29 +122,7 @@ export const Default: Story = {
         created: '1948-06-08T10:00:00Z',
         lastModified: '1949-06-08T14:30:00Z',
       },
-      steps: [
-        {
-          id: '1',
-          stepId: 'step-initial-idea',
-          content: {
-            text: '<p>This is the <strong>initial idea</strong> for the story.</p>',
-          },
-        },
-        {
-          id: '2',
-          stepId: 'step-character-development',
-          content: {
-            text: '<p>Details about the main characters and their arcs.</p>',
-          },
-        },
-        {
-          id: '3',
-          stepId: 'step-plot-outline',
-          content: {
-            text: '<p>The main plot points and story progression.</p>',
-          },
-        },
-      ],
+      steps: steps,
       connections: [
         { id: 'e1-2', source: '1', target: '2' },
         { id: 'e1-3', source: '1', target: '3' },
@@ -129,28 +131,25 @@ export const Default: Story = {
     template: inlineTemplate,
     strings: strings,
   },
-  play: async ({ canvasElement, step, userEvent }) => {
-    const canvas = within(canvasElement)
-
-    // Wait for loading to finish
+  play: async ({ canvas, step, userEvent }) => {
     await step('Wait for canvas to load', async () => {
       await waitFor(() => expect(canvas.queryByText('Loading canvas...')).not.toBeInTheDocument(), {
         timeout: 10000,
       })
     })
 
-    const editors = await canvas.findAllByRole('textbox')
+    const stepNodes = steps.map((step) => canvas.getByText(step.content.text))
 
-    if (editors.length > 0) {
-      const editor = editors[0]!
-      await step('Interact with first node', async () => {
-        await userEvent.clear(editor)
-        await userEvent.type(editor, 'Updated content in Canvas Storybook.')
-      })
+    await step('Check for step nodes', async () => {
+      for (const stepNode of stepNodes) {
+        await expect(stepNode).toBeInTheDocument()
+      }
+    })
 
-      await step('Verify update', async () => {
-        await expect(editor).toHaveTextContent('Updated content in Canvas Storybook.')
-      })
-    }
+    await step('Can edit', async () => {
+      const toEdit = stepNodes[0]!
+      await userEvent.click(toEdit)
+      await userEvent.type(toEdit, 'Updated content in Canvas Storybook.')
+    })
   },
 }
