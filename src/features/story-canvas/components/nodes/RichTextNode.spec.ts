@@ -81,4 +81,47 @@ describe('RichTextNode', () => {
     expect(events?.[0]).toEqual(['1', { text: '<p>Fast update</p>' }])
     vi.useRealTimers()
   })
+
+  it('renders actions when provided', async () => {
+    render(RichTextNode, {
+      props: {
+        id: '1',
+        definition: { label: 'Node' },
+        content: { text: '' },
+        actions: [
+          {
+            id: 'action-1',
+            label: 'Append Step',
+            trigger: 'append' as const,
+            targetType: 'step-2',
+            execute: vi.fn(),
+          },
+        ],
+      },
+    })
+
+    await expect.element(page.getByText('Append Step')).toBeVisible()
+  })
+
+  it('emits action-click event when action button is clicked', async () => {
+    const action = {
+      id: 'action-1',
+      label: 'Append Step',
+      trigger: 'append' as const,
+      targetType: 'step-2',
+      execute: vi.fn(),
+    }
+    const { emitted } = render(RichTextNode, {
+      props: {
+        id: '1',
+        definition: { label: 'Node' },
+        content: { text: '' },
+        actions: [action],
+      },
+    })
+
+    await page.getByText('Append Step').click()
+    expect(emitted()['action-click']).toBeDefined()
+    expect(emitted()['action-click']?.[0]).toEqual([action])
+  })
 })

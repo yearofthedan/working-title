@@ -26,8 +26,9 @@ describe('useProjectMutations', () => {
         })
       )
       const mutations = useProjectMutations(project)
-      mutations.addStep('step-type-1')
+      const newStepId = mutations.addStep('step-type-1')
 
+      expect(newStepId).toBeTypeOf('string')
       expect(project.value.steps).toHaveLength(1)
       expect(project.value.steps[0]).toEqual({
         id: expect.anything(),
@@ -48,9 +49,9 @@ describe('useProjectMutations', () => {
       )
 
       const mutations = useProjectMutations(project)
-      mutations.addStep('type-2', 'step1Id')
-      const step2Id = project.value.steps[1]!.id
+      const step2Id = mutations.addStep('type-2', 'step1Id')
 
+      expect(step2Id).toBe(project.value.steps[1]!.id)
       expect(project.value.steps).toHaveLength(2)
       expect(project.value.connections).toHaveLength(1)
       expect(project.value.connections[0]!.source).toBe('step1Id')

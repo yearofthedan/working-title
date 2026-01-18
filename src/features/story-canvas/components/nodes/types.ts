@@ -1,4 +1,5 @@
 import type { StepCategory } from '@/features/process-templates/processTemplate'
+import type { ActionDefinition } from '@/features/story/composables/useStepActions'
 
 export interface RichTextNodeDefinition {
   label: string
@@ -9,4 +10,11 @@ export interface RichTextNodeDefinition {
 
 export interface RichTextNodeContent {
   text: string
+}
+
+export interface RichTextNodeProps {
+  id: string
+  definition: RichTextNodeDefinition
+  content: RichTextNodeContent
+  actions?: ActionDefinition[]
 }

@@ -13,18 +13,21 @@ export const parseStepAction = (action: StepAction, strings: Record<string, unkn
   id: action.id,
   label: getValueAtPath(strings, action.labelText),
   targetType: action.targetType,
+  trigger: action.trigger,
 })
 
 export const parseRootAction = (action: RootAction, strings: Record<string, unknown>) => ({
   id: action.id,
   label: getValueAtPath(strings, action.labelText),
   targetType: action.targetType,
+  trigger: action.trigger,
 })
 
 export interface ParsedAction {
   id: string
   label: string
   targetType: string
+  trigger: 'append' | 'advance'
 }
 
 export const getCanvasRootActions = (

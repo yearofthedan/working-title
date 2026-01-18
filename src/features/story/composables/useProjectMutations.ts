@@ -4,7 +4,7 @@ import { generateId } from '@/utils/ids'
 import { now } from '@/utils/dates'
 
 export interface ProjectMutations {
-  addStep: (stepId: string, sourceStepId?: string) => void
+  addStep: (stepId: string, sourceStepId?: string) => string
   updateStepContent: (id: string, content: string) => void
   addConnection: (sourceId: string, targetId: string) => void
 }
@@ -14,7 +14,7 @@ export const useProjectMutations = (project: Ref<ProjectData>): ProjectMutations
     project.value.meta.lastModified = now()
   }
 
-  const addStep = (stepId: string, sourceStepId?: string) => {
+  const addStep = (stepId: string, sourceStepId?: string): string => {
     const newStep: Step = {
       id: generateId(),
       stepId,
@@ -30,6 +30,7 @@ export const useProjectMutations = (project: Ref<ProjectData>): ProjectMutations
     }
 
     updateLastModified()
+    return newStep.id
   }
 
   const updateStepContent = (id: string, content: string) => {

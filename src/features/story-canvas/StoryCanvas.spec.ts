@@ -74,4 +74,46 @@ describe('StoryCanvas Integration', () => {
     await expect.element(startHeading).not.toBeInTheDocument()
     await expect.element(page.getByText('One Sentence Summary')).toBeVisible()
   })
+
+  it('adds a child node when clicking an action button on a node', async () => {
+    const data = ref(
+      buildProjectData({
+        steps: [
+          buildStep({
+            id: '1',
+            stepId: 'step-summary',
+            content: { text: '<p>Summary</p>' },
+          }),
+        ],
+      })
+    )
+    render(StoryCanvas, {
+      props: {
+        data: data.value,
+        template,
+        strings,
+      },
+      attrs: {
+        style: 'height: 100vh; width: 100vw;',
+      },
+    })
+
+    const node = page.getByText('Summary', { exact: true })
+    await expect.element(node).toBeVisible()
+
+    // Hover to reveal action buttons
+    await node.hover()
+
+    const expandButton = page.getByRole('button', { name: /Expand to Storyline/i })
+    await expect.element(expandButton).toBeVisible()
+
+    await expandButton.click()
+
+    await vi.waitFor(() => expect(data.value.steps.length).toBe(2))
+    expect(data.value.steps.some((s) => s.stepId === 'step-storyline')).toBe(true)
+    expect(data.value.connections.length).toBe(1)
+    expect(data.value.connections[0]!.source).toBe('1')
+
+    await expect.element(page.getByText('Storyline')).toBeVisible()
+  })
 })

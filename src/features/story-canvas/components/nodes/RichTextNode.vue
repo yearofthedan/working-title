@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-sm bg-paper border border-edge p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-sm hover:shadow-md transition-all duration-300"
+    class="rounded-sm bg-paper border border-edge p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-sm hover:shadow-md transition-all duration-300 group"
   >
     <div class="text-[10px] font-bold uppercase tracking-widest text-ink opacity-50 mb-2">
       {{ definition.label }}
@@ -15,6 +15,18 @@
     >
       <editor-content :editor="editor" />
     </div>
+
+    <div
+      v-if="actions && actions.length > 0"
+      class="mt-4 flex flex-wrap gap-2 pt-3 border-t border-edge/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+    >
+      <NodeActionButton
+        v-for="action in actions"
+        :key="action.id"
+        :label="action.label"
+        @click="emit('action-click', action)"
+      />
+    </div>
   </div>
 </template>
 
@@ -23,16 +35,15 @@ import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch, onBeforeUnmount } from 'vue'
 import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
-import type { RichTextNodeDefinition, RichTextNodeContent } from './types'
+import NodeActionButton from './NodeActionButton.vue'
+import type { RichTextNodeProps, RichTextNodeContent } from './types'
+import type { ActionDefinition } from '@/features/story/composables/useStepActions'
 
-const props = defineProps<{
-  id: string
-  definition: RichTextNodeDefinition
-  content: RichTextNodeContent
-}>()
+const props = defineProps<RichTextNodeProps>()
 
 const emit = defineEmits<{
   (e: 'update:content', id: string, content: RichTextNodeContent): void
+  (e: 'action-click', action: ActionDefinition): void
 }>()
 
 const { emit: emitContent, flush: flushContent } = useDebouncedEmit((newText: string) => {
