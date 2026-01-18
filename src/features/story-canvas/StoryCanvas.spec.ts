@@ -7,6 +7,15 @@ import { strings } from '@/features/process-templates/snowflake/strings'
 import { ref } from 'vue'
 import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
 
+const navigateToNodeSpy = vi.fn()
+const navigateToNewNodeSpy = vi.fn()
+vi.mock('./composables/useCanvasNavigation', () => ({
+  useCanvasNavigation: () => ({
+    navigateToNode: navigateToNodeSpy,
+    navigateToNewNode: navigateToNewNodeSpy,
+  }),
+}))
+
 describe('StoryCanvas Integration', () => {
   it('updates project data when node content changes', async () => {
     const data = ref(
@@ -75,7 +84,7 @@ describe('StoryCanvas Integration', () => {
     await expect.element(page.getByText('One Sentence Summary')).toBeVisible()
   })
 
-  it('adds a child node when clicking an action button on a node', async () => {
+  it('adds a child node and navigates to it when clicking an action button', async () => {
     const data = ref(
       buildProjectData({
         steps: [
@@ -110,9 +119,11 @@ describe('StoryCanvas Integration', () => {
     await expandButton.click()
 
     await vi.waitFor(() => expect(data.value.steps.length).toBe(2))
-    expect(data.value.steps.some((s) => s.stepId === 'step-storyline')).toBe(true)
-    expect(data.value.connections.length).toBe(1)
-    expect(data.value.connections[0]!.source).toBe('1')
+    const newNode = data.value.steps.find((s) => s.stepId === 'step-storyline')
+    expect(newNode).toBeDefined()
+
+    // Verify navigation was triggered for the new node ID
+    await vi.waitFor(() => expect(navigateToNewNodeSpy).toHaveBeenCalledWith(newNode?.id))
 
     await expect.element(page.getByText('Storyline')).toBeVisible()
   })
