@@ -1,7 +1,9 @@
 <template>
   <div class="grow relative bg-background" :aria-busy="isLoading">
+    <CanvasLayoutIndicator :is-loading="isLayoutRunning && hasInitialLayout" />
+
     <AppLoadingOverlay
-      :is-loading="isLoading"
+      :is-loading="!hasInitialLayout"
       message="Loading canvas..."
       aria-label="Story canvas is loading"
     />
@@ -56,6 +58,7 @@ import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNode
 import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
 import EmptyCanvas from '@/features/story-canvas/components/EmptyCanvas.vue'
+import CanvasLayoutIndicator from '@/features/story-canvas/components/CanvasLayoutIndicator.vue'
 
 const props = defineProps<{
   tracks: TracksViewModel

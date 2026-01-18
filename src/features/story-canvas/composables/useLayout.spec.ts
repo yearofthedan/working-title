@@ -64,4 +64,34 @@ describe('useLayout', () => {
     await vi.waitUntil(() => nodes.value[0]?.width === 500)
     expect(nodes.value[0]!.width).toBe(500)
   })
+
+  it('does not update layout when only content changes', async () => {
+    const initialNode = createCanvasNode({ id: 'n1', content: 'initial content' })
+    const tracksData = ref(
+      createTracksViewModel({
+        tracks: [createTrack({ nodes: [initialNode] })],
+      })
+    )
+    const dimensions = ref(new Map([['n1', { w: 100, h: 50 }]]))
+
+    const { nodes } = useLayout(tracksData, dimensions)
+
+    await vi.waitUntil(() => nodes.value.length > 0)
+    const initialPosition = { ...nodes.value[0]!.position }
+
+    // Change only content
+    tracksData.value = createTracksViewModel({
+      tracks: [
+        createTrack({
+          nodes: [{ ...initialNode, content: 'updated content' }],
+        }),
+      ],
+    })
+
+    // Wait a bit to ensure debounce/watcher would have fired
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(nodes.value[0]!.position).toEqual(initialPosition)
+    expect(nodes.value[0]!.data!.content).toBe('updated content')
+  })
 })
