@@ -34,4 +34,8 @@ safe_link "../.agents/rules-code" ".roo/rules-code"
 echo -e "${INFO_COLOR}Linking .agents/rules-code to .roo/rules-debug (Debug mode)...${RESET_COLOR}"
 safe_link "../.agents/rules-code" ".roo/rules-debug"
 
+# Link orchestrator-specific rules
+echo -e "${INFO_COLOR}Linking .agents/rules-orchestrator to .roo/rules-orchestrator (Orchestrator mode)...${RESET_COLOR}"
+safe_link "../.agents/rules-orchestrator" ".roo/rules-orchestrator"
+
 echo -e "${SUCCESS_COLOR}Agent links configured successfully.${RESET_COLOR}"

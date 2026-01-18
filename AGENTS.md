@@ -21,11 +21,16 @@ All agent context lives in the `.agents/` directory:
 - **[Testing](.agents/rules-code/testing.md)** - Vitest and Storybook patterns
 - **[Styling](.agents/rules-code/styling.md)** - Tailwind CSS v4 and theming
 
+### Orchestrator-Specific Rules (Orchestrator Mode Only)
+
+- **[Workflow](.agents/rules-orchestrator/workflow.md)** - Subtask sequencing and completion protocol
+
 ## 🔗 Tool Integration
 
 - `.roo/rules/` → Symlink to `.agents/rules/` (loaded by all modes)
 - `.roo/rules-code/` → Symlink to `.agents/rules-code/` (loaded by Code mode)
 - `.roo/rules-debug/` → Symlink to `.agents/rules-code/` (loaded by Debug mode; shares rules with Code mode)
+- `.roo/rules-orchestrator/` → Symlink to `.agents/rules-orchestrator/` (loaded by Orchestrator mode)
 - Direct access via `.agents/` for all other tools
 
 ## 🚀 Quick Start for AI Assistants
@@ -40,3 +45,6 @@ All agent context lives in the `.agents/` directory:
 5. Review [Contributing](.agents/rules-code/contributing.md) for advice for making changes
 6. Review [code-style.md](.agents/rules-code/code-style.md) for implementation standards
 7. Reference [testing.md](.agents/rules-code/testing.md) and [styling.md](.agents/rules-code/styling.md) as needed
+
+### Orchestrator-Specific Rules (Orchestrator Mode Only)
+8. Review [workflow.md](.agents/rules-orchestrator/workflow.md) for subtask sequencing patterns
