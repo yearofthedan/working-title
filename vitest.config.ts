@@ -12,6 +12,11 @@ import viteConfig from './vite.config'
 
 export default mergeConfig(viteConfig, {
   test: {
+    // Tweaks to improve performance in a container
+    pool: 'forks',
+    maxConcurrency: 3,
+    maxWorkers: 2,
+    testTimeout: 15000,
     projects: [
       {
         extends: true,
@@ -22,7 +27,7 @@ export default mergeConfig(viteConfig, {
             provider: playwright({}),
             providerOptions: {
               launch: {
-                args: ['--disable-dev-shm-usage'],
+                args: ['--disable-dev-shm-usage', '--disable-gpu'],
               },
             },
             headless: true,
