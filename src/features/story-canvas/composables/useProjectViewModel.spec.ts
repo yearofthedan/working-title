@@ -44,10 +44,10 @@ describe('useProjectViewModel', () => {
 
   describe('tracks', () => {
     describe('node mapping', () => {
-      it('maps step content, category, and stage correctly', async () => {
+      it('maps step category and stage correctly', async () => {
         const project = ref(
           buildProjectData({
-            steps: [buildStep({ id: 's1', stepId: 'p1', content: { text: 'Hello' } })],
+            steps: [buildStep({ id: 's1', stepId: 'p1' })],
           })
         )
         const template = ref(
@@ -67,7 +67,6 @@ describe('useProjectViewModel', () => {
         const { viewModel } = useProjectViewModel(project, template, ref({}))
         const node = viewModel.value.tracks.tracks[0]!.nodes[0]!
 
-        expect(node.content).toBe('Hello')
         expect(node.stage).toBe(5)
         expect(node.category).toBe('structure')
       })

@@ -16,7 +16,6 @@ export interface CanvasNode {
   stage?: number
   type: 'plainText' | 'richText'
   category: StepCategory
-  content: string
   label: string
   sortOrder: number
 }
@@ -73,7 +72,6 @@ const mapToSidebar = (
         return {
           id: step.id,
           label: getValueAtPath(strings, stepDfn.labelText),
-          content: step.content.text,
           placeholder: getValueAtPath(strings, stepDfn.editorConfig.placeholderText),
           instruction: getValueAtPath(strings, stepDfn.instructionText),
         }
@@ -97,7 +95,6 @@ const toCanvasNode = (
     stage,
     type: stepDefinition?.editorConfig?.format === 'plain' ? 'plainText' : 'richText',
     category: stepDefinition?.category as StepCategory,
-    content: step.content.text,
     label,
     sortOrder,
   }

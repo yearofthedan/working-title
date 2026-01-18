@@ -1,13 +1,12 @@
 <template>
   <div class="flex w-full h-screen overflow-hidden">
-    <StoryCanvasSidebar :nodes="viewModel.sidebar.nodes" @update:content="onSidebarChange" />
+    <StoryCanvasSidebar :nodes="viewModel.sidebar.nodes" />
     <Suspense>
       <StoryCanvasVueFlow
         :tracks="viewModel.tracks"
         :template="template"
         :project-data="data"
         :strings="strings"
-        @update:node-content="onContentChange"
         @add-root-step="onAddRootStep"
       />
       <template #fallback>
@@ -25,6 +24,7 @@ import type { ProjectData } from '@/specs/projectDataSpec'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
 import { useProjectMutations } from '@/features/story/composables/useProjectMutations'
+import { provideContentContext } from '@/features/story-canvas/composables/useContentContext'
 import StoryCanvasSidebar from '@/features/story-canvas/sidebar/StoryCanvasSidebar.vue'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 
@@ -40,19 +40,16 @@ const props = defineProps<{
 
 const { updateStepContent, addStep } = useProjectMutations(toRef(() => props.data))
 
-const onContentChange = (payload: { id: string; content: string }) => {
-  updateStepContent(payload.id, payload.content)
-}
+provideContentContext(
+  toRef(() => props.data),
+  updateStepContent
+)
 
 const { viewModel } = useProjectViewModel(
   toRef(props.data),
   toRef(props.template),
   toRef(props.strings)
 )
-
-const onSidebarChange = (payload: { id: string; content: string }) => {
-  updateStepContent(payload.id, payload.content)
-}
 
 const onAddRootStep = (stepId: string) => {
   addStep(stepId)

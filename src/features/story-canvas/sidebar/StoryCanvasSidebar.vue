@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="w-[300px] flex flex-col bg-paper border-r border-edge transition-colors duration-300"
+    class="w-75 flex flex-col bg-paper border-r border-edge transition-colors duration-300"
   >
     <div class="p-4 border-b border-edge">
       <h2 class="text-xs font-bold uppercase tracking-widest text-ink/80">Project Context</h2>
@@ -9,9 +9,9 @@
       <AppTextAreaField
         v-for="node in nodes"
         :key="node.id"
-        :model-value="node.content"
+        :model-value="getNodeContent(node.id)"
         :label="node.label"
-        @update:model-value="(val) => emit('update:content', { id: node.id, content: val })"
+        @update:model-value="(val) => updateContent(node.id, val)"
       />
     </div>
   </aside>
@@ -20,13 +20,17 @@
 <script setup lang="ts">
 import type { SidebarNode } from '@features/story-canvas/types'
 import AppTextAreaField from '@/features/common/fields/AppTextAreaField.vue'
+import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
 
 defineProps<{
   nodes: SidebarNode[]
 }>()
-const emit = defineEmits<{
-  (e: 'update:content', payload: { id: string; content: string }): void
-}>()
+
+const { getContent, updateContent } = useContentContext()
+
+const getNodeContent = (id: string) => {
+  return getContent(id)?.content.text ?? ''
+}
 </script>
 
 <style></style>

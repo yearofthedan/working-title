@@ -1,11 +1,8 @@
 import { shallowRef, ref, watch, toValue, type Ref, computed } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import { type Node, type Edge } from '@vue-flow/core'
+import { type Edge } from '@vue-flow/core'
 import { calculateTrackedLayout } from '@/features/story-canvas/utils/elkLayoutAdapter'
-import type {
-  CanvasNode,
-  TracksViewModel,
-} from '@/features/story-canvas/composables/useProjectViewModel'
+import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 
 const GHOST_WIDTH = 400
 const GHOST_HEIGHT = 150
@@ -24,26 +21,19 @@ function computeTopologySignature(tracksData: TracksViewModel): string {
   })
 }
 
-/**
- * Updates node data without changing positions.
- * Used to sync content changes without triggering expensive layout recalculation.
- */
-function syncNodeData(
-  currentNodes: Node<CanvasNode>[],
-  newTracksData: TracksViewModel
-): Node<CanvasNode>[] {
-  return currentNodes.map((node) => {
-    const foundNode = newTracksData.tracks.flatMap((t) => t.nodes).find((n) => n.id === node.id)
-
-    return foundNode ? { ...node, data: foundNode } : node
-  })
+export interface LayoutNode {
+  id: string
+  type: string
+  position: { x: number; y: number }
+  width: number
+  height: number
 }
 
 export function useLayout(
   tracksData: Ref<TracksViewModel>,
   dimensions: Ref<Map<string, { w: number; h: number }>>
 ) {
-  const laidOutNodes = shallowRef<Node<CanvasNode>[]>([])
+  const layoutNodes = shallowRef<LayoutNode[]>([])
   const laidOutEdges = shallowRef<Edge[]>([])
   const isLayoutRunning = ref(false)
   const hasInitialLayout = ref(false)
@@ -60,12 +50,11 @@ export function useLayout(
     isLayoutRunning.value = true
     try {
       const positions = await calculateTrackedLayout(tracks, edges, dims)
-      laidOutNodes.value = tracks.flatMap((track) =>
+      layoutNodes.value = tracks.flatMap((track) =>
         track.nodes.map((node) => ({
           id: node.id,
           type: node.type,
           position: positions.get(node.id) ?? { x: 0, y: 0 },
-          data: node,
           width: dims.get(node.id)?.w ?? GHOST_WIDTH,
           height: dims.get(node.id)?.h ?? GHOST_HEIGHT,
         }))
@@ -92,16 +81,8 @@ export function useLayout(
     immediate: true,
   })
 
-  watch(
-    tracksData,
-    (newData) => {
-      laidOutNodes.value = syncNodeData(laidOutNodes.value, newData)
-    },
-    { deep: true }
-  )
-
   return {
-    nodes: laidOutNodes,
+    layoutNodes,
     edges: laidOutEdges,
     isLayoutRunning,
     hasInitialLayout,

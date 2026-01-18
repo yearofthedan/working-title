@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { defineComponent, h, ref } from 'vue'
 import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
 import { expect } from 'storybook/test'
 import { createCanvasNode } from '@/features/story-canvas/composables/__testHelpers__/builders'
+import { provideContentContext } from '@/features/story-canvas/composables/useContentContext'
+import type { ProjectData } from '@/specs/projectDataSpec'
+import { buildProjectData } from '@/specs/__testHelpers__/builders'
 
 const meta = {
   component: RichTextNode,
@@ -9,6 +13,33 @@ const meta = {
   argTypes: {
     data: { control: 'object' },
   },
+  decorators: [
+    (story, context) => {
+      const nodeData = context.args.data
+
+      return defineComponent({
+        setup() {
+          const projectData = ref<ProjectData>(
+            buildProjectData({
+              meta: { name: 'Story', created: '', lastModified: '' },
+              steps: [
+                {
+                  id: nodeData.id,
+                  stepId: nodeData.stepId,
+                  content: { text: '<p>This is a <strong>Node</strong>.</p>' },
+                },
+              ],
+              connections: [],
+            })
+          )
+
+          provideContentContext(projectData, () => {})
+
+          return () => h(story())
+        },
+      })
+    },
+  ],
   parameters: {
     a11y: {
       config: {
@@ -28,7 +59,6 @@ export const Default: Story = {
     data: createCanvasNode({
       category: 'structure',
       label: 'Rich Text Node',
-      content: '<p>This is a <strong>Node</strong>.</p>',
     }),
   },
   play: async ({ canvas, step, userEvent }) => {
