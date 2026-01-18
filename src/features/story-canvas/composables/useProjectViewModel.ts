@@ -8,6 +8,7 @@ import type {
 } from '@/features/process-templates/processTemplate'
 import type { SidebarNode } from '../types'
 import { partitionNodesByRoot } from '@/utils/graphs'
+import type { ActionDefinition } from '@/features/story/composables/useStepActions'
 
 export interface CanvasNode {
   id: string
@@ -15,6 +16,7 @@ export interface CanvasNode {
   stage?: number
   category: StepCategory
   sortOrder: number
+  actions?: ActionDefinition[]
 }
 
 export interface CanvasEdge {
@@ -77,7 +79,8 @@ const mapToSidebar = (
 const toCanvasNode = (
   step: Step,
   stepDefinition?: StepDefinition,
-  sortOrder: number = 0
+  sortOrder: number = 0,
+  actions?: ActionDefinition[]
 ): CanvasNode => {
   const stage = stepDefinition?.stage
 
@@ -87,6 +90,7 @@ const toCanvasNode = (
     stage,
     category: stepDefinition?.category as StepCategory,
     sortOrder,
+    actions,
   }
 }
 
@@ -120,13 +124,19 @@ const mapToTracks = (
   steps: Step[],
   connections: Connection[],
   stepDefinitionMap: Map<string, StepDefinition>,
-  template: ProcessTemplate
+  template: ProcessTemplate,
+  getAvailableActions?: (id: string) => ActionDefinition[]
 ): TracksViewModel => {
   const stepOrder = template.stepDefinitions.map((d) => d.id)
   const trackConfigs = template.ui?.tracks ?? []
 
   const allNodes = steps.map((s) =>
-    toCanvasNode(s, stepDefinitionMap.get(s.stepId), stepOrder.indexOf(s.stepId))
+    toCanvasNode(
+      s,
+      stepDefinitionMap.get(s.stepId),
+      stepOrder.indexOf(s.stepId),
+      getAvailableActions?.(s.id)
+    )
   )
 
   const rootDefinitions = findRootDefinitions(allNodes, trackConfigs)
@@ -169,7 +179,11 @@ const mapToTracks = (
   }
 }
 
-const mapProjectToViewModel = (projectData: ProjectData, template: ProcessTemplate): ViewModel => {
+const mapProjectToViewModel = (
+  projectData: ProjectData,
+  template: ProcessTemplate,
+  getAvailableActions?: (id: string) => ActionDefinition[]
+): ViewModel => {
   const stepDefinitionMap = new Map(template.stepDefinitions.map((s) => [s.id, s]))
   const validSteps = projectData.steps.filter((s) => stepDefinitionMap.has(s.stepId))
   const canvasSteps = validSteps.filter((s) =>
@@ -180,7 +194,8 @@ const mapProjectToViewModel = (projectData: ProjectData, template: ProcessTempla
     canvasSteps,
     projectData.connections.filter(connectsRealNodes(new Set(canvasSteps.map((s) => s.id)))),
     stepDefinitionMap,
-    template
+    template,
+    getAvailableActions
   )
 
   const sidebarSteps = validSteps.filter((s) =>
@@ -191,9 +206,13 @@ const mapProjectToViewModel = (projectData: ProjectData, template: ProcessTempla
   return { sidebar, tracks }
 }
 
-export function useProjectViewModel(projectData: Ref<ProjectData>, template: Ref<ProcessTemplate>) {
+export function useProjectViewModel(
+  projectData: Ref<ProjectData>,
+  template: Ref<ProcessTemplate>,
+  getAvailableActions?: Ref<(id: string) => ActionDefinition[]>
+) {
   const viewModel = computed<ViewModel>(() => {
-    return mapProjectToViewModel(projectData.value, template.value)
+    return mapProjectToViewModel(projectData.value, template.value, getAvailableActions?.value)
   })
 
   return { viewModel }

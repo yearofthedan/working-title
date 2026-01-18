@@ -30,7 +30,9 @@
           :ref="(el: any) => registerNode(id, el?.$el || el)"
           :definition="data.definition"
           :content="data.content"
+          :actions="data.actions"
           @update:content="handleContentUpdate"
+          @action-click="handleActionClick"
         />
       </template>
       <template #node-plainText="{ id, data }">
@@ -39,7 +41,9 @@
           :ref="(el: any) => registerNode(id, el?.$el || el)"
           :definition="data.definition"
           :content="data.content"
+          :actions="data.actions"
           @update:content="handleContentUpdate"
+          @action-click="handleActionClick"
         />
       </template>
       <Background />
@@ -61,6 +65,7 @@ import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
 import { useDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'
 import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
+import type { ActionDefinition } from '@/features/story/composables/useStepActions'
 import type {
   TracksViewModel,
   CanvasNode,
@@ -127,6 +132,7 @@ const nodes = computed(() => {
         id: layoutNode.id,
         definition,
         content,
+        actions: metadata?.actions,
       },
     }
   })
@@ -134,6 +140,12 @@ const nodes = computed(() => {
 
 const handleContentUpdate = (id: string, content: RichTextNodeContent) => {
   updateContent(id, content.text)
+}
+
+const handleActionClick = (action: ActionDefinition) => {
+  const newNodeId = action.execute()
+  // Phase 3 will handle navigation to newNodeId
+  console.log('Action executed, new node ID:', newNodeId)
 }
 
 const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)

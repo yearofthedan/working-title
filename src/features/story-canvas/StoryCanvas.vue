@@ -24,6 +24,7 @@ import type { ProjectData } from '@/specs/projectDataSpec'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
 import { useProjectMutations } from '@/features/story/composables/useProjectMutations'
+import { useStepActions } from '@/features/story/composables/useStepActions'
 import { provideContentContext } from '@/features/story-canvas/composables/useContentContext'
 import { provideDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'
 import StoryCanvasSidebar from '@/features/story-canvas/sidebar/StoryCanvasSidebar.vue'
@@ -39,7 +40,15 @@ const props = defineProps<{
   strings: Record<string, unknown>
 }>()
 
-const { updateStepContent, addStep } = useProjectMutations(toRef(() => props.data))
+const mutations = useProjectMutations(toRef(() => props.data))
+const { updateStepContent, addStep } = mutations
+
+const { getAvailableActions } = useStepActions(
+  toRef(() => props.data),
+  toRef(() => props.template),
+  toRef(() => props.strings),
+  mutations
+)
 
 provideContentContext(
   toRef(() => props.data),
@@ -51,7 +60,11 @@ provideDefinitionsContext(
   toRef(() => props.strings)
 )
 
-const { viewModel } = useProjectViewModel(toRef(props.data), toRef(props.template))
+const { viewModel } = useProjectViewModel(
+  toRef(() => props.data),
+  toRef(() => props.template),
+  toRef(() => getAvailableActions)
+)
 
 const onAddRootStep = (stepId: string) => {
   addStep(stepId)
