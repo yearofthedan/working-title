@@ -8,7 +8,6 @@ import type {
 export const createCanvasNode = (overrides: Partial<CanvasNode> = {}): CanvasNode => ({
   id: 'node-1',
   stepId: 'premise',
-  content: 'Test content',
   type: 'richText',
   category: 'structure',
   label: 'Test label',

@@ -25,18 +25,10 @@
       :fit-view-on-init="true"
     >
       <template #node-richText="{ id, data: nodeData }">
-        <RichTextNode
-          :ref="(el: any) => registerNode(id, el?.$el || el)"
-          :data="nodeData"
-          @update:content="(content) => updateNodeContent(id, content)"
-        />
+        <RichTextNode :ref="(el: any) => registerNode(id, el?.$el || el)" :data="nodeData" />
       </template>
       <template #node-plainText="{ id, data: nodeData }">
-        <RichTextNode
-          :ref="(el: any) => registerNode(id, el?.$el || el)"
-          :data="nodeData"
-          @update:content="(content) => updateNodeContent(id, content)"
-        />
+        <RichTextNode :ref="(el: any) => registerNode(id, el?.$el || el)" :data="nodeData" />
       </template>
       <Background />
       <Controls class="border border-edge bg-paper fill-ink" />
@@ -68,21 +60,27 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:nodeContent', payload: { id: string; content: string }): void
   (e: 'add-root-step', stepId: string): void
 }>()
 
 const { dimensions, registerNode } = useNodeSizeObserver()
-const { nodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
+const { layoutNodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
   toRef(() => props.tracks),
   dimensions
 )
 
-const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)
+const nodes = computed(() => {
+  return layoutNodes.value.map((layoutNode) => {
+    const metadata = props.tracks.tracks.flatMap((t) => t.nodes).find((n) => n.id === layoutNode.id)
 
-const updateNodeContent = (id: string, content: string) => {
-  emit('update:nodeContent', { id, content })
-}
+    return {
+      ...layoutNode,
+      data: metadata,
+    }
+  })
+})
+
+const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)
 </script>
 
 <style>

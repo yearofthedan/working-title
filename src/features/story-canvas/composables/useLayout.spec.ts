@@ -28,15 +28,14 @@ describe('useLayout', () => {
 
     const dimensions = ref(new Map([['n1', { w: 100, h: 50 }]]))
 
-    const { nodes, edges, isLayoutRunning } = useLayout(tracksData, dimensions)
+    const { layoutNodes, edges, isLayoutRunning } = useLayout(tracksData, dimensions)
 
-    await vi.waitUntil(() => nodes.value.length > 0)
+    await vi.waitUntil(() => layoutNodes.value.length > 0)
 
-    const resultNode = nodes.value[0]!
+    const resultNode = layoutNodes.value[0]!
 
     expect(resultNode.id).toBe('n1')
     expect(resultNode.type).toBe('plainText')
-    expect(resultNode.data).toMatchObject({ id: 'n1' })
 
     expect(edges.value[0]).toMatchObject({
       id: 'e1',
@@ -54,19 +53,19 @@ describe('useLayout', () => {
       })
     )
 
-    const { nodes } = useLayout(data, dims)
+    const { layoutNodes } = useLayout(data, dims)
 
-    await vi.waitUntil(() => nodes.value.length > 0)
-    expect(nodes.value[0]!.width).toBe(100)
+    await vi.waitUntil(() => layoutNodes.value.length > 0)
+    expect(layoutNodes.value[0]!.width).toBe(100)
 
     dims.value = new Map([['n1', { w: 500, h: 50 }]])
 
-    await vi.waitUntil(() => nodes.value[0]?.width === 500)
-    expect(nodes.value[0]!.width).toBe(500)
+    await vi.waitUntil(() => layoutNodes.value[0]?.width === 500)
+    expect(layoutNodes.value[0]!.width).toBe(500)
   })
 
-  it('does not update layout when only content changes', async () => {
-    const initialNode = createCanvasNode({ id: 'n1', content: 'initial content' })
+  it('does not update layout when only metadata changes', async () => {
+    const initialNode = createCanvasNode({ id: 'n1' })
     const tracksData = ref(
       createTracksViewModel({
         tracks: [createTrack({ nodes: [initialNode] })],
@@ -74,16 +73,16 @@ describe('useLayout', () => {
     )
     const dimensions = ref(new Map([['n1', { w: 100, h: 50 }]]))
 
-    const { nodes } = useLayout(tracksData, dimensions)
+    const { layoutNodes } = useLayout(tracksData, dimensions)
 
-    await vi.waitUntil(() => nodes.value.length > 0)
-    const initialPosition = { ...nodes.value[0]!.position }
+    await vi.waitUntil(() => layoutNodes.value.length > 0)
+    const initialPosition = { ...layoutNodes.value[0]!.position }
 
-    // Change only content
+    // Change only metadata (label)
     tracksData.value = createTracksViewModel({
       tracks: [
         createTrack({
-          nodes: [{ ...initialNode, content: 'updated content' }],
+          nodes: [{ ...initialNode, label: 'updated label' }],
         }),
       ],
     })
@@ -91,7 +90,6 @@ describe('useLayout', () => {
     // Wait a bit to ensure debounce/watcher would have fired
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(nodes.value[0]!.position).toEqual(initialPosition)
-    expect(nodes.value[0]!.data!.content).toBe('updated content')
+    expect(layoutNodes.value[0]!.position).toEqual(initialPosition)
   })
 })

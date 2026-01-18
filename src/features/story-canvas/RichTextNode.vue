@@ -18,33 +18,37 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import { watch, onBeforeUnmount } from 'vue'
+import { watch, onBeforeUnmount, computed } from 'vue'
 import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
 import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
+import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
 
 const CONTENT_UPDATE_DEBOUNCE = 300
 
 const props = defineProps<{
   data: CanvasNode
 }>()
-const emit = defineEmits<{
-  (e: 'update:content', content: string): void
-}>()
+
+const { getContent, updateContent } = useContentContext()
+
+const nodeContent = computed(() => {
+  return getContent(props.data.id)?.content.text ?? ''
+})
 
 const { emit: emitContent, flush: flushContent } = useDebouncedEmit(
   (content: string) => {
-    emit('update:content', content)
+    updateContent(props.data.id, content)
   },
   { delay: CONTENT_UPDATE_DEBOUNCE, maxWait: 1000 }
 )
 
 const editor = useEditor({
-  content: props.data.content,
+  content: nodeContent.value,
   extensions: [StarterKit],
   editable: false,
   onUpdate: ({ editor: e }) => {
     const newContent = e.getHTML()
-    if (newContent !== props.data.content) {
+    if (newContent !== nodeContent.value) {
       emitContent(newContent)
     }
   },
@@ -60,14 +64,11 @@ const makeEditable = () => {
   }
 }
 
-watch(
-  () => props.data.content,
-  (newContent) => {
-    if (editor.value && editor.value.getHTML() !== newContent) {
-      editor.value.commands.setContent(newContent, { parseOptions: { preserveWhitespace: 'full' } })
-    }
+watch(nodeContent, (newContent) => {
+  if (editor.value && editor.value.getHTML() !== newContent) {
+    editor.value.commands.setContent(newContent, { parseOptions: { preserveWhitespace: 'full' } })
   }
-)
+})
 
 onBeforeUnmount(() => {
   editor.value?.destroy()
