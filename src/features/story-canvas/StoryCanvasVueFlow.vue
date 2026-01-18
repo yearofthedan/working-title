@@ -54,7 +54,7 @@
 </template>
 <script setup lang="ts">
 import { toRef, computed } from 'vue'
-import { VueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
@@ -62,6 +62,7 @@ import type { ProcessTemplate } from '@/features/process-templates/processTempla
 import type { ProjectData } from '@/specs/projectDataSpec'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/story-canvas/composables/useLayout'
+import { useCanvasNavigation } from '@/features/story-canvas/composables/useCanvasNavigation'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
 import { useDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'
 import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
@@ -88,6 +89,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'add-root-step', stepId: string): void
 }>()
+
+const vueFlowInstance = useVueFlow()
+const { navigateToNewNode } = useCanvasNavigation(vueFlowInstance)
 
 const { dimensions, registerNode } = useNodeSizeObserver()
 const { layoutNodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
@@ -144,8 +148,10 @@ const handleContentUpdate = (id: string, content: RichTextNodeContent) => {
 
 const handleActionClick = (action: ActionDefinition) => {
   const newNodeId = action.execute()
-  // Phase 3 will handle navigation to newNodeId
-  console.log('Action executed, new node ID:', newNodeId)
+
+  if (newNodeId) {
+    navigateToNewNode(newNodeId)
+  }
 }
 
 const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)
