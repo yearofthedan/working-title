@@ -23,7 +23,6 @@ function computeTopologySignature(tracksData: TracksViewModel): string {
 
 export interface LayoutNode {
   id: string
-  type: string
   position: { x: number; y: number }
   width: number
   height: number
@@ -53,7 +52,6 @@ export function useLayout(
       layoutNodes.value = tracks.flatMap((track) =>
         track.nodes.map((node) => ({
           id: node.id,
-          type: node.type,
           position: positions.get(node.id) ?? { x: 0, y: 0 },
           width: dims.get(node.id)?.w ?? GHOST_WIDTH,
           height: dims.get(node.id)?.h ?? GHOST_HEIGHT,

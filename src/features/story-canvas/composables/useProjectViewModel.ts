@@ -6,7 +6,6 @@ import type {
   StepDefinition,
   TrackDefinition,
 } from '@/features/process-templates/processTemplate'
-import { getValueAtPath } from '@/utils/objects'
 import type { SidebarNode } from '../types'
 import { partitionNodesByRoot } from '@/utils/graphs'
 
@@ -14,9 +13,7 @@ export interface CanvasNode {
   id: string
   stepId: string
   stage?: number
-  type: 'plainText' | 'richText'
   category: StepCategory
-  label: string
   sortOrder: number
 }
 
@@ -59,8 +56,7 @@ export interface ViewModel {
 
 const mapToSidebar = (
   steps: Step[],
-  stepDefinitionMap: Map<string, StepDefinition>,
-  strings: Record<string, unknown>
+  stepDefinitionMap: Map<string, StepDefinition>
 ): ViewModel['sidebar'] => {
   return {
     nodes: steps
@@ -71,31 +67,25 @@ const mapToSidebar = (
         }
         return {
           id: step.id,
-          label: getValueAtPath(strings, stepDfn.labelText),
-          placeholder: getValueAtPath(strings, stepDfn.editorConfig.placeholderText),
-          instruction: getValueAtPath(strings, stepDfn.instructionText),
+          stepId: step.stepId,
         }
       })
-      .filter((node) => !!node),
+      .filter((node) => !!node) as SidebarNode[],
   }
 }
 
 const toCanvasNode = (
   step: Step,
-  strings: Record<string, unknown>,
   stepDefinition?: StepDefinition,
   sortOrder: number = 0
 ): CanvasNode => {
-  const label = stepDefinition ? getValueAtPath(strings, stepDefinition.labelText) : step.stepId
   const stage = stepDefinition?.stage
 
   return {
     id: step.id,
     stepId: step.stepId,
     stage,
-    type: stepDefinition?.editorConfig?.format === 'plain' ? 'plainText' : 'richText',
     category: stepDefinition?.category as StepCategory,
-    label,
     sortOrder,
   }
 }
@@ -130,14 +120,13 @@ const mapToTracks = (
   steps: Step[],
   connections: Connection[],
   stepDefinitionMap: Map<string, StepDefinition>,
-  template: ProcessTemplate,
-  strings: Record<string, unknown>
+  template: ProcessTemplate
 ): TracksViewModel => {
   const stepOrder = template.stepDefinitions.map((d) => d.id)
   const trackConfigs = template.ui?.tracks ?? []
 
   const allNodes = steps.map((s) =>
-    toCanvasNode(s, strings, stepDefinitionMap.get(s.stepId), stepOrder.indexOf(s.stepId))
+    toCanvasNode(s, stepDefinitionMap.get(s.stepId), stepOrder.indexOf(s.stepId))
   )
 
   const rootDefinitions = findRootDefinitions(allNodes, trackConfigs)
@@ -180,11 +169,7 @@ const mapToTracks = (
   }
 }
 
-const mapProjectToViewModel = (
-  projectData: ProjectData,
-  template: ProcessTemplate,
-  strings: Record<string, unknown>
-): ViewModel => {
+const mapProjectToViewModel = (projectData: ProjectData, template: ProcessTemplate): ViewModel => {
   const stepDefinitionMap = new Map(template.stepDefinitions.map((s) => [s.id, s]))
   const validSteps = projectData.steps.filter((s) => stepDefinitionMap.has(s.stepId))
   const canvasSteps = validSteps.filter((s) =>
@@ -195,25 +180,20 @@ const mapProjectToViewModel = (
     canvasSteps,
     projectData.connections.filter(connectsRealNodes(new Set(canvasSteps.map((s) => s.id)))),
     stepDefinitionMap,
-    template,
-    strings
+    template
   )
 
   const sidebarSteps = validSteps.filter((s) =>
     stepDefinitionMap.get(s.stepId)?.ui?.visibility?.includes('sidebar')
   )
-  const sidebar = mapToSidebar(sidebarSteps, stepDefinitionMap, strings)
+  const sidebar = mapToSidebar(sidebarSteps, stepDefinitionMap)
 
   return { sidebar, tracks }
 }
 
-export function useProjectViewModel(
-  projectData: Ref<ProjectData>,
-  template: Ref<ProcessTemplate>,
-  strings: Ref<Record<string, unknown>>
-) {
+export function useProjectViewModel(projectData: Ref<ProjectData>, template: Ref<ProcessTemplate>) {
   const viewModel = computed<ViewModel>(() => {
-    return mapProjectToViewModel(projectData.value, template.value, strings.value)
+    return mapProjectToViewModel(projectData.value, template.value)
   })
 
   return { viewModel }

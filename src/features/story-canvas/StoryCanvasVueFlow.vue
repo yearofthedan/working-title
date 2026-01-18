@@ -24,11 +24,23 @@
       :class="{ 'opacity-0': !hasInitialLayout }"
       :fit-view-on-init="true"
     >
-      <template #node-richText="{ id, data: nodeData }">
-        <RichTextNode :ref="(el: any) => registerNode(id, el?.$el || el)" :data="nodeData" />
+      <template #node-richText="{ id, data }">
+        <RichTextNode
+          :id="data.id"
+          :ref="(el: any) => registerNode(id, el?.$el || el)"
+          :definition="data.definition"
+          :content="data.content"
+          @update:content="handleContentUpdate"
+        />
       </template>
-      <template #node-plainText="{ id, data: nodeData }">
-        <RichTextNode :ref="(el: any) => registerNode(id, el?.$el || el)" :data="nodeData" />
+      <template #node-plainText="{ id, data }">
+        <RichTextNode
+          :id="data.id"
+          :ref="(el: any) => registerNode(id, el?.$el || el)"
+          :definition="data.definition"
+          :content="data.content"
+          @update:content="handleContentUpdate"
+        />
       </template>
       <Background />
       <Controls class="border border-edge bg-paper fill-ink" />
@@ -47,8 +59,17 @@ import type { ProjectData } from '@/specs/projectDataSpec'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useNodeSizeObserver } from '@/features/story-canvas/composables/useNodeSizeObserver'
-import type { TracksViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
-import RichTextNode from '@/features/story-canvas/RichTextNode.vue'
+import { useDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'
+import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
+import type {
+  TracksViewModel,
+  CanvasNode,
+} from '@/features/story-canvas/composables/useProjectViewModel'
+import type {
+  RichTextNodeDefinition,
+  RichTextNodeContent,
+} from '@/features/story-canvas/components/nodes/types'
+import RichTextNode from '@/features/story-canvas/components/nodes/RichTextNode.vue'
 import EmptyCanvas from '@/features/story-canvas/components/EmptyCanvas.vue'
 import CanvasLayoutIndicator from '@/features/story-canvas/components/CanvasLayoutIndicator.vue'
 
@@ -69,16 +90,51 @@ const { layoutNodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
   dimensions
 )
 
+const { getStepDef } = useDefinitionsContext()
+const { getContent, updateContent } = useContentContext()
+
+const nodeMetadataMap = computed(() => {
+  const map = new Map<string, CanvasNode>()
+  props.tracks.tracks.forEach((track) => {
+    track.nodes.forEach((node) => {
+      map.set(node.id, node)
+    })
+  })
+  return map
+})
+
 const nodes = computed(() => {
   return layoutNodes.value.map((layoutNode) => {
-    const metadata = props.tracks.tracks.flatMap((t) => t.nodes).find((n) => n.id === layoutNode.id)
+    const metadata = nodeMetadataMap.value.get(layoutNode.id)
+    const fullStepDef = getStepDef(metadata?.stepId ?? '')
+    const fullContent = getContent(layoutNode.id)
+
+    const definition: RichTextNodeDefinition = {
+      label: fullStepDef?.label ?? 'Unknown',
+      placeholder: fullStepDef?.placeholder,
+      hint: fullStepDef?.instruction,
+      category: fullStepDef?.category,
+    }
+
+    const content: RichTextNodeContent = {
+      text: fullContent?.content.text ?? '',
+    }
 
     return {
       ...layoutNode,
-      data: metadata,
+      type: fullStepDef?.editorConfig.format === 'plain' ? 'plainText' : 'richText',
+      data: {
+        id: layoutNode.id,
+        definition,
+        content,
+      },
     }
   })
 })
+
+const handleContentUpdate = (id: string, content: RichTextNodeContent) => {
+  updateContent(id, content.text)
+}
 
 const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)
 </script>

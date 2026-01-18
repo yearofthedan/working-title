@@ -3,7 +3,10 @@
     class="rounded-sm bg-paper border border-edge p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-sm hover:shadow-md transition-all duration-300"
   >
     <div class="text-[10px] font-bold uppercase tracking-widest text-ink opacity-50 mb-2">
-      {{ data.label }}
+      {{ definition.label }}
+      <span v-if="definition.category" class="ml-2 px-1 bg-edge/20 rounded-xs">
+        {{ definition.category }}
+      </span>
     </div>
     <div
       class="content nodrag flex-1 overflow-x-hidden text-left text-sm leading-relaxed text-ink"
@@ -18,37 +21,39 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import { watch, onBeforeUnmount, computed } from 'vue'
-import type { CanvasNode } from '@/features/story-canvas/composables/useProjectViewModel'
+import { watch, onBeforeUnmount } from 'vue'
 import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
-import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
-
-const CONTENT_UPDATE_DEBOUNCE = 300
+import type { RichTextNodeDefinition, RichTextNodeContent } from './types'
 
 const props = defineProps<{
-  data: CanvasNode
+  id: string
+  definition: RichTextNodeDefinition
+  content: RichTextNodeContent
 }>()
 
-const { getContent, updateContent } = useContentContext()
+const emit = defineEmits<{
+  (e: 'update:content', id: string, content: RichTextNodeContent): void
+}>()
 
-const nodeContent = computed(() => {
-  return getContent(props.data.id)?.content.text ?? ''
+const { emit: emitContent, flush: flushContent } = useDebouncedEmit((newText: string) => {
+  emit('update:content', props.id, {
+    text: newText,
+  })
 })
 
-const { emit: emitContent, flush: flushContent } = useDebouncedEmit(
-  (content: string) => {
-    updateContent(props.data.id, content)
-  },
-  { delay: CONTENT_UPDATE_DEBOUNCE, maxWait: 1000 }
-)
-
 const editor = useEditor({
-  content: nodeContent.value,
+  content: props.content.text,
   extensions: [StarterKit],
   editable: false,
+  editorProps: {
+    attributes: {
+      role: 'textbox',
+      placeholder: props.definition.placeholder ?? '',
+    },
+  },
   onUpdate: ({ editor: e }) => {
     const newContent = e.getHTML()
-    if (newContent !== nodeContent.value) {
+    if (newContent !== props.content.text) {
       emitContent(newContent)
     }
   },
@@ -64,11 +69,14 @@ const makeEditable = () => {
   }
 }
 
-watch(nodeContent, (newContent) => {
-  if (editor.value && editor.value.getHTML() !== newContent) {
-    editor.value.commands.setContent(newContent, { parseOptions: { preserveWhitespace: 'full' } })
+watch(
+  () => props.content.text,
+  (newText) => {
+    if (editor.value && editor.value.getHTML() !== newText) {
+      editor.value.commands.setContent(newText, { parseOptions: { preserveWhitespace: 'full' } })
+    }
   }
-})
+)
 
 onBeforeUnmount(() => {
   editor.value?.destroy()
@@ -76,7 +84,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-/* Remove default Tiptap focus ring to keep it clean */
 .ProseMirror:focus {
   outline: none;
 }

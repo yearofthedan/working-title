@@ -29,7 +29,7 @@ describe('useProjectViewModel', () => {
       })
     )
 
-    const { viewModel } = useProjectViewModel(project, template, ref({}))
+    const { viewModel } = useProjectViewModel(project, template)
 
     // Flatten tracks to check total canvas nodes
     const canvasNodes = viewModel.value.tracks.tracks.flatMap((t) => t.nodes)
@@ -64,102 +64,11 @@ describe('useProjectViewModel', () => {
           })
         )
 
-        const { viewModel } = useProjectViewModel(project, template, ref({}))
+        const { viewModel } = useProjectViewModel(project, template)
         const node = viewModel.value.tracks.tracks[0]!.nodes[0]!
 
         expect(node.stage).toBe(5)
         expect(node.category).toBe('structure')
-      })
-
-      it('maps step format "plain" to node type "plainText"', async () => {
-        const project = ref(
-          buildProjectData({
-            steps: [buildStep({ id: 'step-1', stepId: 'plain-step' })],
-          })
-        )
-        const template = ref(
-          buildProcessTemplate({
-            stepDefinitions: [
-              buildStepDefinition({
-                id: 'plain-step',
-                ui: { visibility: ['canvas'] },
-                editorConfig: { format: 'plain', placeholderText: 'placeholder' },
-              }),
-            ],
-          })
-        )
-
-        const { viewModel } = useProjectViewModel(project, template, ref({}))
-        expect(viewModel.value.tracks.tracks[0]!.nodes[0]!.type).toBe('plainText')
-      })
-
-      it('maps step format "rich" to node type "richText"', async () => {
-        const project = ref(
-          buildProjectData({
-            steps: [buildStep({ id: 'step-1', stepId: 'rich-step' })],
-          })
-        )
-        const template = ref(
-          buildProcessTemplate({
-            stepDefinitions: [
-              buildStepDefinition({
-                id: 'rich-step',
-                ui: { visibility: ['canvas'] },
-                editorConfig: { format: 'rich', placeholderText: 'placeholder' },
-              }),
-            ],
-          })
-        )
-
-        const { viewModel } = useProjectViewModel(project, template, ref({}))
-        expect(viewModel.value.tracks.tracks[0]!.nodes[0]!.type).toBe('richText')
-      })
-
-      it('maps the label from strings via labelText key', async () => {
-        const project = ref(
-          buildProjectData({
-            steps: [buildStep({ id: 'step-1', stepId: 'premise' })],
-          })
-        )
-        const template = ref(
-          buildProcessTemplate({
-            stepDefinitions: [
-              buildStepDefinition({
-                id: 'premise',
-                labelText: 'step.premise.label',
-                ui: { visibility: ['canvas'] },
-              }),
-            ],
-          })
-        )
-
-        const strings = ref({ step: { premise: { label: 'My Custom Label' } } })
-        const { viewModel } = useProjectViewModel(project, template, strings)
-
-        expect(viewModel.value.tracks.tracks[0]!.nodes[0]!.label).toBe('My Custom Label')
-      })
-
-      it('falls back to the labelText key when strings are missing', async () => {
-        const project = ref(
-          buildProjectData({
-            steps: [buildStep({ id: 'step-1', stepId: 'premise' })],
-          })
-        )
-        const template = ref(
-          buildProcessTemplate({
-            stepDefinitions: [
-              buildStepDefinition({
-                id: 'premise',
-                labelText: 'step.missing.label',
-                ui: { visibility: ['canvas'] },
-              }),
-            ],
-          })
-        )
-        const strings = ref({})
-
-        const { viewModel } = useProjectViewModel(project, template, strings)
-        expect(viewModel.value.tracks.tracks[0]!.nodes[0]!.label).toBe('step.missing.label')
       })
     })
 
@@ -182,7 +91,7 @@ describe('useProjectViewModel', () => {
         })
       )
 
-      const { viewModel } = useProjectViewModel(project, template, ref({}))
+      const { viewModel } = useProjectViewModel(project, template)
       const nodes = viewModel.value.tracks.tracks[0]!.nodes
 
       expect(nodes[0]!.id).toBe('step-A')
@@ -223,7 +132,7 @@ describe('useProjectViewModel', () => {
         })
       )
 
-      const { viewModel } = useProjectViewModel(project, template, ref({}))
+      const { viewModel } = useProjectViewModel(project, template)
       const charTracks = viewModel.value.tracks.tracks.filter((t) => t.id.startsWith('characters'))
 
       expect(charTracks).toHaveLength(2)
@@ -260,7 +169,7 @@ describe('useProjectViewModel', () => {
         })
       )
 
-      const { viewModel } = useProjectViewModel(project, template, ref({}))
+      const { viewModel } = useProjectViewModel(project, template)
       const mainTrack = viewModel.value.tracks.tracks.find((t) => t.id.startsWith('main'))
       const charTrack = viewModel.value.tracks.tracks.find((t) => t.id.startsWith('characters'))
 
@@ -287,7 +196,7 @@ describe('useProjectViewModel', () => {
         })
       )
 
-      const { viewModel } = useProjectViewModel(project, template, ref({}))
+      const { viewModel } = useProjectViewModel(project, template)
       const orphanTrack = viewModel.value.tracks.tracks.find((t) => t.id === '__orphans')
       expect(orphanTrack).toBeDefined()
       expect(orphanTrack?.nodes.map((n) => n.id)).toContain('lonely-node')
