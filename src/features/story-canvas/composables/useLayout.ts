@@ -1,4 +1,4 @@
-import { shallowRef, ref, watch, toValue, type Ref } from 'vue'
+import { shallowRef, ref, watch, toValue, type Ref, computed } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { type Node, type Edge } from '@vue-flow/core'
 import { calculateTrackedLayout } from '@/features/story-canvas/utils/elkLayoutAdapter'
@@ -11,15 +11,43 @@ const GHOST_WIDTH = 400
 const GHOST_HEIGHT = 150
 const LAYOUT_DEBOUNCE_TIME = 50
 
+/**
+ * Computes a signature representing the graph topology (nodes, edges, track assignments).
+ * Changes to this signature trigger a full layout recalculation.
+ * Content changes (text edits) do NOT affect this signature.
+ */
+function computeTopologySignature(tracksData: TracksViewModel): string {
+  return JSON.stringify({
+    nodes: tracksData.tracks.flatMap((t) => t.nodes.map((n) => n.id)).sort(),
+    edges: tracksData.edges.map((e) => e.id).sort(),
+    tracks: tracksData.tracks.map((t) => ({ id: t.id, nodes: t.nodes.map((n) => n.id) })),
+  })
+}
+
+/**
+ * Updates node data without changing positions.
+ * Used to sync content changes without triggering expensive layout recalculation.
+ */
+function syncNodeData(
+  currentNodes: Node<CanvasNode>[],
+  newTracksData: TracksViewModel
+): Node<CanvasNode>[] {
+  return currentNodes.map((node) => {
+    const foundNode = newTracksData.tracks.flatMap((t) => t.nodes).find((n) => n.id === node.id)
+
+    return foundNode ? { ...node, data: foundNode } : node
+  })
+}
+
 export function useLayout(
   tracksData: Ref<TracksViewModel>,
   dimensions: Ref<Map<string, { w: number; h: number }>>
 ) {
-  // Use shallowRef for performance—Vue Flow handles its own internal reactivity
   const laidOutNodes = shallowRef<Node<CanvasNode>[]>([])
   const laidOutEdges = shallowRef<Edge[]>([])
   const isLayoutRunning = ref(false)
   const hasInitialLayout = ref(false)
+
   const calculateLayout = useDebounceFn(async () => {
     const { tracks, edges } = toValue(tracksData)
     const dims = toValue(dimensions)
@@ -59,14 +87,17 @@ export function useLayout(
     }
   }, LAYOUT_DEBOUNCE_TIME)
 
+  const topologySignature = computed(() => computeTopologySignature(toValue(tracksData)))
+  watch([topologySignature, dimensions], () => calculateLayout(), {
+    immediate: true,
+  })
+
   watch(
-    [() => toValue(tracksData), () => toValue(dimensions)],
-    () => {
-      calculateLayout()
+    tracksData,
+    (newData) => {
+      laidOutNodes.value = syncNodeData(laidOutNodes.value, newData)
     },
-    {
-      immediate: true,
-    }
+    { deep: true }
   )
 
   return {
