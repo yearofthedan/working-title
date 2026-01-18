@@ -1,7 +1,7 @@
 {
   "name": "Working Title Dev Container",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
-  "runArgs": ["--memory=6g", "--memory-swap=6g"],
+  "runArgs": ["--memory=8g", "--memory-swap=8g"],
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest",
@@ -72,6 +72,7 @@
   "postCreateCommand": "./do bootstrap",
   "containerEnv": {
     "PLAYWRIGHT_BROWSERS_PATH": "/home/node/.cache/ms-playwright",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
     "GIT_CONFIG_COUNT": "1",
     "GIT_CONFIG_KEY_0": "safe.directory",
     "GIT_CONFIG_VALUE_0": "${containerWorkspaceFolder}"
