@@ -1,0 +1,2 @@
+export const CONTENT_UPDATE_DEBOUNCE = 300
+export const CONTENT_UPDATE_MAX_WAIT = 1000

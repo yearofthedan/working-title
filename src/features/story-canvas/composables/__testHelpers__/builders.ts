@@ -8,9 +8,7 @@ import type {
 export const createCanvasNode = (overrides: Partial<CanvasNode> = {}): CanvasNode => ({
   id: 'node-1',
   stepId: 'premise',
-  type: 'richText',
   category: 'structure',
-  label: 'Test label',
   sortOrder: 0,
   ...overrides,
 })

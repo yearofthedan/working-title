@@ -2,9 +2,7 @@ import type { Edge, Node } from '@vue-flow/core'
 
 export interface SidebarNode {
   id: string
-  label: string
-  placeholder?: string
-  instruction?: string
+  stepId: string
 }
 
 export interface ViewModel<NodeData> {

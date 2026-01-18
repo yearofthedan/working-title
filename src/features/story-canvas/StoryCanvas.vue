@@ -25,6 +25,7 @@ import type { ProcessTemplate } from '@/features/process-templates/processTempla
 import { useProjectViewModel } from '@features/story-canvas/composables/useProjectViewModel'
 import { useProjectMutations } from '@/features/story/composables/useProjectMutations'
 import { provideContentContext } from '@/features/story-canvas/composables/useContentContext'
+import { provideDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'
 import StoryCanvasSidebar from '@/features/story-canvas/sidebar/StoryCanvasSidebar.vue'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 
@@ -45,11 +46,12 @@ provideContentContext(
   updateStepContent
 )
 
-const { viewModel } = useProjectViewModel(
-  toRef(props.data),
-  toRef(props.template),
-  toRef(props.strings)
+provideDefinitionsContext(
+  toRef(() => props.template),
+  toRef(() => props.strings)
 )
+
+const { viewModel } = useProjectViewModel(toRef(props.data), toRef(props.template))
 
 const onAddRootStep = (stepId: string) => {
   addStep(stepId)

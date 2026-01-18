@@ -1,6 +1,9 @@
 import { useDebounceFn } from '@vueuse/core'
 import { toValue, type MaybeRefOrGetter } from 'vue'
 
+export const DEFAULT_DEBOUNCE = 300
+export const DEFAULT_MAX_WAIT = 1000
+
 export interface UseDebouncedEmitOptions {
   delay?: MaybeRefOrGetter<number>
   maxWait?: MaybeRefOrGetter<number>
@@ -15,7 +18,7 @@ export function useDebouncedEmit<T>(
   emitFn: (value: T) => void,
   options: UseDebouncedEmitOptions = {}
 ): UseDebouncedEmitReturn<T> {
-  const { delay = 300, maxWait = 1000 } = options
+  const { delay = DEFAULT_DEBOUNCE, maxWait = DEFAULT_MAX_WAIT } = options
 
   let pendingValue: T | null = null
   let hasPendingValue = false

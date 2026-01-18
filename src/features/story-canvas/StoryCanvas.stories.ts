@@ -174,9 +174,7 @@ export const Empty: Story = {
   },
   play: async ({ canvas, step }) => {
     await step('Wait for canvas to load', async () => {
-      await waitFor(() => expect(canvas.queryByText('Loading canvas...')).not.toBeInTheDocument(), {
-        timeout: 1000,
-      })
+      await waitFor(() => expect(canvas.queryByText('Loading canvas...')).not.toBeInTheDocument())
     })
 
     await step('Verify empty state', async () => {

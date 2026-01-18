@@ -19,7 +19,7 @@ describe('useLayout', () => {
       createTracksViewModel({
         tracks: [
           createTrack({
-            nodes: [createCanvasNode({ id: 'n1', type: 'plainText' })],
+            nodes: [createCanvasNode({ id: 'n1' })],
           }),
         ],
         edges: [createCanvasEdge({ id: 'e1', source: 'n1', target: 'n2' })],
@@ -35,7 +35,6 @@ describe('useLayout', () => {
     const resultNode = layoutNodes.value[0]!
 
     expect(resultNode.id).toBe('n1')
-    expect(resultNode.type).toBe('plainText')
 
     expect(edges.value[0]).toMatchObject({
       id: 'e1',
@@ -82,7 +81,7 @@ describe('useLayout', () => {
     tracksData.value = createTracksViewModel({
       tracks: [
         createTrack({
-          nodes: [{ ...initialNode, label: 'updated label' }],
+          nodes: [{ ...initialNode, sortOrder: 5 }],
         }),
       ],
     })
