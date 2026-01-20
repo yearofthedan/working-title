@@ -1,41 +1,17 @@
 # Vue Component Patterns
 
-## Structure
+Quick reference for established component approaches.
 
-All components follow the `<template>`, `<script setup>`, `<style>` order.
+For comprehensive component rules, see [Code Style Rules](../../rules-code/code-style.md).
 
-```vue
-<template>
-  <div :class="classes">
-    <slot />
-  </div>
-</template>
+## At a Glance
 
-<script setup lang="ts">
-import { computed } from 'vue'
-
-const props = defineProps<{
-  variant?: 'primary' | 'secondary'
-}>()
-
-const classes = computed(() => [
-  'p-4 rounded',
-  props.variant === 'primary' ? 'bg-blue-500' : 'bg-gray-500',
-])
-</script>
-
-<style scoped>
-/* Scoped styles only if Tailwind isn't enough */
-</style>
-```
-
-## Conventions
-
+- **Structure**: `<template>`, `<script setup>`, `<style>` order.
 - **Naming**: `PascalCase` for files and component names.
 - **Props**: Use interface-based `defineProps`.
 - **Emits**: Use `defineEmits` for custom events.
 - **Logic**: Move complex logic to computed properties or composables.
-- **Size**: Aim for components under 100 lines. If larger, consider extracting sub-components.
+- **Size**: Aim for components under 100 lines.
 
 ## Example
 

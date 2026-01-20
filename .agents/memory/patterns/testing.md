@@ -1,25 +1,15 @@
 # Testing Patterns
 
-## Structure
+Quick reference for established testing approaches.
 
-Tests should follow the nested `describe` structure for clarity.
+For comprehensive testing rules, see [Testing Rules](../../rules-code/testing.md).
 
-```typescript
-describe('MyComponent', () => {
-  describe('initialization', () => {
-    it('sets default values', () => {
-      // ...
-    })
-  })
-})
-```
+## At a Glance
 
-## Conventions
-
-- **Builders**: Use factory functions (`builders.ts`) for test data.
-- **Page Objects**: Use Page Objects for complex UI interactions in integration tests.
-- **Async**: Use `vi.waitUntil` or `expect.poll` for timing-sensitive assertions.
-- **Browser Mode**: Use Vitest Browser Mode for tests requiring real DOM/browser behavior.
+- **Structure**: Nested `describe` blocks (file → method → logical group).
+- **Builders**: Use factory functions from `__testHelpers__/builders.ts`.
+- **Page Objects**: Centralize selectors for complex UI flows.
+- **Browser Mode**: Use for integration tests requiring real DOM.
 
 ## Example
 

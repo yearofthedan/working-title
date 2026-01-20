@@ -1,38 +1,15 @@
 # Composable Patterns
 
-## Structure
+Quick reference for established composable approaches.
 
-Composables should focus on a single responsibility and return reactive state or methods.
+For comprehensive composable rules, see [Code Style Rules](../../rules-code/code-style.md).
 
-```typescript
-import { ref, onMounted } from 'vue'
-
-export function useFeature(id: string) {
-  const data = ref(null)
-  const isLoading = ref(false)
-
-  async function fetchData() {
-    isLoading.value = true
-    // ... logic
-    isLoading.value = false
-  }
-
-  onMounted(fetchData)
-
-  return {
-    data,
-    isLoading,
-    fetchData,
-  }
-}
-```
-
-## Conventions
+## At a Glance
 
 - **Naming**: Always prefix with `use` (e.g., `useProject`).
 - **Input**: Accept `Ref` or values; use `toValue()` for flexible access.
-- **Output**: Return an object of refs and functions.
-- **Side Effects**: Keep side effects (like API calls) inside composables to make components easier to test.
+- **Output**: Return an object of reactive refs and functions.
+- **Side Effects**: Keep side effects (like API calls) inside composables.
 
 ## Example
 
