@@ -1,5 +1,37 @@
 # Testing
 
+## Test Organization
+
+Organize test suites with a consistent hierarchy:
+
+```typescript
+describe('filename', () => {
+  describe('methodName', () => {
+    it('does something specific', () => {
+      // test implementation
+    })
+
+    describe('logical grouping', () => {
+      it('handles edge case A', () => {
+        // test implementation
+      })
+    })
+  })
+})
+```
+
+1. **Outer `describe`**: File or module name.
+2. **Method `describe`**: Function or method being tested.
+3. **Logical group `describe`**: Group related test cases.
+
+## Component Testing
+
+Use Vitest Browser Mode for components that require real DOM or browser interactions.
+
+- **Imports**: `render` from `vitest-browser-vue`, `page` from `vitest/browser`.
+- **Render**: `const { getByRole } = render(MyComponent, { props: { ... } })`.
+- **Assertions**: `await expect.element(page.getByRole('button')).toBeVisible()`.
+
 ## Methodology
 
 The project uses a combination of unit, component, and interaction testing.

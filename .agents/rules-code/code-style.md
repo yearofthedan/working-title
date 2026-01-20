@@ -11,6 +11,11 @@ Use aliases to keep imports clean and readable:
 
 ## Vue Component Style Guide
 
+### Component Size Limits
+
+- **Guide**: Aim for components under 60 lines.
+- **Guideline**: If a component exceeds 100 lines, it should likely be refactored into smaller sub-components or its logic moved to a composable.
+
 ### Naming Conventions
 
 - Vue components should be named in `PascalCase` (e.g., `MyComponent.vue`).
@@ -75,6 +80,12 @@ defineOptions({
 
 - **shallowRef**: Use for large objects or collections where you only need to track reference changes, especially when integrating with external libraries like Vue Flow or elkjs.
 - **Debouncing**: Use `useDebounceFn` from VueUse for expensive calculations like graph layout.
+
+### Performance Considerations
+
+- **Exit Early**: Use early returns to reduce nesting and improve readability.
+- **Parallelize**: Run independent async operations in parallel using `Promise.all()`.
+- **Data Structures**: Choose appropriate data structures (e.g., `Set` or `Map` for fast lookups) when dealing with large datasets.
 
 ## Composable Conventions
 
