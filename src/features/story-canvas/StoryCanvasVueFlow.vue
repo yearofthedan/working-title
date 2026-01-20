@@ -59,7 +59,6 @@ import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
-import type { ProjectData } from '@/specs/projectDataSpec'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/story-canvas/composables/useLayout'
 import { useCanvasNavigation } from '@/features/story-canvas/composables/useCanvasNavigation'
@@ -78,6 +77,7 @@ import type {
 import RichTextNode from '@/features/story-canvas/components/nodes/RichTextNode.vue'
 import EmptyCanvas from '@/features/story-canvas/components/EmptyCanvas.vue'
 import CanvasLayoutIndicator from '@/features/story-canvas/components/CanvasLayoutIndicator.vue'
+import type { ProjectData } from '../story/types'
 
 const props = defineProps<{
   tracks: TracksViewModel

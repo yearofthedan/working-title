@@ -1,23 +1,19 @@
 # Data Management Patterns
 
-## Structure
+## Domain Models
 
-Data shapes and contracts are defined in `src/specs/` using TypeScript interfaces.
+Data shapes and contracts are defined within their respective features using TypeScript interfaces.
 
-```typescript
-export interface MyData {
-  id: string
-  value: number
-}
-```
+- **ProjectData**: Core model for story projects, defined in [`src/features/story/types.ts`](../../../src/features/story/types.ts).
+- **ProcessTemplate**: Schema for writing methodologies, defined in [`src/features/process-templates/processTemplate.ts`](../../../src/features/process-templates/processTemplate.ts).
 
 ## Conventions
 
 - **Immutable by Default**: Prefer returning new objects over mutating existing ones.
-- **Spec-first**: Update the spec file before changing the implementation.
-- **Validation**: Use the spec as the source of truth for validation logic.
+- **Model-first**: Update the type definition before changing the implementation.
+- **Single Source of Truth**: Use the domain model as the source of truth for validation logic.
 - **Persistence**: Centralize data persistence logic in dedicated services or composables.
 
 ## Example
 
-Refer to `src/specs/projectDataSpec.ts` for the core project data model.
+Refer to [`src/features/story/types.ts`](../../../src/features/story/types.ts) for the core project data model.

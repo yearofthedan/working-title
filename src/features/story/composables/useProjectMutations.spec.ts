@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
 import { useProjectMutations } from './useProjectMutations'
-import type { ProjectData } from '@/specs/projectDataSpec'
-import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
+import type { ProjectData } from '@/features/story/types'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),

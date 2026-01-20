@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SidebarNode } from '@features/story-canvas/types'
+import type { SidebarNode } from '@/features/story-canvas/types'
 import AppTextAreaField from '@/features/common/fields/AppTextAreaField.vue'
 import { useContentContext } from '@/features/story-canvas/composables/useContentContext'
 import { useDefinitionsContext } from '@/features/story-canvas/composables/useDefinitionsContext'

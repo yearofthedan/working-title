@@ -11,8 +11,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@features/*": ["src/features/*"],
-      "@specs/*": ["src/specs/*"]
     }
   },
   "include": [

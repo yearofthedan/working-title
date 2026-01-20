@@ -5,7 +5,6 @@
 - `src/utils/`: Pure utility logic (arrays, dates, graphs, objects).
 - `src/features/common/`: Global UI primitives and shared components.
 - `src/features/[feature-name]/`: Self-contained domain modules.
-- `src/specs/`: Type specifications and data contracts.
 - `public/`: Static assets.
 
 ## Feature Isolation
@@ -29,10 +28,6 @@ Separate data transformation logic from components by creating dedicated view mo
 
 See [`src/features/story-canvas/composables/useProjectViewModel.ts`](../../src/features/story-canvas/composables/useProjectViewModel.ts)
 
-### Specification Pattern
-
-Use dedicated spec files to define data shapes and contracts used across the application.
-
 ## Performance Patterns
 
 ### Async Component Loading
@@ -50,7 +45,3 @@ Initialize heavy third-party libraries (e.g., Tiptap, specialized renderers) in 
 ### Singleton Dependency Management
 
 Encapsulate heavy external libraries behind singleton adapters. This ensures dependencies are loaded exactly once and shared across all consumers.
-
-- **Location**: `src/specs/`
-- **Purpose**: Define type specifications and data contracts
-- **Examples**: `projectDataSpec.ts`, `processTemplateSpec.ts`

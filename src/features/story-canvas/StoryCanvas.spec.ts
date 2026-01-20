@@ -5,7 +5,7 @@ import StoryCanvas from './StoryCanvas.vue'
 import { template } from '@/features/process-templates/snowflake/template'
 import { strings } from '@/features/process-templates/snowflake/strings'
 import { ref } from 'vue'
-import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 
 const navigateToNodeSpy = vi.fn()
 const navigateToNewNodeSpy = vi.fn()

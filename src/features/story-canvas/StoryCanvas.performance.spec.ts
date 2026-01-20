@@ -3,8 +3,8 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-vue'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 import { fullSampleData } from '@/features/demo/project-data'
-import { template } from '@features/process-templates/snowflake/template'
-import { strings } from '@features/process-templates/snowflake/strings'
+import { template } from '@/features/process-templates/snowflake/template'
+import { strings } from '@/features/process-templates/snowflake/strings'
 
 const TEST_LOADTIME_THRESHOLDS = {
   sidebar: 1000,

@@ -15,7 +15,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof EmptyCanvas>
 
-import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 
 export const EmptyProject: Story = {
   args: {

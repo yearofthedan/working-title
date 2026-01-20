@@ -1,5 +1,5 @@
 import { computed, inject, provide, type Ref, type InjectionKey } from 'vue'
-import type { ProjectData, StepContent } from '@/specs/projectDataSpec'
+import type { ProjectData, StepContent } from '@/features/story/types'
 
 export interface ContentItem {
   id: string

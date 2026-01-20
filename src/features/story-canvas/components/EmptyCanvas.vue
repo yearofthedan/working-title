@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
-import type { ProjectData } from '@/specs/projectDataSpec'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
+import type { ProjectData } from '@/features/story/types'
 
 const props = defineProps<{
   template: ProcessTemplate

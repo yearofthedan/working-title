@@ -1,7 +1,7 @@
 import { type Ref } from 'vue'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import type { ProjectMutations } from '@/features/story/composables/useProjectMutations'
-import type { ProjectData } from '@/specs/projectDataSpec'
+import type { ProjectData } from '@/features/story/types'
 import { parseRootActions, parseStepDefinitions } from '@/features/process-templates/actions'
 
 export interface ActionDefinition {

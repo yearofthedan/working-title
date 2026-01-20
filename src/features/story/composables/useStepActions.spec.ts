@@ -3,14 +3,18 @@ import { ref } from 'vue'
 import { useStepActions } from './useStepActions'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import type { ProjectMutations } from '@/features/story/composables/useProjectMutations'
-import type { ProjectData } from '@/specs/projectDataSpec'
+import type { ProjectData } from '@/features/story/types'
 import {
   buildRootAction,
   buildStepAction,
   buildStepDefinition,
   buildProcessTemplate,
 } from '@/features/process-templates/__testHelpers__/builders'
-import { buildProjectData, buildStep, buildConnection } from '@/specs/__testHelpers__/builders'
+import {
+  buildProjectData,
+  buildStep,
+  buildConnection,
+} from '@/features/story/__testHelpers__/builders'
 
 describe('useStepActions', () => {
   let mutations: ProjectMutations

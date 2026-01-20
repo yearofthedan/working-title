@@ -16,7 +16,7 @@ A writer's story being developed. Contains:
 - **Connections**: Relationships showing narrative flow between steps
 - **Template**: The methodology being followed (e.g., Snowflake v1)
 
-See [`src/specs/projectDataSpec.ts`](../../src/specs/projectDataSpec.ts) for the data model.
+See [`src/features/story/types.ts`](../../src/features/story/types.ts) for the data model.
 
 ### Template
 
@@ -27,7 +27,7 @@ A structured writing methodology defining the process. Contains:
 - **Tracks**: Vertical groupings for visual organization
 - **Validations**: Rules ensuring the story structure is complete
 
-See [`src/specs/processTemplateSpec.ts`](../../src/specs/processTemplateSpec.ts) for the schema.
+See [`src/features/process-templates/processTemplate.ts`](../../src/features/process-templates/processTemplate.ts) for the schema.
 
 ### Step
 
