@@ -7,26 +7,17 @@
 - `src/features/[feature-name]/`: Self-contained domain modules.
 - `public/`: Static assets.
 
-## Feature Isolation
-
-We want to promote high cohesion and low coupling. Therefore we treat features as modular and isolated.
-
-- **No Cross-Feature Imports**: A feature (e.g., `snowflake`) should RARELY import from the internals of another feature (e.g., `canvas`) and only ever from the root level.
-- **Shared only**: If logic or a component is needed by multiple features, it should be moved to `src/features/common/` or `src/utils/`.
-
-**CAUTION**: Always verify path aliases in `tsconfig.app.json` and `vite.config.ts` before using as some mappings may be inconsistent.
-
 ## Architectural Patterns
 
-### View Model Pattern
+This project follows several key architectural patterns:
 
-Separate data transformation logic from components by creating dedicated view models. This keeps components focused on rendering and user interaction.
+- **[Feature Isolation](../memory/decisions/active/adr-001-feature-isolation.md)**: Modular, self-contained features with no cross-imports.
+- **[View Model Pattern](../memory/decisions/active/adr-002-view-model-pattern.md)**: Transform domain data into UI-specific models.
+- **[Dormant Components](../memory/decisions/active/adr-003-dormant-components.md)**: Lazy-load heavy dependencies on user interaction.
 
-- **Location**: Typically found in feature-specific `composables/`.
-- **Purpose**: Transform raw project data into view-specific models
-- **Example**: Canvas (Steps → Graph nodes) vs Sidebar (Steps → Ordered list)
+See individual ADRs for context, decisions, and consequences.
 
-See [`src/features/story-canvas/composables/useProjectViewModel.ts`](../../src/features/story-canvas/composables/useProjectViewModel.ts)
+**CAUTION**: Always verify path aliases in `tsconfig.app.json` and `vite.config.ts` before using as some mappings may be inconsistent.
 
 ## Performance Patterns
 

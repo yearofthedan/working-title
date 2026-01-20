@@ -33,17 +33,6 @@ Known issues, non-obvious constraints, and their solutions.
 - **Problem**: Third-party libraries like `elkjs` or `tiptap` significantly increase bundle size.
 - **Solution**: Use dynamic imports (`defineAsyncComponent`) to split these into separate chunks.
 
-## Development Workflow
+---
 
-### Task Runner Commands
-
-- **Rule**: Always use [`./do`](../../do) scripts instead of direct `pnpm` commands.
-- **Reason**: The project uses a standardized task runner that provides consistent command interfaces.
-- **Examples**:
-  - ✅ `./do test` (correct)
-  - ❌ `pnpm test` (incorrect)
-  - ✅ `./do build` (correct - includes type checking via `vue-tsc -b`)
-  - ❌ `pnpm build` (incorrect)
-  - ✅ `./do lint [--fix]` (correct)
-  - ❌ `pnpm lint` (incorrect)
-- **Reference**: See [`.agents/rules-code/contributing.md`](../.agents/rules-code/contributing.md) for full command list.
+**Note**: For workflow conventions (task runners, commit hooks, etc.), see [Contributing Guide](../rules-code/contributing.md).

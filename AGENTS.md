@@ -17,6 +17,7 @@ All agent context lives in the `.agents/` directory:
 ### Code-Specific Rules (Code & Debug Modes)
 
 - **[Contributing](.agents/rules-code/contributing.md)** - General advice for making changes
+- **[Domain Implementation](.agents/rules-code/domain-implementation.md)** - Technical patterns and implementation notes
 - **[Code Style](.agents/rules-code/code-style.md)** - Vue conventions, naming, TypeScript patterns
 - **[Testing](.agents/rules-code/testing.md)** - Vitest and Storybook patterns
 - **[Styling](.agents/rules-code/styling.md)** - Tailwind CSS v4 and theming
@@ -64,18 +65,25 @@ All agent context lives in the `.agents/` directory:
 
 ## 🚀 Quick Start for AI Assistants
 
-### All Modes
-1. Read this file first for navigation
-2. Check [domain.md](.agents/rules/domain.md) for business context
-3. Review [architecture.md](.agents/rules/architecture.md) for structure and patterns
-4. Check [tech-stack.md](.agents/rules/tech-stack.md) for technology constraints
-5. Review [Memory](.agents/memory/README.md) for recent decisions and gotchas
+### Ask Mode
+1. **[Domain Concepts](.agents/rules/domain.md)** - Understand the business domain and terminology
+2. **[Architecture](.agents/rules/architecture.md)** - Learn the structural patterns
+3. **[Memory/Gotchas](.agents/memory/gotchas.md)** - Check for known issues and troubleshooting
 
-### Code & Debug Modes (Additional)
-6. Review [Contributing](.agents/rules-code/contributing.md) for advice for making changes
-7. Review [code-style.md](.agents/rules-code/code-style.md) for implementation standards
-8. Reference [Testing](.agents/memory/patterns/testing.md) and [Skills](.agents/skills/README.md) as needed
+### Architect Mode
+1. **[All Ask Mode files](#ask-mode)**
+2. **[Architectural Decisions](.agents/memory/decisions/index.md)** - Review rationale behind the system design
+3. **[Planning](.agents/planning/README.md)** - Understand current roadmap and project direction
+4. **On-Demand Reference**: Use `read_file` on `.agents/rules-code/` files when specifying deep technical requirements (e.g., testing APIs or specific code styles).
 
-### Orchestrator-Specific Rules (Orchestrator Mode Only)
-9. Review [workflow.md](.agents/rules-orchestrator/workflow.md) for subtask sequencing patterns
-10. Check [Roadmap](.agents/planning/roadmap.md) and [Backlog](.agents/planning/backlog.md) for project context
+### Code & Debug Modes
+1. **[All Ask Mode files](#ask-mode)**
+2. **[Code Style](.agents/rules-code/code-style.md)** - Review implementation standards
+3. **[Testing Rules](.agents/rules-code/testing.md)** - Technical patterns for Vitest and Storybook
+4. **[Memory Patterns](.agents/memory/patterns/index.md)** - Established code patterns
+5. **[Skills](.agents/skills/README.md)** - Procedural step-by-step workflows
+
+### Orchestrator Mode
+1. **[All Ask Mode files](#ask-mode)**
+2. **[Workflow](.agents/rules-orchestrator/workflow.md)** - Subtask sequencing protocol
+3. **[Roadmap](.agents/planning/roadmap.md)** and **[Backlog](.agents/planning/backlog.md)** - Project context and priorities

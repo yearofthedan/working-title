@@ -9,7 +9,6 @@ Prioritized list of future enhancements and fixes.
 
 ## Medium Priority
 
-- [ ] **Persistence**: Support writing and loading from the local file system
 - [ ] **UX**: Add navigation support between nodes to quickly move to parents and siblings
 - [ ] **UX**: Add a details slide out that allows more complex editing features while still navigating the canvas
 - [ ] **i18n**: Add support for multiple languages (starting with English).

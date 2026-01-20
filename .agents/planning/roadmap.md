@@ -10,28 +10,26 @@ High-level vision for the narrative development tool.
 - [x] Sidebar editing with Tiptap
 - [x] Basic testing infrastructure
 
-## Phase 5: Storage and deployment
-- [ ] File storage for persistance
+## Phase 2: Persistence & Deployment
+
+- [ ] File storage for persistence
 - [ ] Offline support (PWA)
 
-## Phase 2: Refinement
+## Phase 3: Refinement
 
 - [ ] Enhanced validation engine (cross-step consistency)
 - [ ] Improved layout algorithms for large stories
 - [ ] Export to Markdown/DOCX
 - [ ] Multi-methodology support (beyond Snowflake)
 
-## Phase 3: Collaboration
+## Phase 4: Collaboration
 
 - [ ] Version history and snapshots
 - [ ] Real-time co-authoring
 - [ ] Comments and feedback system
 
-## Phase 4: AI Integration
+## Phase 5: AI Integration
 
 - [ ] Narrative analysis (pacing, character arcs)
 - [ ] Suggestion engine for step completion
 - [ ] Automated consistency checking
-
-## Phase 5: Improved cross-platform use
-- [ ] Responsive mobile view
