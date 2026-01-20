@@ -16,7 +16,6 @@ Brief description of the feature and its purpose.
 
 ## Technical Approach
 
-- Changes to `src/specs/`
 - New components in `src/features/`
 - Logic updates in `src/utils/`
 

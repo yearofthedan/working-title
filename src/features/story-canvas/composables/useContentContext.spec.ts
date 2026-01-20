@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { ref, nextTick } from 'vue'
 import { contentContext } from './useContentContext'
-import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 
 describe('useContentContext', () => {
   it('maps the content map from the project data', () => {

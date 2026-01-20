@@ -5,9 +5,6 @@
 Use aliases to keep imports clean and readable:
 
 - `@/*` -> `src/*`
-- `@features/*` -> `src/features/*`
-- `@specs/*` -> `src/specs/*`
-- `@common/*` -> configured for `src/common/*` but directory is deprecated; use `@/utils/*` instead.
 
 ## Vue Component Style Guide
 

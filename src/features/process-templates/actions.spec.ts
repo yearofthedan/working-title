@@ -3,7 +3,7 @@ import { getCanvasRootActions } from './actions'
 import { template } from './snowflake/template'
 import { strings } from './snowflake/strings'
 
-import { buildProjectData, buildStep } from '@/specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 
 describe('getCanvasRootActions', () => {
   it('returns actions whose target has canvas visibility', () => {

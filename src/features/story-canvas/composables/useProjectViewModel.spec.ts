@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildProjectData, buildStep } from '../../../specs/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '@/features/story/__testHelpers__/builders'
 import { useProjectViewModel } from '@/features/story-canvas/composables/useProjectViewModel'
 import { ref } from 'vue'
 import {

@@ -6,8 +6,8 @@
 
 <script setup lang="ts">
 import { fullSampleData } from '@/features/demo/project-data'
-import { template } from '@features/process-templates/snowflake/template'
-import { strings } from '@features/process-templates/snowflake/strings'
+import { template } from '@/features/process-templates/snowflake/template'
+import { strings } from '@/features/process-templates/snowflake/strings'
 import StoryCanvas from '@/features/story-canvas/StoryCanvas.vue'
 </script>
 

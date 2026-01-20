@@ -29,8 +29,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@specs': path.resolve(__dirname, './src/specs'),
     },
   },
   build: {

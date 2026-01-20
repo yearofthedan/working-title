@@ -1,4 +1,4 @@
-import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
+import type { ProjectData, Step, Connection } from '@/features/story/types'
 
 export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',

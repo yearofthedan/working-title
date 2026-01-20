@@ -1,5 +1,5 @@
 import { computed, type Ref } from 'vue'
-import type { ProjectData, Step, Connection } from '@/specs/projectDataSpec'
+import type { ProjectData, Step, Connection } from '@/features/story/types'
 import type {
   ProcessTemplate,
   StepCategory,

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { ProjectData, Step } from '@/specs/projectDataSpec'
+import type { ProjectData, Step } from '@/features/story/types'
 import { now } from '@/utils/dates'
 import { strings } from '@/features/process-templates/snowflake/strings'
 import { template } from '@/features/process-templates/snowflake/template'
