@@ -47,3 +47,9 @@ subtask complete → update todos → attempt_completion → wait for user
 ## Small Commitable Blocks
 
 Each subtask should be a complete, independently testable, prod ready, commitable unit of work that the user can ship without the subsequent phases.
+
+### Before Completion Checklist
+
+- [ ] `./do lint`
+- [ ] `./do test`
+- [ ] `./do build`

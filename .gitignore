@@ -46,3 +46,7 @@ __screenshots__/
 
 # AI planning and scratchpad
 plans/
+
+# Agent planning workspace (ephemeral)
+.agents/planning/active/*
+!.agents/planning/active/.gitkeep
