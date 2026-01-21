@@ -13,4 +13,4 @@ For comprehensive composable rules, see [Code Style Rules](../../rules-code/code
 
 ## Example
 
-Refer to `src/features/story/useProjectData.ts` for a robust data-fetching composable.
+Refer to `src/features/writing-project/useProjectData.ts` for a robust data-fetching composable.

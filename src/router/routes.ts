@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 export const RouteNames = {
   Home: 'home',
   Demo: 'demo',
-  Story: 'story',
+  Project: 'project',
   NotFound: 'not-found',
 } as const
 
@@ -19,9 +19,9 @@ export const router = createRouter({
       component: () => import('@/features/demo/DemoPage.vue'),
     },
     {
-      path: '/story',
-      name: RouteNames.Story,
-      component: () => import('@/features/story/StoryPage.vue'),
+      path: '/project',
+      name: RouteNames.Project,
+      component: () => import('@/features/writing-project/WritingProjectPage.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

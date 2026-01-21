@@ -26,7 +26,7 @@
 
       <!-- New Project Link -->
       <RouterLink
-        :to="{ name: RouteNames.Story }"
+        :to="{ name: RouteNames.Project }"
         class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-y-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
         aria-labelledby="label-new"
       >
@@ -59,7 +59,7 @@ const router = useRouter()
 onMounted(() => {
   window.setTimeout(() => {
     router.resolve({ name: RouteNames.Demo })
-    router.resolve({ name: RouteNames.Story })
+    router.resolve({ name: RouteNames.Project })
   }, 500)
 })
 </script>

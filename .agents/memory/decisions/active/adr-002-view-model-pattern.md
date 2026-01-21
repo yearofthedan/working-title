@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Directly binding UI components to raw data structures (like `ProjectData`) leads to complex templates and logic duplication across different views (Canvas vs Sidebar).
+Directly binding UI components to raw data structures (like `ProjectData`) leads to complex templates and logic duplication across different views (Canvas vs Detailed Editor).
 
 ## Decision
 

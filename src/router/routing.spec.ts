@@ -36,13 +36,13 @@ describe('routing', () => {
     expect(router.currentRoute.value.name).toBe('demo')
   })
 
-  it('navigates to story page when clicking New Project', async () => {
+  it('navigates to project page when clicking New Project', async () => {
     const home = await renderComponent()
 
     await expect.element(home.viewDemoButton).toBeVisible()
     const demoPage = await home.navToNewProject()
     await expect.element(demoPage.sidebarHeader).toBeVisible()
 
-    expect(router.currentRoute.value.name).toBe('story')
+    expect(router.currentRoute.value.name).toBe('project')
   })
 })

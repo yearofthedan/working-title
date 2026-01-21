@@ -17,14 +17,14 @@ Raw project data is transformed into view-specific models:
 - **Canvas**: Steps → Graph nodes with positions, sizes, and visual properties
 - **Sidebar**: Steps → Ordered list with labels and instructions
 
-See [`src/features/story-canvas/composables/useProjectViewModel.ts`](../../src/features/story-canvas/composables/useProjectViewModel.ts)
+See [`src/features/writing-project/view-model/useProjectViewModel.ts`](../../src/features/writing-project/view-model/useProjectViewModel.ts)
 
 ### Graph Partitioning by Tracks
 
 Steps are organized into vertical tracks using graph partitioning algorithms.
 Each track represents a narrative thread (main plot, character arcs, world-building).
 
-See [`src/utils/graphs.ts`](../../src/utils/graphs.ts) and [`src/features/story-canvas/utils/elkLayoutAdapter.ts`](../../src/features/story-canvas/utils/elkLayoutAdapter.ts)
+See [`src/utils/graphs.ts`](../../src/utils/graphs.ts) and [`src/features/writing-project/utils/elkLayoutAdapter.ts`](../../src/features/writing-project/utils/elkLayoutAdapter.ts)
 
 ## Implementation Notes
 

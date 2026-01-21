@@ -67,17 +67,17 @@ export const Default: Story = {
 export const WithMessage: Story = {
   args: {
     isLoading: true,
-    message: 'Loading canvas...',
+    message: 'Loading project...',
   },
   play: async ({ canvas, step }) => {
     await step('displays the message', async () => {
       const status = canvas.getByRole('status')
-      await expect(status).toHaveTextContent('Loading canvas...')
+      await expect(status).toHaveTextContent('Loading project...')
     })
 
     await step('uses message as aria-label fallback', async () => {
       const status = canvas.getByRole('status')
-      await expect(status).toHaveAttribute('aria-label', 'Loading canvas...')
+      await expect(status).toHaveAttribute('aria-label', 'Loading project...')
     })
   },
 }

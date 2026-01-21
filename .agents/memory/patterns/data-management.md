@@ -4,7 +4,7 @@
 
 Data shapes and contracts are defined within their respective features using TypeScript interfaces.
 
-- **ProjectData**: Core model for story projects, defined in [`src/features/story/types.ts`](../../../src/features/story/types.ts).
+- **ProjectData**: Core model for story projects, defined in [`src/features/writing-project/types.ts`](../../../src/features/writing-project/types.ts).
 - **ProcessTemplate**: Schema for writing methodologies, defined in [`src/features/process-templates/processTemplate.ts`](../../../src/features/process-templates/processTemplate.ts).
 
 ## Conventions
@@ -16,4 +16,4 @@ Data shapes and contracts are defined within their respective features using Typ
 
 ## Example
 
-Refer to [`src/features/story/types.ts`](../../../src/features/story/types.ts) for the core project data model.
+Refer to [`src/features/writing-project/types.ts`](../../../src/features/writing-project/types.ts) for the core project data model.
