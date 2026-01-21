@@ -51,5 +51,6 @@ Each subtask should be a complete, independently testable, prod ready, commitabl
 ### Before Completion Checklist
 
 - [ ] `./do lint`
-- [ ] `./do test`
 - [ ] `./do build`
+- [ ] `./do test`
+

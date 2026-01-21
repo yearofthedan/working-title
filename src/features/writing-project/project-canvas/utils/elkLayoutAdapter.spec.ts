@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { calculateTrackedLayout } from '@/features/writing-project/project-canvas/utils/elkLayoutAdapter'
-import { createCanvasNode, createTrack } from '../../__testHelpers__/canvasBuilders'
-import type { CanvasEdge } from '../../view-model/types'
+import { buildBasicCanvasNode, buildTrack } from '../__testHelpers__/builders'
+import type { CanvasEdge } from '../types'
 
 describe('elkLayoutAdapter', () => {
   describe('calculateTrackedLayout', () => {
@@ -12,8 +12,8 @@ describe('elkLayoutAdapter', () => {
       ])
       const edges: CanvasEdge[] = []
       const tracks = [
-        createTrack({ nodes: [createCanvasNode({ id: 'node-track1', stage: 0 })] }),
-        createTrack({ nodes: [createCanvasNode({ id: 'node-track2', stage: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'node-track1', stage: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'node-track2', stage: 0 })] }),
       ]
 
       const result = await calculateTrackedLayout(tracks, edges, dimensions)
@@ -24,10 +24,10 @@ describe('elkLayoutAdapter', () => {
     it('respects sortOrder for horizontal positioning within a track', async () => {
       const edges: CanvasEdge[] = []
       const tracks = [
-        createTrack({
+        buildTrack({
           nodes: [
-            createCanvasNode({ id: 'step-B', stage: 0, sortOrder: 1 }),
-            createCanvasNode({ id: 'step-A', stage: 0, sortOrder: 0 }),
+            buildBasicCanvasNode({ id: 'step-B', stage: 0, sortOrder: 1 }),
+            buildBasicCanvasNode({ id: 'step-A', stage: 0, sortOrder: 0 }),
           ],
         }),
       ]
@@ -40,8 +40,8 @@ describe('elkLayoutAdapter', () => {
     it('places the second track to the right of the first track', async () => {
       const edges: CanvasEdge[] = []
       const tracks = [
-        createTrack({ nodes: [createCanvasNode({ id: 'n1', stage: 0, sortOrder: 0 })] }),
-        createTrack({ nodes: [createCanvasNode({ id: 'n2', stage: 0, sortOrder: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'n1', stage: 0, sortOrder: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'n2', stage: 0, sortOrder: 0 })] }),
       ]
 
       const result = await calculateTrackedLayout(tracks, edges, new Map())
@@ -60,8 +60,8 @@ describe('elkLayoutAdapter', () => {
 
       const edges: CanvasEdge[] = []
       const tracks = [
-        createTrack({ nodes: [createCanvasNode({ id: 'node-0', stage: 0, sortOrder: 0 })] }),
-        createTrack({ nodes: [createCanvasNode({ id: 'node-3', stage: 3, sortOrder: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'node-0', stage: 0, sortOrder: 0 })] }),
+        buildTrack({ nodes: [buildBasicCanvasNode({ id: 'node-3', stage: 3, sortOrder: 0 })] }),
       ]
 
       const result = await calculateTrackedLayout(tracks, edges, dimensions)
@@ -77,13 +77,13 @@ describe('elkLayoutAdapter', () => {
 
       const edges: CanvasEdge[] = []
       const tracks = [
-        createTrack({
+        buildTrack({
           offset: 0,
-          nodes: [createCanvasNode({ id: 'node-a', stage: 0, sortOrder: 0 })],
+          nodes: [buildBasicCanvasNode({ id: 'node-a', stage: 0, sortOrder: 0 })],
         }),
-        createTrack({
+        buildTrack({
           offset: 2,
-          nodes: [createCanvasNode({ id: 'node-b', stage: 0, sortOrder: 0 })],
+          nodes: [buildBasicCanvasNode({ id: 'node-b', stage: 0, sortOrder: 0 })],
         }),
       ]
 

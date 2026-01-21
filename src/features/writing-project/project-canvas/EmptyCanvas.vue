@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
-import type { ProjectData } from '@/features/writing-project/domain/types'
+import { useDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
+import {
+  useProjectContent,
+  useProjectMutations,
+} from '@/features/writing-project/view-model/useProjectContext'
 
-const props = defineProps<{
-  template: ProcessTemplate
-  projectData: ProjectData
-  strings: Record<string, unknown>
-}>()
-
-const emit = defineEmits<{
-  (e: 'add-root-step', stepId: string): void
-}>()
+const { template, strings } = useDefinitionsContext()
+const { contentMap } = useProjectContent()
+const { addStep } = useProjectMutations()
 
 const availableActions = computed(() =>
-  getCanvasRootActions(props.template, props.projectData, props.strings)
+  getCanvasRootActions(template.value, Array.from(contentMap.value.values()), strings.value)
 )
 
 const handleAddStep = (stepId: string) => {
-  emit('add-root-step', stepId)
+  addStep(stepId)
 }
 </script>
 
@@ -61,7 +58,7 @@ const handleAddStep = (stepId: string) => {
 
     <p
       v-else-if="
-        projectData.steps.some((s) =>
+        Array.from(contentMap.values()).some((s) =>
           template.stepDefinitions
             .find((sd) => sd.id === s.stepId)
             ?.ui.visibility.includes('canvas')
