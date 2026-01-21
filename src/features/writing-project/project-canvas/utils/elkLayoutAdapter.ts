@@ -1,5 +1,5 @@
 import type { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk-api'
-import type { CanvasEdge, CanvasNode, Track } from '../../view-model/types'
+import type { CanvasEdge, BasicCanvasNode, Track } from '../types'
 
 let elkInstance: unknown = null
 
@@ -65,7 +65,7 @@ const getEdgesForTrack = (track: Track, allEdges: CanvasEdge[]): ElkExtendedEdge
 /**
  * Group root nodes (nodes with no incoming edges) by stage
  */
-const getSortedRootGroups = (nodes: CanvasNode[], edges: ElkExtendedEdge[]) => {
+const getSortedRootGroups = (nodes: BasicCanvasNode[], edges: ElkExtendedEdge[]) => {
   const edgeTargetSet = new Set(edges.flatMap((e) => e.targets))
 
   return Array.from(
@@ -85,7 +85,7 @@ const getSortedRootGroups = (nodes: CanvasNode[], edges: ElkExtendedEdge[]) => {
  * and disconnected sub-graphs.
  */
 const buildHiddenGraph = (
-  nodes: CanvasNode[],
+  nodes: BasicCanvasNode[],
   edges: ElkExtendedEdge[],
   trackIndex: number
 ): { hiddenNodes: ElkNode[]; hiddenEdges: ElkExtendedEdge[] } => {

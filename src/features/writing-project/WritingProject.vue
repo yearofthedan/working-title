@@ -1,14 +1,8 @@
 <template>
   <div class="flex w-full h-screen overflow-hidden">
-    <ProjectSidebar :nodes="viewModel.sidebar.nodes" />
+    <ProjectSidebar :step-ids="viewModel.sidebarSteps.map((s) => s.id)" />
     <Suspense>
-      <ProjectCanvas
-        :tracks="viewModel.tracks"
-        :template="template"
-        :project-data="data"
-        :strings="strings"
-        @add-root-step="onAddRootStep"
-      />
+      <ProjectCanvas :view-model="viewModel" />
       <template #fallback>
         <div class="grow flex items-center justify-center bg-background">
           <AppLoadingOverlay :is-loading="true" message="Loading project..." />
@@ -22,11 +16,9 @@
 import { toRef, defineAsyncComponent } from 'vue'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import { useProjectViewModel } from '@/features/writing-project/view-model/useProjectViewModel'
-import { useProjectMutations } from '@/features/writing-project/domain/useProjectMutations'
 import ProjectSidebar from '@/features/writing-project/project-sidebar/ProjectSidebar.vue'
-import { useStepActions } from '@/features/writing-project/view-model/useStepActions'
-import { provideContentContext } from '@/features/writing-project/view-model/useContentContext'
 import { provideDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
+import { provideProjectContext } from '@/features/writing-project/view-model/useProjectContext'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import type { ProjectData } from '@/features/writing-project/domain/types'
 
@@ -40,20 +32,7 @@ const props = defineProps<{
   strings: Record<string, unknown>
 }>()
 
-const mutations = useProjectMutations(toRef(() => props.data))
-const { updateStepContent, addStep } = mutations
-
-const { getAvailableActions } = useStepActions(
-  toRef(() => props.data),
-  toRef(() => props.template),
-  toRef(() => props.strings),
-  mutations
-)
-
-provideContentContext(
-  toRef(() => props.data),
-  updateStepContent
-)
+provideProjectContext(toRef(() => props.data))
 
 provideDefinitionsContext(
   toRef(() => props.template),
@@ -62,13 +41,8 @@ provideDefinitionsContext(
 
 const { viewModel } = useProjectViewModel(
   toRef(() => props.data),
-  toRef(() => props.template),
-  toRef(() => getAvailableActions)
+  toRef(() => props.template)
 )
-
-const onAddRootStep = (stepId: string) => {
-  addStep(stepId)
-}
 </script>
 
 <style></style>

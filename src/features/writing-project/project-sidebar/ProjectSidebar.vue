@@ -5,12 +5,12 @@
     </div>
     <div class="p-4 overflow-y-auto flex-y gap-6 flex-1">
       <AppTextAreaField
-        v-for="node in nodes"
-        :key="node.id"
-        :model-value="getNodeContent(node.id)"
-        :label="getNodeLabel(node.stepId)"
-        :placeholder="getNodePlaceholder(node.stepId)"
-        @update:model-value="(val) => updateContent(node.id, val)"
+        v-for="stepId in stepIds"
+        :key="stepId"
+        :model-value="getStepContent(stepId)"
+        :label="getStepLabel(getStepIdByUid(stepId))"
+        :placeholder="getStepPlaceholder(getStepIdByUid(stepId))"
+        @update:model-value="(val) => updateContent(stepId, val)"
       />
     </div>
   </aside>
@@ -18,26 +18,28 @@
 
 <script setup lang="ts">
 import AppTextAreaField from '@/features/common/fields/AppTextAreaField.vue'
-import { useContentContext } from '../view-model/useContentContext'
+import { useProjectContent } from '../view-model/useProjectContext'
 import { useDefinitionsContext } from '../view-model/useDefinitionsContext'
-import type { SidebarNode } from '../view-model/types'
-
 defineProps<{
-  nodes: SidebarNode[]
+  stepIds: string[]
 }>()
 
-const { getContent, updateContent } = useContentContext()
+const { contentMap, getContent, updateContent } = useProjectContent()
 const { getStepDef } = useDefinitionsContext()
 
-const getNodeContent = (id: string) => {
+const getStepIdByUid = (id: string) => {
+  return contentMap.value.get(id)?.stepId ?? ''
+}
+
+const getStepContent = (id: string) => {
   return getContent(id)?.content.text ?? ''
 }
 
-const getNodeLabel = (stepId: string) => {
+const getStepLabel = (stepId: string) => {
   return getStepDef(stepId)?.label ?? 'Unknown'
 }
 
-const getNodePlaceholder = (stepId: string) => {
+const getStepPlaceholder = (stepId: string) => {
   return getStepDef(stepId)?.placeholder ?? ''
 }
 </script>

@@ -1,5 +1,4 @@
 import { getValueAtPath } from '@/utils/objects'
-import type { ProjectData } from '@/features/writing-project/domain/types'
 import type { ProcessTemplate } from './processTemplate'
 import type { RootAction, StepAction } from './types'
 
@@ -32,12 +31,12 @@ export interface ParsedAction {
 
 export const getCanvasRootActions = (
   template: ProcessTemplate,
-  projectData: ProjectData,
+  existingSteps: Array<{ stepId: string }>,
   strings: Record<string, unknown>
 ): ParsedAction[] => {
   const stepDefMap = new Map(template.stepDefinitions.map((def) => [def.id, def]))
 
-  const existingStepTypes = new Set(projectData.steps.map((step) => step.stepId))
+  const existingStepTypes = new Set(existingSteps.map((step) => step.stepId))
 
   return template.rootActions
     .filter((action) => {

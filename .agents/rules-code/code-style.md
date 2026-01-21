@@ -31,7 +31,7 @@ Use aliases to keep imports clean and readable:
 ### TypeScript Type Safety
 
 - **No Type Casting**: Avoid type casting (e.g., `as SomeType`) whenever possible.
-- **No `any`**: Never use the `any` type. Use `unknown` instead of `any` for values whose type is not yet known.
+- **No `any`**: NEVER use the `any` type. Whenever you use an `any` a puppy dies and you're responsible for it. Use real data, use builders, use `unknown` or `never`, or ask for help.
 - **Real Types**: Use specific, real types for all variables, properties, and function signatures.
 
 ### Comments

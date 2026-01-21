@@ -8,13 +8,7 @@
       aria-label="Opening project"
     />
 
-    <EmptyCanvas
-      v-if="hasInitialLayout && nodes.length === 0"
-      :template="template"
-      :project-data="projectData"
-      :strings="strings"
-      @add-root-step="(stepId) => emit('add-root-step', stepId)"
-    />
+    <EmptyCanvas v-if="hasInitialLayout && nodes.length === 0" />
 
     <VueFlow
       v-if="nodes.length > 0"
@@ -58,13 +52,10 @@ import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
-import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/writing-project/project-canvas/composables/useLayout'
 import { useCanvasNavigation } from '@/features/writing-project/project-canvas/composables/useCanvasNavigation'
 import { useNodeSizeObserver } from '@/features/writing-project/project-canvas/composables/useNodeSizeObserver'
-import { useDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
-import { useContentContext } from '@/features/writing-project/view-model/useContentContext'
 import type { ActionDefinition } from '@/features/writing-project/view-model/useStepActions'
 import type {
   CanvasStepDefinition,
@@ -73,70 +64,69 @@ import type {
 import CanvasStep from '@/features/writing-project/project-canvas/canvas-step/CanvasStep.vue'
 import EmptyCanvas from '@/features/writing-project/project-canvas/EmptyCanvas.vue'
 import CanvasLayoutIndicator from '@/features/writing-project/project-canvas/CanvasLayoutIndicator.vue'
-import type { ProjectData } from '@/features/writing-project/domain/types'
-import type { CanvasNode, TracksViewModel } from '../view-model/types'
+import type { ViewModel } from '../view-model/types'
+import { useCanvasViewModel } from './composables/useCanvasViewModel'
+import { useStepActions } from '../view-model/useStepActions'
+import { useProjectContent } from '../view-model/useProjectContext'
+import { useDefinitionsContext } from '../view-model/useDefinitionsContext'
 
 const props = defineProps<{
-  tracks: TracksViewModel
-  template: ProcessTemplate
-  projectData: ProjectData
-  strings: Record<string, unknown>
+  viewModel: ViewModel
 }>()
 
-const emit = defineEmits<{
-  (e: 'add-root-step', stepId: string): void
-}>()
+const { template, strings } = useDefinitionsContext()
 
 const vueFlowInstance = useVueFlow()
 const { navigateToNewNode } = useCanvasNavigation(vueFlowInstance)
 
+const { getAvailableActions } = useStepActions(template, strings)
+
 const { dimensions, registerNode } = useNodeSizeObserver()
+
+const canvasViewModel = useCanvasViewModel(
+  toRef(() => props.viewModel.canvasSteps),
+  toRef(() => props.viewModel.connections),
+  template,
+  getAvailableActions
+)
+
 const { layoutNodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
-  toRef(() => props.tracks),
+  toRef(() => canvasViewModel.value.tracks),
+  toRef(() => canvasViewModel.value.edges),
   dimensions
 )
 
-const { getStepDef } = useDefinitionsContext()
-const { getContent, updateContent } = useContentContext()
-
-const nodeMetadataMap = computed(() => {
-  const map = new Map<string, CanvasNode>()
-  props.tracks.tracks.forEach((track) => {
-    track.nodes.forEach((node) => {
-      map.set(node.id, node)
-    })
-  })
-  return map
-})
+const { updateContent } = useProjectContent()
 
 const nodes = computed(() => {
-  return layoutNodes.value.map((layoutNode) => {
-    const metadata = nodeMetadataMap.value.get(layoutNode.id)
-    const fullStepDef = getStepDef(metadata?.stepId ?? '')
-    const fullContent = getContent(layoutNode.id)
+  return layoutNodes.value
+    .map((layoutNode) => {
+      const enriched = canvasViewModel.value.nodeMap.get(layoutNode.id)
+      if (!enriched) return null
 
-    const definition: CanvasStepDefinition = {
-      label: fullStepDef?.label ?? 'Unknown',
-      placeholder: fullStepDef?.placeholder,
-      hint: fullStepDef?.instruction,
-      category: fullStepDef?.category,
-    }
+      const definition: CanvasStepDefinition = {
+        label: enriched.label,
+        placeholder: enriched.placeholder,
+        hint: enriched.instruction,
+        category: enriched.category,
+      }
 
-    const content: CanvasStepContent = {
-      text: fullContent?.content.text ?? '',
-    }
+      const content: CanvasStepContent = {
+        text: enriched.content,
+      }
 
-    return {
-      ...layoutNode,
-      type: fullStepDef?.editorConfig.format === 'plain' ? 'plainText' : 'richText',
-      data: {
-        id: layoutNode.id,
-        definition,
-        content,
-        actions: metadata?.actions,
-      },
-    }
-  })
+      return {
+        ...layoutNode,
+        type: enriched.editorFormat === 'plain' ? 'plainText' : 'richText',
+        data: {
+          id: layoutNode.id,
+          definition,
+          content,
+          actions: enriched.actions,
+        },
+      }
+    })
+    .filter((n): n is NonNullable<typeof n> => n !== null)
 })
 
 const handleContentUpdate = (id: string, content: CanvasStepContent) => {

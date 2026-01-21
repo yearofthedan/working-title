@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { ref } from 'vue'
 import { useLayout } from './useLayout'
 import {
-  createCanvasEdge,
-  createCanvasNode,
-  createTrack,
-  createTracksViewModel,
-} from '../../__testHelpers__/canvasBuilders'
+  buildCanvasEdge,
+  buildBasicCanvasNode,
+  buildTrack,
+  buildCanvasViewModel,
+} from '../__testHelpers__/builders'
 
 describe('useLayout', () => {
   beforeAll(async () => {
@@ -15,20 +15,20 @@ describe('useLayout', () => {
   })
 
   it('maps CanvasNodes to Vue Flow nodes with correct data and status', async () => {
-    const tracksData = ref(
-      createTracksViewModel({
-        tracks: [
-          createTrack({
-            nodes: [createCanvasNode({ id: 'n1' })],
-          }),
-        ],
-        edges: [createCanvasEdge({ id: 'e1', source: 'n1', target: 'n2' })],
-      })
-    )
+    const tracksData = buildCanvasViewModel({
+      tracks: [
+        buildTrack({
+          nodes: [buildBasicCanvasNode({ id: 'n1' })],
+        }),
+      ],
+      edges: [buildCanvasEdge({ id: 'e1', source: 'n1', target: 'n2' })],
+    })
 
+    const tracks = ref(tracksData.tracks)
+    const edgesRef = ref(tracksData.edges)
     const dimensions = ref(new Map([['n1', { w: 100, h: 50 }]]))
 
-    const { layoutNodes, edges, isLayoutRunning } = useLayout(tracksData, dimensions)
+    const { layoutNodes, edges, isLayoutRunning } = useLayout(tracks, edgesRef, dimensions)
 
     await vi.waitUntil(() => layoutNodes.value.length > 0)
 
@@ -46,13 +46,14 @@ describe('useLayout', () => {
 
   it('updates the layout when dimensions change', async () => {
     const dims = ref(new Map([['n1', { w: 100, h: 50 }]]))
-    const data = ref(
-      createTracksViewModel({
-        tracks: [createTrack({ nodes: [createCanvasNode({ id: 'n1' })] })],
-      })
-    )
+    const data = buildCanvasViewModel({
+      tracks: [buildTrack({ nodes: [buildBasicCanvasNode({ id: 'n1' })] })],
+    })
 
-    const { layoutNodes } = useLayout(data, dims)
+    const tracks = ref(data.tracks)
+    const edgesRef = ref(data.edges)
+
+    const { layoutNodes } = useLayout(tracks, edgesRef, dims)
 
     await vi.waitUntil(() => layoutNodes.value.length > 0)
     expect(layoutNodes.value[0]!.width).toBe(100)
@@ -64,27 +65,28 @@ describe('useLayout', () => {
   })
 
   it('does not update layout when only metadata changes', async () => {
-    const initialNode = createCanvasNode({ id: 'n1' })
-    const tracksData = ref(
-      createTracksViewModel({
-        tracks: [createTrack({ nodes: [initialNode] })],
-      })
-    )
+    const initialNode = buildBasicCanvasNode({ id: 'n1' })
+    const tracksData = buildCanvasViewModel({
+      tracks: [buildTrack({ nodes: [initialNode] })],
+    })
+    const tracks = ref(tracksData.tracks)
+    const edgesRef = ref(tracksData.edges)
     const dimensions = ref(new Map([['n1', { w: 100, h: 50 }]]))
 
-    const { layoutNodes } = useLayout(tracksData, dimensions)
+    const { layoutNodes } = useLayout(tracks, edgesRef, dimensions)
 
     await vi.waitUntil(() => layoutNodes.value.length > 0)
     const initialPosition = { ...layoutNodes.value[0]!.position }
 
-    // Change only metadata (label)
-    tracksData.value = createTracksViewModel({
-      tracks: [
-        createTrack({
-          nodes: [{ ...initialNode, sortOrder: 5 }],
-        }),
-      ],
-    })
+    // Change only metadata (label) - actually in this simplified track model,
+    // metadata is separate, but we want to test if changing things that don't affect topology
+    // (like sortOrder? no, sortOrder affects topology).
+    // Let's change the node category, which is in the node but doesn't affect topology.
+    tracks.value = [
+      buildTrack({
+        nodes: [{ ...initialNode, category: 'character' }],
+      }),
+    ]
 
     // Wait a bit to ensure debounce/watcher would have fired
     await new Promise((resolve) => setTimeout(resolve, 100))

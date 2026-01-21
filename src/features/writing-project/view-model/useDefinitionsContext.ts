@@ -19,6 +19,16 @@ export interface DefinitionsContext {
    * Retrieves a specific decorated step definition by its ID.
    */
   getStepDef: (stepId: string) => DecoratedStepDefinition | undefined
+
+  /**
+   * The underlying template.
+   */
+  template: Ref<ProcessTemplate>
+
+  /**
+   * The underlying localized strings.
+   */
+  strings: Ref<Record<string, unknown>>
 }
 
 export const DEFINITIONS_CONTEXT_KEY: InjectionKey<DefinitionsContext> =
@@ -49,6 +59,8 @@ export function definitionsContext(
 
   const context: DefinitionsContext = {
     getStepDef,
+    template,
+    strings,
   }
 
   return context

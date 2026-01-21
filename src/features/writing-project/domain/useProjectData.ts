@@ -6,7 +6,6 @@ import { strings } from '@/features/process-templates/snowflake/strings'
 import { template } from '@/features/process-templates/snowflake/template'
 import { generateId } from '@/utils/ids'
 import { projectStorage } from './ProjectStorage'
-import { useProjectMutations } from './useProjectMutations'
 
 const createNewProject = (): ProjectData => {
   const created = now()
@@ -39,13 +38,11 @@ const createNewProject = (): ProjectData => {
 export const useProjectData = () => {
   const projectData = ref<ProjectData>(createNewProject())
 
-  // Try to load initial data from storage adapter
   const savedData = projectStorage.loadCurrent()
   if (savedData) {
     projectData.value = savedData
   }
 
-  // Reactive auto-save logic
   const save = () => {
     projectStorage.save(projectData.value)
   }
@@ -60,12 +57,9 @@ export const useProjectData = () => {
     { deep: true }
   )
 
-  const mutations = useProjectMutations(projectData)
-
   return {
     project: projectData,
     template: template,
     strings: strings,
-    mutations,
   }
 }

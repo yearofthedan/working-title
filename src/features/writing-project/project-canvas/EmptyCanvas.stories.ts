@@ -1,25 +1,45 @@
+import { toRef, defineComponent } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import EmptyCanvas from './EmptyCanvas.vue'
 import { expect, userEvent, within } from 'storybook/test'
 import { template } from '@/features/process-templates/snowflake/template'
 import { strings } from '@/features/process-templates/snowflake/strings'
 import { buildProjectData, buildStep } from '../domain/__testHelpers__/builders'
+import { provideDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
+import { provideProjectContext } from '@/features/writing-project/view-model/useProjectContext'
+import type { ProjectData } from '@/features/writing-project/domain/types'
+
+const EmptyCanvasWrapper = defineComponent({
+  components: { EmptyCanvas },
+  props: {
+    projectData: {
+      type: Object as () => ProjectData,
+      required: true,
+    },
+  },
+  setup(props) {
+    provideProjectContext(toRef(() => props.projectData))
+    provideDefinitionsContext(
+      toRef(() => template),
+      toRef(() => strings)
+    )
+  },
+  template: '<EmptyCanvas />',
+})
 
 const meta = {
-  component: EmptyCanvas,
+  component: EmptyCanvasWrapper,
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof EmptyCanvas>
+} satisfies Meta<typeof EmptyCanvasWrapper>
 
 export default meta
-type Story = StoryObj<typeof EmptyCanvas>
+type Story = StoryObj<typeof EmptyCanvasWrapper>
 
 export const EmptyProject: Story = {
   args: {
-    template,
-    strings,
     projectData: buildProjectData({ steps: [] }),
   },
   play: async ({ canvasElement, step }) => {
@@ -43,8 +63,6 @@ export const EmptyProject: Story = {
 
 export const SummaryExists: Story = {
   args: {
-    template,
-    strings,
     projectData: buildProjectData({
       steps: [
         buildStep({ id: 'step-1', stepId: 'step-summary', content: { text: 'My story summary' } }),
@@ -67,8 +85,6 @@ export const SummaryExists: Story = {
 
 export const OnlySidebarSteps: Story = {
   args: {
-    template,
-    strings,
     projectData: buildProjectData({
       steps: [
         buildStep({ id: 'step-1', stepId: 'step-genre', content: { text: 'Fantasy' } }),

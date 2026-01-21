@@ -2,7 +2,7 @@ import { shallowRef, ref, watch, toValue, type Ref, computed } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { type Edge } from '@vue-flow/core'
 import { calculateTrackedLayout } from '@/features/writing-project/project-canvas/utils/elkLayoutAdapter'
-import type { TracksViewModel } from '../../view-model/types'
+import type { Track, CanvasEdge } from '../types'
 
 const GHOST_WIDTH = 400
 const GHOST_HEIGHT = 150
@@ -13,11 +13,11 @@ const LAYOUT_DEBOUNCE_TIME = 50
  * Changes to this signature trigger a full layout recalculation.
  * Content changes (text edits) do NOT affect this signature.
  */
-function computeTopologySignature(tracksData: TracksViewModel): string {
+function computeTopologySignature(tracks: Track[], edges: CanvasEdge[]): string {
   return JSON.stringify({
-    nodes: tracksData.tracks.flatMap((t) => t.nodes.map((n) => n.id)).sort(),
-    edges: tracksData.edges.map((e) => e.id).sort(),
-    tracks: tracksData.tracks.map((t) => ({ id: t.id, nodes: t.nodes.map((n) => n.id) })),
+    nodes: tracks.flatMap((t) => t.nodes.map((n) => n.id)).sort(),
+    edges: edges.map((e) => e.id).sort(),
+    tracks: tracks.map((t) => ({ id: t.id, nodes: t.nodes.map((n) => n.id) })),
   })
 }
 
@@ -29,7 +29,8 @@ export interface LayoutNode {
 }
 
 export function useLayout(
-  tracksData: Ref<TracksViewModel>,
+  tracks: Ref<Track[]>,
+  edges: Ref<CanvasEdge[]>,
   dimensions: Ref<Map<string, { w: number; h: number }>>
 ) {
   const layoutNodes = shallowRef<LayoutNode[]>([])
@@ -38,18 +39,19 @@ export function useLayout(
   const hasInitialLayout = ref(false)
 
   const calculateLayout = useDebounceFn(async () => {
-    const { tracks, edges } = toValue(tracksData)
+    const currentTracks = toValue(tracks)
+    const currentEdges = toValue(edges)
     const dims = toValue(dimensions)
 
-    if (tracks.length === 0) {
+    if (currentTracks.length === 0) {
       hasInitialLayout.value = true
       return
     }
 
     isLayoutRunning.value = true
     try {
-      const positions = await calculateTrackedLayout(tracks, edges, dims)
-      layoutNodes.value = tracks.flatMap((track) =>
+      const positions = await calculateTrackedLayout(currentTracks, currentEdges, dims)
+      layoutNodes.value = currentTracks.flatMap((track) =>
         track.nodes.map((node) => ({
           id: node.id,
           position: positions.get(node.id) ?? { x: 0, y: 0 },
@@ -58,7 +60,7 @@ export function useLayout(
         }))
       )
 
-      laidOutEdges.value = edges.map((e) => ({
+      laidOutEdges.value = currentEdges.map((e) => ({
         id: e.id,
         source: e.source,
         target: e.target,
@@ -74,7 +76,9 @@ export function useLayout(
     }
   }, LAYOUT_DEBOUNCE_TIME)
 
-  const topologySignature = computed(() => computeTopologySignature(toValue(tracksData)))
+  const topologySignature = computed(() =>
+    computeTopologySignature(toValue(tracks), toValue(edges))
+  )
   watch([topologySignature, dimensions], () => calculateLayout(), {
     immediate: true,
   })
