@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import type { ProjectData, Step } from '@/features/writing-project/domain/types'
 import { now } from '@/utils/dates'
@@ -37,14 +37,18 @@ const createNewProject = (): ProjectData => {
 
 export const useProjectData = () => {
   const projectData = ref<ProjectData>(createNewProject())
+  const isLoading = ref(true)
 
-  const savedData = projectStorage.loadCurrent()
-  if (savedData) {
-    projectData.value = savedData
-  }
+  onMounted(async () => {
+    const savedData = await projectStorage.loadCurrent()
+    if (savedData) {
+      projectData.value = savedData
+    }
+    isLoading.value = false
+  })
 
-  const save = () => {
-    projectStorage.save(projectData.value)
+  const save = async () => {
+    await projectStorage.save(projectData.value)
   }
 
   const debouncedSave = useDebounceFn(save, 300, { maxWait: 2000 })
@@ -59,7 +63,8 @@ export const useProjectData = () => {
 
   return {
     project: projectData,
-    template: template,
-    strings: strings,
+    isLoading,
+    template,
+    strings,
   }
 }
