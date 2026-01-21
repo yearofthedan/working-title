@@ -1,6 +1,7 @@
 import type { ProjectData } from '@/features/writing-project/domain/types'
 import { migrateProjectData } from './migrations'
-import { LocalStorageProvider, type StorageProvider } from '@/utils/storage/StorageProvider'
+import type { StorageProvider } from '@/utils/storage/StorageProvider'
+import { IndexedDBProvider } from '@/utils/storage/IndexedDBProvider'
 
 const APP_NAMESPACE = 'working-title'
 const CURRENT_PROJECT_ID_KEY = `${APP_NAMESPACE}:current-project-id`
@@ -13,36 +14,36 @@ const PROJECT_PREFIX = `${APP_NAMESPACE}:projects:`
 export class ProjectStorage {
   private provider: StorageProvider
 
-  constructor(provider: StorageProvider = new LocalStorageProvider()) {
+  constructor(provider: StorageProvider = new IndexedDBProvider()) {
     this.provider = provider
   }
 
-  save(data: ProjectData): void {
+  async save(data: ProjectData): Promise<void> {
     try {
       const serialized = JSON.stringify(data)
-      this.provider.setItem(this.getProjectKey(data.projectId), serialized)
-      this.provider.setItem(CURRENT_PROJECT_ID_KEY, data.projectId)
+      await this.provider.setItem(this.getProjectKey(data.projectId), serialized)
+      await this.provider.setItem(CURRENT_PROJECT_ID_KEY, data.projectId)
     } catch (err) {
       console.error('Failed to save project to storage:', err)
       throw err instanceof Error ? err : new Error('Unknown save error')
     }
   }
 
-  loadCurrent(): ProjectData | null {
+  async loadCurrent(): Promise<ProjectData | null> {
     try {
-      const currentId = this.provider.getItem(CURRENT_PROJECT_ID_KEY)
-      if (!currentId) return this.loadLegacy() // Check for old single-project key
+      const currentId = await this.provider.getItem(CURRENT_PROJECT_ID_KEY)
+      if (!currentId) return null
 
-      return this.loadById(currentId)
+      return await this.loadById(currentId)
     } catch (err) {
       console.error('Failed to load current project from storage:', err)
       return null
     }
   }
 
-  loadById(projectId: string): ProjectData | null {
+  async loadById(projectId: string): Promise<ProjectData | null> {
     try {
-      const serialized = this.provider.getItem(this.getProjectKey(projectId))
+      const serialized = await this.provider.getItem(this.getProjectKey(projectId))
       if (!serialized) return null
 
       const raw = JSON.parse(serialized)
@@ -53,39 +54,16 @@ export class ProjectStorage {
     }
   }
 
-  clearCurrent(): void {
-    const currentId = this.provider.getItem(CURRENT_PROJECT_ID_KEY)
+  async clearCurrent(): Promise<void> {
+    const currentId = await this.provider.getItem(CURRENT_PROJECT_ID_KEY)
     if (currentId) {
-      this.provider.removeItem(this.getProjectKey(currentId))
-      this.provider.removeItem(CURRENT_PROJECT_ID_KEY)
+      await this.provider.removeItem(this.getProjectKey(currentId))
+      await this.provider.removeItem(CURRENT_PROJECT_ID_KEY)
     }
-    this.provider.removeItem(`${APP_NAMESPACE}:current-project`) // Cleanup legacy
   }
 
   private getProjectKey(projectId: string): string {
     return `${PROJECT_PREFIX}${projectId}`
-  }
-
-  /**
-   * Helper to migrate from the old single-key storage used in initial Phase 1.
-   */
-  private loadLegacy(): ProjectData | null {
-    const legacyKey = `${APP_NAMESPACE}:current-project`
-    const serialized = this.provider.getItem(legacyKey)
-    if (!serialized) return null
-
-    try {
-      const raw = JSON.parse(serialized)
-      const project = migrateProjectData(raw)
-
-      // Migrate to new structure immediately if found
-      this.save(project)
-      this.provider.removeItem(legacyKey)
-
-      return project
-    } catch {
-      return null
-    }
   }
 }
 

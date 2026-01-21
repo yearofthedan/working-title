@@ -1,19 +1,19 @@
 export interface StorageProvider {
-  getItem(key: string): string | null
-  setItem(key: string, value: string): void
-  removeItem(key: string): void
+  getItem(key: string): Promise<string | null>
+  setItem(key: string, value: string): Promise<void>
+  removeItem(key: string): Promise<void>
 }
 
 export class LocalStorageProvider implements StorageProvider {
-  getItem(key: string): string | null {
+  async getItem(key: string): Promise<string | null> {
     return localStorage.getItem(key)
   }
 
-  setItem(key: string, value: string): void {
+  async setItem(key: string, value: string): Promise<void> {
     localStorage.setItem(key, value)
   }
 
-  removeItem(key: string): void {
+  async removeItem(key: string): Promise<void> {
     localStorage.removeItem(key)
   }
 }
