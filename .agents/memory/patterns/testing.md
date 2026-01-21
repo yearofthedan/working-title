@@ -13,4 +13,4 @@ For comprehensive testing rules, see [Testing Rules](../../rules-code/testing.md
 
 ## Example
 
-Refer to `src/features/story-canvas/StoryCanvas.spec.ts` for a comprehensive component test suite.
+Refer to `src/features/writing-project/project-canvas/ProjectCanvas.spec.ts` for a comprehensive component test suite.

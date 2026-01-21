@@ -1,5 +1,5 @@
 import { getValueAtPath } from '@/utils/objects'
-import type { ProjectData } from '@/features/story/types'
+import type { ProjectData } from '@/features/writing-project/domain/types'
 import type { ProcessTemplate } from './processTemplate'
 import type { RootAction, StepAction } from './types'
 

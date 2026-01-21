@@ -18,10 +18,9 @@ export default defineConfig({
     },
     warmup: {
       clientFiles: [
-        './src/features/story-canvas/StoryCanvasVueFlow.vue',
-        './src/features/story-canvas/StoryCanvas.vue',
+        './src/features/writing-project/WritingProject.vue',
+        './src/features/writing-project/project-canvas/ProjectCanvas.vue',
         './src/features/demo/DemoPage.vue',
-        './src/features/story/StoryPage.vue',
       ],
     },
   },

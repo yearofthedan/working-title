@@ -1,4 +1,4 @@
-import { StoryPageObject } from '@/features/story/__testHelpers__/StoryPageObject'
+import { WritingProjectPageObject } from '@/features/writing-project/__testHelpers__/WritingProjectPageObject'
 import type { BrowserPage } from 'vitest/browser'
 
 export class HomePageObject {
@@ -22,11 +22,11 @@ export class HomePageObject {
 
   async navToNewProject() {
     await this.newProjectButton.click()
-    return new StoryPageObject(this.page)
+    return new WritingProjectPageObject(this.page)
   }
 
   async navToDemo() {
     await this.viewDemoButton.click()
-    return new StoryPageObject(this.page)
+    return new WritingProjectPageObject(this.page)
   }
 }
