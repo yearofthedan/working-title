@@ -1,0 +1,8 @@
+{
+  "globalSettings": {
+    "remoteBrowserEnabled": true,
+    "browserToolEnabled": true,
+    "browserViewportSize": "900x600",
+    "alwaysAllowBrowser": true
+  }
+}
