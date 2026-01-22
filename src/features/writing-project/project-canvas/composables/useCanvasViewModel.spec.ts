@@ -15,7 +15,7 @@ import {
   definitionsContext,
 } from '@/features/writing-project/view-model/useDefinitionsContext'
 import type { Connection } from '@/features/writing-project/domain/types'
-import { runWithContext } from '@/features/writing-project/__testHelpers__/providers'
+import { runWithContext } from '@/__testHelpers__/providers'
 import {
   PROJECT_CONTEXT_KEY,
   projectContext,
