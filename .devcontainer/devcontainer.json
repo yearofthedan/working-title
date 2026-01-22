@@ -1,7 +1,9 @@
 {
   "name": "Working Title Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
-  "runArgs": ["--memory=8g", "--memory-swap=8g"],
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": ["--memory=8g", "--memory-swap=8g", "--shm-size=2gb"],
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest",
@@ -11,7 +13,6 @@
       "version": "10.0.0"
     }
   },
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -24,6 +25,7 @@
         "RooVeterinaryInc.roo-cline"
       ],
       "settings": {
+        "roo-cline.autoImportSettingsPath": ".roo/roo-code-settings.json",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
@@ -52,7 +54,6 @@
       }
     }
   },
-  "onCreateCommand": "sudo chown -R node:node ${containerWorkspaceFolder}",
   "forwardPorts": [5173, 6006],
   "portsAttributes": {
     "5173": {
@@ -67,9 +68,13 @@
   "remoteUser": "node",
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
-    "source=${localWorkspaceFolderBasename}-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    "source=${localWorkspaceFolderBasename}-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=${localWorkspaceFolderBasename}-extensions,target=/home/node/.vscode-server/extensions,type=volume",
+    "source=${localWorkspaceFolderBasename}-global-storage,target=/home/node/.vscode-server/data/User/globalStorage,type=volume"
   ],
+  "onCreateCommand": "sudo chown -R node:node /home/node/.vscode-server/extensions /home/node/.vscode-server/data/User/globalStorage ${containerWorkspaceFolder}",
   "postCreateCommand": "./do bootstrap",
+  "postStartCommand": "./do launch-chromium-debug",
   "containerEnv": {
     "PLAYWRIGHT_BROWSERS_PATH": "/home/node/.cache/ms-playwright",
     "NODE_OPTIONS": "--max-old-space-size=4096",
