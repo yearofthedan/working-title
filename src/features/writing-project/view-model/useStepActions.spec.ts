@@ -14,7 +14,7 @@ import {
   buildConnection,
 } from '@/features/writing-project/domain/__testHelpers__/builders'
 import { PROJECT_CONTEXT_KEY, projectContext } from './useProjectContext'
-import { runWithContext } from '../__testHelpers__/providers'
+import { runWithContext } from '../../../__testHelpers__/providers'
 
 describe('useStepActions', () => {
   const strings = ref({

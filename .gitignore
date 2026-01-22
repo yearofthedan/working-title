@@ -40,13 +40,5 @@ __screenshots__/
 .env.local
 .env.*.local
 
-# AI Agent symlinks (created by devcontainer)
-.roo
-.cursor
-
 # AI planning and scratchpad
 plans/
-
-# Agent planning workspace (ephemeral)
-.agents/planning/active/*
-!.agents/planning/active/.gitkeep
