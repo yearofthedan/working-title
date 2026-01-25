@@ -26,7 +26,7 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 
 **Always start here to avoid unnecessary web requests:**
 
-- Read [`agent-skills-standard.md`](../../memory/agent-skills-standard.md)
+- Read [`agent-skills-standard.md`](/references/agent-skills-standard.md)
 - Check the "Last Updated" date in the document
 - If updated within last 30 days, use this as authoritative source and skip to step 5
 - If > 30 days old, proceed to step 2 to refresh
@@ -58,7 +58,7 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 
 **If you fetched fresh data:**
 
-- Update [`agent-skills-standard.md`](../../memory/agent-skills-standard.md) with new findings
+- Update [`agent-skills-standard.md`](references/agent-skills-standard.md) with new findings
 - Update the "Last Updated" date at the top
 - Note any significant changes from previous version
 - Preserve the structure: Quick Reference → Specification → Best Practices → Migration Guide
@@ -77,7 +77,7 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 **Prepare actionable recommendations:**
 
 - Compare synthesized findings with project's [`.roo/`](../../) directory structure
-- Check [`.roomodes`](../../../.roomodes) file for mode configuration alignment
+- Check [`.roomodes`](../../.roomodes) file for mode configuration alignment
 - Review existing skills against current format requirements
 - Prepare specific, actionable recommendations backed by these findings
 
@@ -113,7 +113,7 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 
 ## References
 
-- [Agent Skills Standard (Local Cache)](../../memory/agent-skills-standard.md)
-- [Agent Tuner Mode Configuration](../../../.roomodes)
+- [Agent Skills Standard (Local Cache)](references/agent-skills-standard.md)
+- [Agent Tuner Mode Configuration](../../.roomodes)
 - [agentskills.io](https://agentskills.io) - Official specification
 - [Claude Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)

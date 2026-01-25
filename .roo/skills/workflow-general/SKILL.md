@@ -3,6 +3,14 @@ name: workflow-general
 description: Includes guidance when making any changes to the codebase, whether functional, or technical. Covers documentation and commits.
 ---
 
+## When to Use
+
+- Executing common tasks via `./do` scripts
+- Making any code changes that require linting, building, or testing
+- Documenting architectural decisions or domain logic
+- Preparing commit messages and verifying changes
+- Ensuring TypeScript type safety and code style consistency
+
 ## Task Execution & Tooling
 
 ### Standard Operating Procedure

@@ -3,6 +3,14 @@ name: workflow-functional-changes
 description: Provides guidance when working on features, especially where components, composables, utility functions and tests are being modified. This covers how to slice the work, TDD and test optimisation
 ---
 
+## When to Use
+
+- Implementing new features or modifying existing functionality
+- Adding or updating components, composables, or utility functions
+- Running TDD cycles (red-green-refactor)
+- Verifying code changes before commit
+- Optimizing test performance and coverage
+
 ## Prerequisites
 
 - Start from a clean state with all tests passing.
@@ -49,7 +57,7 @@ Before commiting you must verify your code changes. This includes
 - Running the full test suite to pick up any other issues
 - Verifying test coverage and performance, and calling out any gaps
 
-## Antipatterns
+## Common Pitfalls
 
 - Mocking Libraries Directly: Leads to brittle tests. Mock a wrapper or use the real library if possible.
 - Heavy State Sharing: Never share mutable state between tests; it causes flabbiness and random failures.
