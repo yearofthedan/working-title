@@ -4,7 +4,7 @@
     role="status"
     aria-live="polite"
     aria-atomic="true"
-    :aria-label="ariaLabel ?? message ?? 'Loading...'"
+    :aria-label="ariaLabel ?? message ?? t('app.loading.message')"
     class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-paper"
   >
     <div
@@ -18,6 +18,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 defineProps<{
   isLoading: boolean
   message?: string

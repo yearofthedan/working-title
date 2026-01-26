@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-paper flex-y-center p-6 transition-colors duration-300">
     <header class="mb-12 text-center">
-      <h1 class="text-4xl font-serif tracking-tight text-ink mb-2 italic">Working Title</h1>
-      <p class="text-[10px] text-ink/40 uppercase tracking-[0.3em]">Manuscript Environment</p>
+      <h1 class="text-4xl font-serif tracking-tight text-ink mb-2 italic">{{ t('app.name') }}</h1>
+      <p class="text-[10px] text-ink/40 uppercase tracking-[0.3em]">{{ t('app.home.subtitle') }}</p>
     </header>
 
     <main class="flex flex-wrap justify-center gap-8 w-full max-w-4xl">
@@ -19,8 +19,8 @@
           ›
         </span>
         <div id="label-demo" class="text-center px-4">
-          <span class="block text-lg font-medium text-ink">View Demo</span>
-          <p class="text-xs text-ink/40">Explore the snowflake method</p>
+          <span class="block text-lg font-medium text-ink">{{ t('app.home.demo.title') }}</span>
+          <p class="text-xs text-ink/40">{{ t('app.home.demo.description') }}</p>
         </div>
       </RouterLink>
 
@@ -37,8 +37,8 @@
           +
         </span>
         <div id="label-new" class="text-center px-4">
-          <span class="block text-lg font-medium text-ink">New Project</span>
-          <p class="text-xs text-ink/40">Start from a template</p>
+          <span class="block text-lg font-medium text-ink">{{ t('app.home.newProject.title') }}</span>
+          <p class="text-xs text-ink/40">{{ t('app.home.newProject.description') }}</p>
         </div>
       </RouterLink>
     </main>
@@ -52,8 +52,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { RouteNames } from '@/router/routes'
 
+const { t } = useI18n()
 const router = useRouter()
 
 onMounted(() => {
