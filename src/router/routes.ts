@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 export const RouteNames = {
-  Home: 'home',
-  Demo: 'demo',
-  Project: 'project',
-  NotFound: 'not-found',
+  Home: 'Home',
+  Demo: 'Demo',
+  Project: 'Writing Project',
+  NotFound: 'Page Not Found',
 } as const
 
 const routerHistory = createWebHistory()
@@ -12,7 +12,9 @@ export const router = createRouter({
   history: routerHistory,
   strict: true,
   routes: [
-    { path: '/', name: RouteNames.Home, component: () => import('@/features/home/HomePage.vue') },
+    { path: '/',
+      name: RouteNames.Home, component: () => import('@/features/home/HomePage.vue'),
+     },
     {
       path: '/demo',
       name: RouteNames.Demo,
@@ -29,4 +31,10 @@ export const router = createRouter({
       component: () => import('@/features/page-errors/NotFoundPage.vue'),
     },
   ],
+})
+
+router.afterEach((to) => {
+  document.title = to.name 
+    ? `Working Title: ${String(to.name)}` 
+    : 'Working Title'
 })

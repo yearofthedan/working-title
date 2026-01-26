@@ -40,3 +40,14 @@ jobs:
 
       - name: Run Tests
         run: ./do test
+
+      - name: Run e2e (local)
+        run: ./do e2e
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

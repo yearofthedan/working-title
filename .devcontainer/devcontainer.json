@@ -54,7 +54,7 @@
       }
     }
   },
-  "forwardPorts": [5173, 6006],
+  "forwardPorts": [5173, 6006, 9323],
   "portsAttributes": {
     "5173": {
       "label": "Vite Dev Server",
@@ -62,6 +62,10 @@
     },
     "6006": {
       "label": "Storybook",
+      "onAutoForward": "notify"
+    },
+    "9323": {
+      "label": "Playwright reporter",
       "onAutoForward": "notify"
     }
   },
