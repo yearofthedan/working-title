@@ -69,7 +69,7 @@ describe('WritingProject Integration', () => {
       },
     })
 
-    const startHeading = page.getByText('Start Your Story')
+    const startHeading = page.getByText(/Start Your Story/i)
     await expect.element(startHeading).toBeVisible()
 
     const createButton = page.getByRole('button', { name: /Create One Sentence Summary/i })

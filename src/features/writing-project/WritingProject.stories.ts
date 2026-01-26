@@ -134,7 +134,8 @@ export const Default: Story = {
   play: async ({ canvas, step, userEvent }) => {
     await step('Wait for canvas to load', async () => {
       await waitFor(
-        () => expect(canvas.queryByText('Loading project...')).not.toBeInTheDocument(),
+        () =>
+          expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument(),
         {
           timeout: 10000,
         }
@@ -177,11 +178,14 @@ export const Empty: Story = {
   },
   play: async ({ canvas, step }) => {
     await step('Wait for canvas to load', async () => {
-      await waitFor(() => expect(canvas.queryByText('Loading project...')).not.toBeInTheDocument())
+      await waitFor(
+        () =>
+          expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument()
+      )
     })
 
     await step('Verify empty state', async () => {
-      await expect(canvas.getByText('Start Your Story')).toBeInTheDocument()
+      await expect(canvas.getByText(/Start Your Story/i)).toBeInTheDocument()
     })
   },
 }

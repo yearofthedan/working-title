@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
 import { useDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
 import {
@@ -7,6 +8,7 @@ import {
   useProjectMutations,
 } from '@/features/writing-project/domain/useProjectContext'
 
+const { t } = useI18n()
 const { template, strings } = useDefinitionsContext()
 const { contentMap } = useProjectContent()
 const { addStep } = useProjectMutations()
@@ -42,8 +44,10 @@ const handleAddStep = (stepId: string) => {
         <line x1="9" y1="21" x2="9" y2="9" />
       </svg>
     </div>
-    <h3 class="text-xl font-bold mb-2 text-ink">Start Your Story</h3>
-    <p class="max-w-md text-ink-muted mb-6">Begin by adding your first step to the canvas.</p>
+    <h3 class="text-xl font-bold mb-2 text-ink">{{ t('app.canvas.emptyState.title') }}</h3>
+    <p class="max-w-md text-ink-muted mb-6">
+      {{ t('app.canvas.emptyState.description') }}
+    </p>
 
     <div v-if="availableActions.length > 0" class="flex flex-col gap-3">
       <button
@@ -66,7 +70,7 @@ const handleAddStep = (stepId: string) => {
       "
       class="text-sm text-ink-muted"
     >
-      All canvas steps have been added. Use the sidebar to continue.
+      {{ t('app.canvas.emptyState.allStepsAdded') }}
     </p>
   </div>
 </template>

@@ -13,6 +13,7 @@ import {
 import { ref, defineComponent, h, type Component, type ComponentOptions } from 'vue'
 import { render as vueRender } from 'vitest-browser-vue'
 import { createI18n } from 'vue-i18n'
+import en from '@/locales/en.json'
 
 export interface Providers {
   [PROJECT_CONTEXT_KEY]: ProjectContext
@@ -46,7 +47,7 @@ export function createTestI18n(messages?: Record<string, unknown>) {
     fallbackLocale: 'en',
     missingWarn: false,
     fallbackWarn: false,
-    messages: (messages as Record<string, never>) || { en: {} },
+    messages: (messages as Record<string, never>) || { en },
   })
 }
 

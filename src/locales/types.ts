@@ -1,13 +1,41 @@
 export interface MessageSchema {
   app: {
-    placeholder: string;
-  };
+    name: string
+    home: {
+      subtitle: string
+      demo: {
+        title: string
+        description: string
+      }
+      newProject: {
+        title: string
+        description: string
+      }
+    }
+    canvas: {
+      emptyState: {
+        title: string
+        description: string
+        allStepsAdded: string
+      }
+    }
+    loading: {
+      message: string
+    }
+    notFound: {
+      title: string
+      backHome: string
+    }
+  }
   common: {
-    placeholder: string;
-  };
+    actions: {
+      save: string
+      cancel: string
+    }
+  }
   errors: {
-    placeholder: string;
-  };
+    generic: string
+  }
 }
 
 declare module 'vue-i18n' {

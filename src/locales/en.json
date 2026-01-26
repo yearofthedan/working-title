@@ -1,11 +1,39 @@
 {
   "app": {
-    "placeholder": "App strings"
+    "name": "Working Title",
+    "home": {
+      "subtitle": "Manuscript Environment",
+      "demo": {
+        "title": "View Demo",
+        "description": "Explore the snowflake method"
+      },
+      "newProject": {
+        "title": "New Project",
+        "description": "Start from a template"
+      }
+    },
+    "canvas": {
+      "emptyState": {
+        "title": "Start Your Story",
+        "description": "Begin by adding your first step to the canvas.",
+        "allStepsAdded": "All canvas steps have been added. Use the sidebar to continue."
+      }
+    },
+    "loading": {
+      "message": "Loading..."
+    },
+    "notFound": {
+      "title": "404 - Page Not Found",
+      "backHome": "Home"
+    }
   },
   "common": {
-    "placeholder": "Common strings"
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    }
   },
   "errors": {
-    "placeholder": "Error messages"
+    "generic": "Something went wrong"
   }
 }
