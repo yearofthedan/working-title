@@ -29,8 +29,14 @@ Project planning and architectural decisions:
 
 ### Mode-Specific Rules
 
-- [Orchestrator workflow](.roo/rules-orchestrator/workflow.md) - Subtask completion protocol
+- [Orchestrator workflow](.roo/rules-orchestrator/workflow.md) - Subtask completion and skill handover
+- [Architect handover](.roo/rules-architect/handover.md) - Clear specification for implementation modes
+- [Code mode skill loading](.roo/rules-code/skill-loading.md) - Skill discovery and loading protocol
 - [Agent Tuner skills](.roo/skills-agent-tuner/) - Skills for optimizing agent setups
+
+### Important: Skills and Mode Switching
+
+**Critical**: Mode switching in conversations doesn't re-scan for skills. Implementation modes (code, debug) must explicitly load relevant skills from [`.roo/skills/`](.roo/skills/) using `read_file` when starting work. See [skill loading protocol](.roo/rules-code/skill-loading.md).
 
 ## 🎯 Quick Start
 
