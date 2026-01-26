@@ -1,4 +1,4 @@
-import type { ProjectData, Step, Connection } from '@/features/writing-project/domain/types'
+import type { ProjectData, Step, Connection } from '../types'
 
 export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',

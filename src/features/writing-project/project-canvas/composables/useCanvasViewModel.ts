@@ -1,5 +1,5 @@
 import { computed, type Ref } from 'vue'
-import type { Step, Connection } from '@/features/writing-project/domain/types'
+import type { Step, Connection } from '@/features/writing-project/storage/types'
 import type {
   ProcessTemplate,
   StepCategory,
@@ -7,9 +7,9 @@ import type {
   TrackDefinition,
 } from '@/features/process-templates/processTemplate'
 import { partitionNodesByRoot } from '@/utils/graphs'
-import type { ActionDefinition } from '@/features/writing-project/view-model/useStepActions'
-import { useDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
-import { useProjectContent } from '@/features/writing-project/view-model/useProjectContext'
+import type { ActionDefinition } from '../../domain/useStepActions'
+import { useDefinitionsContext } from '../../domain/useDefinitionsContext'
+import { useProjectContent } from '../../domain/useProjectContext'
 import type { BasicCanvasNode, CanvasViewModel, EnrichedCanvasNode, Track } from '../types'
 
 const toBasicCanvasNode = (
@@ -99,7 +99,12 @@ export function useCanvasViewModel(
     const stepDefinitionMap = new Map(template.value.stepDefinitions.map((s) => [s.id, s]))
     const stepOrder = template.value.stepDefinitions.map((d) => d.id)
 
-    const basicNodes = canvasSteps.value.map((s) =>
+    const visibleSteps = canvasSteps.value.filter((s) => {
+      const def = stepDefinitionMap.get(s.stepId)
+      return def?.ui.visibility.includes('canvas')
+    })
+
+    const basicNodes = visibleSteps.map((s) =>
       toBasicCanvasNode(s, stepDefinitionMap.get(s.stepId), stepOrder.indexOf(s.stepId))
     )
 
@@ -140,3 +145,4 @@ export function useCanvasViewModel(
     }
   })
 }
+

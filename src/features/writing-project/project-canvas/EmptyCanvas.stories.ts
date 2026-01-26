@@ -4,10 +4,10 @@ import EmptyCanvas from './EmptyCanvas.vue'
 import { expect, userEvent, within } from 'storybook/test'
 import { template } from '@/features/process-templates/snowflake/template'
 import { strings } from '@/features/process-templates/snowflake/strings'
-import { buildProjectData, buildStep } from '../domain/__testHelpers__/builders'
-import { provideDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
-import { provideProjectContext } from '@/features/writing-project/view-model/useProjectContext'
-import type { ProjectData } from '@/features/writing-project/domain/types'
+import { buildProjectData, buildStep } from '../storage/__testHelpers__/builders'
+import { provideDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
+import { provideProjectContext } from '@/features/writing-project/domain/useProjectContext'
+import type { ProjectData } from '@/features/writing-project/storage/types'
 
 const EmptyCanvasWrapper = defineComponent({
   components: { EmptyCanvas },

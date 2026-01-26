@@ -1,15 +1,15 @@
 import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
-import { buildProjectData } from '../features/writing-project/domain/__testHelpers__/builders'
+import { buildProjectData } from '@/features/writing-project/storage/__testHelpers__/builders'
 import {
   PROJECT_CONTEXT_KEY,
   projectContext,
   type ProjectContext,
-} from '../features/writing-project/view-model/useProjectContext'
+} from '@/features/writing-project/domain/useProjectContext'
 import {
   DEFINITIONS_CONTEXT_KEY,
   definitionsContext,
   type DefinitionsContext,
-} from '../features/writing-project/view-model/useDefinitionsContext'
+} from '@/features/writing-project/domain/useDefinitionsContext'
 import { ref, defineComponent, h } from 'vue'
 import { render } from 'vitest-browser-vue'
 

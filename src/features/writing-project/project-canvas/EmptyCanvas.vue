@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
-import { useDefinitionsContext } from '@/features/writing-project/view-model/useDefinitionsContext'
+import { useDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
 import {
   useProjectContent,
   useProjectMutations,
-} from '@/features/writing-project/view-model/useProjectContext'
+} from '@/features/writing-project/domain/useProjectContext'
 
 const { template, strings } = useDefinitionsContext()
 const { contentMap } = useProjectContent()

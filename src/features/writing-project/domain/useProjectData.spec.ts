@@ -3,7 +3,7 @@ import { useProjectData } from './useProjectData'
 import * as dates from '@/utils/dates'
 import { template } from '../../process-templates/snowflake/template'
 import { nextTick } from 'vue'
-import type { Step } from './types'
+import type { Step } from '../storage/types'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),

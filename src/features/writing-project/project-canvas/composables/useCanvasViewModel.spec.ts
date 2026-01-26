@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import {
   buildStep,
   buildProjectData,
-} from '@/features/writing-project/domain/__testHelpers__/builders'
+} from '@/features/writing-project/storage/__testHelpers__/builders'
 import {
   buildProcessTemplate,
   buildStepDefinition,
@@ -13,13 +13,13 @@ import { useCanvasViewModel } from './useCanvasViewModel'
 import {
   DEFINITIONS_CONTEXT_KEY,
   definitionsContext,
-} from '@/features/writing-project/view-model/useDefinitionsContext'
-import type { Connection } from '@/features/writing-project/domain/types'
+} from '@/features/writing-project/domain/useDefinitionsContext'
+import type { Connection } from '@/features/writing-project/storage/types'
 import { runWithContext } from '@/__testHelpers__/providers'
 import {
   PROJECT_CONTEXT_KEY,
   projectContext,
-} from '@/features/writing-project/view-model/useProjectContext'
+} from '@/features/writing-project/domain/useProjectContext'
 
 describe('useCanvasViewModel', () => {
   it('maps step category and stage correctly', async () => {

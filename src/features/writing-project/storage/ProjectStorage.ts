@@ -1,4 +1,4 @@
-import type { ProjectData } from '@/features/writing-project/domain/types'
+import type { ProjectData } from './types'
 import { migrateProjectData } from './migrations'
 import type { StorageProvider } from '@/utils/storage/StorageProvider'
 import { IndexedDBProvider } from '@/utils/storage/IndexedDBProvider'

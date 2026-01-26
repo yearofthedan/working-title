@@ -4,7 +4,7 @@ import { projectContext } from './useProjectContext'
 import {
   buildProjectData,
   buildStep,
-} from '@/features/writing-project/domain/__testHelpers__/builders'
+} from '@/features/writing-project/storage/__testHelpers__/builders'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),
