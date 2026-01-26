@@ -42,6 +42,7 @@ __screenshots__/
 
 # AI planning and scratchpad
 plans/
+screenshots/
 
 # Playwright
 /test-results/
