@@ -1,5 +1,5 @@
 import { computed, inject, provide, type Ref, type InjectionKey } from 'vue'
-import type { ProjectData, Step, Connection } from '@/features/writing-project/domain/types'
+import type { ProjectData, Step, Connection } from '../storage/types'
 import { generateId } from '@/utils/ids'
 import { now } from '@/utils/dates'
 

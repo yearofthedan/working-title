@@ -21,7 +21,10 @@
       <template #node-richText="{ id, data }">
         <CanvasStep
           :id="data.id"
-          :ref="(el: any) => registerNode(id, el?.$el || el)"
+          :ref="
+            (el: unknown) =>
+              registerNode(id, (el as ComponentPublicInstance)?.$el || (el as HTMLElement | null))
+          "
           :definition="data.definition"
           :content="data.content"
           :actions="data.actions"
@@ -32,7 +35,10 @@
       <template #node-plainText="{ id, data }">
         <CanvasStep
           :id="data.id"
-          :ref="(el: any) => registerNode(id, el?.$el || el)"
+          :ref="
+            (el: unknown) =>
+              registerNode(id, (el as ComponentPublicInstance)?.$el || (el as HTMLElement | null))
+          "
           :definition="data.definition"
           :content="data.content"
           :actions="data.actions"
@@ -47,7 +53,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { toRef, computed } from 'vue'
+import { toRef, computed, type ComponentPublicInstance } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
@@ -56,7 +62,7 @@ import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/writing-project/project-canvas/composables/useLayout'
 import { useCanvasNavigation } from '@/features/writing-project/project-canvas/composables/useCanvasNavigation'
 import { useNodeSizeObserver } from '@/features/writing-project/project-canvas/composables/useNodeSizeObserver'
-import type { ActionDefinition } from '@/features/writing-project/view-model/useStepActions'
+import type { ActionDefinition } from '@/features/writing-project/domain/useStepActions'
 import type {
   CanvasStepDefinition,
   CanvasStepContent,
@@ -64,15 +70,10 @@ import type {
 import CanvasStep from '@/features/writing-project/project-canvas/canvas-step/CanvasStep.vue'
 import EmptyCanvas from '@/features/writing-project/project-canvas/EmptyCanvas.vue'
 import CanvasLayoutIndicator from '@/features/writing-project/project-canvas/CanvasLayoutIndicator.vue'
-import type { ViewModel } from '../view-model/types'
 import { useCanvasViewModel } from './composables/useCanvasViewModel'
-import { useStepActions } from '../view-model/useStepActions'
-import { useProjectContent } from '../view-model/useProjectContext'
-import { useDefinitionsContext } from '../view-model/useDefinitionsContext'
-
-const props = defineProps<{
-  viewModel: ViewModel
-}>()
+import { useStepActions } from '../domain/useStepActions'
+import { useProjectContent, useProjectSteps } from '../domain/useProjectContext'
+import { useDefinitionsContext } from '../domain/useDefinitionsContext'
 
 const { template, strings } = useDefinitionsContext()
 
@@ -83,12 +84,9 @@ const { getAvailableActions } = useStepActions(template, strings)
 
 const { dimensions, registerNode } = useNodeSizeObserver()
 
-const canvasViewModel = useCanvasViewModel(
-  toRef(() => props.viewModel.canvasSteps),
-  toRef(() => props.viewModel.connections),
-  template,
-  getAvailableActions
-)
+const { steps, connections } = useProjectSteps()
+
+const canvasViewModel = useCanvasViewModel(steps, connections, template, getAvailableActions)
 
 const { layoutNodes, edges, hasInitialLayout, isLayoutRunning } = useLayout(
   toRef(() => canvasViewModel.value.tracks),

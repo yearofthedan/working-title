@@ -17,6 +17,7 @@ Access Architectural Decision Records (ADRs) to understand context, rationale, a
 ## What are ADRs?
 
 Architectural Decision Records document significant structural decisions. Each captures:
+
 - **Context**: The problem or situation
 - **Decision**: What was decided and implementation rules
 - **Consequences**: Trade-offs and limitations
@@ -24,7 +25,7 @@ Architectural Decision Records document significant structural decisions. Each c
 ## Key ADRs
 
 - [**Feature Isolation**](/memory/decisions/active/adr-001-feature-isolation.md) - No cross-feature imports, self-contained modules
-- [**View Model Pattern**](/memory/decisions/active/adr-002-view-model-pattern.md) - Transform domain data for UI consumption
+- [**View Model Pattern**](/memory/decisions/active/adr-002-data-flow-boundaries.md) - How data is transformed and moves through the app
 - [**Dormant Components**](/memory/decisions/active/adr-003-dormant-components.md) - Lazy initialization for heavy dependencies
 
 ## How to Use

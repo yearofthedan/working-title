@@ -1,4 +1,4 @@
-import type { ProjectData } from '@/features/writing-project/domain/types'
+import type { ProjectData } from './types'
 
 export type Migration = (data: unknown) => ProjectData
 

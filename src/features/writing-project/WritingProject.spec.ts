@@ -5,7 +5,7 @@ import WritingProject from './WritingProject.vue'
 import { template } from '@/features/process-templates/snowflake/template'
 import { strings } from '@/features/process-templates/snowflake/strings'
 import { ref } from 'vue'
-import { buildProjectData, buildStep } from './domain/__testHelpers__/builders'
+import { buildProjectData, buildStep } from './storage/__testHelpers__/builders'
 
 const navigateToNodeSpy = vi.fn()
 const navigateToNewNodeSpy = vi.fn()

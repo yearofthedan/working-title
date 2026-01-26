@@ -37,7 +37,7 @@ import { watch, onBeforeUnmount } from 'vue'
 import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
 import CanvasStepMenu from './CanvasStepMenu.vue'
 import type { CanvasStepProps, CanvasStepContent } from '../stepTypes'
-import type { ActionDefinition } from '../../view-model/useStepActions'
+import type { ActionDefinition } from '../../domain/useStepActions'
 
 const props = defineProps<CanvasStepProps>()
 
