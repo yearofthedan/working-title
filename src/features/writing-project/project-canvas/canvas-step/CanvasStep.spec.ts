@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from 'vitest-browser-vue'
+import { render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import CanvasStep from './CanvasStep.vue'
 import { DEFAULT_DEBOUNCE } from '@/utils/useDebouncedEmit'

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { page } from 'vitest/browser'
-import { render } from 'vitest-browser-vue'
+import { render } from '@/__testHelpers__/renderer'
 import WritingProject from '@/features/writing-project/WritingProject.vue'
 import { fullSampleData } from '@/features/demo/project-data'
 import { template } from '@/features/process-templates/snowflake/template'

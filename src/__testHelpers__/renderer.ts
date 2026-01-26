@@ -10,8 +10,9 @@ import {
   definitionsContext,
   type DefinitionsContext,
 } from '@/features/writing-project/domain/useDefinitionsContext'
-import { ref, defineComponent, h } from 'vue'
-import { render } from 'vitest-browser-vue'
+import { ref, defineComponent, h, type Component, type ComponentOptions } from 'vue'
+import { render as vueRender } from 'vitest-browser-vue'
+import { createI18n } from 'vue-i18n'
 
 export interface Providers {
   [PROJECT_CONTEXT_KEY]: ProjectContext
@@ -35,6 +36,42 @@ export const buildProviders = (overrides: Partial<Providers> = {}): Providers =>
 }
 
 /**
+ * Creates a configured i18n instance for testing.
+ * Silent by default to avoid polluting test output.
+ */
+export function createTestI18n(messages?: Record<string, unknown>) {
+  return createI18n({
+    legacy: false,
+    locale: 'en',
+    fallbackLocale: 'en',
+    missingWarn: false,
+    fallbackWarn: false,
+    messages: (messages as Record<string, never>) || { en: {} },
+  })
+}
+
+/**
+ * Custom render method that automatically provides i18n context
+ * and supports custom providers.
+ */
+export function render(
+  component: Component | ComponentOptions,
+  options: Parameters<typeof vueRender>[1] = {}
+) {
+  const i18n = createTestI18n()
+
+  const mergedOptions = {
+    global: {
+      plugins: [i18n],
+      provide: buildProviders()
+    },
+    ...options,
+  }
+
+  return vueRender(component, mergedOptions)
+}
+
+/**
  * Helper to run a callback (typically containing a composable call) within a component context
  * with the necessary providers for writing project features.
  */
@@ -48,7 +85,7 @@ export function runWithContext(callback: () => void, providers: Partial<Provider
 
   return render(TestComponent, {
     global: {
-      provide: buildProviders(providers),
+      provide: providers,
     },
   })
 }

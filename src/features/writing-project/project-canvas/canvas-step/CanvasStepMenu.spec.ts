@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render } from 'vitest-browser-vue'
+import { render } from '@/__testHelpers__/renderer'
 import { page } from 'vitest/browser'
 import CanvasStepMenu from './CanvasStepMenu.vue'
 
