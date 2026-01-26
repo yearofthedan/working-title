@@ -1,5 +1,35 @@
 # Orchestrator Workflow Control
 
+## Mode Switching and Skills
+
+**Critical**: When switching modes in the same conversation thread, the new mode inherits existing context and does NOT re-scan for skills.
+
+### Skill Handover Pattern
+
+When delegating to another mode that should use skills:
+
+1. **Identify relevant skills** from [`.roo/skills/`](../skills/)
+2. **Load skills into context** using `read_file` on each SKILL.md
+3. **Switch with explicit reference** mentioning which skills to follow
+
+✅ **Good delegation**:
+```markdown
+# Load skills first
+read_file: .roo/skills/workflow-general/SKILL.md
+read_file: .roo/skills/workflow-vue-components/SKILL.md
+
+# Then delegate with explicit reference
+I've loaded workflow-general and workflow-vue-components into context.
+Switch to code mode and follow these skills to implement the feature.
+```
+
+❌ **Poor delegation**:
+```markdown
+Switch to code mode to implement this.
+```
+
+**Alternative**: Start a new task directly in the target mode rather than switching, which triggers fresh skill discovery.
+
 ## Subtask Completion Protocol
 
 After EVERY subtask completion:
@@ -53,4 +83,3 @@ Each subtask should be a complete, independently testable, prod ready, commitabl
 - [ ] `./do lint`
 - [ ] `./do build`
 - [ ] `./do test`
-
