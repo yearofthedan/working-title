@@ -1,0 +1,11 @@
+#!/bin/bash
+# Runs e2e tests via playwright. Usage: ./do e2e [--ui] [BASE_URL=http://...]
+. "$(dirname "$0")"/_common
+
+echo -e "${INFO_COLOR}Running E2E tests...${RESET_COLOR}"
+
+if [ -n "$BASE_URL" ]; then
+    echo -e "${INFO_COLOR}Testing against BASE_URL: ${BASE_URL}${RESET_COLOR}"
+fi
+
+pnpm exec playwright test "$@"

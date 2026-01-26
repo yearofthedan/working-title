@@ -60,6 +60,8 @@ This project uses a `./do` script to standardize development commands. You can l
 #### Testing & Quality
 
 - `test`: Runs tests via vitest. Usage: `./do test [--watch]`
+- `e2e`: Runs end-to-end tests via Playwright. Usage: `./do e2e [--ui]`
+  - To test against a specific environment: `BASE_URL=https://staging.example.com ./do e2e`
 - `lint`: Lints the project files. Usage: `./do lint [--fix]`
 
 #### Maintenance
