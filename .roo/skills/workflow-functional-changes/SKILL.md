@@ -1,6 +1,6 @@
 ---
 name: workflow-functional-changes
-description: Provides guidance when working on features, especially where components, composables, utility functions and tests are being modified. This covers how to slice the work, TDD and test optimisation
+description: PROCESS workflow for feature development. Covers vertical slicing, TDD (red-green-refactor), and testing strategy. Complements workflow-general (tooling) and workflow-vue-components (implementation).
 ---
 
 ## When to Use
@@ -66,3 +66,8 @@ References
 
 - See [Testing Patterns](references/testing-patterns.md) for detailed patterns including the use of builders and page objects.
 - See [Feature Module Architecture](references/feature-structure.md) for details on the structure and patterns of features
+
+## References
+
+- [General Workflow](../workflow-general/SKILL.md) — Required for verification and commit steps
+- [Vue Components](../workflow-vue-components/SKILL.md) — Component-specific implementation patterns
