@@ -1,0 +1,11 @@
+{
+  "app": {
+    "placeholder": "App strings"
+  },
+  "common": {
+    "placeholder": "Common strings"
+  },
+  "errors": {
+    "placeholder": "Error messages"
+  }
+}

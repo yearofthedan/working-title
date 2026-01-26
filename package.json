@@ -24,6 +24,7 @@
     "@chromatic-com/storybook": "4.1.3",
     "@eslint/compat": "2.0.1",
     "@eslint/js": "9.39.2",
+    "@playwright/test": "1.57.0",
     "@storybook/addon-a11y": "10.2.0",
     "@storybook/addon-docs": "10.2.0",
     "@storybook/addon-vitest": "10.2.0",
@@ -45,7 +46,6 @@
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
     "playwright": "1.57.0",
-    "@playwright/test": "1.57.0",
     "prettier": "3.8.1",
     "storybook": "10.2.0",
     "tailwindcss": "4.1.18",
@@ -67,6 +67,7 @@
     "@vueuse/core": "14.1.0",
     "elkjs": "0.11.0",
     "vue": "3.5.26",
+    "vue-i18n": "11.2.8",
     "vue-router": "4.6.4"
   },
   "pnpm": {

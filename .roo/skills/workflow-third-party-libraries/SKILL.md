@@ -29,7 +29,7 @@ Criteria: Prioritize libraries that are tree-shakeable, actively maintained (upd
 ### 3. Security & Installation
 
 1. Audit: Run `./do audit` before finalizing. Critical vulnerabilities require an alternative package.
-2. Install: Use pnpm add package-name (or -D for build-only tools).
+2. Install: Use pnpm add package-name@specific-version (or -D for build-only tools). NOTE for security best practice we pin dependencies and allow renovate to manage updates
 3. Verify: Ensure pnpm-lock.yaml is updated and the package is in the correct section of package.json.
 
 ## Validation Checklist
