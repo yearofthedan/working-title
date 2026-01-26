@@ -5,6 +5,12 @@ description: Technical lifecycle for Vue 3 components using Vertical Slices, Tai
 
 # workflow-vue-components
 
+## Prerequisites
+
+**Required Context Skills**:
+1. Load [`workflow-general`](../workflow-general/SKILL.md) first for tooling and commit standards
+2. Load [`workflow-functional-changes`](../workflow-functional-changes/SKILL.md) for TDD and slicing strategy
+
 ## Procedure
 
 ### 1. Component Organisation
@@ -77,3 +83,8 @@ More details under [Performance](references/performance.md)
 - [ ] Vitest tests verify user interactions?
 - [ ] Styling correctly applied
 - [ ] Component has single responsibility?
+
+## References
+
+- [General Workflow](../workflow-general/SKILL.md) — `./do` scripts, linting, commits
+- [Functional Changes Workflow](../workflow-functional-changes/SKILL.md) — TDD, vertical slicing
