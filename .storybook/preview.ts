@@ -2,10 +2,19 @@ import type { Preview } from '@storybook/vue3-vite'
 import { setup } from '@storybook/vue3'
 import '../src/styles/main.css'
 import { useDark } from '@vueuse/core'
-import { i18n } from '../src/i18n'
+import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
+import en from '@/locales/en.json'
+import snowflakeEn from '@/features/process-templates/snowflake/locales/en.json'
 
 setup((app) => {
-  app.use(i18n)
+  app.use(
+    createTestI18n({
+      en: {
+        ...en,
+        ...snowflakeEn,
+      },
+    })
+  )
 })
 
 useDark({

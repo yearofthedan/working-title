@@ -1,15 +1,5 @@
 import { computed, inject, provide, type Ref, type InjectionKey } from 'vue'
 import type { ProcessTemplate, StepDefinition } from '@/features/process-templates/processTemplate'
-import { getValueAtPath } from '@/utils/objects'
-
-/**
- * A step definition decorated with localized strings.
- */
-export interface DecoratedStepDefinition extends StepDefinition {
-  label: string
-  placeholder: string
-  instruction: string
-}
 
 /**
  * Definitions operations - read-only access to template schema
@@ -18,59 +8,41 @@ export interface DefinitionsContext {
   /**
    * Retrieves a specific decorated step definition by its ID.
    */
-  getStepDef: (stepId: string) => DecoratedStepDefinition | undefined
+  getStepDef: (stepId: string) => StepDefinition | undefined
 
   /**
    * The underlying template.
    */
   template: Ref<ProcessTemplate>
-
-  /**
-   * The underlying localized strings.
-   */
-  strings: Ref<Record<string, unknown>>
 }
 
 export const DEFINITIONS_CONTEXT_KEY: InjectionKey<DefinitionsContext> =
   Symbol('definitionsContext')
 
-export function definitionsContext(
-  template: Ref<ProcessTemplate>,
-  strings: Ref<Record<string, unknown>>
-) {
+export function definitionsContext(template: Ref<ProcessTemplate>): DefinitionsContext {
   const definitionMap = computed(() => {
-    const map = new Map<string, DecoratedStepDefinition>()
-
+    const map = new Map<string, StepDefinition>()
     template.value.stepDefinitions.forEach((def) => {
-      map.set(def.id, {
-        ...def,
-        label: getValueAtPath(strings.value, def.labelText) || def.id,
-        placeholder: getValueAtPath(strings.value, def.editorConfig.placeholderText) || '',
-        instruction: getValueAtPath(strings.value, def.instructionText) || '',
-      })
+      map.set(def.id, def)
     })
 
     return map
   })
 
-  const getStepDef = (stepId: string): DecoratedStepDefinition | undefined => {
+  const getStepDef = (stepId: string): StepDefinition | undefined => {
     return definitionMap.value.get(stepId)
   }
 
   const context: DefinitionsContext = {
     getStepDef,
     template,
-    strings,
   }
 
   return context
 }
 
-export function provideDefinitionsContext(
-  template: Ref<ProcessTemplate>,
-  strings: Ref<Record<string, unknown>>
-) {
-  provide(DEFINITIONS_CONTEXT_KEY, definitionsContext(template, strings))
+export function provideDefinitionsContext(template: Ref<ProcessTemplate>) {
+  provide(DEFINITIONS_CONTEXT_KEY, definitionsContext(template))
 }
 
 export function useDefinitionsContext(): DefinitionsContext {

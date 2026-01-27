@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@/__testHelpers__/renderer'
+import { buildGlobals, render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import WritingProject from './WritingProject.vue'
 import { template } from '@/features/process-templates/snowflake/template'
-import { strings } from '@/features/process-templates/snowflake/strings'
 import { ref } from 'vue'
 import { buildProjectData, buildStep } from './storage/__testHelpers__/builders'
+import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
 
 const navigateToNodeSpy = vi.fn()
 const navigateToNewNodeSpy = vi.fn()
@@ -16,7 +16,39 @@ vi.mock('./project-canvas/composables/useCanvasNavigation', () => ({
   }),
 }))
 
+const strings = {
+  'app.canvas.emptyState.title': 'Start Your Story',
+  'app.canvas.emptyState.description': 'Begin by adding your first step to the canvas.',
+  'template.root.actions.create_summary': 'Create One Sentence Summary',
+  'template.step.summary.label': 'One Sentence Summary',
+  'template.step.summary.placeholder': '',
+  'template.step.summary.instruction': '',
+  'template.step.summary.actions.expand_to_storyline': 'Expand to Storyline',
+  'template.step.storyline.label': 'Storyline',
+  'template.step.storyline.placeholder': '',
+  'template.step.storyline.instruction': '',
+}
+
 describe('WritingProject Integration', () => {
+  const renderComponent = (data = ref(buildProjectData())) => {
+    return render(WritingProject, {
+      props: {
+        data: data.value,
+        template,
+      },
+      global: buildGlobals({
+        plugins: [
+          createTestI18n({
+            en: strings,
+          }),
+        ],
+      }),
+      attrs: {
+        style: 'height: 100vh; width: 100vw;',
+      },
+    })
+  }
+
   it('updates project data when node content changes', async () => {
     const data = ref(
       buildProjectData({
@@ -29,16 +61,7 @@ describe('WritingProject Integration', () => {
         ],
       })
     )
-    render(WritingProject, {
-      props: {
-        data: data.value,
-        template,
-        strings,
-      },
-      attrs: {
-        style: 'height: 100vh; width: 100vw;',
-      },
-    })
+    renderComponent(data)
 
     const richTextNode = page.getByText('Initial content')
 
@@ -58,16 +81,8 @@ describe('WritingProject Integration', () => {
         steps: [],
       })
     )
-    render(WritingProject, {
-      props: {
-        data: data.value,
-        template,
-        strings,
-      },
-      attrs: {
-        style: 'height: 100vh; width: 100vw;',
-      },
-    })
+
+    renderComponent(data)
 
     const startHeading = page.getByText(/Start Your Story/i)
     await expect.element(startHeading).toBeVisible()
@@ -96,16 +111,7 @@ describe('WritingProject Integration', () => {
         ],
       })
     )
-    render(WritingProject, {
-      props: {
-        data: data.value,
-        template,
-        strings,
-      },
-      attrs: {
-        style: 'height: 100vh; width: 100vw;',
-      },
-    })
+    renderComponent(data)
 
     const node = page.getByText('Summary', { exact: true })
     await expect.element(node).toBeVisible()

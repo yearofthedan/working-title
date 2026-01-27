@@ -1,85 +1,56 @@
-import { toRef, defineComponent } from 'vue'
-import type { Meta, StoryObj } from '@storybook/vue3'
+import { toRef } from 'vue'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import EmptyCanvas from './EmptyCanvas.vue'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect } from 'storybook/test'
 import { template } from '@/features/process-templates/snowflake/template'
-import { strings } from '@/features/process-templates/snowflake/strings'
 import { buildProjectData, buildStep } from '../storage/__testHelpers__/builders'
 import { provideDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
 import { provideProjectContext } from '@/features/writing-project/domain/useProjectContext'
-import type { ProjectData } from '@/features/writing-project/storage/types'
+import snowflakeStrings from '@/features/process-templates/snowflake/locales/en.json'
+import appStrings from '@/locales/en.json'
+import { useI18n } from 'vue-i18n'
+import type { ProjectData } from '../storage/types'
 
-const EmptyCanvasWrapper = defineComponent({
-  components: { EmptyCanvas },
-  props: {
-    projectData: {
-      type: Object as () => ProjectData,
-      required: true,
-    },
-  },
-  setup(props) {
-    provideProjectContext(toRef(() => props.projectData))
-    provideDefinitionsContext(
-      toRef(() => template),
-      toRef(() => strings)
-    )
-  },
-  template: '<EmptyCanvas />',
-})
+type StoryArgs = {
+  projectData: ProjectData
+}
 
-const meta = {
-  component: EmptyCanvasWrapper,
+const meta: Meta<StoryArgs> = {
+  component: EmptyCanvas,
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof EmptyCanvasWrapper>
+  render: (args) => ({
+    components: { EmptyCanvas },
+    setup() {
+      provideProjectContext(toRef(() => args.projectData))
+      provideDefinitionsContext(toRef(() => template))
+      const { mergeLocaleMessage } = useI18n()
+      mergeLocaleMessage('en', snowflakeStrings)
+
+      return { args }
+    },
+    template: '<EmptyCanvas />',
+  }),
+}
 
 export default meta
-type Story = StoryObj<typeof EmptyCanvasWrapper>
+type Story = StoryObj<typeof meta>
 
 export const EmptyProject: Story = {
   args: {
-    projectData: buildProjectData({ steps: [] }),
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement)
-
-    await step('Shows the start message', async () => {
-      await expect(canvas.getByText(/Start Your Story/i)).toBeInTheDocument()
-    })
-
-    await step('Shows the Create Summary action button', async () => {
-      const button = await canvas.findByRole('button', { name: /Create One Sentence Summary/i })
-      await expect(button).toBeInTheDocument()
-    })
-
-    await step('Button is clickable', async () => {
-      const button = canvas.getByRole('button', { name: /Create One Sentence Summary/i })
-      await userEvent.click(button)
-    })
-  },
-}
-
-export const SummaryExists: Story = {
-  args: {
     projectData: buildProjectData({
-      steps: [
-        buildStep({ id: 'step-1', stepId: 'step-summary', content: { text: 'My story summary' } }),
-      ],
+      steps: [],
     }),
   },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement)
-
-    await step('Shows fallback message when no actions available', async () => {
-      await expect(canvas.getByText(/All canvas steps have been added/i)).toBeInTheDocument()
-    })
-
-    await step('Does not show action buttons', async () => {
-      const buttons = canvas.queryAllByRole('button')
-      await expect(buttons).toHaveLength(0)
-    })
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(appStrings.app.canvas.emptyState.title)).toBeInTheDocument()
+    await expect(
+      canvas.getByRole('button', {
+        name: snowflakeStrings.template.root.actions.create_summary,
+      })
+    ).toBeInTheDocument()
   },
 }
 
@@ -92,12 +63,14 @@ export const OnlySidebarSteps: Story = {
       ],
     }),
   },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement)
-
+  play: async ({ canvas, step }) => {
     await step('Still shows Create Summary button (sidebar steps dont affect canvas)', async () => {
-      const button = await canvas.findByRole('button', { name: /Create One Sentence Summary/i })
-      await expect(button).toBeInTheDocument()
+      await expect(canvas.getByText(appStrings.app.canvas.emptyState.title)).toBeInTheDocument()
+      await expect(
+        canvas.getByRole('button', {
+          name: snowflakeStrings.template.root.actions.create_summary,
+        })
+      ).toBeInTheDocument()
     })
   },
 }

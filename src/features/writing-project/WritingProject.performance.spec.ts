@@ -4,7 +4,6 @@ import { render } from '@/__testHelpers__/renderer'
 import WritingProject from '@/features/writing-project/WritingProject.vue'
 import { fullSampleData } from '@/features/demo/project-data'
 import { template } from '@/features/process-templates/snowflake/template'
-import { strings } from '@/features/process-templates/snowflake/strings'
 
 const TEST_LOADTIME_THRESHOLDS = {
   sidebar: 1000,
@@ -19,7 +18,6 @@ describe('WritingProject Performance', () => {
       props: {
         data: fullSampleData,
         template,
-        strings,
       },
     })
 

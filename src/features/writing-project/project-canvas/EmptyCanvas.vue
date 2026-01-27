@@ -9,12 +9,12 @@ import {
 } from '@/features/writing-project/domain/useProjectContext'
 
 const { t } = useI18n()
-const { template, strings } = useDefinitionsContext()
+const { template } = useDefinitionsContext()
 const { contentMap } = useProjectContent()
 const { addStep } = useProjectMutations()
 
 const availableActions = computed(() =>
-  getCanvasRootActions(template.value, Array.from(contentMap.value.values()), strings.value)
+  getCanvasRootActions(template.value, Array.from(contentMap.value.values()))
 )
 
 const handleAddStep = (stepId: string) => {
@@ -56,7 +56,7 @@ const handleAddStep = (stepId: string) => {
         class="px-6 py-3 bg-accent text-white dark:bg-accent dark:text-white font-medium rounded-lg hover:bg-accent-hover transition-colors cursor-pointer shadow-md"
         @click="handleAddStep(action.targetType)"
       >
-        {{ action.label }}
+        {{ t(action.labelText) }}
       </button>
     </div>
 

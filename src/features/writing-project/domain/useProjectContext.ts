@@ -24,7 +24,7 @@ export interface ProjectContext {
 
 export const PROJECT_CONTEXT_KEY: InjectionKey<ProjectContext> = Symbol('projectContext')
 
-export function projectContext(projectData: Ref<ProjectData>) {
+export function projectContext(projectData: Ref<ProjectData>): ProjectContext {
   const steps = computed(() => projectData.value.steps)
   const connections = computed(() => projectData.value.connections)
 

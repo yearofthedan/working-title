@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import SnowflakeCanvas from '@/features/writing-project/WritingProject.vue'
 import { template } from '@/features/process-templates/snowflake/template'
-import { strings } from '@/features/process-templates/snowflake/strings'
 import { fullSampleData } from '@/features/demo/project-data'
 
 const meta = {
@@ -25,6 +24,5 @@ export const Default: Story = {
   args: {
     data: fullSampleData,
     template: template,
-    strings: strings,
   },
 }

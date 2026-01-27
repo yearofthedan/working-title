@@ -51,10 +51,10 @@ If a required task is not covered by a ./do script, follow this order:
 Before committing any code, you must:
 
 1. Verify standards alignment with `./do lint`
-2. Verify the app can build `./do build`.
+2. Verify the app can build `./do build`. ALWAYS do this before running tests, because it picks up compile time issues quicker than running tests.
 3. Execute the full test suite (`./do test`) to ensure no regressions.
 4. Review agent guidance documentation (see
-  [Agents.md](/AGENTS.md), and [.roo](/.roo/)) and update where appropriate. This could include capturing and updating ADRs, a high level overview of the domain model, as well as technical debt / uncovered additional work, or additional context the user provided during the session, which you know will be useful for the future.
+   [Agents.md](/AGENTS.md), and [.roo](/.roo/)) and update where appropriate. This could include capturing and updating ADRs, a high level overview of the domain model, as well as technical debt / uncovered additional work, or additional context the user provided during the session, which you know will be useful for the future.
 5. Analyze test coverage to identify any gaps in the new logic.
 
 ### Commit messages

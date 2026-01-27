@@ -2,11 +2,7 @@
   <div class="grow relative bg-background" :aria-busy="isLoading">
     <CanvasLayoutIndicator :is-loading="isLayoutRunning && hasInitialLayout" />
 
-    <AppLoadingOverlay
-      :is-loading="!hasInitialLayout"
-      message="Loading project..."
-      aria-label="Opening project"
-    />
+    <AppLoadingOverlay :is-loading="!hasInitialLayout" :message="t('app.loading.project')" />
 
     <EmptyCanvas v-if="hasInitialLayout && nodes.length === 0" />
 
@@ -74,13 +70,14 @@ import { useCanvasViewModel } from './composables/useCanvasViewModel'
 import { useStepActions } from '../domain/useStepActions'
 import { useProjectContent, useProjectSteps } from '../domain/useProjectContext'
 import { useDefinitionsContext } from '../domain/useDefinitionsContext'
+import { useI18n } from 'vue-i18n'
 
-const { template, strings } = useDefinitionsContext()
-
+const { template } = useDefinitionsContext()
+const { t } = useI18n()
 const vueFlowInstance = useVueFlow()
 const { navigateToNewNode } = useCanvasNavigation(vueFlowInstance)
 
-const { getAvailableActions } = useStepActions(template, strings)
+const { getAvailableActions } = useStepActions(template)
 
 const { dimensions, registerNode } = useNodeSizeObserver()
 

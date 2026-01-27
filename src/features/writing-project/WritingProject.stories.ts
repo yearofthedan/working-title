@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import WritingProject from '@/features/writing-project/WritingProject.vue'
 import { expect, waitFor } from 'storybook/test'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
-import { strings } from '@/features/process-templates/snowflake/strings'
 const meta = {
   component: WritingProject,
   tags: ['autodocs'],
@@ -129,7 +128,6 @@ export const Default: Story = {
       ],
     },
     template: inlineTemplate,
-    strings: strings,
   },
   play: async ({ canvas, step, userEvent }) => {
     await step('Wait for canvas to load', async () => {
@@ -174,7 +172,6 @@ export const Empty: Story = {
       connections: [],
     },
     template: inlineTemplate,
-    strings: strings,
   },
   play: async ({ canvas, step }) => {
     await step('Wait for canvas to load', async () => {
