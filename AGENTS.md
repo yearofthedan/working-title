@@ -38,6 +38,13 @@ Project planning and architectural decisions:
 
 **Critical**: Mode switching in conversations doesn't re-scan for skills. Implementation modes (code, debug) must explicitly load relevant skills from [`.roo/skills/`](.roo/skills/) using `read_file` when starting work. See [skill loading protocol](.roo/rules-code/skill-loading.md).
 
+### Internationalization (i18n)
+
+User-facing strings must not be hardcoded. Use the two-tier i18n system:
+- **App Strings**: Core UI in [`src/locales/en.json`](src/locales/en.json)
+- **Template Strings**: Methodology strings in `src/features/process-templates/{template}/locales/en.json`
+- **Guide**: See [i18n Workflow](.roo/guides/i18n-workflow.md) for detailed patterns and troubleshooting.
+
 ## 🎯 Quick Start
 
 1. **Starting a feature?** Check [memory/planning/backlog.md](memory/planning/backlog.md)

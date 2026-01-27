@@ -24,11 +24,11 @@
         </div>
       </RouterLink>
 
-      <!-- New Project Link -->
-      <RouterLink
-        :to="{ name: RouteNames.Project }"
-        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-y-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md"
+      <!-- New Project Action -->
+      <button
+        class="group w-64 h-64 bg-paper border border-edge rounded-sm flex-y-center gap-4 transition-all hover:border-ink/20 hover:bg-ink/2 shadow-sm hover:shadow-md cursor-pointer"
         aria-labelledby="label-new"
+        @click="handleNewProject"
       >
         <span
           class="w-12 h-12 flex-center rounded-full bg-ink/5 group-hover:bg-ink/10 transition-colors text-xl text-ink/60 font-light"
@@ -37,10 +37,12 @@
           +
         </span>
         <div id="label-new" class="text-center px-4">
-          <span class="block text-lg font-medium text-ink">{{ t('app.home.newProject.title') }}</span>
+          <span class="block text-lg font-medium text-ink">{{
+            t('app.home.newProject.title')
+          }}</span>
           <p class="text-xs text-ink/40">{{ t('app.home.newProject.description') }}</p>
         </div>
-      </RouterLink>
+      </button>
     </main>
 
     <footer class="mt-16 opacity-30">
@@ -50,18 +52,25 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { RouteNames } from '@/router/routes'
+import { projectStorage } from '@/features/writing-project/storage/ProjectStorage'
+import { createNewProject } from '@/features/writing-project/domain/projectFactory'
+import { loadTemplate } from '@/features/process-templates/templateRegistry'
 
 const { t } = useI18n()
 const router = useRouter()
 
-onMounted(() => {
-  window.setTimeout(() => {
-    router.resolve({ name: RouteNames.Demo })
-    router.resolve({ name: RouteNames.Project })
-  }, 500)
-})
+const handleNewProject = async () => {
+  const existing = await projectStorage.loadCurrent()
+  if (!existing) {
+    const { template: snowflake } = await loadTemplate('snowflake-method-v1')
+    const newProject = createNewProject(snowflake)
+    await projectStorage.save(newProject)
+  }
+  router.push({ name: RouteNames.Project })
+}
 </script>
+
+<style scoped></style>
