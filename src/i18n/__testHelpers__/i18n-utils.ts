@@ -12,7 +12,7 @@ export function createTestI18n(messages?: Record<string, unknown>) {
 
   const mergedMessages = {
     ...en,
-    ...snowflakeLocales.en, // Merge template messages
+    ...snowflakeLocales.en, // Merge template messages at root
     ...enOverrides, // Allow test-specific overrides
   }
 

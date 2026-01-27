@@ -1,53 +1,15 @@
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import type { ProjectData, Step } from '../storage/types'
-import { now } from '@/utils/dates'
-import { template } from '@/features/process-templates/snowflake/template'
-import { generateId } from '@/utils/ids'
+import type { ProjectData } from '../storage/types'
 import { projectStorage } from '../storage/ProjectStorage'
 
-const createNewProject = (): ProjectData => {
-  const created = now()
-
-  const initialSteps: Step[] = template.stepDefinitions
-    .filter((def) => def.isInitial)
-    .map((def) => ({
-      id: generateId(),
-      stepId: def.id,
-      content: {
-        text: '',
-      },
-    }))
-
-  return {
-    schemaVersion: '1.0.0',
-    projectId: generateId(),
-    templateId: template.id,
-    templateVersion: template.version,
-    meta: {
-      name: 'Untitled Story',
-      created: created,
-      lastModified: created,
-    },
-    steps: initialSteps,
-    connections: [],
-  }
-}
-
-export const useProjectData = () => {
-  const projectData = ref<ProjectData>(createNewProject())
-  const isLoading = ref(true)
-
-  onMounted(async () => {
-    const savedData = await projectStorage.loadCurrent()
-    if (savedData) {
-      projectData.value = savedData
-    }
-    isLoading.value = false
-  })
+export const useProjectData = (initialProject: ProjectData) => {
+  const projectData = ref<ProjectData>(initialProject)
 
   const save = async () => {
-    await projectStorage.save(projectData.value)
+    if (projectData.value) {
+      await projectStorage.save(projectData.value)
+    }
   }
 
   const debouncedSave = useDebounceFn(save, 300, { maxWait: 2000 })
@@ -61,8 +23,6 @@ export const useProjectData = () => {
   )
 
   return {
-    project: projectData,
-    isLoading,
-    template,
+    project: projectData as Ref<ProjectData>,
   }
 }
