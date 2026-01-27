@@ -3,31 +3,31 @@ import type { ProcessTemplate } from '@/features/process-templates/processTempla
 export const template: ProcessTemplate = {
   id: 'snowflake-method-v1',
   version: '1.0.0',
-  nameText: 'template.snowflake.name',
-  descriptionText: 'template.snowflake.description',
+  nameText: 'template.name',
+  descriptionText: 'template.description',
 
   rootActions: [
     {
       id: 'root-action-add-summary',
-      labelText: 'root.actions.create_summary',
+      labelText: 'template.root.actions.create_summary',
       trigger: 'append',
       targetType: 'step-summary',
     },
     {
       id: 'root-action-add-genre',
-      labelText: 'root.actions.add_genre',
+      labelText: 'template.root.actions.add_genre',
       trigger: 'append',
       targetType: 'step-genre',
     },
     {
       id: 'root-action-add-theme',
-      labelText: 'root.actions.add_theme',
+      labelText: 'template.root.actions.add_theme',
       trigger: 'append',
       targetType: 'step-theme',
     },
     {
       id: 'root-action-add-audience',
-      labelText: 'root.actions.add_audience',
+      labelText: 'template.root.actions.add_audience',
       trigger: 'append',
       targetType: 'step-target-audience',
     },
@@ -37,12 +37,12 @@ export const template: ProcessTemplate = {
     {
       id: 'step-genre',
       category: 'context',
-      labelText: 'step.genre.label',
-      instructionText: 'step.genre.instruction',
+      labelText: 'template.step.genre.label',
+      instructionText: 'template.step.genre.instruction',
       isInitial: true,
       editorConfig: {
         format: 'plain',
-        placeholderText: 'step.genre.placeholder',
+        placeholderText: 'template.step.genre.placeholder',
       },
       ui: {
         visibility: ['sidebar'],
@@ -52,12 +52,12 @@ export const template: ProcessTemplate = {
     {
       id: 'step-target-audience',
       category: 'context',
-      labelText: 'step.target_audience.label',
-      instructionText: 'step.target_audience.instruction',
+      labelText: 'template.step.target_audience.label',
+      instructionText: 'template.step.target_audience.instruction',
       isInitial: true,
       editorConfig: {
         format: 'plain',
-        placeholderText: 'step.target_audience.placeholder',
+        placeholderText: 'template.step.target_audience.placeholder',
       },
       ui: {
         visibility: ['sidebar'],
@@ -67,12 +67,12 @@ export const template: ProcessTemplate = {
     {
       id: 'step-theme',
       category: 'context',
-      labelText: 'step.theme.label',
-      instructionText: 'step.theme.instruction',
+      labelText: 'template.step.theme.label',
+      instructionText: 'template.step.theme.instruction',
       isInitial: true,
       editorConfig: {
         format: 'plain',
-        placeholderText: 'step.theme.placeholder',
+        placeholderText: 'template.step.theme.placeholder',
       },
       ui: {
         visibility: ['sidebar'],
@@ -83,11 +83,11 @@ export const template: ProcessTemplate = {
       id: 'step-summary',
       category: 'structure',
       stage: 1,
-      labelText: 'step.summary.label',
-      instructionText: 'step.summary.instruction',
+      labelText: 'template.step.summary.label',
+      instructionText: 'template.step.summary.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.summary.placeholder',
+        placeholderText: 'template.step.summary.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -95,7 +95,7 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-expand-to-storyline',
-          labelText: 'step.summary.actions.expand_to_storyline',
+          labelText: 'template.step.summary.actions.expand_to_storyline',
           trigger: 'advance',
           targetType: 'step-storyline',
         },
@@ -105,11 +105,11 @@ export const template: ProcessTemplate = {
       id: 'step-storyline',
       category: 'structure',
       stage: 2,
-      labelText: 'step.storyline.label',
-      instructionText: 'step.storyline.instruction',
+      labelText: 'template.step.storyline.label',
+      instructionText: 'template.step.storyline.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.storyline.placeholder',
+        placeholderText: 'template.step.storyline.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -117,19 +117,19 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-add-character',
-          labelText: 'step.storyline.actions.add_character',
+          labelText: 'template.step.storyline.actions.add_character',
           trigger: 'append',
           targetType: 'step-char-summary',
         },
         {
           id: 'step-action-add-minor-character',
-          labelText: 'step.storyline.actions.add_minor_character',
+          labelText: 'template.step.storyline.actions.add_minor_character',
           trigger: 'append',
           targetType: 'step-minor-char',
         },
         {
           id: 'step-action-add-plot-synposis',
-          labelText: 'step.storyline.actions.add_plot_synopsis',
+          labelText: 'template.step.storyline.actions.add_plot_synopsis',
           trigger: 'append',
           targetType: 'step-plot-synopsis',
         },
@@ -139,11 +139,11 @@ export const template: ProcessTemplate = {
       id: 'step-char-summary',
       category: 'character',
       stage: 3,
-      labelText: 'step.char_summary.label',
-      instructionText: 'step.char_summary.instruction',
+      labelText: 'template.step.char_summary.label',
+      instructionText: 'template.step.char_summary.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.char_summary.placeholder',
+        placeholderText: 'template.step.char_summary.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -151,13 +151,13 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-extend-to-char-deep-dive',
-          labelText: 'step.char_summary.actions.deep_dive_major',
+          labelText: 'template.step.char_summary.actions.deep_dive_major',
           trigger: 'advance',
           targetType: 'step-major-char',
         },
         {
           id: 'step-action-extend-to-char-chart',
-          labelText: 'step.char_summary.actions.create_char_chart',
+          labelText: 'template.step.char_summary.actions.create_char_chart',
           trigger: 'advance',
           targetType: 'step-char-chart',
         },
@@ -167,11 +167,11 @@ export const template: ProcessTemplate = {
       id: 'step-plot-synopsis',
       category: 'structure',
       stage: 3,
-      labelText: 'step.plot_synopsis.label',
-      instructionText: 'step.plot_synopsis.instruction',
+      labelText: 'template.step.plot_synopsis.label',
+      instructionText: 'template.step.plot_synopsis.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.plot_synopsis.placeholder',
+        placeholderText: 'template.step.plot_synopsis.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -179,7 +179,7 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-extend-to-detailed-synopsis',
-          labelText: 'step.plot_synopsis.actions.expand_detailed_synopsis',
+          labelText: 'template.step.plot_synopsis.actions.expand_detailed_synopsis',
           trigger: 'advance',
           targetType: 'step-detailed-synopsis',
         },
@@ -189,11 +189,11 @@ export const template: ProcessTemplate = {
       id: 'step-major-char',
       category: 'character',
       stage: 4,
-      labelText: 'step.major_char.label',
-      instructionText: 'step.major_char.instruction',
+      labelText: 'template.step.major_char.label',
+      instructionText: 'template.step.major_char.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.major_char.placeholder',
+        placeholderText: 'template.step.major_char.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -204,11 +204,11 @@ export const template: ProcessTemplate = {
       id: 'step-minor-char',
       category: 'character',
       stage: 4,
-      labelText: 'step.minor_char.label',
-      instructionText: 'step.minor_char.instruction',
+      labelText: 'template.step.minor_char.label',
+      instructionText: 'template.step.minor_char.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.minor_char.placeholder',
+        placeholderText: 'template.step.minor_char.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -219,11 +219,11 @@ export const template: ProcessTemplate = {
       id: 'step-detailed-synopsis',
       category: 'structure',
       stage: 4,
-      labelText: 'step.detailed_synopsis.label',
-      instructionText: 'step.detailed_synopsis.instruction',
+      labelText: 'template.step.detailed_synopsis.label',
+      instructionText: 'template.step.detailed_synopsis.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.detailed_synopsis.placeholder',
+        placeholderText: 'template.step.detailed_synopsis.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -233,13 +233,13 @@ export const template: ProcessTemplate = {
           rule: 'has_connection',
           targetType: 'step-major-char',
           severity: 'warning',
-          messageText: 'validation.detailed_synopsis.missing_major_char',
+          messageText: 'template.validation.detailed_synopsis.missing_major_char',
         },
       ],
       actions: [
         {
           id: 'step-action-extend-to-scene-overview',
-          labelText: 'step.detailed_synopsis.actions.create_scene_overview',
+          labelText: 'template.step.detailed_synopsis.actions.create_scene_overview',
           trigger: 'advance',
           targetType: 'step-scene-overview',
         },
@@ -249,11 +249,11 @@ export const template: ProcessTemplate = {
       id: 'step-char-chart',
       category: 'character',
       stage: 5,
-      labelText: 'step.char_chart.label',
-      instructionText: 'step.char_chart.instruction',
+      labelText: 'template.step.char_chart.label',
+      instructionText: 'template.step.char_chart.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.char_chart.placeholder',
+        placeholderText: 'template.step.char_chart.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -264,11 +264,11 @@ export const template: ProcessTemplate = {
       id: 'step-scene-overview',
       category: 'drafting',
       stage: 5,
-      labelText: 'step.scene_overview.label',
-      instructionText: 'step.scene_overview.instruction',
+      labelText: 'template.step.scene_overview.label',
+      instructionText: 'template.step.scene_overview.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.scene_overview.placeholder',
+        placeholderText: 'template.step.scene_overview.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -276,13 +276,13 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-add-scene-expansion',
-          labelText: 'step.scene_overview.actions.write_scene_expansion',
+          labelText: 'template.step.scene_overview.actions.write_scene_expansion',
           trigger: 'append',
           targetType: 'step-scene-expansion',
         },
         {
           id: 'step-action-add-chapter',
-          labelText: 'step.scene_overview.actions.write_chapter',
+          labelText: 'template.step.scene_overview.actions.write_chapter',
           trigger: 'append',
           targetType: 'step-chapter',
         },
@@ -292,11 +292,11 @@ export const template: ProcessTemplate = {
       id: 'step-scene-expansion',
       category: 'drafting',
       stage: 6,
-      labelText: 'step.scene_expansion.label',
-      instructionText: 'step.scene_expansion.instruction',
+      labelText: 'template.step.scene_expansion.label',
+      instructionText: 'template.step.scene_expansion.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.scene_expansion.placeholder',
+        placeholderText: 'template.step.scene_expansion.placeholder',
       },
       ui: {
         visibility: ['canvas'],
@@ -304,7 +304,7 @@ export const template: ProcessTemplate = {
       actions: [
         {
           id: 'step-action-add-chapter',
-          labelText: 'step.scene_expansion.actions.write_chapter',
+          labelText: 'template.step.scene_expansion.actions.write_chapter',
           trigger: 'append',
           targetType: 'step-chapter',
         },
@@ -314,11 +314,11 @@ export const template: ProcessTemplate = {
       id: 'step-chapter',
       category: 'drafting',
       stage: 7,
-      labelText: 'step.chapter.label',
-      instructionText: 'step.chapter.instruction',
+      labelText: 'template.step.chapter.label',
+      instructionText: 'template.step.chapter.instruction',
       editorConfig: {
         format: 'rich',
-        placeholderText: 'step.chapter.placeholder',
+        placeholderText: 'template.step.chapter.placeholder',
       },
       ui: {
         visibility: ['canvas'],

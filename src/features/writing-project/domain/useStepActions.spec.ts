@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
+import { buildGlobals, buildProviders, runWithComponent } from '@/__testHelpers__/renderer'
 import { useStepActions } from './useStepActions'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import {
@@ -13,14 +14,18 @@ import {
   buildStep,
   buildConnection,
 } from '@/features/writing-project/storage/__testHelpers__/builders'
-import { PROJECT_CONTEXT_KEY, projectContext } from './useProjectContext'
-import { runWithContext } from '../../../__testHelpers__/renderer'
+import { PROJECT_CONTEXT_KEY, projectContext, type ProjectContext } from './useProjectContext'
 
 describe('useStepActions', () => {
-  const strings = ref({
-    root: { action: { 1: 'Start Story' } },
-    step: { 1: { action: { 1: 'Add Child' } } },
-  })
+  const runComposable = (template: Ref<ProcessTemplate>, context: ProjectContext) => {
+    return runWithComponent(() => useStepActions(template), {
+      global: buildGlobals({
+        provide: buildProviders({
+          [PROJECT_CONTEXT_KEY]: context,
+        }),
+      }),
+    })
+  }
 
   it('getRootActions returns mapped root actions from template and binds mutation correctly', () => {
     const project = ref(buildProjectData())
@@ -40,21 +45,14 @@ describe('useStepActions', () => {
       })
     )
 
-    runWithContext(
-      () => {
-        const { getRootActions } = useStepActions(template, strings)
-        const actions = getRootActions()
+    const composable = runComposable(template, context)
 
-        expect(actions).toHaveLength(1)
-        expect(actions[0]!.trigger).toBe('append')
-        expect(actions[0]!.label).toBe('Start Story')
-        actions[0]!.execute()
-        expect(addStepSpy).toHaveBeenCalledWith('step-1')
-      },
-      {
-        [PROJECT_CONTEXT_KEY]: context,
-      }
-    )
+    const actions = composable!.getRootActions()
+
+    expect(actions).toHaveLength(1)
+    expect(actions[0]!.trigger).toBe('append')
+    actions[0]!.execute()
+    expect(addStepSpy).toHaveBeenCalledWith('step-1')
   })
 
   it('getStepActions returns mapped actions for a specific step and binds mutation correctly', () => {
@@ -80,22 +78,14 @@ describe('useStepActions', () => {
       })
     )
 
-    runWithContext(
-      () => {
-        const { getStepActions } = useStepActions(template, strings)
-        const actions = getStepActions('step-1', 'instance-1')
+    const composable = runComposable(template, context)
+    const actions = composable.getStepActions('step-1', 'instance-1')
 
-        expect(actions).toHaveLength(1)
-        expect(actions[0]!.label).toBe('Add Child')
-        expect(actions[0]!.id).toBe('step-action-add-child')
+    expect(actions).toHaveLength(1)
+    expect(actions[0]!.id).toBe('step-action-add-child')
 
-        actions[0]!.execute()
-        expect(addStepSpy).toHaveBeenCalledWith('step-2', 'instance-1')
-      },
-      {
-        [PROJECT_CONTEXT_KEY]: context,
-      }
-    )
+    actions[0]!.execute()
+    expect(addStepSpy).toHaveBeenCalledWith('step-2', 'instance-1')
   })
 
   it('getStepActions returns empty array if step definition not found', () => {
@@ -105,16 +95,9 @@ describe('useStepActions', () => {
         stepDefinitions: [],
       })
     )
-    runWithContext(
-      () => {
-        const { getStepActions } = useStepActions(template, strings)
-        const actions = getStepActions('non-existent', 'instance-1')
-        expect(actions).toHaveLength(0)
-      },
-      {
-        [PROJECT_CONTEXT_KEY]: projectContext(project),
-      }
-    )
+    const composable = runComposable(template, projectContext(project))
+    const actions = composable.getStepActions('non-existent', 'instance-1')
+    expect(actions).toHaveLength(0)
   })
 
   describe('getAvailableActions', () => {
@@ -150,19 +133,12 @@ describe('useStepActions', () => {
         })
       )
 
-      runWithContext(
-        () => {
-          const { getAvailableActions } = useStepActions(template, strings)
-          const actions = getAvailableActions('instance-1')
+      const { getAvailableActions } = runComposable(template, projectContext(project))
+      const actions = getAvailableActions('instance-1')
 
-          expect(actions).toHaveLength(2)
-          expect(actions.map((a) => a.trigger)).toContain('append')
-          expect(actions.map((a) => a.trigger)).toContain('advance')
-        },
-        {
-          [PROJECT_CONTEXT_KEY]: projectContext(project),
-        }
-      )
+      expect(actions).toHaveLength(2)
+      expect(actions.map((a: { trigger: 'append' | 'advance' }) => a.trigger)).toContain('append')
+      expect(actions.map((a: { trigger: 'append' | 'advance' }) => a.trigger)).toContain('advance')
     })
 
     it('filters out advance action when an outbound connection exists', () => {
@@ -176,18 +152,11 @@ describe('useStepActions', () => {
         })
       )
 
-      runWithContext(
-        () => {
-          const { getAvailableActions } = useStepActions(template, strings)
-          const actions = getAvailableActions('instance-1')
+      const { getAvailableActions } = runComposable(template, projectContext(project))
+      const actions = getAvailableActions('instance-1')
 
-          expect(actions).toHaveLength(1)
-          expect(actions[0]!.trigger).toBe('append')
-        },
-        {
-          [PROJECT_CONTEXT_KEY]: projectContext(project),
-        }
-      )
+      expect(actions).toHaveLength(1)
+      expect(actions[0]!.trigger).toBe('append')
     })
 
     it('always includes append actions even if connections exist', () => {
@@ -205,19 +174,12 @@ describe('useStepActions', () => {
         })
       )
 
-      runWithContext(
-        () => {
-          const { getAvailableActions } = useStepActions(template, strings)
-          const actions = getAvailableActions('instance-1')
+      const { getAvailableActions } = runComposable(template, projectContext(project))
+      const actions = getAvailableActions('instance-1')
 
-          expect(actions).toHaveLength(2)
-          expect(actions.find((a) => a.trigger === 'append')).toBeDefined()
-          expect(actions.find((a) => a.trigger === 'advance')).toBeDefined()
-        },
-        {
-          [PROJECT_CONTEXT_KEY]: projectContext(project),
-        }
-      )
+      expect(actions).toHaveLength(2)
+      expect(actions.find((a) => a.trigger === 'append')).toBeDefined()
+      expect(actions.find((a) => a.trigger === 'advance')).toBeDefined()
     })
 
     it('filters advance action only if connection to specific targetType exists', () => {
@@ -231,18 +193,11 @@ describe('useStepActions', () => {
         })
       )
 
-      runWithContext(
-        () => {
-          const { getAvailableActions } = useStepActions(template, strings)
-          const actions = getAvailableActions('instance-1')
+      const { getAvailableActions } = runComposable(template, projectContext(project))
+      const actions = getAvailableActions('instance-1')
 
-          expect(actions).toHaveLength(1)
-          expect(actions[0]!.trigger).toBe('append')
-        },
-        {
-          [PROJECT_CONTEXT_KEY]: projectContext(project),
-        }
-      )
+      expect(actions).toHaveLength(1)
+      expect(actions[0]!.trigger).toBe('append')
     })
 
     it('returns empty array if step instance not found', () => {
@@ -253,16 +208,9 @@ describe('useStepActions', () => {
         })
       )
 
-      runWithContext(
-        () => {
-          const { getAvailableActions } = useStepActions(template, strings)
-          const actions = getAvailableActions('non-existent')
-          expect(actions).toHaveLength(0)
-        },
-        {
-          [PROJECT_CONTEXT_KEY]: projectContext(project),
-        }
-      )
+      const { getAvailableActions } = runComposable(template, projectContext(project))
+      const actions = getAvailableActions('non-existent')
+      expect(actions).toHaveLength(0)
     })
   })
 })

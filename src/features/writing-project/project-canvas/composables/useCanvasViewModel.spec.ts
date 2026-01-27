@@ -52,7 +52,7 @@ describe('useCanvasViewModel', () => {
         expect(node.category).toBe('structure')
       },
       {
-        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template, ref({})),
+        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
         [PROJECT_CONTEXT_KEY]: projectContext(
           ref(
             buildProjectData({
@@ -94,7 +94,7 @@ describe('useCanvasViewModel', () => {
         expect(nodes[0]!.sortOrder).toBeLessThan(nodes[1]!.sortOrder)
       },
       {
-        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template, ref({})),
+        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
         [PROJECT_CONTEXT_KEY]: projectContext(
           ref(
             buildProjectData({
@@ -150,7 +150,7 @@ describe('useCanvasViewModel', () => {
         expect(winstonTrack?.nodes.map((n) => n.id)).toEqual(['winston-summary', 'winston-detail'])
       },
       {
-        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template, ref({})),
+        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
         [PROJECT_CONTEXT_KEY]: projectContext(
           ref(
             buildProjectData({
@@ -202,7 +202,7 @@ describe('useCanvasViewModel', () => {
         expect(charTrack?.offset).toBe(2)
       },
       {
-        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template, ref({})),
+        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
         [PROJECT_CONTEXT_KEY]: projectContext(
           ref(
             buildProjectData({
@@ -244,7 +244,7 @@ describe('useCanvasViewModel', () => {
         expect(orphanTrack?.nodes.map((n) => n.id)).toContain('lonely-node')
       },
       {
-        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template, ref({})),
+        [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
         [PROJECT_CONTEXT_KEY]: projectContext(
           ref(
             buildProjectData({

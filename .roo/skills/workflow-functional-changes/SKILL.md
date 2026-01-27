@@ -54,7 +54,7 @@ More detail at [Testing patterns](references/testing-patterns.md)
 Before commiting you must verify your code changes. This includes
 
 - Running the lint and build commands to quickly pick up any static and build time errors
-- Running the full test suite to pick up any other issues
+- Running at a minimum the tests related to your change
 - Verifying test coverage and performance, and calling out any gaps
 
 ## Common Pitfalls

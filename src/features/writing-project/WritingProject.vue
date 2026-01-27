@@ -28,14 +28,12 @@ const ProjectCanvas = defineAsyncComponent(
 const props = defineProps<{
   data: ProjectData
   template: ProcessTemplate
-  strings: Record<string, unknown>
 }>()
 
 provideProjectContext(toRef(() => props.data))
 
 provideDefinitionsContext(
-  toRef(() => props.template),
-  toRef(() => props.strings)
+  toRef(() => props.template)
 )
 </script>
 

@@ -16,16 +16,10 @@ const meta: Meta<typeof AppLoadingOverlay> = {
       description: 'Visible loading message displayed below the spinner',
       table: { type: { summary: 'string' } },
     },
-    ariaLabel: {
-      control: 'text',
-      description: 'Accessible label for screen readers (falls back to message or "Loading...")',
-      table: { type: { summary: 'string' } },
-    },
   },
   args: {
     isLoading: true,
     message: undefined,
-    ariaLabel: undefined,
   },
   decorators: [
     () => ({
@@ -73,30 +67,7 @@ export const WithMessage: Story = {
     await step('displays the message', async () => {
       const status = canvas.getByRole('status')
       await expect(status).toHaveTextContent('Loading project...')
-    })
-
-    await step('uses message as aria-label fallback', async () => {
-      const status = canvas.getByRole('status')
       await expect(status).toHaveAttribute('aria-label', 'Loading project...')
-    })
-  },
-}
-
-export const WithCustomAriaLabel: Story = {
-  args: {
-    isLoading: true,
-    message: 'Please wait...',
-    ariaLabel: 'Story canvas is loading',
-  },
-  play: async ({ canvas, step }) => {
-    await step('uses custom aria-label', async () => {
-      const status = canvas.getByRole('status')
-      await expect(status).toHaveAttribute('aria-label', 'Story canvas is loading')
-    })
-
-    await step('still displays visual message', async () => {
-      const status = canvas.getByRole('status')
-      await expect(status).toHaveTextContent('Please wait...')
     })
   },
 }

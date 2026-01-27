@@ -1,6 +1,5 @@
 import { type Ref } from 'vue'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
-import { parseRootActions, parseStepDefinitions } from '@/features/process-templates/actions'
 import { useProjectMutations, useProjectSteps } from './useProjectContext'
 
 export interface ActionDefinition {
@@ -11,33 +10,34 @@ export interface ActionDefinition {
   execute: () => string
 }
 
-export const useStepActions = (
-  template: Ref<ProcessTemplate>,
-  strings: Ref<Record<string, unknown>>
-) => {
+const parseStepDefinitions = (template: ProcessTemplate) =>
+  template.stepDefinitions.map(({ id, actions }) => ({
+    id,
+    actions,
+  }))
+
+export const useStepActions = (template: Ref<ProcessTemplate>) => {
   const { steps, connections } = useProjectSteps()
   const { addStep } = useProjectMutations()
-  const defns = parseStepDefinitions(template.value, strings.value)
 
   const getRootActions = (): ActionDefinition[] => {
-    return parseRootActions(template.value, strings.value).map(
-      ({ id, label, targetType, trigger }) => ({
-        id,
-        label,
-        trigger: trigger as 'append' | 'advance',
-        targetType,
-        execute: () => addStep(targetType),
-      })
-    )
+    return template.value.rootActions.map(({ id, labelText, targetType, trigger }) => ({
+      id,
+      label: labelText,
+      trigger: trigger as 'append' | 'advance',
+      targetType,
+      execute: () => addStep(targetType),
+    }))
   }
 
   const getStepActions = (stepType: string, sourceId: string): ActionDefinition[] => {
+    const defns = parseStepDefinitions(template.value)
     const stepDef = defns.find((d) => d.id === stepType)
     if (!stepDef) return []
 
-    return stepDef.actions.map(({ id, label, targetType, trigger }) => ({
+    return stepDef.actions.map(({ id, labelText, targetType, trigger }) => ({
       id,
-      label,
+      label: labelText,
       trigger: trigger as 'append' | 'advance',
       targetType,
       execute: () => addStep(targetType, sourceId),

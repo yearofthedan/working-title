@@ -7,9 +7,9 @@
       <AppTextAreaField
         v-for="step in steps"
         :key="step.id"
-        :model-value="getStepContent(step.id)"
-        :label="getStepLabel(getStepIdByUid(step.id))"
-        :placeholder="getStepPlaceholder(getStepIdByUid(step.id))"
+        :model-value="step.content"
+        :label="t(step.labelKey)"
+        :placeholder="t(step.placeholderKey)"
         @update:model-value="(val) => updateContent(step.id, val)"
       />
     </div>
@@ -19,9 +19,10 @@
 <script setup lang="ts">
 import AppTextAreaField from '@/features/common/fields/AppTextAreaField.vue'
 import { useSidebarViewModel } from './composables/useSidebarViewModel'
+import { useI18n } from 'vue-i18n'
 
-const { steps, getStepIdByUid, getStepContent, getStepLabel, getStepPlaceholder, updateContent } =
-  useSidebarViewModel()
+const { t } = useI18n()
+const { steps, updateContent } = useSidebarViewModel()
 </script>
 
 <style></style>

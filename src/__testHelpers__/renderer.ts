@@ -10,83 +10,63 @@ import {
   definitionsContext,
   type DefinitionsContext,
 } from '@/features/writing-project/domain/useDefinitionsContext'
-import { ref, defineComponent, h, type Component, type ComponentOptions } from 'vue'
+import { ref, defineComponent, type Component, type ComponentOptions } from 'vue'
 import { render as vueRender } from 'vitest-browser-vue'
-import { createI18n } from 'vue-i18n'
-import en from '@/locales/en.json'
+import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
 
-export interface Providers {
+export type Providers = {
   [PROJECT_CONTEXT_KEY]: ProjectContext
   [DEFINITIONS_CONTEXT_KEY]: DefinitionsContext
 }
 
 export const buildProviders = (overrides: Partial<Providers> = {}): Providers => {
-  const providers: Providers = {
+  return {
     [PROJECT_CONTEXT_KEY]: projectContext(ref(buildProjectData())),
-    [DEFINITIONS_CONTEXT_KEY]: definitionsContext(ref(buildProcessTemplate()), ref({})),
-  }
-
-  if (overrides[PROJECT_CONTEXT_KEY]) {
-    providers[PROJECT_CONTEXT_KEY] = overrides[PROJECT_CONTEXT_KEY]!
-  }
-  if (overrides[DEFINITIONS_CONTEXT_KEY]) {
-    providers[DEFINITIONS_CONTEXT_KEY] = overrides[DEFINITIONS_CONTEXT_KEY]!
-  }
-
-  return providers
+    [DEFINITIONS_CONTEXT_KEY]: definitionsContext(ref(buildProcessTemplate())),
+    ...overrides,
+  } as Providers
 }
 
-/**
- * Creates a configured i18n instance for testing.
- * Silent by default to avoid polluting test output.
- */
-export function createTestI18n(messages?: Record<string, unknown>) {
-  return createI18n({
-    legacy: false,
-    locale: 'en',
-    fallbackLocale: 'en',
-    missingWarn: false,
-    fallbackWarn: false,
-    messages: (messages as Record<string, never>) || { en },
-  })
-}
+type VueRenderOptions = Parameters<typeof vueRender>[1]
+type Globals = NonNullable<VueRenderOptions>['global']
+
+export const buildGlobals = (overrides: Partial<Globals> = {}): Globals => ({
+  provide: buildProviders(),
+  plugins: [createTestI18n()],
+  ...overrides,
+})
 
 /**
- * Custom render method that automatically provides i18n context
- * and supports custom providers.
+ * Custom render method that automatically provides globals
  */
-export function render(
-  component: Component | ComponentOptions,
-  options: Parameters<typeof vueRender>[1] = {}
-) {
-  const i18n = createTestI18n()
-
-  const mergedOptions = {
-    global: {
-      plugins: [i18n],
-      provide: buildProviders()
-    },
+export function render(component: Component | ComponentOptions, options: VueRenderOptions = {}) {
+  return vueRender(component, {
+    global: buildGlobals(),
     ...options,
-  }
-
-  return vueRender(component, mergedOptions)
+  })
 }
 
 /**
  * Helper to run a callback (typically containing a composable call) within a component context
  * with the necessary providers for writing project features.
  */
-export function runWithContext(callback: () => void, providers: Partial<Providers> = {}) {
+export function runWithContext(callback: () => void, options: VueRenderOptions = {}) {
   const TestComponent = defineComponent({
     setup() {
       callback()
-      return () => h('div')
     },
+    template: '<div></div>',
   })
 
-  return render(TestComponent, {
-    global: {
-      provide: providers,
-    },
+  return render(TestComponent, options)
+}
+
+export const runWithComponent = <T>(fn: () => T, options: VueRenderOptions = {}) => {
+  let result: T
+  runWithContext(() => (result = fn()), {
+    global: buildGlobals(),
+    ...options,
   })
+
+  return result!
 }

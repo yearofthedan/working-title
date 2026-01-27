@@ -3,7 +3,7 @@
     class="rounded-sm bg-paper border border-edge p-4 min-w-52 max-w-prose min-h-24 flex flex-col shadow-sm hover:shadow-md transition-all duration-300 group"
   >
     <div class="text-[10px] font-bold uppercase tracking-widest text-ink opacity-50 mb-2">
-      {{ definition.label }}
+      {{ t(definition.label) }}
       <span v-if="definition.category" class="ml-2 px-1 bg-edge/20 rounded-xs">
         {{ definition.category }}
       </span>
@@ -23,7 +23,7 @@
       <CanvasStepMenu
         v-for="action in actions"
         :key="action.id"
-        :label="action.label"
+        :label="t(action.label)"
         @click="emit('action-click', action)"
       />
     </div>
@@ -38,6 +38,8 @@ import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
 import CanvasStepMenu from './CanvasStepMenu.vue'
 import type { CanvasStepProps, CanvasStepContent } from '../stepTypes'
 import type { ActionDefinition } from '../../domain/useStepActions'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<CanvasStepProps>()
 

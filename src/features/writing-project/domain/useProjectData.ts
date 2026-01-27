@@ -2,7 +2,6 @@ import { ref, watch, onMounted } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import type { ProjectData, Step } from '../storage/types'
 import { now } from '@/utils/dates'
-import { strings } from '@/features/process-templates/snowflake/strings'
 import { template } from '@/features/process-templates/snowflake/template'
 import { generateId } from '@/utils/ids'
 import { projectStorage } from '../storage/ProjectStorage'
@@ -65,6 +64,5 @@ export const useProjectData = () => {
     project: projectData,
     isLoading,
     template,
-    strings,
   }
 }

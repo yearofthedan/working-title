@@ -118,9 +118,10 @@ export function useCanvasViewModel(
       nodeMap.set(node.id, {
         id: node.id,
         stepId: node.stepId,
-        label: stepDef?.label ?? 'Unknown',
-        placeholder: stepDef?.placeholder ?? '',
-        instruction: stepDef?.instruction ?? '',
+        //todo review these. Are they being used? are we duplicating a pattern?
+        label: stepDef?.labelText ?? '',
+        placeholder: stepDef?.editorConfig.placeholderText ?? '',
+        instruction: stepDef?.instructionText ?? '',
         content: stepContent?.content.text ?? '',
         category: node.category,
         stage: node.stage,
@@ -145,4 +146,3 @@ export function useCanvasViewModel(
     }
   })
 }
-
