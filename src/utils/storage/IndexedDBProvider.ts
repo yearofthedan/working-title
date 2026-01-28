@@ -1,8 +1,11 @@
 import type { StorageProvider } from './StorageProvider'
 
-const DB_NAME = 'working-title-db'
-const DB_VERSION = 1
-const STORE_NAME = 'keyValueStore'
+export interface IndexedDBConfig {
+  dbName: string
+  version: number
+  storeNames: string[]
+  defaultStoreName: string
+}
 
 /**
  * IndexedDB implementation of StorageProvider.
@@ -10,14 +13,16 @@ const STORE_NAME = 'keyValueStore'
  */
 export class IndexedDBProvider implements StorageProvider {
   private dbPromise: Promise<IDBDatabase>
+  private config: IndexedDBConfig
 
-  constructor() {
+  constructor(config: IndexedDBConfig) {
+    this.config = config
     this.dbPromise = this.initDB()
   }
 
   private async initDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
+      const request = indexedDB.open(this.config.dbName, this.config.version)
 
       request.onerror = () => {
         reject(new Error(`Failed to open IndexedDB: ${request.error?.message}`))
@@ -30,23 +35,28 @@ export class IndexedDBProvider implements StorageProvider {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result
 
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME)
-        }
+        this.config.storeNames.forEach((name) => {
+          if (!db.objectStoreNames.contains(name)) {
+            db.createObjectStore(name)
+          }
+        })
       }
     })
   }
 
-  async getItem(key: string): Promise<string | null> {
+  async getItem<T = unknown>(
+    key: string,
+    storeName: string = this.config.defaultStoreName
+  ): Promise<T | null> {
     try {
       const db = await this.dbPromise
       return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, 'readonly')
-        const store = transaction.objectStore(STORE_NAME)
+        const transaction = db.transaction(storeName, 'readonly')
+        const store = transaction.objectStore(storeName)
         const request = store.get(key)
 
         request.onsuccess = () => {
-          resolve(request.result ?? null)
+          resolve((request.result as T) ?? null)
         }
 
         request.onerror = () => {
@@ -59,12 +69,16 @@ export class IndexedDBProvider implements StorageProvider {
     }
   }
 
-  async setItem(key: string, value: string): Promise<void> {
+  async setItem<T = unknown>(
+    key: string,
+    value: T,
+    storeName: string = this.config.defaultStoreName
+  ): Promise<void> {
     try {
       const db = await this.dbPromise
       return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, 'readwrite')
-        const store = transaction.objectStore(STORE_NAME)
+        const transaction = db.transaction(storeName, 'readwrite')
+        const store = transaction.objectStore(storeName)
         const request = store.put(value, key)
 
         request.onsuccess = () => {
@@ -81,12 +95,12 @@ export class IndexedDBProvider implements StorageProvider {
     }
   }
 
-  async removeItem(key: string): Promise<void> {
+  async removeItem(key: string, storeName: string = this.config.defaultStoreName): Promise<void> {
     try {
       const db = await this.dbPromise
       return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, 'readwrite')
-        const store = transaction.objectStore(STORE_NAME)
+        const transaction = db.transaction(storeName, 'readwrite')
+        const store = transaction.objectStore(storeName)
         const request = store.delete(key)
 
         request.onsuccess = () => {
@@ -100,6 +114,53 @@ export class IndexedDBProvider implements StorageProvider {
     } catch (err) {
       console.error('IndexedDB removeItem error:', err)
       throw err instanceof Error ? err : new Error('Unknown removeItem error')
+    }
+  }
+
+  async getAllKeys(storeName: string = this.config.defaultStoreName): Promise<string[]> {
+    try {
+      const db = await this.dbPromise
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(storeName, 'readonly')
+        const store = transaction.objectStore(storeName)
+        const request = store.getAllKeys()
+
+        request.onsuccess = () => {
+          resolve(request.result as string[])
+        }
+
+        request.onerror = () => {
+          reject(new Error(`Failed to get all keys: ${request.error?.message}`))
+        }
+      })
+    } catch (err) {
+      console.error('IndexedDB getAllKeys error:', err)
+      return []
+    }
+  }
+
+  async clear(storeName?: string): Promise<void> {
+    try {
+      const db = await this.dbPromise
+      const stores = storeName ? [storeName] : this.config.storeNames
+
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(stores, 'readwrite')
+
+        stores.forEach((name) => {
+          if (db.objectStoreNames.contains(name)) {
+            transaction.objectStore(name).clear()
+          }
+        })
+
+        transaction.oncomplete = () => resolve()
+        transaction.onerror = () => {
+          reject(new Error(`Failed to clear stores: ${transaction.error?.message}`))
+        }
+      })
+    } catch (err) {
+      console.error('IndexedDB clear error:', err)
+      throw err instanceof Error ? err : new Error('Unknown clear error')
     }
   }
 }

@@ -1,19 +1,29 @@
 export interface StorageProvider {
-  getItem(key: string): Promise<string | null>
-  setItem(key: string, value: string): Promise<void>
-  removeItem(key: string): Promise<void>
+  getItem<T = unknown>(key: string, storeName?: string): Promise<T | null>
+  setItem<T = unknown>(key: string, value: T, storeName?: string): Promise<void>
+  removeItem(key: string, storeName?: string): Promise<void>
+  getAllKeys(storeName?: string): Promise<string[]>
+  clear(storeName?: string): Promise<void>
 }
 
 export class LocalStorageProvider implements StorageProvider {
-  async getItem(key: string): Promise<string | null> {
-    return localStorage.getItem(key)
+  async getItem<T = unknown>(key: string): Promise<T | null> {
+    return localStorage.getItem(key) as unknown as T
   }
 
-  async setItem(key: string, value: string): Promise<void> {
-    localStorage.setItem(key, value)
+  async setItem<T = unknown>(key: string, value: T): Promise<void> {
+    localStorage.setItem(key, String(value))
   }
 
   async removeItem(key: string): Promise<void> {
     localStorage.removeItem(key)
+  }
+
+  async getAllKeys(): Promise<string[]> {
+    return Object.keys(localStorage)
+  }
+
+  async clear(): Promise<void> {
+    localStorage.clear()
   }
 }

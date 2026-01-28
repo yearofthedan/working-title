@@ -1,3 +1,5 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { RouteNames } from '@/router/routes'
 import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
 import { buildProjectData } from '@/features/writing-project/storage/__testHelpers__/builders'
 import {
@@ -30,11 +32,22 @@ export const buildProviders = (overrides: Partial<Providers> = {}): Providers =>
 type VueRenderOptions = Parameters<typeof vueRender>[1]
 type Globals = NonNullable<VueRenderOptions>['global']
 
-export const buildGlobals = (overrides: Partial<Globals> = {}): Globals => ({
-  provide: buildProviders(),
-  plugins: [createTestI18n()],
-  ...overrides,
-})
+export const buildGlobals = (overrides: Partial<Globals> = {}): Globals => {
+  const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+      { path: '/', name: RouteNames.Home, component: { render: () => null } },
+      { path: '/demo', name: RouteNames.Demo, component: { render: () => null } },
+      { path: '/project/:id?', name: RouteNames.Project, component: { render: () => null } },
+    ],
+  })
+
+  return {
+    provide: buildProviders(),
+    plugins: [createTestI18n(), router],
+    ...overrides,
+  }
+}
 
 /**
  * Custom render method that automatically provides globals
