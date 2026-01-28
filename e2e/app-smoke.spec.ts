@@ -6,11 +6,11 @@ test.describe('App Smoke Test', () => {
     await expect(page).toHaveTitle(/Working Title/)
     await expect(page.locator('h1')).toContainText('Working Title')
 
-    const newProjectLink = page.getByRole('link', { name: /New Project/i })
-    await expect(newProjectLink).toBeVisible()
+    const newProjectButton = page.getByRole('button', { name: /New Project/i })
+    await expect(newProjectButton).toBeVisible()
 
     await test.step('Navigate to new project', async () => {
-      await Promise.all([page.waitForURL(/\/project$/), newProjectLink.click()])
+      await Promise.all([page.waitForURL(/\/project/), newProjectButton.click()])
       await expect(page).toHaveTitle(/Writing Project/)
     })
 

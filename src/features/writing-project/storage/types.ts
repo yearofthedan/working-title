@@ -31,6 +31,16 @@ export interface Connection {
   target: string
 }
 
+export interface ProjectMetadata {
+  id: string
+  name: string
+  templateId: string
+  createdAt: string
+  updatedAt: string
+  fileHandle?: FileSystemFileHandle
+  filePath?: string
+}
+
 export interface ProjectData {
   schemaVersion: string
   projectId: string

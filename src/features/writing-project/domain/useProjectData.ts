@@ -1,28 +1,26 @@
-import { ref, watch, type Ref } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
+import { ref } from 'vue'
 import type { ProjectData } from '../storage/types'
-import { projectStorage } from '../storage/ProjectStorage'
+import { projectStorage, ProjectStorage } from '../storage/ProjectStorage'
+import { FileSystemProvider } from '@/utils/storage/FileSystemProvider'
+import { useAutoSave } from './useAutoSave'
 
-export const useProjectData = (initialProject: ProjectData) => {
+export const useProjectData = (
+  initialProject: ProjectData,
+  storage: ProjectStorage = projectStorage
+) => {
   const projectData = ref<ProjectData>(initialProject)
+  const fileSystemProvider = new FileSystemProvider()
 
-  const save = async () => {
-    if (projectData.value) {
-      await projectStorage.save(projectData.value)
-    }
-  }
-
-  const debouncedSave = useDebounceFn(save, 300, { maxWait: 2000 })
-
-  watch(
+  const { saveStatus, lastSaved, errorMessage } = useAutoSave({
     projectData,
-    () => {
-      debouncedSave()
-    },
-    { deep: true }
-  )
+    storage,
+    fileSystemProvider,
+  })
 
   return {
-    project: projectData as Ref<ProjectData>,
+    project: projectData,
+    saveStatus,
+    lastSaved,
+    errorMessage,
   }
 }

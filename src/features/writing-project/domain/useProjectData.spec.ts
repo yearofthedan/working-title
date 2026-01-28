@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useProjectData } from './useProjectData'
 import * as dates from '@/utils/dates'
 import { template as snowflakeTemplate } from '../../process-templates/snowflake/template'
-import { nextTick } from 'vue'
 import { createNewProject } from './projectFactory'
+import type { ProjectStorage } from '../storage/ProjectStorage'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),
@@ -16,13 +16,16 @@ describe('useProjectData', () => {
     vi.mocked(dates.now).mockReturnValue(mockNow)
   })
 
-  it('initializes with provided project data', async () => {
+  it('initializes with provided project data and save status', async () => {
     const initialProject = createNewProject(snowflakeTemplate)
-    const { project } = useProjectData(initialProject)
+    const { project, saveStatus, lastSaved, errorMessage } = useProjectData(initialProject)
 
     expect(project.value.meta.name).toBe('Untitled Story')
     expect(project.value.meta.created).toBe(mockNow)
     expect(project.value.projectId).toBe(initialProject.projectId)
+    expect(saveStatus.value).toBe('saved')
+    expect(lastSaved.value).toBeNull()
+    expect(errorMessage.value).toBeNull()
   })
 
   describe('persistence integration', () => {
@@ -36,18 +39,32 @@ describe('useProjectData', () => {
 
     it('automatically saves project data to storage when modified', async () => {
       const initialProject = createNewProject(snowflakeTemplate)
-      const { project } = useProjectData(initialProject)
+      const mockSave = vi.fn().mockResolvedValue(undefined)
 
-      // Modify project
+      const mockStorage = {
+        save: mockSave,
+        getFileHandle: vi.fn().mockResolvedValue(null),
+      } as unknown as ProjectStorage
+
+      const { project, saveStatus, lastSaved } = useProjectData(initialProject, mockStorage)
+
+      expect(saveStatus.value).toBe('saved')
+      expect(lastSaved.value).toBeNull()
+
       project.value.meta.name = 'Auto-saved Project'
 
-      // Wait for Vue watch to trigger and advance timers for debounce
-      await nextTick()
-      vi.runAllTimers()
-      await nextTick()
+      await vi.runAllTimersAsync()
 
-      // The important thing is that the save operation doesn't throw
-      expect(project.value.meta.name).toBe('Auto-saved Project')
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meta: expect.objectContaining({
+            name: 'Auto-saved Project',
+          }),
+        })
+      )
+
+      expect(saveStatus.value).toBe('saved')
+      expect(lastSaved.value).toBeInstanceOf(Date)
     })
   })
 })

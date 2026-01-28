@@ -1,6 +1,6 @@
 export default {
-  '*': (stagedFiles) => [`sh ./do lint ${stagedFiles.join(' ')}`, 'sh ./do build', 'sh ./do e2e'],
+  '*': (stagedFiles) => [`./do lint ${stagedFiles.join(' ')}`, './do build', './do e2e'],
   'src/**/*.{js,ts,tsx,vue}': (stagedFiles) => [
-    `sh ./do test related --passWithNoTests ${stagedFiles.join(' ')}`,
+    `./do test related --passWithNoTests ${stagedFiles.join(' ')}`,
   ],
 }

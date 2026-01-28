@@ -15,7 +15,7 @@ export const buildConnection = (overrides: Partial<Connection> = {}): Connection
 })
 
 export const buildProjectData = (overrides: Partial<ProjectData> = {}): ProjectData => ({
-  schemaVersion: '1.0',
+  schemaVersion: '1.0.0',
   projectId: 'proj-1',
   templateId: 'test-template',
   templateVersion: '1.0',

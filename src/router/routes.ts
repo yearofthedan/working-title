@@ -12,16 +12,14 @@ export const router = createRouter({
   history: routerHistory,
   strict: true,
   routes: [
-    { path: '/',
-      name: RouteNames.Home, component: () => import('@/features/home/HomePage.vue'),
-     },
+    { path: '/', name: RouteNames.Home, component: () => import('@/features/home/HomePage.vue') },
     {
       path: '/demo',
       name: RouteNames.Demo,
       component: () => import('@/features/demo/DemoPage.vue'),
     },
     {
-      path: '/project',
+      path: '/project/:id?',
       name: RouteNames.Project,
       component: () => import('@/features/writing-project/WritingProjectPage.vue'),
     },
@@ -34,7 +32,5 @@ export const router = createRouter({
 })
 
 router.afterEach((to) => {
-  document.title = to.name 
-    ? `Working Title: ${String(to.name)}` 
-    : 'Working Title'
+  document.title = to.name ? `Working Title: ${String(to.name)}` : 'Working Title'
 })
