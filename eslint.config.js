@@ -15,6 +15,7 @@ const globals = {
     localStorage: 'readonly',
     sessionStorage: 'readonly',
     fetch: 'readonly',
+    HTMLDialogElement: 'readonly',
   },
   node: {
     process: 'readonly',

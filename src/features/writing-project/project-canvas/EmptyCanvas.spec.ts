@@ -4,7 +4,7 @@ import { composeStories } from '@storybook/vue3'
 import * as stories from './EmptyCanvas.stories'
 import { render } from '@/__testHelpers__/renderer'
 import snowflakeStrings from '@/features/process-templates/snowflake/locales/en.json'
-import { buildProjectData } from '../storage/__testHelpers__/builders'
+import { buildProjectData } from '../../project-storage/__testHelpers__/builders'
 
 const { EmptyProject } = composeStories(stories)
 

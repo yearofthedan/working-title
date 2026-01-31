@@ -14,27 +14,23 @@
 
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from 'vue'
-import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
 import ProjectSidebar from '@/features/writing-project/project-sidebar/ProjectSidebar.vue'
-import { provideDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
-import { provideProjectContext } from '@/features/writing-project/domain/useProjectContext'
+import { provideDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
+import { provideActiveProjectContext } from '@/features/writing-project/composables/useActiveProjectContext'
 import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
-import type { ProjectData } from '@/features/writing-project/storage/types'
+import type { Project } from './composables/useProjectLoader'
 
 const ProjectCanvas = defineAsyncComponent(
   () => import('@/features/writing-project/project-canvas/ProjectCanvas.vue')
 )
 
 const props = defineProps<{
-  data: ProjectData
-  template: ProcessTemplate
+  project: Project
 }>()
 
-provideProjectContext(toRef(() => props.data))
+provideActiveProjectContext(toRef(() => props.project.data))
 
-provideDefinitionsContext(
-  toRef(() => props.template)
-)
+provideDefinitionsContext(toRef(() => props.project.template))
 </script>
 
 <style></style>

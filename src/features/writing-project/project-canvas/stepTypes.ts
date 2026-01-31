@@ -1,5 +1,5 @@
 import type { StepCategory } from '@/features/process-templates/processTemplate'
-import type { ActionDefinition } from '../domain/useStepActions'
+import type { ActionDefinition } from '../composables/useStepActions'
 
 export interface CanvasStepDefinition {
   label: string

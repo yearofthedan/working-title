@@ -1,5 +1,5 @@
 import { computed, type Ref } from 'vue'
-import type { Step, Connection } from '@/features/writing-project/storage/types'
+import type { Step, Connection } from '@/features/project-storage/types'
 import type {
   ProcessTemplate,
   StepCategory,
@@ -7,9 +7,9 @@ import type {
   TrackDefinition,
 } from '@/features/process-templates/processTemplate'
 import { partitionNodesByRoot } from '@/utils/graphs'
-import type { ActionDefinition } from '../../domain/useStepActions'
-import { useDefinitionsContext } from '../../domain/useDefinitionsContext'
-import { useProjectContent } from '../../domain/useProjectContext'
+import type { ActionDefinition } from '../../composables/useStepActions'
+import { useDefinitionsContext } from '../../composables/useDefinitionsContext'
+import { useProjectContent } from '../../composables/useActiveProjectContext'
 import type { BasicCanvasNode, CanvasViewModel, EnrichedCanvasNode, Track } from '../types'
 
 const toBasicCanvasNode = (

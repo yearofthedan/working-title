@@ -1,0 +1,5 @@
+#!/bin/bash
+# Starts production server via Vite. Usage: ./do preview
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Starting prod preview server...${RESET_COLOR}"
+pnpm build && pnpm preview "$@"

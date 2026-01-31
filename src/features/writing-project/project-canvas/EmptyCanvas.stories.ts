@@ -3,13 +3,13 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import EmptyCanvas from './EmptyCanvas.vue'
 import { expect } from 'storybook/test'
 import { template } from '@/features/process-templates/snowflake/template'
-import { buildProjectData, buildStep } from '../storage/__testHelpers__/builders'
-import { provideDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
-import { provideProjectContext } from '@/features/writing-project/domain/useProjectContext'
+import { buildProjectData, buildStep } from '../../project-storage/__testHelpers__/builders'
+import { provideDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
+import { provideActiveProjectContext } from '@/features/writing-project/composables/useActiveProjectContext'
 import snowflakeStrings from '@/features/process-templates/snowflake/locales/en.json'
 import appStrings from '@/locales/en.json'
 import { useI18n } from 'vue-i18n'
-import type { ProjectData } from '../storage/types'
+import type { ProjectData } from '../../project-storage/types'
 
 type StoryArgs = {
   projectData: ProjectData
@@ -24,7 +24,7 @@ const meta: Meta<StoryArgs> = {
   render: (args) => ({
     components: { EmptyCanvas },
     setup() {
-      provideProjectContext(toRef(() => args.projectData))
+      provideActiveProjectContext(toRef(() => args.projectData))
       provideDefinitionsContext(toRef(() => template))
       const { mergeLocaleMessage } = useI18n()
       mergeLocaleMessage('en', snowflakeStrings)

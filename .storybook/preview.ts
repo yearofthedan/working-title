@@ -5,7 +5,22 @@ import { useDark } from '@vueuse/core'
 import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
 import en from '@/locales/en.json'
 import snowflakeEn from '@/features/process-templates/snowflake/locales/en.json'
+import {
+  ACTIVE_PROJECT_CONTEXT_KEY,
+  activeProjectContext,
+} from '@/features/writing-project/composables/useActiveProjectContext'
+import {
+  buildInMemoryProjectStore,
+  buildProjectData,
+} from '@/features/project-storage/__testHelpers__/builders'
+import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
 
+import {
+  DEFINITIONS_CONTEXT_KEY,
+  definitionsContext,
+} from '@/features/writing-project/composables/useDefinitionsContext'
+import { ref } from 'vue'
+import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 setup((app) => {
   app.use(
     createTestI18n({
@@ -15,6 +30,10 @@ setup((app) => {
       },
     })
   )
+  const store = buildInMemoryProjectStore()
+  app.provide(PROJECT_STORE_KEY, store)
+  app.provide(ACTIVE_PROJECT_CONTEXT_KEY, activeProjectContext(ref(buildProjectData()), store))
+  app.provide(DEFINITIONS_CONTEXT_KEY, definitionsContext(ref(buildProcessTemplate())))
 })
 
 useDark({

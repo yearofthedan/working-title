@@ -58,7 +58,7 @@ import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
 import { useLayout } from '@/features/writing-project/project-canvas/composables/useLayout'
 import { useCanvasNavigation } from '@/features/writing-project/project-canvas/composables/useCanvasNavigation'
 import { useNodeSizeObserver } from '@/features/writing-project/project-canvas/composables/useNodeSizeObserver'
-import type { ActionDefinition } from '@/features/writing-project/domain/useStepActions'
+import type { ActionDefinition } from '@/features/writing-project/composables/useStepActions'
 import type {
   CanvasStepDefinition,
   CanvasStepContent,
@@ -67,9 +67,9 @@ import CanvasStep from '@/features/writing-project/project-canvas/canvas-step/Ca
 import EmptyCanvas from '@/features/writing-project/project-canvas/EmptyCanvas.vue'
 import CanvasLayoutIndicator from '@/features/writing-project/project-canvas/CanvasLayoutIndicator.vue'
 import { useCanvasViewModel } from './composables/useCanvasViewModel'
-import { useStepActions } from '../domain/useStepActions'
-import { useProjectContent, useProjectSteps } from '../domain/useProjectContext'
-import { useDefinitionsContext } from '../domain/useDefinitionsContext'
+import { useStepActions } from '../composables/useStepActions'
+import { useProjectContent, useProjectSteps } from '../composables/useActiveProjectContext'
+import { useDefinitionsContext } from '../composables/useDefinitionsContext'
 import { useI18n } from 'vue-i18n'
 
 const { template } = useDefinitionsContext()

@@ -2,8 +2,8 @@ import { computed } from 'vue'
 import {
   useProjectSteps,
   useProjectContent,
-} from '@/features/writing-project/domain/useProjectContext'
-import { useDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
+} from '@/features/writing-project/composables/useActiveProjectContext'
+import { useDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 
 export function useSidebarViewModel() {
   const { steps } = useProjectSteps()

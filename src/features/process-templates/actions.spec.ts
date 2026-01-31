@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getCanvasRootActions } from './actions'
-import { buildStep } from '../writing-project/storage/__testHelpers__/builders'
+import { buildStep } from '../project-storage/__testHelpers__/builders'
 import {
   buildProcessTemplate,
   buildRootAction,

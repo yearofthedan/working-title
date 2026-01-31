@@ -22,7 +22,9 @@ type Story = StoryObj<typeof SnowflakeCanvas>
 
 export const Default: Story = {
   args: {
-    data: fullSampleData,
-    template: template,
+    project: {
+      data: fullSampleData,
+      template: template,
+    },
   },
 }

@@ -111,33 +111,31 @@ const steps = [
 
 export const Default: Story = {
   args: {
-    data: {
-      schemaVersion: '1.0.0',
-      projectId: 'proj_1984_orwell',
-      templateId: 'snowflake-method-v1',
-      templateVersion: '1.0.0',
-      meta: {
-        name: '1984',
-        created: '1948-06-08T10:00:00Z',
-        lastModified: '1949-06-08T14:30:00Z',
+    project: {
+      data: {
+        schemaVersion: '1.0.0',
+        projectId: 'proj_1984_orwell',
+        templateId: 'snowflake-method-v1',
+        templateVersion: '1.0.0',
+        meta: {
+          name: '1984',
+          created: '1948-06-08T10:00:00Z',
+          lastModified: '1949-06-08T14:30:00Z',
+        },
+        steps: steps,
+        connections: [
+          { id: 'e1-2', source: '1', target: '2' },
+          { id: 'e1-3', source: '1', target: '3' },
+        ],
       },
-      steps: steps,
-      connections: [
-        { id: 'e1-2', source: '1', target: '2' },
-        { id: 'e1-3', source: '1', target: '3' },
-      ],
+      template: inlineTemplate,
     },
-    template: inlineTemplate,
   },
   play: async ({ canvas, step, userEvent }) => {
     await step('Wait for canvas to load', async () => {
-      await waitFor(
-        () =>
-          expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument(),
-        {
-          timeout: 10000,
-        }
-      )
+      await waitFor(() => expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument(), {
+        timeout: 10000,
+      })
     })
 
     const stepNodes = steps.map((step) => canvas.getByText(step.content.text))
@@ -158,27 +156,26 @@ export const Default: Story = {
 
 export const Empty: Story = {
   args: {
-    data: {
-      schemaVersion: '1.0.0',
-      projectId: 'proj_empty',
-      templateId: 'snowflake-method-v1',
-      templateVersion: '1.0.0',
-      meta: {
-        name: 'Empty Project',
-        created: new Date().toISOString(),
-        lastModified: new Date().toISOString(),
+    project: {
+      data: {
+        schemaVersion: '1.0.0',
+        projectId: 'proj_empty',
+        templateId: 'snowflake-method-v1',
+        templateVersion: '1.0.0',
+        meta: {
+          name: 'Empty Project',
+          created: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+        },
+        steps: [],
+        connections: [],
       },
-      steps: [],
-      connections: [],
+      template: inlineTemplate,
     },
-    template: inlineTemplate,
   },
   play: async ({ canvas, step }) => {
     await step('Wait for canvas to load', async () => {
-      await waitFor(
-        () =>
-          expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument()
-      )
+      await waitFor(() => expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument())
     })
 
     await step('Verify empty state', async () => {
