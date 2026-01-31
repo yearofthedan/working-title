@@ -54,7 +54,7 @@
       }
     }
   },
-  "forwardPorts": [5173, 6006, 9323],
+  "forwardPorts": [5173, 6006, 8080],
   "portsAttributes": {
     "5173": {
       "label": "Vite Dev Server",
@@ -64,9 +64,13 @@
       "label": "Storybook",
       "onAutoForward": "notify"
     },
-    "9323": {
-      "label": "Playwright reporter",
+    "8080": {
+      "label": "Playwright UI",
       "onAutoForward": "notify"
+    },
+    "9323": {
+      "label": "Playwright Internal Debug",
+      "onAutoForward": "silent"
     }
   },
   "remoteUser": "node",
