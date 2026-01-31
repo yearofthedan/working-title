@@ -1,41 +1,38 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 
-test.describe('Home Page', () => {
-  test.beforeEach(async ({ page }) => {
+test('Project Management Journey', async ({ page }) => {
+  const DUMMY_PROJECT_NAME = 'My E2E Story'
+  await test.step('Initial home page is empty', async () => {
     await page.goto('/')
-    await page.evaluate(async () => {
-      const DB_NAME = 'working-title-db'
-      return new Promise<void>((resolve, reject) => {
-        const request = indexedDB.deleteDatabase(DB_NAME)
-        request.onsuccess = () => resolve()
-        request.onerror = () => reject(new Error('Failed to delete database'))
-        request.onblocked = () => resolve()
-      })
-    })
-    await page.goto('/')
-  })
+    await expect(page.getByRole('heading', { name: 'Working Title' })).toBeVisible()
 
-  test('displays empty state when no projects exist', async ({ page }) => {
     await expect(page.getByText('No projects yet')).toBeVisible()
   })
 
-  test('displays project card with metadata after creation', async ({ page }) => {
+  await test.step('Create a new project', async () => {
     await page.getByRole('button', { name: /New Project/i }).click()
-    await page.goto('/')
+    await page.getByLabel(/Project Name/i).fill(DUMMY_PROJECT_NAME)
+    await page.getByRole('button', { name: /Create Project/i }).click()
 
-    const projectCard = page.getByRole('link', { name: /Untitled Story/i })
-    await expect(projectCard).toBeVisible()
-    await expect(projectCard.getByText('snowflake-method-v1')).toBeVisible()
-    await expect(projectCard.getByText(/Updated: .+/i)).toBeVisible()
+    await expect(page.getByText('Start Your Story')).toBeVisible()
+    await expect(page).toHaveURL(/\/project/)
   })
 
-  test('navigates to project when clicking project card', async ({ page }) => {
-    await page.getByRole('button', { name: /New Project/i }).click()
+  await test.step('Verify project appears on home page', async () => {
     await page.goto('/')
+    await expect(page.getByRole('heading', { name: 'Working Title' })).toBeVisible()
+    await expect(page.getByText('Start Your Story')).not.toBeVisible()
 
-    await page.getByRole('link', { name: /Untitled Story/i }).click()
+    const projectCard = page.getByRole('link', { name: DUMMY_PROJECT_NAME })
 
-    // Verify navigation back to project view
+    await expect(projectCard).toBeVisible()
+  })
+
+  await test.step('Navigate back into the project', async () => {
+    await page.getByRole('link', { name: DUMMY_PROJECT_NAME }).click()
+
+    await expect(page.getByText('Start Your Story')).toBeVisible()
+    await expect(page.getByText('Project Context')).toBeVisible()
     await expect(page).toHaveURL(/\/project/)
   })
 })

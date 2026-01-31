@@ -105,7 +105,7 @@ Template strings are currently handled via a flat `template.*` namespace. While 
 
 Our test environment is pre-configured to handle i18n.
 
-1.  **Use the Custom Renderer**: Always use the `render` or `runWithContext` helpers from [`@testHelpers/renderer`](../../src/__testHelpers__/renderer.ts).
+1.  **Use the Custom Renderer**: Always use the `render` or `runWithComponent` helpers from [`@testHelpers/renderer`](../../src/__testHelpers__/renderer.ts).
 2.  **Automatic Context**: These helpers automatically inject a `testI18n` instance containing both app strings and Snowflake template strings.
 
 ```typescript

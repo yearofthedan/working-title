@@ -1,10 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import { buildGlobals, render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import WritingProject from './WritingProject.vue'
 import { template } from '@/features/process-templates/snowflake/template'
 import { ref } from 'vue'
-import { buildProjectData, buildStep } from './storage/__testHelpers__/builders'
+import { buildProjectData, buildStep } from '../project-storage/__testHelpers__/builders'
 import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
 
 const navigateToNodeSpy = vi.fn()
@@ -31,10 +31,13 @@ const strings = {
 
 describe('WritingProject Integration', () => {
   const renderComponent = (data = ref(buildProjectData())) => {
+    const project = {
+      data: data.value,
+      template,
+    }
     return render(WritingProject, {
       props: {
-        data: data.value,
-        template,
+        project,
       },
       global: buildGlobals({
         plugins: [
@@ -67,7 +70,8 @@ describe('WritingProject Integration', () => {
 
     await expect.element(richTextNode).toBeVisible()
     await richTextNode.click()
-    await richTextNode.fill('Updated via integration')
+    const editor = page.getByRole('textbox')
+    await editor.fill('Updated via integration')
     await userEvent.tab()
 
     await vi.waitFor(() =>
@@ -129,7 +133,11 @@ describe('WritingProject Integration', () => {
     expect(newNode).toBeDefined()
 
     // Verify navigation was triggered for the new node ID
-    await vi.waitFor(() => expect(navigateToNewNodeSpy).toHaveBeenCalledWith(newNode?.id))
+    await vi.waitFor(() => {
+      const calls = (navigateToNewNodeSpy as Mock).mock.calls
+      const found = calls.some((call) => call[0] === newNode?.id)
+      expect(found).toBe(true)
+    })
 
     await expect.element(page.getByText('Storyline')).toBeVisible()
   })

@@ -9,11 +9,21 @@
       },
       "newProject": {
         "title": "New Project",
-        "description": "Start from a template"
+        "description": "Start from a template",
+        "dialog": {
+          "title": "Create New Project",
+          "nameLabel": "Project Name",
+          "namePlaceholder": "Enter project name...",
+          "create": "Create Project"
+        }
       },
       "projectList": {
         "empty": "No projects yet",
         "updatedAt": "Updated"
+      },
+      "openFile": {
+        "title": "Open File",
+        "description": "Open from your computer"
       }
     },
     "canvas": {

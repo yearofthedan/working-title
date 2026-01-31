@@ -59,7 +59,7 @@ export function useProjectContent() {
 
 ### Provider builder to simplify tests
 
-Add the context to the existing buildProviders helper to support browser-based testing via runWithContext.
+Add the context to the existing buildProviders helper to support browser-based testing via runWithComponent.
 
 ```typescript
 // src/__testHelpers__/providers.ts
@@ -74,23 +74,18 @@ export const buildProviders = (overrides: Partial<Providers> = {}): Providers =>
 
 ### Test component wrappers
 
-Composables that use inject must be executed within a component's setup function during testing. Use runWithContext to wrap your test logic in a dummy component that has access to the feature providers.
+Composables that use inject must be executed within a component's setup function during testing. Use runWithComponent to wrap your test logic in a dummy component that has access to the feature providers.
 
 ```typescript
 // src/__testHelpers__/providers.ts
-export function runWithContext(callback: () => void, providers: Partial<Providers> = {}) {
-  const TestComponent = defineComponent({
-    setup() {
-      callback()
-      return () => h('div')
-    },
+export const runWithComponent = <T>(fn: () => T, options: VueRenderOptions = {}) => {
+  let result: T
+  runWithContext(() => (result = fn()), {
+    global: buildGlobals(),
+    ...options,
   })
 
-  return render(TestComponent, {
-    global: {
-      provide: buildProviders(providers),
-    },
-  })
+  return result!
 }
 ```
 

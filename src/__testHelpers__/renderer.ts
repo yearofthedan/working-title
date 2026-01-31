@@ -1,33 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { RouteNames } from '@/router/routes'
-import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
-import { buildProjectData } from '@/features/writing-project/storage/__testHelpers__/builders'
-import {
-  PROJECT_CONTEXT_KEY,
-  projectContext,
-  type ProjectContext,
-} from '@/features/writing-project/domain/useProjectContext'
-import {
-  DEFINITIONS_CONTEXT_KEY,
-  definitionsContext,
-  type DefinitionsContext,
-} from '@/features/writing-project/domain/useDefinitionsContext'
-import { ref, defineComponent, type Component, type ComponentOptions } from 'vue'
+import { defineComponent, type Component, type ComponentOptions } from 'vue'
 import { render as vueRender } from 'vitest-browser-vue'
 import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
-
-export type Providers = {
-  [PROJECT_CONTEXT_KEY]: ProjectContext
-  [DEFINITIONS_CONTEXT_KEY]: DefinitionsContext
-}
-
-export const buildProviders = (overrides: Partial<Providers> = {}): Providers => {
-  return {
-    [PROJECT_CONTEXT_KEY]: projectContext(ref(buildProjectData())),
-    [DEFINITIONS_CONTEXT_KEY]: definitionsContext(ref(buildProcessTemplate())),
-    ...overrides,
-  } as Providers
-}
+import { buildProviders } from './builders'
 
 type VueRenderOptions = Parameters<typeof vueRender>[1]
 type Globals = NonNullable<VueRenderOptions>['global']

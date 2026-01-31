@@ -1,0 +1,34 @@
+import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
+import {
+  buildInMemoryProjectStore,
+  buildProjectData,
+} from '@/features/project-storage/__testHelpers__/builders'
+import {
+  ACTIVE_PROJECT_CONTEXT_KEY,
+  activeProjectContext,
+  type ProjectContext,
+} from '@/features/writing-project/composables/useActiveProjectContext'
+import {
+  DEFINITIONS_CONTEXT_KEY,
+  definitionsContext,
+  type DefinitionsContext,
+} from '@/features/writing-project/composables/useDefinitionsContext'
+
+import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
+import { ref } from 'vue'
+import type { ProjectStore } from '@/features/project-storage/store'
+export type Providers = {
+  [ACTIVE_PROJECT_CONTEXT_KEY]: ProjectContext
+  [DEFINITIONS_CONTEXT_KEY]: DefinitionsContext
+  [PROJECT_STORE_KEY]: ProjectStore
+}
+
+export const buildProviders = (overrides: Partial<Providers> = {}): Providers => {
+  const store = buildInMemoryProjectStore()
+  return {
+    [PROJECT_STORE_KEY]: store,
+    [ACTIVE_PROJECT_CONTEXT_KEY]: activeProjectContext(ref(buildProjectData()), store),
+    [DEFINITIONS_CONTEXT_KEY]: definitionsContext(ref(buildProcessTemplate())),
+    ...overrides,
+  } as Providers
+}

@@ -1,16 +1,22 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 
 test.describe('App Smoke Test', () => {
-  test('should load the home page and navigate to a new project', async ({ page }) => {
+  test('should load the home page and navigate to a new project', async ({
+    page,
+    mockFilePicker,
+  }) => {
+    console.log('s', mockFilePicker)
     await page.goto('/')
     await expect(page).toHaveTitle(/Working Title/)
     await expect(page.locator('h1')).toContainText('Working Title')
-
     const newProjectButton = page.getByRole('button', { name: /New Project/i })
     await expect(newProjectButton).toBeVisible()
 
     await test.step('Navigate to new project', async () => {
-      await Promise.all([page.waitForURL(/\/project/), newProjectButton.click()])
+      await newProjectButton.click()
+      await page.getByLabel(/Project Name/i).fill('My New Project')
+      await page.getByRole('button', { name: /Create Project/i }).click()
+      await expect(page).toHaveURL(/\/project/)
       await expect(page).toHaveTitle(/Writing Project/)
     })
 

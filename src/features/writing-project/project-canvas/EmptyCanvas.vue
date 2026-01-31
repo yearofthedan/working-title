@@ -2,11 +2,11 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
-import { useDefinitionsContext } from '@/features/writing-project/domain/useDefinitionsContext'
+import { useDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 import {
   useProjectContent,
   useProjectMutations,
-} from '@/features/writing-project/domain/useProjectContext'
+} from '@/features/writing-project/composables/useActiveProjectContext'
 
 const { t } = useI18n()
 const { template } = useDefinitionsContext()

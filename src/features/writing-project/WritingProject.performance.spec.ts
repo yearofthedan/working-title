@@ -16,8 +16,10 @@ describe('WritingProject Performance', () => {
 
     render(WritingProject, {
       props: {
-        data: fullSampleData,
-        template,
+        project: {
+          data: fullSampleData,
+          template,
+        }
       },
     })
 

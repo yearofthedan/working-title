@@ -34,10 +34,10 @@
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch, onBeforeUnmount } from 'vue'
-import { useDebouncedEmit } from '@/utils/useDebouncedEmit'
+import { useDebouncedEmit } from '@/composables/useDebouncedEmit'
 import CanvasStepMenu from './CanvasStepMenu.vue'
 import type { CanvasStepProps, CanvasStepContent } from '../stepTypes'
-import type { ActionDefinition } from '../../domain/useStepActions'
+import type { ActionDefinition } from '../../composables/useStepActions'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

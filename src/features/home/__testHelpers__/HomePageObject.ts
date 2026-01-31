@@ -17,7 +17,19 @@ export class HomePageObject {
   }
 
   get newProjectButton() {
-    return this.page.getByRole('link', { name: 'New Project' })
+    return this.page.getByRole('button', { name: /new project/i })
+  }
+
+  get openFileButton() {
+    return this.page.getByRole('button', { name: /open file/i })
+  }
+
+  get emptyState() {
+    return this.page.getByText('No projects yet')
+  }
+
+  projectItem(name: string) {
+    return this.page.getByRole('link', { name })
   }
 
   async navToNewProject() {

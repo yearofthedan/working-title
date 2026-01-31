@@ -1,4 +1,4 @@
-import type { ProjectData } from '@/features/writing-project/storage/types'
+import type { ProjectData } from '@/features/project-storage/types'
 
 export const fullSampleData: ProjectData = {
   schemaVersion: '1.0.0',
