@@ -5,6 +5,7 @@ import { RouteNames } from '@/router/routes'
 import ProjectNameDialog from './components/ProjectNameDialog.vue'
 import HomeActionCard from './components/HomeActionCard.vue'
 import ProjectListItem from './components/ProjectListItem.vue'
+import BrowserSupportWarning from '../common/BrowserSupportWarning.vue'
 import { useProjectStore } from '../project-storage/context'
 import { computed, ref } from 'vue'
 
@@ -50,8 +51,10 @@ const primaryActions = computed(() => [
 ])
 </script>
 <template>
-  <div class="min-h-screen bg-paper flex flex-col items-center p-6">
-    <header class="mb-12 text-center">
+  <div class="min-h-screen bg-paper flex flex-col items-center pb-6">
+    <BrowserSupportWarning />
+
+    <header class="my-12 text-center">
       <h1 class="text-4xl font-serif tracking-tight text-ink mb-2 italic">{{ t('app.name') }}</h1>
       <p class="text-[10px] text-ink/40 uppercase tracking-[0.3em]">{{ t('app.home.subtitle') }}</p>
     </header>

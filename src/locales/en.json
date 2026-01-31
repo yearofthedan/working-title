@@ -49,5 +49,12 @@
   },
   "errors": {
     "generic": "Something went wrong"
+  },
+  "browserSupport": {
+    "warning": {
+      "title": "Browser Support Warning",
+      "message": "This application uses the File System Access API to save projects directly to your computer. This feature is currently only fully supported in Chrome and Edge.",
+      "limitation": "In other browsers, your work will be stored in temporary memory and may be lost if you refresh or close the page without exporting."
+    }
   }
 }
