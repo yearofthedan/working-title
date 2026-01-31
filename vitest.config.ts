@@ -22,6 +22,7 @@ export default mergeConfig(viteConfig, {
         extends: true,
         test: {
           name: 'unit',
+          retry: 0,
           browser: {
             enabled: true,
             provider: playwright({}),
