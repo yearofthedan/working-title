@@ -1,10 +1,12 @@
 import type { Preview } from '@storybook/vue3-vite'
 import { setup } from '@storybook/vue3'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import '../src/styles/main.css'
 import { useDark } from '@vueuse/core'
 import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
 import en from '@/locales/en.json'
 import snowflakeEn from '@/features/process-templates/snowflake/locales/en.json'
+import { RouteNames } from '@/router/routes'
 import {
   ACTIVE_PROJECT_CONTEXT_KEY,
   activeProjectContext,
@@ -22,6 +24,16 @@ import {
 import { ref } from 'vue'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 setup((app) => {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', name: RouteNames.Home, component: { render: () => null } },
+      { path: '/demo', name: RouteNames.Demo, component: { render: () => null } },
+      { path: '/project/:id?', name: RouteNames.Project, component: { render: () => null } },
+    ],
+  })
+
+  app.use(router)
   app.use(
     createTestI18n({
       en: {

@@ -18,8 +18,17 @@
         }
       },
       "projectList": {
+        "title": "Your Projects",
         "empty": "No projects yet",
-        "updatedAt": "Updated"
+        "updatedAt": "Updated",
+        "item": {
+          "delete": "Delete project",
+          "deleteConfirmTitle": "Delete Project?",
+          "deleteConfirmMessage": "Are you sure you want to remove \"{name}\" from your list? This will not delete the file from your computer.",
+          "deleteSuccess": "Project deleted successfully",
+          "deleteError": "Failed to delete project",
+          "templateBadge": "Template: {name}"
+        }
       },
       "openFile": {
         "title": "Open File",
@@ -44,7 +53,9 @@
   "common": {
     "actions": {
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "close": "Close"
     }
   },
   "writingProject": {
