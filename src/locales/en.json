@@ -47,6 +47,16 @@
       "cancel": "Cancel"
     }
   },
+  "writingProject": {
+    "saveStatus": {
+      "saved": "Saved",
+      "saving": "Saving...",
+      "error": "Error saving"
+    },
+    "sidebar": {
+      "contextTitle": "Project Context"
+    }
+  },
   "errors": {
     "generic": "Something went wrong"
   },
