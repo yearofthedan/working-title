@@ -27,6 +27,7 @@ const strings = {
   'template.step.storyline.label': 'Storyline',
   'template.step.storyline.placeholder': '',
   'template.step.storyline.instruction': '',
+  'writingProject.sidebar.contextTitle': 'Project Context',
 }
 
 describe('WritingProject Integration', () => {
@@ -51,6 +52,22 @@ describe('WritingProject Integration', () => {
       },
     })
   }
+
+  it('displays the project name in the sidebar', async () => {
+    const data = ref(
+      buildProjectData({
+        meta: {
+          name: 'My Epic Story',
+          created: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+        },
+      })
+    )
+    renderComponent(data)
+
+    await expect.element(page.getByText('My Epic Story')).toBeVisible()
+    await expect.element(page.getByText('Project Context')).toBeVisible()
+  })
 
   it('updates project data when node content changes', async () => {
     const data = ref(

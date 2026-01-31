@@ -14,6 +14,7 @@ export interface ContentItem {
 }
 
 export interface ProjectContext {
+  projectName: Ref<string>
   steps: Ref<Step[]>
   connections: Ref<Connection[]>
   contentMap: Ref<Map<string, ContentItem>>
@@ -26,6 +27,7 @@ export interface ProjectContext {
   addConnection: (sourceId: string, targetId: string) => void
 
   saveStatus: Ref<AsyncStatus>
+  saveError: Ref<Error | null>
   lastSaved: Ref<string | null>
 }
 
@@ -37,8 +39,12 @@ export function activeProjectContext(
   store?: ProjectStore
 ): ProjectContext {
   const projectStore = store || useProjectStore()
-  const { updateProject, updateState } = projectStore
-  const { lastSuccess: lastSaved, execute: save } = useAsyncState(async () => {
+  const { updateProject } = projectStore
+  const {
+    state: saveState,
+    lastSuccess: lastSaved,
+    execute: save,
+  } = useAsyncState(async () => {
     await updateProject(projectData.value)
   })
 
@@ -103,6 +109,7 @@ export function activeProjectContext(
   }
 
   return {
+    projectName: computed(() => projectData.value.meta.name),
     steps,
     connections,
     contentMap,
@@ -111,7 +118,8 @@ export function activeProjectContext(
     updateContent: updateStepContent,
     addStep,
     addConnection,
-    saveStatus: computed(() => updateState.value.status),
+    saveStatus: computed(() => saveState.value.status),
+    saveError: computed(() => saveState.value.error),
     lastSaved,
   }
 }
