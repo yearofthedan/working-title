@@ -37,7 +37,7 @@
           :title="t('app.home.projectList.item.delete')"
           @click.prevent="showDeleteConfirm = true"
         >
-          <span class="text-lg" aria-hidden="true">×</span>
+          <AppIcon name="delete" class="text-lg" />
         </button>
       </div>
 
@@ -69,6 +69,7 @@ import type { ProjectMetadata } from '@/features/project-storage/types'
 import { formatDate } from '@/utils/dates'
 import { useProjectStore } from '@/features/project-storage/context'
 import AppConfirmationDialog from '@/features/common/AppConfirmationDialog.vue'
+import AppIcon from '@/features/common/AppIcon.vue'
 
 const props = defineProps<{
   project: ProjectMetadata

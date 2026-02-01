@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/vue3-vite'
+import Icons from 'unplugin-icons/vite'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -11,6 +12,15 @@ const config: StorybookConfig = {
         tsconfig: 'tsconfig.app.json',
       },
     },
+  },
+  async viteFinal(config) {
+    config.plugins?.push(
+      Icons({
+        compiler: 'vue3',
+        autoInstall: true,
+      })
+    )
+    return config
   },
 }
 export default config

@@ -23,6 +23,8 @@ import {
 } from '@/features/writing-project/composables/useDefinitionsContext'
 import { ref } from 'vue'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
+import { Icon } from '@iconify/vue'
+
 setup((app) => {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -42,6 +44,13 @@ setup((app) => {
       },
     })
   )
+
+  // Register icon components for Storybook
+  app.component('IPhPlus', Icon)
+  app.component('IPhUploadSimple', Icon)
+  app.component('IPhPlay', Icon)
+  app.component('IPhX', Icon)
+
   const store = buildInMemoryProjectStore()
   app.provide(PROJECT_STORE_KEY, store)
   app.provide(ACTIVE_PROJECT_CONTEXT_KEY, activeProjectContext(ref(buildProjectData()), store))
