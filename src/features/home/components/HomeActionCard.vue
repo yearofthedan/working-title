@@ -6,7 +6,7 @@
     :disabled="loading"
   >
     <span
-      class="w-12 h-12 flex-center rounded-full bg-ink/5 group-hover:bg-ink/10 transition-colors text-xl text-ink/60 font-light"
+      class="w-12 h-12 flex items-center justify-center rounded-full bg-ink/5 group-hover:bg-ink/10 transition-colors text-xl text-ink/60 font-light"
     >
       <AppSpinner v-if="loading" size="sm" class="text-ink/40" />
       <slot v-else name="icon" />

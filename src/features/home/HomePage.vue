@@ -8,6 +8,8 @@ import ProjectListItem from './components/ProjectListItem.vue'
 import BrowserSupportWarning from '../common/BrowserSupportWarning.vue'
 import { useProjectStore } from '../project-storage/context'
 import { computed, ref } from 'vue'
+import AppIcon from '../common/AppIcon.vue'
+import type { IconKey } from '../common/icons'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -25,19 +27,29 @@ async function handleOpenFile() {
   router.push({ name: RouteNames.Project, params: { id: metadata.id } })
 }
 
-const primaryActions = computed(() => [
+interface PrimaryAction {
+  id: string
+  title: string
+  description: string
+  icon: IconKey
+  handler?: () => void
+  to?: (typeof RouteNames)[keyof typeof RouteNames]
+  loading?: boolean
+}
+
+const primaryActions = computed<PrimaryAction[]>(() => [
   {
     id: 'new',
     title: t('app.home.newProject.title'),
     description: t('app.home.newProject.description'),
-    icon: '+',
+    icon: 'add',
     handler: () => (isNameDialogOpen.value = true),
   },
   {
     id: 'open',
     title: t('app.home.openFile.title'),
     description: t('app.home.openFile.description'),
-    icon: '↑',
+    icon: 'open',
     loading: openState.value.status === 'loading',
     handler: handleOpenFile,
   },
@@ -45,7 +57,7 @@ const primaryActions = computed(() => [
     id: 'demo',
     title: t('app.home.demo.title'),
     description: t('app.home.demo.description'),
-    icon: '›',
+    icon: 'play',
     to: RouteNames.Demo,
   },
 ])
@@ -67,7 +79,9 @@ const primaryActions = computed(() => [
             v-bind="action"
             @click="action.handler?.()"
           >
-            <template #icon>{{ action.icon }}</template>
+            <template #icon>
+              <AppIcon :name="action.icon" class="text-2xl text-ink" />
+            </template>
           </HomeActionCard>
         </div>
       </section>

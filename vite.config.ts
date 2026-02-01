@@ -2,11 +2,22 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
+import Icons from 'unplugin-icons/vite'
 
 import path from 'node:path'
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    Icons({
+      compiler: 'vue3',
+      autoInstall: true,
+      defaultClass: 'iconify',
+      scale: 1,
+      defaultStyle: 'vertical-align: middle;',
+    }),
+  ],
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -37,6 +48,7 @@ export default defineConfig({
     include: [
       'vue',
       'vue-router',
+      '@iconify/vue',
       '@vue-flow/core',
       '@tiptap/vue-3',
       '@tiptap/starter-kit',

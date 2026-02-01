@@ -43,7 +43,7 @@ Project planning and architectural decisions:
 User-facing strings must not be hardcoded. Use the two-tier i18n system:
 - **App Strings**: Core UI in [`src/locales/en.json`](src/locales/en.json)
 - **Template Strings**: Methodology strings in `src/features/process-templates/{template}/locales/en.json`
-- **Guide**: See [i18n Workflow](.roo/guides/i18n-workflow.md) for detailed patterns and troubleshooting.
+- **Guide**: See [`i18n-workflow`](.roo/skills/i18n-workflow/SKILL.md) for detailed patterns and troubleshooting.
 
 ## 🎯 Quick Start
 
