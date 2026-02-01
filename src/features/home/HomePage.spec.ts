@@ -3,7 +3,10 @@ import { page } from 'vitest/browser'
 import { render, buildGlobals } from '@/__testHelpers__/renderer'
 import HomePage from './HomePage.vue'
 import { HomePageObject } from './__testHelpers__/HomePageObject'
-import { buildInMemoryProjectStore } from '@/features/project-storage/__testHelpers__/builders'
+import {
+  buildInMemoryProjectStore,
+  buildProjectMetadata,
+} from '@/features/project-storage/__testHelpers__/builders'
 import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 
@@ -33,8 +36,9 @@ describe('HomePage', () => {
   })
 
   it('displays project cards when projects exist', async () => {
-    const store = buildInMemoryProjectStore()
-    await store.createProject('My Masterpiece', 'snowflake-method-v1')
+    const store = buildInMemoryProjectStore({
+      initialProjects: [buildProjectMetadata({ name: 'My Masterpiece' })],
+    })
 
     const { po } = renderComponent(store)
 
@@ -58,8 +62,10 @@ describe('HomePage', () => {
   })
 
   it('navigates to an existing project when clicked', async () => {
-    const store = buildInMemoryProjectStore()
-    const metadata = await store.createProject('Existing Project', 'snowflake-method-v1')
+    const metadata = buildProjectMetadata({ id: 'existing-id', name: 'Existing Project' })
+    const store = buildInMemoryProjectStore({
+      initialProjects: [metadata],
+    })
 
     const { po } = renderComponent(store)
 

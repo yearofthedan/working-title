@@ -1,9 +1,9 @@
 import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
 import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
-import { ProjectStorage } from '../ProjectStorage'
+import { ProjectStorage, STORES } from '../ProjectStorage'
 import { createProjectStore } from '../store'
-import type { ProjectData, Step, Connection } from '../types'
+import type { ProjectData, Step, Connection, ProjectMetadata } from '../types'
 
 export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
@@ -34,10 +34,31 @@ export const buildProjectData = (overrides: Partial<ProjectData> = {}): ProjectD
   ...overrides,
 })
 
+export const buildProjectMetadata = (
+  overrides: Partial<ProjectMetadata> = {}
+): ProjectMetadata => ({
+  id: 'proj-1',
+  name: 'Test Project',
+  templateId: 'snowflake-method-v1',
+  createdAt: '2024-01-01T12:00:00Z',
+  updatedAt: '2024-01-01T12:00:00Z',
+  ...overrides,
+})
+
 export const buildInMemoryProjectStore = (
-  options: { treatAsReal?: boolean; delay?: number } = { treatAsReal: true }
-) =>
-  createProjectStore(
-    new ProjectStorage(new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider),
-    new InMemoryStorageProvider(options)
-  )
+  options: {
+    treatAsReal?: boolean
+    delay?: number
+    initialProjects?: ProjectMetadata[]
+  } = { treatAsReal: true }
+) => {
+  const db = new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
+
+  if (options.initialProjects) {
+    options.initialProjects.forEach((p) => {
+      db.setItem(p.id, p, STORES.REGISTRY)
+    })
+  }
+
+  return createProjectStore(new ProjectStorage(db), new InMemoryStorageProvider(options))
+}

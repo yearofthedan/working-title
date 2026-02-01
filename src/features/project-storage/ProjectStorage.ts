@@ -6,7 +6,7 @@ import { type FileSystemFileHandle } from '@/infra/files/types'
 const APP_NAMESPACE = 'working-title'
 const PROJECT_PREFIX = `${APP_NAMESPACE}:projects:`
 
-const STORES = {
+export const STORES = {
   CONTENT: 'projectContent',
   REGISTRY: 'projectRegistry',
 } as const
