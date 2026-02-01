@@ -53,8 +53,12 @@ describe('HomePage', () => {
     await page.getByLabelText(/project name/i).fill('My New Novel')
     await page.getByRole('button', { name: /create/i }).click()
 
-    const newProject = store.projects.value.find((p) => p.name === 'My New Novel')
-    expect(newProject).toBeDefined()
+    await vi.waitFor(() => {
+      expect(store.projects.value).toHaveLength(1)
+    })
+
+    const newProject = store.projects.value[0]!
+    expect(newProject.name).toBe('My New Novel')
 
     await vi.waitFor(() => {
       expect(window.location.pathname).toContain(`/project/${newProject?.id}`)
