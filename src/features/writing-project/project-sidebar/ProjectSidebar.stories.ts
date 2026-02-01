@@ -10,7 +10,6 @@ interface SidebarStoryArgs {
 }
 
 const meta: Meta<SidebarStoryArgs> = {
-  title: 'Features/WritingProject/ProjectSidebar',
   component: ProjectSidebar,
   tags: ['autodocs'],
   decorators: [

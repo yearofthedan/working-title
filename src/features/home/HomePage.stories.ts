@@ -9,7 +9,6 @@ import { fn } from 'storybook/test'
 import { ref } from 'vue'
 
 const meta: Meta<typeof HomePage> = {
-  title: 'Features/Home/HomePage',
   component: HomePage,
   parameters: {
     layout: 'fullscreen',

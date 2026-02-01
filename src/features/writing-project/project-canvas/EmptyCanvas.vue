@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppIcon from '@/features/common/AppIcon.vue'
 import { getCanvasRootActions } from '@/features/process-templates/actions'
 import { useDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 import {
@@ -53,9 +54,10 @@ const handleAddStep = (stepId: string) => {
       <button
         v-for="action in availableActions"
         :key="action.id"
-        class="px-6 py-3 bg-accent text-white dark:bg-accent dark:text-white font-medium rounded-lg hover:bg-accent-hover transition-colors cursor-pointer shadow-md"
+        class="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-on-primary font-medium rounded-sm hover:bg-primary/90 transition-colors cursor-pointer shadow-sm"
         @click="handleAddStep(action.targetType)"
       >
+        <AppIcon name="add" class="text-lg" />
         {{ t(action.labelText) }}
       </button>
     </div>

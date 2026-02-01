@@ -77,7 +77,7 @@ function handleClose() {
           :class="[
             isDangerous
               ? 'bg-red-600 text-white hover:bg-red-700'
-              : 'bg-ink text-paper hover:bg-ink/90',
+              : 'bg-primary text-on-primary hover:bg-primary/90',
           ]"
           :disabled="isLoading"
           @click="handleConfirm"

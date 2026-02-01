@@ -4,17 +4,18 @@
   /* --- Light Mode --- */
   --color-background: var(--color-white);
   --color-paper: var(--color-zinc-50);
-  --color-primary: var(--color-blue-700);
-  
+  --color-primary: var(--color-indigo-600);
+  --color-on-primary: var(--color-white);
+
   --color-ink: var(--color-zinc-950);
   --color-ink-muted: var(--color-zinc-500);
   --color-ink-dim: var(--color-zinc-400);
-  
+
   --color-edge: var(--color-zinc-200);
-  
+
   --color-link: var(--color-indigo-600);
   --color-link-hover: var(--color-indigo-700);
-  
+
   --color-error: var(--color-red-600);
 }
 
@@ -22,15 +23,18 @@
 html[data-theme='dark'] {
   --color-background: var(--color-zinc-950);
   --color-paper: var(--color-zinc-900);
-  
+
+  --color-primary: var(--color-indigo-500);
+  --color-on-primary: var(--color-white);
+
   --color-ink: var(--color-zinc-100);
   --color-ink-muted: var(--color-zinc-400);
   --color-ink-dim: var(--color-zinc-500);
-  
+
   --color-edge: var(--color-zinc-800);
-  
+
   --color-link: var(--color-indigo-400);
   --color-link-hover: var(--color-indigo-300);
-  
+
   --color-error: var(--color-red-500);
 }

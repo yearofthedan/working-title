@@ -55,7 +55,7 @@ More details under [Styling](references/styling.md)
 
 #### Storybook
 
-More details under [Storybook templates](references/storybook-template.md)
+More details under [`storybook-workflow`](../storybook-workflow/SKILL.md)
 
 - Every component must have exactly one Storybook file.
 - Smoke Test: Include a test to verify the component renders in Storybook.

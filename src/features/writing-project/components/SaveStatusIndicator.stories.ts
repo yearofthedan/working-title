@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
 
 const meta: Meta<typeof SaveStatusIndicator> = {
-  title: 'Features/WritingProject/SaveStatusIndicator',
   component: SaveStatusIndicator,
   tags: ['autodocs'],
   argTypes: {

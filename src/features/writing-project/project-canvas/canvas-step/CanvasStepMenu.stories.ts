@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import CanvasStepMenu from './CanvasStepMenu.vue'
 
 const meta: Meta<typeof CanvasStepMenu> = {
-  title: 'Features/ProjectCanvas/Nodes/CanvasStepMenu',
   component: CanvasStepMenu,
   tags: ['autodocs'],
   argTypes: {

@@ -4,7 +4,6 @@ import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { fn } from 'storybook/test'
 
 const meta: Meta<typeof ProjectListItem> = {
-  title: 'Features/Home/ProjectListItem',
   component: ProjectListItem,
   tags: ['autodocs'],
   decorators: [
