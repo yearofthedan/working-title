@@ -3,7 +3,6 @@ import AppConfirmationDialog from './AppConfirmationDialog.vue'
 import { fn } from 'storybook/test'
 
 const meta: Meta<typeof AppConfirmationDialog> = {
-  title: 'Features/Common/AppConfirmationDialog',
   component: AppConfirmationDialog,
   tags: ['autodocs'],
   args: {

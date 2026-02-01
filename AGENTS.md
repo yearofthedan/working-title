@@ -18,7 +18,7 @@ High-level principles loaded for all agents:
 
 Executable workflows loaded when relevant. See [Skills README](.roo/skills/README.md) for full catalog.
 
-**Core workflows**: [`workflow-general`](.roo/skills/workflow-general/), [`workflow-functional-changes`](.roo/skills/workflow-functional-changes/), [`workflow-vue-components`](.roo/skills/workflow-vue-components/)
+**Core workflows**: [`workflow-general`](.roo/skills/workflow-general/), [`workflow-functional-changes`](.roo/skills/workflow-functional-changes/), [`workflow-vue-components`](.roo/skills/workflow-vue-components/), [`storybook-workflow`](.roo/skills/storybook-workflow/)
 
 ### Memory System (`memory/`)
 

@@ -13,6 +13,7 @@ Each skill is organized as a directory containing:
 
 - [workflow-functional-changes/](workflow-functional-changes/): Guidance for working on vertical slices, TDD cycles, and verification.
 - [workflow-vue-components/](workflow-vue-components/): Standards for component creation, styling, and ensuring components stay under the 60-line limit.
+- [storybook-workflow/](storybook-workflow/): Create and maintain Storybook stories with variants and smoke testing.
 - [workflow-general/](workflow-general/): General project interactions, common task patterns, and code style.
 - [workflow-third-party-libraries/](workflow-third-party-libraries/): Guidelines for adding and isolating external dependencies.
 

@@ -30,7 +30,7 @@ customModes:
       - read
       - browser
       - - edit
-        - fileRegex: (\.roo/.\*\.md$|\AGENTS.md$|\.roomodes$)
+        - fileRegex: (\.roo/.*\.md$|AGENTS\.md$|\.roomodes$)
           description: .roo/ markdown files and .roomodes configuration
       - command
   - slug: qa
