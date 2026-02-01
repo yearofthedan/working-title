@@ -49,7 +49,7 @@ function handleClose() {
 <template>
   <dialog
     ref="dialogRef"
-    class="bg-paper border border-edge rounded-sm shadow-xl w-full max-w-md p-0 backdrop:bg-ink/40 backdrop:backdrop-blur-sm open:flex flex-col gap-6"
+    class="bg-paper border border-edge rounded-sm shadow-xl w-full max-w-md p-0 backdrop:bg-ink/40 backdrop:backdrop-blur-sm open:flex flex-col gap-6 fixed inset-0 m-auto transition-all duration-300 opacity-0 scale-95 open:opacity-100 open:scale-100"
     @close="handleClose"
   >
     <div class="p-6 flex flex-col gap-6 w-full">
