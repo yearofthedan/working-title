@@ -4,6 +4,9 @@
     "dockerfile": "Dockerfile"
   },
   "runArgs": ["--memory=8g", "--memory-swap=8g", "--shm-size=2gb"],
+  // Use a volume for the workspace rather than a bind mount to the host
+  "workspaceMount": "source=${localWorkspaceFolderBasename}-workspace,target=/workspaces/${localWorkspaceFolderBasename},type=volume",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest",
@@ -80,7 +83,7 @@
     "source=${localWorkspaceFolderBasename}-extensions,target=/home/node/.vscode-server/extensions,type=volume",
     "source=${localWorkspaceFolderBasename}-global-storage,target=/home/node/.vscode-server/data/User/globalStorage,type=volume"
   ],
-  "onCreateCommand": "sudo chown -R node:node /home/node/.vscode-server/extensions /home/node/.vscode-server/data/User/globalStorage ${containerWorkspaceFolder}",
+  "onCreateCommand": "bash .devcontainer/setup.sh",
   "postCreateCommand": "./do bootstrap",
   "postStartCommand": "./do launch-chromium-debug",
   "containerEnv": {
