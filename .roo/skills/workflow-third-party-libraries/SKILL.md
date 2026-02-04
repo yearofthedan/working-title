@@ -22,7 +22,7 @@ Use bundlephobia.com to check the impact before installing.
 
 - < 50KB: Standard import.
 - 50KB - 1MB: Evaluate necessity; consider code-splitting.
-- \> 1MB: Requires Async/Dormant patterns ([Vue component performance patterns](../workflow-vue-components/references/performance.md))
+- \> 1MB: Requires Async/Dormant patterns ([Vue component performance patterns](../workflow-vue/references/performance.md))
 
 Criteria: Prioritize libraries that are tree-shakeable, actively maintained (updated within 12 months), and have native TypeScript support.
 

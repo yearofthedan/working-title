@@ -1,9 +1,9 @@
 ---
-name: workflow-vue-components
-description: Technical lifecycle for Vue 3 components using Vertical Slices, Tailwind v4, and Storybook Smoke Testing.
+name: workflow-vue
+description: Technical lifecycle for Vue 3 components and composables using Vertical Slices, Tailwind v4, and Storybook Smoke Testing.
 ---
 
-# workflow-vue-components
+# workflow-vue
 
 ## Prerequisites
 
@@ -60,9 +60,11 @@ More details under [`storybook-workflow`](../storybook-workflow/SKILL.md)
 - Every component must have exactly one Storybook file.
 - Smoke Test: Include a test to verify the component renders in Storybook.
 
-#### Component testing
+#### Component & Composable testing
 
-- Create `[ComponentName].spec.ts` for components with user actions.
+More details under [Vue Testing Patterns](references/testing.md)
+
+- Create `[ComponentName].spec.ts` for components and `[ComposableName].spec.ts` for logic.
 - **Focus**: Test that user inputs (clicks, typing) result in the correct output (emits, UI updates).
 - **Process**: For behavior changes, update the `.spec.ts` before the `.vue` file.
 

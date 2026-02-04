@@ -16,10 +16,10 @@ When delegating to another mode that should use skills:
 ```markdown
 # Load skills first
 read_file: .roo/skills/workflow-general/SKILL.md
-read_file: .roo/skills/workflow-vue-components/SKILL.md
+read_file: .roo/skills/workflow-vue/SKILL.md
 
 # Then delegate with explicit reference
-I've loaded workflow-general and workflow-vue-components into context.
+I've loaded workflow-general and workflow-vue into context.
 Switch to code mode and follow these skills to implement the feature.
 ```
 

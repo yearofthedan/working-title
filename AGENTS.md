@@ -18,7 +18,7 @@ High-level principles loaded for all agents:
 
 Executable workflows loaded when relevant. See [Skills README](.roo/skills/README.md) for full catalog.
 
-**Core workflows**: [`workflow-general`](.roo/skills/workflow-general/), [`workflow-functional-changes`](.roo/skills/workflow-functional-changes/), [`workflow-vue-components`](.roo/skills/workflow-vue-components/), [`storybook-workflow`](.roo/skills/storybook-workflow/)
+**Core workflows**: [`workflow-general`](.roo/skills/workflow-general/), [`workflow-functional-changes`](.roo/skills/workflow-functional-changes/), [`workflow-vue`](.roo/skills/workflow-vue/), [`storybook-workflow`](.roo/skills/storybook-workflow/)
 
 ### Memory System (`memory/`)
 
@@ -50,4 +50,4 @@ User-facing strings must not be hardcoded. Use the two-tier i18n system:
 1. **Starting a feature?** Check [memory/planning/backlog.md](memory/planning/backlog.md)
 2. **Writing code?** Load [`workflow-general`](.roo/skills/workflow-general/SKILL.md)
 3. **Need architecture context?** Review [memory/decisions/](memory/decisions/index.md)
-4. **Building components?** Use [`workflow-vue-components`](.roo/skills/workflow-vue-components/SKILL.md)
+4. **Building components?** Use [`workflow-vue`](.roo/skills/workflow-vue/SKILL.md)

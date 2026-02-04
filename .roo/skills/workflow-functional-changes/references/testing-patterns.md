@@ -1,32 +1,42 @@
-# Testing Architecture & Patterns
-## 1. Methodology & Structure
-Organize all test suites (Vitest or Spec files) with a clear hierarchy to ensure they are readable and easy to debug.
+# Testing Strategy & Structure
 
-- Outer describe: The file or module name (e.g., 'useLayout').
-- Method describe: The specific function or method being tested (e.g., 'updateContent').
-- Logical group describe: (Optional) Groups related edge cases.
-- it statements: Descriptive, actionable test cases.
+Strategic guidance for building a robust, maintainable test suite using the **Testing Trophy** philosophy.
+
+## 1. Testing Trophy
+We prioritize tests that provide the most "bang for your buck" in terms of confidence vs. effort.
+
+- **Static**: Catch typos and type errors (TypeScript, ESLint).
+- **Unit (Sociable)**: The bulk of our suite. Focus on logic and behavior. Includes **Component Tests** which we treat as sociable unit tests.
+- **Integration**: Verify multiple modules or a full feature flow (Journey tests).
+- **E2E**: Verify the entire system from the user's perspective (Playwright).
+
+## 2. Sociable Testing
+Prefer "sociable" tests that use real collaborators over "solitary" tests that mock everything. 
+- **Goal**: Test the unit and its dependencies together to ensure they actually work in concert.
+- **Exceptions**: Only mock external APIs, heavy infrastructure, or non-deterministic code.
+
+## 3. Methodology & Structure
+Organize all test suites with a clear hierarchy.
+
+- Outer `describe`: The file or module name.
+- Method `describe`: The specific function or method being tested.
+- `it` statements: Descriptive, actionable test cases.
 
 ```typescript
 describe('WritingProject', () => {
   describe('updateStep', () => {
     it('should update step content successfully', () => { /* ... */ })
-    
-    describe('error states', () => {
-      it('should throw if step id is missing', () => { /* ... */ })
-    })
   })
 })
 ```
 
-## 2. Test Data Creation (Builders)
-Prefer to use builders for test data creation. 
+## 4. Test Data Creation (Builders)
+Use builders to create deterministic test data and decouple tests from schema changes.
 
-- Place them in the __testHelpers__ folder relative to the src (eg. `src/features/[feature]/__testHelpers__/builders.ts`).
-- Naming: Use build<TypeName> (e.g., buildProjectData).
-- Pattern: Use Partial<T> and spread ...overrides at the end.
+- **Location**: `src/features/[feature]/__testHelpers__/builders.ts`
+- **Pattern**: Use `Partial<T>` and spread overrides.
 
-``` typescript
+```typescript
 export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
   status: 'active',
@@ -34,40 +44,7 @@ export const buildStep = (overrides: Partial<Step> = {}): Step => ({
 })
 ```
 
-## 3. Page Object Pattern
-Use Page Objects to centralize selectors and decouple your tests from UI changes.
-
-- Place them in the __testHelpers__ folder relative to the src (eg. `src/features/[feature]/__testHelpers__/[NAME]PageObject.ts`).
-- Constraint: Encapsulate selectors; tests should only call semantic methods or getters.
-- Prefer compositional page objects to parallel the component tree
-
-```typescript
-import { type BrowserPage } from 'vitest/browser'
-import TablePageObject from 'path/to/table/_testHelpers/TablePageObject'
-
-export class ProjectPageObject {
-  constructor(private page: BrowserPage) {}
-
-  get header() {
-    return this.page.getByRole('heading', { name: 'My Page' })
-  }
-
-  async clickSave() {
-    await this.page.getByRole('button', { name: 'Save' }).click()
-  }
-
-  get table() {
-    return new TablePageObject(this.page.getByRole('table'))
-  }
-}
-```
-
-4. Accessibility (a11y)
-- Automatic: Storybook addon-a11y runs on every variant.
-- Manual: Use accessible locators (getByRole, getByLabel) in Page Objects to ensure the UI is navigable by screen readers.
-
-Validation Checklist
-[ ] Are builders pure and deterministic (no Math.random)?
-[ ] Do Page Objects hide raw CSS/ID selectors?
-[ ] Is the test structure following the File > Method > Case hierarchy?
-[ ] Are builders and page objects located in the feature's __testHelpers__ directory?
+## 5. Tactical Patterns
+For specific implementation examples, see:
+- [Vue Testing Patterns](../../workflow-vue/references/testing.md) (Components, Composables, Page Objects)
+- [Storybook Workflow](../../storybook-workflow/SKILL.md) (Smoke tests)
