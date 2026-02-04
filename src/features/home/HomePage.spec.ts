@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, expect, beforeEach, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { page } from 'vitest/browser'
 import { render, buildGlobals } from '@/__testHelpers__/renderer'
 import HomePage from './HomePage.vue'
@@ -11,6 +13,7 @@ import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 
 describe('HomePage', () => {
+  it.scoped({ globalMocks: ['logging'] })
   const renderComponent = (store = buildInMemoryProjectStore()) => {
     render(HomePage, {
       global: buildGlobals({
@@ -81,7 +84,7 @@ describe('HomePage', () => {
   })
 
   it('shows loading state during "Open File" flow', async () => {
-    const store = buildInMemoryProjectStore({ treatAsReal: true, delay: 100 })
+    const store = buildInMemoryProjectStore({ treatAsReal: true, delay: 1000 })
 
     const { po } = renderComponent(store)
 

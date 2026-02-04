@@ -1,4 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { ref, type Ref } from 'vue'
 import { buildGlobals, runWithComponent } from '@/__testHelpers__/renderer'
 import { useStepActions } from './useStepActions'
@@ -23,6 +25,8 @@ import {
 import { buildProviders } from '@/__testHelpers__/builders'
 
 describe('useStepActions', () => {
+  it.scoped({ globalMocks: ['logging'] })
+
   const runComposable = (template: Ref<ProcessTemplate>, context: ProjectContext) => {
     return runWithComponent(() => useStepActions(template), {
       global: buildGlobals({

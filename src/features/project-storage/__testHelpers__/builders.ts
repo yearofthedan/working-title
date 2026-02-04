@@ -19,16 +19,19 @@ export const buildConnection = (overrides: Partial<Connection> = {}): Connection
   ...overrides,
 })
 
+export const buildMeta = (overrides: Partial<ProjectData['meta']> = {}) => ({
+  name: 'Test Project',
+  created: '2024-01-01',
+  lastModified: '2024-01-01',
+  ...overrides,
+})
+
 export const buildProjectData = (overrides: Partial<ProjectData> = {}): ProjectData => ({
   schemaVersion: '1.0.0',
   projectId: 'proj-1',
   templateId: 'test-template',
   templateVersion: '1.0',
-  meta: {
-    name: 'Test Project',
-    created: '2024-01-01',
-    lastModified: '2024-01-01',
-  },
+  meta: buildMeta(),
   steps: [buildStep()],
   connections: [],
   ...overrides,

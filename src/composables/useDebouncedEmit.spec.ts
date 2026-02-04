@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, expect, vi, beforeEach, afterEach } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { useDebouncedEmit } from './useDebouncedEmit'
 
 describe('useDebouncedEmit', () => {

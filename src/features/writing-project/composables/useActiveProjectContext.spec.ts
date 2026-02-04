@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, expect, beforeEach, afterEach, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { ref } from 'vue'
 import { activeProjectContext, SAVE_DEBOUNCE } from './useActiveProjectContext'
 import {
@@ -14,6 +16,8 @@ vi.mock('@/utils/dates', () => ({
 import { now } from '@/utils/dates'
 
 describe('useActiveProjectContext', () => {
+  it.scoped({ globalMocks: ['logging'] })
+
   const mockNow = '2026-01-11T20:00:00Z'
 
   beforeEach(() => {

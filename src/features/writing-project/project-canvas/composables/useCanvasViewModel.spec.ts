@@ -1,6 +1,12 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { ref } from 'vue'
-import { buildStep, buildProjectData, buildInMemoryProjectStore } from '@/features/project-storage/__testHelpers__/builders'
+import {
+  buildStep,
+  buildProjectData,
+  buildInMemoryProjectStore,
+} from '@/features/project-storage/__testHelpers__/builders'
 import {
   buildProcessTemplate,
   buildStepDefinition,
@@ -21,7 +27,6 @@ import type { ProcessTemplate } from '@/features/process-templates/processTempla
 import { buildProviders } from '@/__testHelpers__/builders'
 
 describe('useCanvasViewModel', () => {
-
   function renderCanvas(params: {
     steps?: Step[]
     connections?: Connection[]

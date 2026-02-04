@@ -1,20 +1,27 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
 import { type ProjectStore } from './store'
 import { now } from '@/utils/dates'
 import { buildInMemoryProjectStore } from './__testHelpers__/builders'
+import { it as baseTest, type TestFixtures } from '@/__testHelpers__/fixtures'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(),
 }))
 
-interface GivenContext {
+type GivenContext = {
   store: ProjectStore
-}
+} & TestFixtures
+
+const it = baseTest.extend<{
+  store: ProjectStore
+}>({
+  store: async ({}, use) => {
+    await use(buildInMemoryProjectStore())
+  },
+})
 
 describe('ProjectStore', () => {
-  beforeEach((context: GivenContext) => {
-    context.store = buildInMemoryProjectStore()
-  })
+  it.scoped({ globalMocks: ['logging'] })
 
   describe('orchestration', () => {
     it('exposes expected operations', ({ store }: GivenContext) => {

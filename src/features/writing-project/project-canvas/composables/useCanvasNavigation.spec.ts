@@ -1,4 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { useCanvasNavigation, type CanvasNavigationInstance } from './useCanvasNavigation'
 import { type NodeChange } from '@vue-flow/core'
 

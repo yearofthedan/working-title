@@ -1,4 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { useNodeSizeObserver } from './useNodeSizeObserver'
 
 describe('useNodeSizeObserver', () => {

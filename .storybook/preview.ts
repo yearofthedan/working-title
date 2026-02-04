@@ -16,7 +16,6 @@ import {
   buildProjectData,
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
-
 import {
   DEFINITIONS_CONTEXT_KEY,
   definitionsContext,
@@ -24,6 +23,8 @@ import {
 import { ref } from 'vue'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { Icon } from '@iconify/vue'
+import { provideLogger } from '@/composables/useLogger'
+import { provideNotifications } from '@/composables/useNotifications'
 
 setup((app) => {
   const router = createRouter({
@@ -50,7 +51,10 @@ setup((app) => {
   app.component('IPhUploadSimple', Icon)
   app.component('IPhPlay', Icon)
   app.component('IPhX', Icon)
+  app.component('IPhWarning', Icon)
 
+  provideLogger(app.provide)
+  provideNotifications(app.provide)
   const store = buildInMemoryProjectStore()
   app.provide(PROJECT_STORE_KEY, store)
   app.provide(ACTIVE_PROJECT_CONTEXT_KEY, activeProjectContext(ref(buildProjectData()), store))

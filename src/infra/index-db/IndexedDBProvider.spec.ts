@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, expect, beforeEach } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
 import { IndexedDBProvider, type IndexedDBConfig } from './IndexedDBProvider'
 
 describe('IndexedDBProvider', () => {

@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest'
+import { describe, expect, vi, beforeAll } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { ref } from 'vue'
 import { useLayout } from './useLayout'
 import {

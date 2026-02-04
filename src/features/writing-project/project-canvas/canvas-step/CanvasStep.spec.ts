@@ -1,4 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import CanvasStep from './CanvasStep.vue'

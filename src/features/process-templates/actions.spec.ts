@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
 import { getCanvasRootActions } from './actions'
 import { buildStep } from '../project-storage/__testHelpers__/builders'
 import {
