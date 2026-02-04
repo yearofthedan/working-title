@@ -1,6 +1,6 @@
 ---
 name: workflow-functional-changes
-description: PROCESS workflow for feature development. Covers vertical slicing, TDD (red-green-refactor), and testing strategy. Complements workflow-general (tooling) and workflow-vue-components (implementation).
+description: PROCESS workflow for feature development. Covers vertical slicing, TDD (red-green-refactor), and testing strategy. Complements workflow-general (tooling) and workflow-vue (implementation).
 ---
 
 ## When to Use
@@ -33,14 +33,14 @@ description: PROCESS workflow for feature development. Covers vertical slicing, 
 ### 3. Testing Strategy
 More detail at [Testing patterns](references/testing-patterns.md)
 
-- Unit (Vite): Low-level logic, utility functions, simple composables.
-- Component (Vite Browser): Complex components and composables.
-- Journey (Vite Browser): Verify a full route/feature flow.
-- E2E (Playwright): Smoke test the deployment and external integrations.
+- **Static**: TypeScript and Linting.
+- **Unit (Sociable)**: Logic and behavior (includes Component tests).
+- **Integration**: Feature flows and route journeys.
+- **E2E**: System smoke tests and external integrations.
 
-### 4. Testing philosophy
+### 4. Testing Philosophy
 
-- Follow the philosphy of the test pyramid: more tests at lower levels to optimise for speed and completeness. Where possible move tests lower, using integration tests to give vertical confidence.
+- Follow the **Testing Trophy**: Prioritize sociable unit tests that provide high confidence with manageable maintenance.
 - Tests are a critical part of documentation and debugging. Design for readability and precision by following a BDD style, using builders, and render methods to simplify test setup.
 - Parameterised tests should be used for simple permutations.
 - Prefer single assertion tests, but in some cases this may not be practical, such as:
@@ -70,4 +70,4 @@ References
 ## References
 
 - [General Workflow](../workflow-general/SKILL.md) — Required for verification and commit steps
-- [Vue Components](../workflow-vue-components/SKILL.md) — Component-specific implementation patterns
+- [Vue Components](../workflow-vue/SKILL.md) — Component-specific implementation patterns

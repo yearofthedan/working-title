@@ -119,6 +119,13 @@ Don't ask about widely accepted best practices.
 ❌ "Should we use semantic HTML?" (yes, always)
 ❌ "Should we validate user input?" (yes, always)
 
+### Styling and Aesthetics
+Don't ask about specific design details that follow from the existing theme and design system. Delegate these to the implementation mode (Code mode).
+
+❌ "Should the notification have a 4px or 8px border radius?"
+❌ "What specific hex code should we use for the warning background?"
+❌ "Should we use a success icon or a checkmark?" (let the implementer choose a suitable icon from the registry)
+
 ### Implementation Micro-Details
 Don't ask about things that can be decided during implementation.
 

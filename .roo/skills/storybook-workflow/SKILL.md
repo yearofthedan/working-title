@@ -99,5 +99,5 @@ export const Loading: Story = {
 
 ## References
 
-- [workflow-vue-components](../workflow-vue-components/SKILL.md)
+- [workflow-vue](../workflow-vue/SKILL.md)
 - [workflow-general](../workflow-general/SKILL.md)

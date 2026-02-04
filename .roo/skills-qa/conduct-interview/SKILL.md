@@ -26,6 +26,7 @@ Structured interview workflow for gathering requirements through targeted questi
 ### 1. Parse Initial Request
 
 **Identify:**
+
 - Core feature or change requested
 - What context is explicit vs needs clarification
 - Areas of potential ambiguity (architecture, UX, data flow)
@@ -33,22 +34,26 @@ Structured interview workflow for gathering requirements through targeted questi
 ### 2. Plan Question Sequence
 
 **Progression order:**
+
 1. High-level architecture decisions (OAuth vs JWT, REST vs GraphQL)
 2. Feature scope (which providers, what permissions)
 3. Edge cases and error handling
-4. Technical details (port numbers, file locations)
 
-**Target:** 5-8 key questions for most features (avoid question fatigue)
+**Avoid the Weeds:** Do NOT ask about styling, aesthetics, or specific implementation details (variable names, exact padding, library internals) that a competent implementation mode can determine from the existing codebase and theme.
+
+**Target:** 3-5 key questions for most features (focus on architectural alignment and scope).
 
 ### 3. Ask Questions Iteratively
 
 **Each question should:**
+
 - Address ONE specific decision or ambiguity
 - Present 2-4 clear, actionable options
 - Include context about tradeoffs when relevant
 - Build on previous answers logically
 
 **Use the `ask_followup_question` tool with:**
+
 - Clear question addressing single decision
 - 2-4 specific, actionable suggestions
 - Mode switch if needed for implementation
@@ -58,6 +63,7 @@ Structured interview workflow for gathering requirements through targeted questi
 ### 4. Acknowledge and Build
 
 **After each answer:**
+
 - Confirm understanding naturally: "That makes sense given..."
 - Update mental model of the feature
 - Identify new questions from the answer
@@ -66,6 +72,7 @@ Structured interview workflow for gathering requirements through targeted questi
 ### 5. Recognize Completion
 
 **Interview is complete when:**
+
 - All architectural decisions are explicit
 - Feature scope is clearly defined
 - Edge cases and error handling addressed
@@ -74,30 +81,33 @@ Structured interview workflow for gathering requirements through targeted questi
 **Signal transition:**
 "That's the last major decision. Just a couple quick technical details and we'll write up the spec."
 
-### 6. Recognize Recommendation Moments
+### 6. Act as an Experienced Advisor
 
-Switch from questions to recommendations when:
-- User asks clarifying questions about options (they're thinking critically)
-- User mentions alternatives or shows domain knowledge
-- You're past question 5 and approaching implementation details
-- Remaining decisions are low-impact (icon weight vs library choice)
+Lead with recommendations rather than open-ended questions. Your role is to suggest best-practice patterns and let the user validate or steer.
 
-**Pattern:** "Based on your [stated preferences], I recommend [choice] because [rationale]. Sound good?"
+**When to Recommend vs. Ask:**
+- **Recommend**: Standard industry patterns, consistency with existing codebase, or proven UX solutions.
+- **Ask**: High-level tradeoffs where multiple valid paths exist, or unique business logic.
+- **Delegate**: Implementation details (styles, icons, variable names) should be left to the implementation mode (Code mode).
+
+**Pattern:** "For [feature], I recommend [choice] because [rationale]. Does that align with your vision?"
 
 ## Communication Guidelines
 
-### Be Conversational
-Unlike implementation modes, Q&A should feel collaborative:
-- ✅ "Let's figure out exactly what you need. What authentication method works best?"
-- ❌ "Analyzing authentication requirements..." (too robotic)
+### Professional & Direct
+Avoid "fluff," empty praise, or "simpering" encouragement. Be a peer advisor, not a cheerleader.
+- ✅ "Understood. Moving to authentication..."
+- ❌ "Great choice! That's perfect. Now let's look at..."
 
 ### Be Honest About Problems
-Point out issues with problematic choices:
-- ✅ "Storing passwords in plain text would be a critical security vulnerability. We should use bcrypt or argon2 hashing instead."
-- ❌ "Great choice!" (when it's actually bad)
+Critique problematic choices directly but professionally:
+- ✅ "Storing passwords in plain text is a security risk. I strongly recommend using bcrypt or a similar hashing algorithm."
+- ❌ "Excellent! That's the simplest way to do it."
 
 ### Handle Uncertainty
+
 When user says "I'm not sure":
+
 1. Acknowledge uncertainty is normal
 2. Provide context about common choices
 3. Ask about their constraints or priorities
@@ -110,6 +120,7 @@ See [Communication Tips](references/communication-tips.md) for detailed guidance
 ### Recognize Oversized Features
 
 **Warning signs:**
+
 - More than 8-10 major questions needed
 - Multiple distinct subsystems
 - Feature touches many codebase areas
@@ -119,6 +130,7 @@ See [Communication Tips](references/communication-tips.md) for detailed guidance
 ### Suggest Splitting
 
 **Pattern:**
+
 ```
 "This is a large feature that covers [areas].
 
@@ -133,6 +145,7 @@ Should we spec out Phase 1 first, get that implemented, then come back for Phase
 ### Find Minimum Viable Feature
 
 **Ask:**
+
 - "What's the minimum version that would be useful?"
 - "What can we defer to v2 without blocking core value?"
 - "If we had to ship in a week, what would we cut?"
@@ -152,24 +165,29 @@ Before proceeding to specification phase:
 ## Common Pitfalls
 
 **Question Fatigue**
+
 - **Issue:** Asking too many questions overwhelms users
 - **Solution:** Skip obvious choices, use sensible defaults, aim for 5-8 questions
 
 **Analysis Paralysis**
+
 - **Issue:** Too many options or overly complex tradeoffs
 - **Solution:** Limit to 2-4 options per question, break into multiple questions if needed
 
 **Technical Interrogation**
+
 - **Issue:** Feels like checklist instead of conversation
 - **Solution:** Acknowledge answers naturally, explain why asking each question
 
 **Assumed Knowledge**
+
 - **Issue:** Using jargon user may not understand
 - **Solution:** Include brief explanations in parentheses
 
 ## Next Steps
 
 After completing interview:
+
 1. Proceed to specification phase using [Write Specification](../write-specification/SKILL.md) skill
 2. Create spec document in `memory/planning/active/[feature-name]-spec.md`
 3. Present spec to user for confirmation

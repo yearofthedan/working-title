@@ -16,8 +16,8 @@ Review [`.roo/skills/README.md`](../skills/README.md) to identify applicable wor
 **For feature development:**
 - [`workflow-functional-changes`](../skills/workflow-functional-changes/SKILL.md) - Vertical slicing, TDD, testing
 
-**For Vue components:**
-- [`workflow-vue-components`](../skills/workflow-vue-components/SKILL.md) - Component patterns, Tailwind, Storybook
+**For Vue components and logic:**
+- [`workflow-vue`](../skills/workflow-vue/SKILL.md) - Component and composable patterns, Tailwind, Storybook
 
 **For adding dependencies:**
 - [`workflow-third-party-libraries`](../skills/workflow-third-party-libraries/SKILL.md) - Bundle size, security audit
@@ -33,7 +33,7 @@ Use `read_file` to load each relevant SKILL.md before starting work:
 # Example: Starting a Vue component feature
 read_file: .roo/skills/workflow-general/SKILL.md
 read_file: .roo/skills/workflow-functional-changes/SKILL.md
-read_file: .roo/skills/workflow-vue-components/SKILL.md
+read_file: .roo/skills/workflow-vue/SKILL.md
 ```
 
 ### 4. Follow Loaded Skills
@@ -63,7 +63,7 @@ Load workflow-functional-changes
   ↓
 Does it involve Vue components?
   ↓ YES
-Load workflow-vue-components
+Load workflow-vue
   ↓
 Done - proceed with task
 ```
