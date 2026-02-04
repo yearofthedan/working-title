@@ -21,7 +21,7 @@ describe('useProjectCreate', () => {
 
       expect(lastSuccess.value).not.toBeNull()
 
-      const saved = await storage.loadById(metadata.id)
+      const saved = await storage.loadById(metadata!.id)
       expect(saved).toBeDefined()
       expect(saved?.meta.name).toBe('My New Project')
       expect(saved?.meta.created).toBe('2026-01-11T20:00:00Z')
@@ -30,7 +30,7 @@ describe('useProjectCreate', () => {
     it('throws error if template not found', async ({ storage, fileSystem }: GivenContext) => {
       const { createProject, state } = useProjectCreate(storage, fileSystem)
 
-      await expect(createProject('My Project', 'non-existent')).rejects.toThrow()
+      await createProject('My Project', 'non-existent')
       expect(state.value.status).toBe('error')
     })
   })

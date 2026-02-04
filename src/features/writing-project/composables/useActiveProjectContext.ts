@@ -1,7 +1,7 @@
 import { computed, inject, provide, type Ref, type InjectionKey } from 'vue'
 import type { ProjectData, Step, Connection } from '../../project-storage/types'
 import { generateId } from '@/utils/ids'
-import { useAsyncState, type AsyncStatus } from '@/composables/useAsyncState'
+import { type AsyncStatus } from '@/composables/useAsyncState'
 import { watchDebounced } from '@vueuse/core'
 import { useProjectStore } from '@/features/project-storage/context'
 import type { ProjectStore } from '@/features/project-storage/store'
@@ -39,20 +39,13 @@ export function activeProjectContext(
   store?: ProjectStore
 ): ProjectContext {
   const projectStore = store || useProjectStore()
-  const { updateProject } = projectStore
-  const {
-    state: saveState,
-    lastSuccess: lastSaved,
-    execute: save,
-  } = useAsyncState(async () => {
-    await updateProject(projectData.value)
-  })
+  const { update } = projectStore
 
   watchDebounced(
     projectData,
     () => {
       if (projectData.value.projectId !== 'demo') {
-        save()
+        update.execute(projectData.value)
       }
     },
     { deep: true, debounce: SAVE_DEBOUNCE }
@@ -118,9 +111,9 @@ export function activeProjectContext(
     updateContent: updateStepContent,
     addStep,
     addConnection,
-    saveStatus: computed(() => saveState.value.status),
-    saveError: computed(() => saveState.value.error),
-    lastSaved,
+    saveStatus: computed(() => update.state.value.status),
+    saveError: computed(() => update.state.value.error),
+    lastSaved: update.lastSaved,
   }
 }
 

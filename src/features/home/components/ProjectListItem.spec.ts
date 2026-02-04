@@ -12,7 +12,7 @@ import {
 } from '@/features/project-storage/__testHelpers__/builders'
 import { createProjectStore } from '@/features/project-storage/store'
 import { ProjectStorage } from '@/features/project-storage/ProjectStorage'
-import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
+import { buildMockIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
 
 describe('ProjectListItem', () => {
@@ -74,7 +74,7 @@ describe('ProjectListItem', () => {
   it('calls deleteProject when deletion is confirmed', async () => {
     const project = buildProjectMetadata({ id: '123' })
     const store = buildInMemoryProjectStore({ initialProjects: [project] })
-    const deleteSpy = vi.spyOn(store, 'deleteProject')
+    const deleteSpy = vi.spyOn(store.delete, 'execute')
 
     renderComponent(project, store)
 
@@ -90,8 +90,7 @@ describe('ProjectListItem', () => {
   })
 
   it('shows success notification when deletion is successful', async () => {
-    const project = buildProjectMetadata({ id: '123' })
-    const { notifStore } = renderComponent(project)
+    const { notifStore } = renderComponent(buildProjectMetadata({ id: '123' }))
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()
@@ -112,15 +111,12 @@ describe('ProjectListItem', () => {
   })
 
   it('shows error notification when deletion fails', async () => {
-    const project = buildProjectMetadata({ id: '123' })
-    const storage = new ProjectStorage(
-      new InMemoryIndexedDBProvider() as unknown as ProjectStorage['provider']
-    )
-    const store = createProjectStore(storage, new InMemoryStorageProvider())
+    const provider = buildMockIndexedDBProvider()
+    const store = createProjectStore(new ProjectStorage(provider), new InMemoryStorageProvider())
 
-    vi.spyOn(storage, 'delete').mockRejectedValue(new Error('Storage failure'))
+    vi.mocked(provider.removeItem).mockRejectedValue(new Error('Storage failure'))
 
-    const { notifStore } = renderComponent(project, store)
+    const { notifStore } = renderComponent(buildProjectMetadata({ id: '123' }), store)
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()

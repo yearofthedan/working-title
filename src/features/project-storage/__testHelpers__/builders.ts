@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
 import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
@@ -53,15 +54,39 @@ export const buildInMemoryProjectStore = (
     treatAsReal?: boolean
     delay?: number
     initialProjects?: ProjectMetadata[]
+    storage?: ProjectStorage
   } = { treatAsReal: true }
 ) => {
-  const db = new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
+  let storage = options.storage
 
-  if (options.initialProjects) {
-    options.initialProjects.forEach((p) => {
-      db.setItem(p.id, p, STORES.REGISTRY)
-    })
+  if (!storage) {
+    const db = new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
+
+    if (options.initialProjects) {
+      options.initialProjects.forEach((p) => {
+        db.setItem(p.id, p, STORES.REGISTRY)
+      })
+    }
+    storage = new ProjectStorage(db)
   }
 
-  return createProjectStore(new ProjectStorage(db), new InMemoryStorageProvider(options))
+  return createProjectStore(storage, new InMemoryStorageProvider(options))
+}
+
+export const buildMockProjectStorage = (): ProjectStorage => {
+  const mock = {
+    listProjects: vi.fn().mockResolvedValue([]),
+    loadById: vi.fn().mockRejectedValue(new Error('Project not found')),
+    save: vi.fn().mockImplementation(async (data: ProjectData) => {
+      return buildProjectMetadata({
+        id: data.projectId,
+        name: data.meta.name,
+        templateId: data.templateId,
+      })
+    }),
+    delete: vi.fn().mockResolvedValue(undefined),
+    getFileHandle: vi.fn().mockResolvedValue(undefined),
+  } as unknown as ProjectStorage
+
+  return mock
 }

@@ -17,3 +17,7 @@ export const formatDate = (date: Date | string | number | null | undefined): str
 export const now = (): string => {
   return new Date().toISOString()
 }
+
+export const timestamp = (): number => {
+  return Date.now()
+}

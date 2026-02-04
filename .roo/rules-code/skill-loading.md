@@ -1,12 +1,27 @@
 # Code Mode Skill Loading
 
-## On Task Start or Mode Switch
+## MANDATORY Pre-Implementation Protocol
 
-When starting a task or receiving a handover from another mode, you MUST:
+**CRITICAL**: Before writing a SINGLE line of implementation code, you MUST:
+
+### Step 0: Complete Pre-Implementation Checklist
+
+Review and complete **[Pre-Implementation Checklist](./pre-implementation-checklist.md)** - This is your primary workflow gate.
+
+The checklist ensures you:
+- Load all relevant skills
+- Understand the spec requirements
+- Write failing tests before implementation
+- Get user approval when needed
+- Understand project standards
+
+**DO NOT SKIP THIS STEP.** The checklist prevents 90% of workflow violations.
 
 ### 1. Check for Relevant Skills
 
 Review [`.roo/skills/README.md`](../skills/README.md) to identify applicable workflows for your task.
+
+**If you received a mode switch or handover without pre-loaded skills, STOP and load them now.**
 
 ### 2. Load Skills Based on Task Type
 
@@ -70,9 +85,26 @@ Done - proceed with task
 
 ## Skill Loading Checklist
 
-Before starting any code work:
+**STOP. Before implementing ANYTHING, confirm:**
 
-- [ ] Check skills README for relevant workflows
-- [ ] Load workflow-general (always for code changes)
-- [ ] Load task-specific skills (features, components, dependencies)
-- [ ] Verify skills are now in context
+- [ ] Checked [`.roo/skills/README.md`](../skills/README.md) for relevant workflows
+- [ ] Loaded [`workflow-general`](../skills/workflow-general/SKILL.md) (ALWAYS for code changes)
+- [ ] Loaded [`workflow-functional-changes`](../skills/workflow-functional-changes/SKILL.md) (for features)
+- [ ] Loaded [`workflow-vue`](../skills/workflow-vue/SKILL.md) (for Vue components)
+- [ ] Loaded [`i18n-workflow`](../skills/i18n-workflow/SKILL.md) (if adding user-facing text)
+- [ ] Loaded [`icon-system`](../skills/icon-system/SKILL.md) (if adding icons)
+- [ ] Skills are now in context and reviewed
+
+**If ANY box is unchecked and relevant, STOP. Load the skill first.**
+
+## Anti-Pattern Detection
+
+**RED FLAGS** that indicate you skipped skill loading:
+
+- Using raw Tailwind colors (e.g., `bg-blue-500`) instead of semantic tokens (`bg-paper`)
+- Hardcoded user-facing strings instead of i18n keys
+- Missing TDD cycle (implementing before writing failing test)
+- Implementing without referencing spec acceptance criteria
+- Violating "Grade A" standards (ARIA, accessibility, semantic HTML)
+
+**If you catch yourself doing ANY of the above, STOP and load the relevant skill.**

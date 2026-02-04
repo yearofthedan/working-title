@@ -4,7 +4,13 @@ import type { FileSystemStorageProvider } from '@/infra/files/FileSystemStorageP
 import type { ProjectStorage } from '@/features/project-storage/ProjectStorage'
 
 export function useProjectOpen(storage: ProjectStorage, fileSystem: FileSystemStorageProvider) {
-  const { state, execute, lastSuccess } = useAsyncState(async () => {
+  const {
+    state,
+    execute: openProject,
+    lastSuccess,
+    onSuccess,
+    onError,
+  } = useAsyncState(async () => {
     const handle = await fileSystem.requestOpenFileHandle()
 
     const projectData = await fileSystem.readAsJson<ProjectData>(handle)
@@ -18,8 +24,10 @@ export function useProjectOpen(storage: ProjectStorage, fileSystem: FileSystemSt
   })
 
   return {
-    openProject: execute,
+    openProject,
     state,
     lastSuccess,
+    onSuccess,
+    onError,
   }
 }

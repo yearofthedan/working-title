@@ -6,9 +6,13 @@ export function useProjectDelete(storage: ProjectStorage) {
     state,
     execute: deleteProject,
     lastSuccess,
-  } = useAsyncState(async (id: string) => {
-    await storage.delete(id)
-  })
+    onSuccess,
+    onError,
+  } = useAsyncState(
+    async (id: string) => {
+      await storage.delete(id)
+    }
+  )
 
-  return { deleteProject, state, lastSuccess }
+  return { deleteProject, state, lastSuccess, onSuccess, onError }
 }

@@ -32,7 +32,14 @@
       },
       "openFile": {
         "title": "Open File",
-        "description": "Open from your computer"
+        "description": "Open from your computer",
+        "error": "Failed to open project"
+      },
+      "createProject": {
+        "error": "Failed to create project"
+      },
+      "loadProjects": {
+        "error": "Failed to load projects"
       }
     },
     "project": {
@@ -53,6 +60,13 @@
     },
     "loading": {
       "message": "Loading..."
+    },
+    "notifications": {
+      "types": {
+        "success": "Success",
+        "error": "Error",
+        "warning": "Warning"
+      }
     },
     "notFound": {
       "title": "404 - Page Not Found",

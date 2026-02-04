@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { RouteNames } from '@/router/routes'
@@ -78,10 +78,10 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { success, error: notifyError } = useNotifications()
-const { deleteProject, deleteState } = useProjectStore()
+const { delete: projectDelete } = useProjectStore()
 
 const showDeleteConfirm = ref(false)
-const isDeleting = computed(() => deleteState.value.status === 'loading')
+const isDeleting = computed(() => projectDelete.state.value.status === 'loading')
 
 const templateName = computed(() => {
   // Simple mapping for now, could be expanded to use registry if needed
@@ -91,23 +91,17 @@ const templateName = computed(() => {
   return props.project.templateId
 })
 
-watch(
-  () => deleteState.value.status,
-  (status) => {
-    if (status === 'success') {
-      success('Project deleted successfully')
-    } else if (status === 'error') {
-      notifyError('Failed to delete project')
-    }
-  }
-)
-
 async function handleDelete() {
-  try {
-    await deleteProject(props.project.id)
-    showDeleteConfirm.value = false
-  } catch (e) {
-    console.error('Failed to delete project:', e)
-  }
+  await projectDelete.execute(props.project.id)
 }
+
+projectDelete.onSuccess(() => {
+  showDeleteConfirm.value = false
+  success(t('app.home.projectList.item.deleteSuccess'))
+})
+
+projectDelete.onError((e) => {
+  console.error('Failed to delete project:', e)
+  notifyError(t('app.home.projectList.item.deleteError'))
+})
 </script>

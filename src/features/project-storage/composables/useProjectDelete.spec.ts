@@ -24,8 +24,10 @@ describe('useProjectDelete', () => {
 
       vi.spyOn(storage, 'delete').mockRejectedValue(new Error('Delete failed'))
 
-      await expect(deleteProject('p1')).rejects.toThrow('Delete failed')
+      await deleteProject('p1')
+
       expect(state.value.status).toBe('error')
+      expect(state.value.error?.message).toEqual('Delete failed')
     })
   })
 })

@@ -13,28 +13,51 @@ export function createProjectStore(
   storage: ProjectStorage = projectStorage,
   fs: FileSystemStorageProvider = createFileSystemProvider()
 ) {
-  const { state: listState, refreshList } = useProjectList(storage)
+  const {
+    state: listState,
+    refreshList,
+    onSuccess: onListSuccess,
+    onError: onListError,
+  } = useProjectList(storage)
 
   const {
     createProject,
     state: creationState,
     lastSuccess: createdSignal,
+    onSuccess: onCreateSuccess,
+    onError: onCreateError,
   } = useProjectCreate(storage, fs)
   const {
     updateProject,
     state: updateState,
     lastSuccess: updatedSignal,
+    onSuccess: onUpdateSuccess,
+    onError: onUpdateError,
   } = useProjectUpdate(storage, fs)
   const {
     deleteProject,
     state: deleteState,
     lastSuccess: deletedSignal,
+    onSuccess: onDeleteSuccess,
+    onError: onDeleteError,
   } = useProjectDelete(storage)
-  const { openProject, state: openState, lastSuccess: openedSignal } = useProjectOpen(storage, fs)
+  const {
+    openProject,
+    state: openState,
+    lastSuccess: openedSignal,
+    onSuccess: onOpenSuccess,
+    onError: onOpenError,
+  } = useProjectOpen(storage, fs)
 
-  watch([createdSignal, deletedSignal, openedSignal, updatedSignal], () => refreshList(), {
-    immediate: true,
-  })
+  watch(
+    [createdSignal, deletedSignal, openedSignal, updatedSignal],
+    () => {
+      refreshList()
+    },
+    {
+      immediate: true,
+    }
+  )
 
   const sortedProjects = computed(() => {
     const data = listState.value.data || []
@@ -46,21 +69,43 @@ export function createProjectStore(
   })
 
   return {
-    projects: sortedProjects,
-    listStatus: computed(() => listState.value.status),
-    listAsyncState: listState,
+    list: {
+      projects: sortedProjects,
+      status: computed(() => listState.value.status),
+      state: listState,
+      refresh: refreshList,
+      onSuccess: onListSuccess,
+      onError: onListError,
+    },
 
-    createProject,
-    creationState,
+    create: {
+      execute: createProject,
+      state: creationState,
+      onSuccess: onCreateSuccess,
+      onError: onCreateError,
+    },
 
-    updateProject,
-    updateState,
+    update: {
+      execute: updateProject,
+      state: updateState,
+      lastSaved: updatedSignal,
+      onSuccess: onUpdateSuccess,
+      onError: onUpdateError,
+    },
 
-    deleteProject,
-    deleteState,
+    delete: {
+      execute: deleteProject,
+      state: deleteState,
+      onSuccess: onDeleteSuccess,
+      onError: onDeleteError,
+    },
 
-    openProject,
-    openState,
+    open: {
+      execute: openProject,
+      state: openState,
+      onSuccess: onOpenSuccess,
+      onError: onOpenError,
+    },
   }
 }
 

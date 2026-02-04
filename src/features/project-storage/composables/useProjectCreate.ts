@@ -36,24 +36,30 @@ const projectBase = (template: ProcessTemplate, name: string): ProjectData => {
 }
 
 export function useProjectCreate(storage: ProjectStorage, fileSystem: FileSystemStorageProvider) {
-  const { state, execute, lastSuccess } = useAsyncState(
-    async (projectName: string, templateKey: string = 'snowflake-method-v1') => {
-      const { template } = await loadTemplate(templateKey)
-      if (!template) throw new Error(`Template ${templateKey} not found`)
+  const {
+    state,
+    execute: createProject,
+    lastSuccess,
+    onSuccess,
+    onError,
+  } = useAsyncState(async (projectName: string, templateKey: string = 'snowflake-method-v1') => {
+    const { template } = await loadTemplate(templateKey)
+    if (!template) throw new Error(`Template ${templateKey} not found`)
 
-      const newProject = projectBase(template, projectName)
+    const newProject = projectBase(template, projectName)
 
-      const handle = await fileSystem.requestNewFileHandle(`${projectName}.json`)
-      await fileSystem.writeAsJson(handle, newProject)
+    const handle = await fileSystem.requestNewFileHandle(`${projectName}.json`)
+    await fileSystem.writeAsJson(handle, newProject)
 
-      const metadata = await storage.save(newProject, handle)
-      return metadata
-    }
-  )
+    const metadata = await storage.save(newProject, handle)
+    return metadata
+  })
 
   return {
-    createProject: execute,
+    createProject,
     state,
     lastSuccess,
+    onSuccess,
+    onError,
   }
 }

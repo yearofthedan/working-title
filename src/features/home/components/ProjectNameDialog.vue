@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppTextField from '@/features/common/fields/AppTextField.vue'
-import { useProjectStore } from '@/features/project-storage/context'
 import AppSpinner from '@/features/common/AppSpinner.vue'
 
-const props = defineProps<{ modelValue: boolean }>()
+const props = defineProps<{
+  modelValue: boolean
+  loading?: boolean
+}>()
 const emit = defineEmits(['update:modelValue', 'create'])
 
 const { t } = useI18n()
-const { creationState } = useProjectStore()
 const projectName = ref('')
 const dialogRef = ref<null | HTMLDialogElement>(null)
-
-const isCreating = computed(() => creationState.value.status === 'loading')
 
 watch(
   () => props.modelValue,
@@ -39,7 +38,7 @@ function handleClose() {
 }
 
 function handleCreate() {
-  if (projectName.value.trim() && !isCreating.value) {
+  if (projectName.value.trim() && !props.loading) {
     emit('create', projectName.value.trim())
   }
 }
@@ -62,14 +61,14 @@ function handleCreate() {
           :placeholder="t('app.home.newProject.dialog.namePlaceholder')"
           auto-focus
           required
-          :disabled="isCreating"
+          :disabled="loading"
         />
 
         <div class="flex justify-end gap-3">
           <button
             type="button"
             class="px-4 py-2 text-ink/60 hover:text-ink transition-colors cursor-pointer disabled:opacity-30"
-            :disabled="isCreating"
+            :disabled="loading"
             @click="handleCancel"
           >
             {{ t('common.actions.cancel') }}
@@ -78,13 +77,13 @@ function handleCreate() {
           <button
             type="submit"
             class="relative px-6 py-2 bg-ink text-paper rounded-sm hover:bg-ink/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-w-[100px]"
-            :disabled="!projectName.trim() || isCreating"
+            :disabled="!projectName.trim() || loading"
           >
-            <span :class="{ 'opacity-0': isCreating }">
+            <span :class="{ 'opacity-0': loading }">
               {{ t('app.home.newProject.dialog.create') }}
             </span>
 
-            <div v-if="isCreating" class="absolute inset-0 flex items-center justify-center">
+            <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
               <AppSpinner size="sm" />
             </div>
           </button>

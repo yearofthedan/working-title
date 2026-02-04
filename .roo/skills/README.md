@@ -11,11 +11,14 @@ Each skill is organized as a directory containing:
 
 ## Core Development Skills
 
-- [workflow-functional-changes/](workflow-functional-changes/): Guidance for working on vertical slices, TDD cycles, and verification.
-- [workflow-vue/](workflow-vue/): Standards for component and composable creation, styling, and ensuring components stay under the 60-line limit.
-- [storybook-workflow/](storybook-workflow/): Create and maintain Storybook stories with variants and smoke testing.
-- [workflow-general/](workflow-general/): General project interactions, common task patterns, and code style.
-- [workflow-third-party-libraries/](workflow-third-party-libraries/): Guidelines for adding and isolating external dependencies.
+- [workflow-general/](workflow-general/): **ALWAYS LOAD FIRST** - General project interactions, `./do` scripts, linting, commits
+- [workflow-functional-changes/](workflow-functional-changes/): Guidance for working on vertical slices, TDD cycles, and verification
+- [workflow-vue/](workflow-vue/): Standards for component and composable creation, styling, and ensuring components stay under the 60-line limit
+- [tdd-enforcement/](tdd-enforcement/): Strict RED-GREEN-REFACTOR enforcement for features with user feedback (notifications, forms, navigation)
+- [storybook-workflow/](storybook-workflow/): Create and maintain Storybook stories with variants and smoke testing
+- [i18n-workflow/](i18n-workflow/): Two-tier i18n system for app strings and template-specific strings
+- [icon-system/](icon-system/): Add and use Phosphor icons via Iconify with semantic registry
+- [workflow-third-party-libraries/](workflow-third-party-libraries/): Guidelines for adding and isolating external dependencies
 
 ## Architecture
 
