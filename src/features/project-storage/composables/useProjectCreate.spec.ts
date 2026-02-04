@@ -1,27 +1,13 @@
-import { beforeEach, describe, it, vi, expect } from 'vitest'
-import { ProjectStorage } from '../ProjectStorage'
-import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
-import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
+import { describe, expect, vi } from 'vitest'
+import { it, type GivenContext } from './__testHelpers__/fixtures'
 import { useProjectCreate } from './useProjectCreate'
-import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
-import type { FileSystemStorageProvider } from '@/infra/files/FileSystemStorageProvider'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),
 }))
 
-interface GivenContext {
-  storage: ProjectStorage
-  fileSystem: FileSystemStorageProvider
-}
-
 describe('useProjectCreate', () => {
-  beforeEach((context: GivenContext) => {
-    context.storage = new ProjectStorage(
-      new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
-    )
-    context.fileSystem = new InMemoryStorageProvider({ treatAsReal: true })
-  })
+  it.scoped({ globalMocks: ['logging'] })
 
   describe('createProject', () => {
     it('creates a new project and saves it to file system and indexdb', async ({

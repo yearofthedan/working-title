@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
 import { page } from 'vitest/browser'
 import { render } from '@/../src/__testHelpers__/renderer'
 import ProjectNameDialog from './ProjectNameDialog.vue'

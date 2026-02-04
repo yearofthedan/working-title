@@ -47,7 +47,8 @@ export function createProjectStore(
 
   return {
     projects: sortedProjects,
-    listState: computed(() => listState.value.status),
+    listStatus: computed(() => listState.value.status),
+    listAsyncState: listState,
 
     createProject,
     creationState,

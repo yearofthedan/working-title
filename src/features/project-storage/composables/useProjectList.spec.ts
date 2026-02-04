@@ -1,19 +1,12 @@
-import { beforeEach, describe, it, expect } from 'vitest'
-import { ProjectStorage } from '../ProjectStorage'
-import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
-import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
+import { describe, expect, beforeEach } from 'vitest'
+import { it, type GivenContext } from './__testHelpers__/fixtures'
 import { useProjectList } from './useProjectList'
 import { buildProjectData } from '../__testHelpers__/builders'
 
-interface GivenContext {
-  storage: ProjectStorage
-}
-
 describe('useProjectList', () => {
-  beforeEach((context: GivenContext) => {
-    context.storage = new ProjectStorage(
-      new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
-    )
+  it.scoped({ globalMocks: ['logging'] })
+
+  beforeEach(({ storage }: GivenContext) => {
     const project1 = buildProjectData({
       projectId: 'p1',
       meta: { name: 'P1', created: '2024-01-01', lastModified: '2024-01-01' },
@@ -22,7 +15,7 @@ describe('useProjectList', () => {
       projectId: 'p2',
       meta: { name: 'P2', created: '2024-01-01', lastModified: '2024-01-01' },
     })
-    return Promise.all([context.storage.save(project1), context.storage.save(project2)])
+    return Promise.all([storage.save(project1), storage.save(project2)])
   })
 
   it('lists projects from storage', async ({ storage }: GivenContext) => {

@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { calculateTrackedLayout } from '@/features/writing-project/project-canvas/utils/elkLayoutAdapter'
 import { buildBasicCanvasNode, buildTrack } from '../__testHelpers__/builders'
 import type { CanvasEdge } from '../types'

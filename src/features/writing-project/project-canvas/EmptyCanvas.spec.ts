@@ -1,4 +1,6 @@
-import { expect, describe, it } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { page } from 'vitest/browser'
 import { composeStories } from '@storybook/vue3'
 import * as stories from './EmptyCanvas.stories'

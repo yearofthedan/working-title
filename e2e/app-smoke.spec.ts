@@ -1,11 +1,7 @@
 import { test, expect } from './fixtures'
 
 test.describe('App Smoke Test', () => {
-  test('should load the home page and navigate to a new project', async ({
-    page,
-    mockFilePicker,
-  }) => {
-    console.log('s', mockFilePicker)
+  test('should load the home page and navigate to a new project', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveTitle(/Working Title/)
     await expect(page.locator('h1')).toContainText('Working Title')

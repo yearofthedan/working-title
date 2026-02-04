@@ -1,8 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, expect, beforeEach, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import type { FileSystemFileHandle } from './types'
 import { FileSystemStorageProvider } from './FileSystemStorageProvider'
 
 describe('FileSystemStorageProvider', () => {
+  it.scoped({ globalMocks: ['logging'] })
+
   let provider: FileSystemStorageProvider
 
   beforeEach(() => {

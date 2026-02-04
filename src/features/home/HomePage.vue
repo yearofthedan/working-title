@@ -7,13 +7,16 @@ import HomeActionCard from './components/HomeActionCard.vue'
 import ProjectListItem from './components/ProjectListItem.vue'
 import BrowserSupportWarning from '../common/BrowserSupportWarning.vue'
 import { useProjectStore } from '../project-storage/context'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AppIcon from '../common/AppIcon.vue'
 import type { IconKey } from '../common/icons'
+import { useNotifications } from '@/composables/useNotifications'
 
 const router = useRouter()
 const { t } = useI18n()
-const { projects, openProject, openState, createProject } = useProjectStore()
+const { error: notifyError } = useNotifications()
+const { projects, openProject, openState, createProject, listAsyncState, creationState } =
+  useProjectStore()
 const isNameDialogOpen = ref(false)
 
 async function handleNewProject(name: string) {
@@ -26,6 +29,33 @@ async function handleOpenFile() {
   const metadata = await openProject()
   router.push({ name: RouteNames.Project, params: { id: metadata.id } })
 }
+
+watch(
+  () => listAsyncState.value.status,
+  (status) => {
+    if (status === 'error') {
+      notifyError('Failed to load projects')
+    }
+  }
+)
+
+watch(
+  () => openState.value.status,
+  (status) => {
+    if (status === 'error') {
+      notifyError('Failed to open project')
+    }
+  }
+)
+
+watch(
+  () => creationState.value.status,
+  (status) => {
+    if (status === 'error') {
+      notifyError('Failed to create project')
+    }
+  }
+)
 
 interface PrimaryAction {
   id: string

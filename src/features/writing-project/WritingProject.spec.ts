@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, type Mock } from 'vitest'
+import { describe, expect, vi, type Mock } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { buildGlobals, render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import WritingProject from './WritingProject.vue'
@@ -30,7 +32,9 @@ const strings = {
   'writingProject.sidebar.contextTitle': 'Project Context',
 }
 
-describe('WritingProject Integration', () => {
+describe('WritingProject', () => {
+  it.scoped({ globalMocks: ['logging'] })
+
   const renderComponent = (data = ref(buildProjectData())) => {
     const project = {
       data: data.value,

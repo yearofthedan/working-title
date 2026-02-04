@@ -1,20 +1,10 @@
-import { beforeEach, describe, it, expect, vi } from 'vitest'
-import { ProjectStorage } from '../ProjectStorage'
-import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
-import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
+import { describe, expect, vi } from 'vitest'
+import { it, type GivenContext } from './__testHelpers__/fixtures'
 import { useProjectDelete } from './useProjectDelete'
 import { buildProjectData } from '../__testHelpers__/builders'
 
-interface GivenContext {
-  storage: ProjectStorage
-}
-
 describe('useProjectDelete', () => {
-  beforeEach((context: GivenContext) => {
-    context.storage = new ProjectStorage(
-      new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
-    )
-  })
+  it.scoped({ globalMocks: ['logging'] })
 
   describe('deleteProject', () => {
     it('deletes the project from storage', async ({ storage }: GivenContext) => {

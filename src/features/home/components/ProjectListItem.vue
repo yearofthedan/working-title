@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { RouteNames } from '@/router/routes'
@@ -70,12 +70,14 @@ import { formatDate } from '@/utils/dates'
 import { useProjectStore } from '@/features/project-storage/context'
 import AppConfirmationDialog from '@/features/common/AppConfirmationDialog.vue'
 import AppIcon from '@/features/common/AppIcon.vue'
+import { useNotifications } from '@/composables/useNotifications'
 
 const props = defineProps<{
   project: ProjectMetadata
 }>()
 
 const { t } = useI18n()
+const { success, error: notifyError } = useNotifications()
 const { deleteProject, deleteState } = useProjectStore()
 
 const showDeleteConfirm = ref(false)
@@ -88,6 +90,17 @@ const templateName = computed(() => {
   }
   return props.project.templateId
 })
+
+watch(
+  () => deleteState.value.status,
+  (status) => {
+    if (status === 'success') {
+      success('Project deleted successfully')
+    } else if (status === 'error') {
+      notifyError('Failed to delete project')
+    }
+  }
+)
 
 async function handleDelete() {
   try {

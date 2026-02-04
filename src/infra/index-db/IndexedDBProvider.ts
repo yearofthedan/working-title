@@ -1,3 +1,5 @@
+import { logError } from '@/infra/logging/globals'
+
 export interface IndexedDBConfig {
   dbName: string
   version: number
@@ -34,7 +36,9 @@ export class IndexedDBProvider {
       return await this.wrapRequest(request)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown IndexedDB error'
-      throw new Error(`IndexedDB Operation Failed in ${storeName}: ${message}`)
+      const error = new Error(`IndexedDB Operation Failed in ${storeName}: ${message}`)
+      logError(error, { storeName, mode, originalError: err })
+      throw error
     }
   }
 
@@ -67,7 +71,9 @@ export class IndexedDBProvider {
       const request = indexedDB.open(this.config.dbName, this.config.version)
 
       request.onerror = () => {
-        reject(new Error(`Failed to open IndexedDB: ${request.error?.message}`))
+        const error = new Error(`Failed to open IndexedDB: ${request.error?.message}`)
+        logError(error, { dbName: this.config.dbName })
+        reject(error)
       }
 
       request.onsuccess = () => {

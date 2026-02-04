@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
 import { migrateProjectData } from './migrations'
 import { buildProjectData } from './__testHelpers__/builders'
 

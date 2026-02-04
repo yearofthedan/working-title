@@ -5,27 +5,33 @@ import type { ProjectData } from '../../project-storage/types'
 import { registerTemplateMessages } from '@/i18n'
 import { useAsyncState } from '@/composables/useAsyncState'
 import { toValue, watch, type MaybeRefOrGetter } from 'vue'
+import { logError } from '@/infra/logging/globals'
 
 export type Project = { data: ProjectData; template: ProcessTemplate }
 
 const loadProject = async (projectId: string): Promise<Project> => {
-  const projectData = await projectStorage.loadById(projectId)
+  try {
+    const projectData = await projectStorage.loadById(projectId)
 
-  if (!projectData) {
-    throw new Error('PROJECT_NOT_FOUND')
+    if (!projectData) {
+      throw new Error('PROJECT_NOT_FOUND')
+    }
+
+    const templateId = projectData.templateId
+    const [templateModule, locales] = await Promise.all([
+      loadTemplate(templateId),
+      loadTemplateLocales(templateId),
+    ])
+
+    Object.entries(locales).forEach(([locale, messages]) => {
+      registerTemplateMessages(templateId, locale, messages)
+    })
+
+    return { data: projectData, template: templateModule.template }
+  } catch (err) {
+    logError('Failed to load project', { projectId, originalError: err })
+    throw err
   }
-
-  const templateId = projectData.templateId
-  const [templateModule, locales] = await Promise.all([
-    loadTemplate(templateId),
-    loadTemplateLocales(templateId),
-  ])
-
-  Object.entries(locales).forEach(([locale, messages]) => {
-    registerTemplateMessages(templateId, locale, messages)
-  })
-
-  return { data: projectData, template: templateModule.template }
 }
 
 export function useProjectLoader(projectId: MaybeRefOrGetter<string>) {

@@ -1,5 +1,6 @@
 import type { FileSystemFileHandle, SaveFilePickerOptions, OpenFilePickerOptions } from './types'
 import { FileSystemError } from './errors'
+import { logError } from '@/infra/logging/globals'
 
 export class FileSystemStorageProvider {
   defaultTypes: {
@@ -25,10 +26,12 @@ export class FileSystemStorageProvider {
       if (err instanceof Error && err.name === 'AbortError') {
         throw new FileSystemError('File picker was cancelled', 'ABORTED')
       }
-      throw new FileSystemError(
+      const error = new FileSystemError(
         `Failed to create new file: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'WRITE_FAILED'
       )
+      logError(error, { suggestedName, originalError: err })
+      throw error
     }
   }
 
@@ -48,10 +51,12 @@ export class FileSystemStorageProvider {
       if (err instanceof Error && err.name === 'AbortError') {
         throw new FileSystemError('File picker was cancelled', 'ABORTED')
       }
-      throw new FileSystemError(
+      const error = new FileSystemError(
         `Failed to open file: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'READ_FAILED'
       )
+      logError(error, { originalError: err })
+      throw error
     }
   }
 
@@ -61,10 +66,12 @@ export class FileSystemStorageProvider {
       const content = await file.text()
       return JSON.parse(content) as T
     } catch (err) {
-      throw new FileSystemError(
+      const error = new FileSystemError(
         `Failed to read file: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'READ_FAILED'
       )
+      logError(error, { fileName: handle.name, originalError: err })
+      throw error
     }
   }
 
@@ -77,10 +84,12 @@ export class FileSystemStorageProvider {
       if (err instanceof Error && err.name === 'NotAllowedError') {
         throw new FileSystemError('Write permission denied', 'PERMISSION_DENIED')
       }
-      throw new FileSystemError(
+      const error = new FileSystemError(
         `Failed to write file: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'WRITE_FAILED'
       )
+      logError(error, { fileName: handle.name, originalError: err })
+      throw error
     }
   }
 

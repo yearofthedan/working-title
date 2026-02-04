@@ -1,4 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { page } from 'vitest/browser'
 import { render, buildGlobals } from '@/__testHelpers__/renderer'
 import BrowserSupportWarning from './BrowserSupportWarning.vue'

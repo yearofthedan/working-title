@@ -57,5 +57,11 @@ export default defineConfig([
       },
     },
   },
+  {
+    files: ['**/*.spec.ts', '**/__testHelpers__/**/*.ts'],
+    rules: {
+      'no-empty-pattern': ['error', { allowObjectPatternsAsParameters: true }],
+    },
+  },
   eslintConfigPrettier,
 ])

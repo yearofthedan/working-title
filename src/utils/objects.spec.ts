@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect } from 'vitest'
+import { it } from '@/__testHelpers__/fixtures'
+
 import { getValueAtPath } from './objects'
 
 describe('objects', () => {

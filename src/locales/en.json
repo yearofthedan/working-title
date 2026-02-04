@@ -35,6 +35,15 @@
         "description": "Open from your computer"
       }
     },
+    "project": {
+      "loading": "Loading project...",
+      "loadError": {
+        "title": "Project Load Error",
+        "description": "We couldn't open this project. The file may have been moved, deleted, or local storage might be unavailable.",
+        "retry": "Try Again",
+        "goHome": "Go Back Home"
+      }
+    },
     "canvas": {
       "emptyState": {
         "title": "Start Your Story",

@@ -2,6 +2,7 @@ import type { ProjectData, ProjectMetadata } from './types'
 import { migrateProjectData } from './migrations'
 import { IndexedDBProvider, type IndexedDBConfig } from '@/infra/index-db/IndexedDBProvider'
 import { type FileSystemFileHandle } from '@/infra/files/types'
+import { logError, logInfo } from '@/infra/logging/globals'
 
 const APP_NAMESPACE = 'working-title'
 const PROJECT_PREFIX = `${APP_NAMESPACE}:projects:`
@@ -37,16 +38,26 @@ export class ProjectStorage {
     )
 
     if (!serialized) {
-      throw new Error(
+      const error = new Error(
         `Project ${projectId} not found in local storage. This data is irrecoverable.`
       )
+      logError(error, { projectId })
+      throw error
     }
 
     try {
       const raw = JSON.parse(serialized)
-      return migrateProjectData(raw)
-    } catch {
-      throw new Error(`Project ${projectId} exists but is corrupted.`)
+      const data = migrateProjectData(raw)
+      if (raw.schemaVersion !== data.schemaVersion) {
+        logInfo(`Project migrated from ${raw.schemaVersion} to ${data.schemaVersion}`, {
+          projectId,
+        })
+      }
+      return data
+    } catch (err) {
+      const error = new Error(`Project ${projectId} exists but is corrupted.`)
+      logError(error, { projectId, originalError: err })
+      throw error
     }
   }
 
@@ -94,14 +105,30 @@ export class ProjectStorage {
   }
 
   async save(data: ProjectData, fileHandle?: FileSystemFileHandle): Promise<ProjectMetadata> {
-    const serialized = JSON.stringify(data)
-    await this.provider.setItem(this.getProjectKey(data.projectId), serialized, STORES.CONTENT)
-    return await this.syncRegistry(data, fileHandle)
+    try {
+      const serialized = JSON.stringify(data)
+      await this.provider.setItem(this.getProjectKey(data.projectId), serialized, STORES.CONTENT)
+      const metadata = await this.syncRegistry(data, fileHandle)
+      logInfo(`Project saved: ${data.projectId}`, { projectId: data.projectId })
+      return metadata
+    } catch (err) {
+      logError('Failed to save project', {
+        projectId: data.projectId,
+        originalError: err,
+      })
+      throw err
+    }
   }
 
   async delete(projectId: string): Promise<void> {
-    await this.provider.removeItem(this.getProjectKey(projectId), STORES.CONTENT)
-    await this.provider.removeItem(projectId, STORES.REGISTRY)
+    try {
+      await this.provider.removeItem(this.getProjectKey(projectId), STORES.CONTENT)
+      await this.provider.removeItem(projectId, STORES.REGISTRY)
+      logInfo(`Project deleted: ${projectId}`, { projectId })
+    } catch (err) {
+      logError('Failed to delete project', { projectId, originalError: err })
+      throw err
+    }
   }
 
   private getProjectKey(projectId: string): string {
