@@ -8,23 +8,28 @@ import { HomePageObject } from './__testHelpers__/HomePageObject'
 import {
   buildInMemoryProjectStore,
   buildProjectMetadata,
+  buildMockProjectStorage,
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
+import { createNotificationsBinding } from '@/composables/useNotifications'
 
 describe('HomePage', () => {
   it.scoped({ globalMocks: ['logging'] })
   const renderComponent = (store = buildInMemoryProjectStore()) => {
+    const [notifKey, notifStore] = createNotificationsBinding()
+
     render(HomePage, {
       global: buildGlobals({
         provide: buildProviders({
           [PROJECT_STORE_KEY]: store,
+          [notifKey as symbol]: notifStore,
         }),
       }),
     })
     const po = new HomePageObject(page)
 
-    return { po, store }
+    return { po, store, notifStore }
   }
 
   beforeEach(async () => {
@@ -57,10 +62,10 @@ describe('HomePage', () => {
     await page.getByRole('button', { name: /create/i }).click()
 
     await vi.waitFor(() => {
-      expect(store.projects.value).toHaveLength(1)
+      expect(store.list.projects.value).toHaveLength(1)
     })
 
-    const newProject = store.projects.value[0]!
+    const newProject = store.list.projects.value[0]!
     expect(newProject.name).toBe('My New Novel')
 
     await vi.waitFor(() => {
@@ -101,5 +106,71 @@ describe('HomePage', () => {
     await vi.waitFor(() => {
       expect(window.location.pathname).toContain('demo')
     })
+  })
+
+  it('shows error notification when project listing fails', async () => {
+    const storage = buildMockProjectStorage()
+    vi.mocked(storage.listProjects).mockRejectedValue(new Error('Storage failure'))
+
+    const store = buildInMemoryProjectStore({ storage })
+
+    const { notifStore } = renderComponent(store)
+
+    await vi.waitUntil(() =>
+      notifStore.notifications.value.some((n) => n.message === 'Failed to load projects')
+    )
+
+    expect(notifStore.notifications.value).toContainEqual(
+      expect.objectContaining({
+        type: 'error',
+        message: 'Failed to load projects',
+      })
+    )
+  })
+
+  it('shows error notification when project creation fails', async () => {
+    const storage = buildMockProjectStorage()
+    vi.mocked(storage.save).mockRejectedValue(new Error('Storage failure'))
+
+    const store = buildInMemoryProjectStore({ storage })
+
+    const { notifStore, po } = renderComponent(store)
+
+    await po.newProjectButton.click()
+    await page.getByLabelText(/project name/i).fill('My New Novel')
+    await page.getByRole('button', { name: /create/i }).click()
+
+    await vi.waitUntil(() =>
+      notifStore.notifications.value.some((n) => n.message === 'Failed to create project')
+    )
+
+    expect(notifStore.notifications.value).toContainEqual(
+      expect.objectContaining({
+        type: 'error',
+        message: 'Failed to create project',
+      })
+    )
+  })
+
+  it('shows error notification when project opening fails', async () => {
+    const storage = buildMockProjectStorage()
+    vi.mocked(storage.save).mockRejectedValue(new Error('Storage failure'))
+
+    const store = buildInMemoryProjectStore({ storage })
+
+    const { notifStore, po } = renderComponent(store)
+
+    await po.openFileButton.click()
+
+    await vi.waitUntil(() =>
+      notifStore.notifications.value.some((n) => n.message === 'Failed to open project')
+    )
+
+    expect(notifStore.notifications.value).toContainEqual(
+      expect.objectContaining({
+        type: 'error',
+        message: 'Failed to open project',
+      })
+    )
   })
 })

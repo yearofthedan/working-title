@@ -16,6 +16,8 @@
   --color-link: var(--color-indigo-600);
   --color-link-hover: var(--color-indigo-700);
 
+  --color-success: var(--color-green-600);
+  --color-warning: var(--color-amber-600);
   --color-error: var(--color-red-600);
 }
 
@@ -36,5 +38,7 @@ html[data-theme='dark'] {
   --color-link: var(--color-indigo-400);
   --color-link-hover: var(--color-indigo-300);
 
+  --color-success: var(--color-green-400);
+  --color-warning: var(--color-amber-400);
   --color-error: var(--color-red-500);
 }

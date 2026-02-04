@@ -35,4 +35,21 @@ test('Project Management Journey', async ({ page }) => {
     await expect(page.getByText('Project Context')).toBeVisible()
     await expect(page).toHaveURL(/\/project/)
   })
+
+  await test.step('Delete project from home page', async () => {
+    await page.goto('/')
+    const projectCard = page.getByRole('link', { name: DUMMY_PROJECT_NAME })
+    await expect(projectCard).toBeVisible()
+
+    await projectCard.hover()
+    const deleteBtn = page.getByRole('button', { name: /delete project/i })
+    await deleteBtn.click()
+
+    const confirmBtn = page.getByRole('dialog').getByRole('button', { name: 'Delete' })
+    await confirmBtn.click()
+
+    await expect(page.getByRole('status')).toContainText('Project deleted successfully')
+    await expect(projectCard).not.toBeVisible()
+    await expect(page.getByText('No projects yet')).toBeVisible()
+  })
 })

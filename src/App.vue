@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import { provideProjectStore } from '@/features/project-storage/context'
+import AppNotificationContainer from '@/features/common/AppNotificationContainer.vue'
 import DevHeader from './DevHeader.vue'
 
 provideProjectStore()
@@ -11,6 +12,7 @@ const isDev = import.meta.env.DEV
   <div :class="isDev ? 'pt-7' : ''">
     <RouterView />
   </div>
+  <AppNotificationContainer />
 </template>
 <style>
 body {

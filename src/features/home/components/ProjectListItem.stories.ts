@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import ProjectListItem from './ProjectListItem.vue'
-import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
-import { fn } from 'storybook/test'
 
 const meta: Meta<typeof ProjectListItem> = {
   component: ProjectListItem,
@@ -10,14 +8,6 @@ const meta: Meta<typeof ProjectListItem> = {
     (story) => ({
       components: { story },
       template: '<div class="max-w-md"><story /></div>',
-      provide: {
-        [PROJECT_STORE_KEY as symbol]: {
-          deleteProject: fn(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-          }),
-          deleteState: { value: { status: 'idle' } },
-        },
-      },
     }),
   ],
 }

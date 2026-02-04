@@ -6,6 +6,8 @@ export function useProjectList(storage: ProjectStorage) {
     state,
     execute: refreshList,
     lastSuccess,
+    onSuccess,
+    onError,
   } = useAsyncState(() => storage.listProjects(), {
     initial: [],
   })
@@ -14,5 +16,7 @@ export function useProjectList(storage: ProjectStorage) {
     state,
     refreshList,
     lastSuccess,
+    onSuccess,
+    onError,
   }
 }

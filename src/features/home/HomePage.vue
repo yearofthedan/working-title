@@ -7,7 +7,7 @@ import HomeActionCard from './components/HomeActionCard.vue'
 import ProjectListItem from './components/ProjectListItem.vue'
 import BrowserSupportWarning from '../common/BrowserSupportWarning.vue'
 import { useProjectStore } from '../project-storage/context'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import AppIcon from '../common/AppIcon.vue'
 import type { IconKey } from '../common/icons'
 import { useNotifications } from '@/composables/useNotifications'
@@ -15,47 +15,38 @@ import { useNotifications } from '@/composables/useNotifications'
 const router = useRouter()
 const { t } = useI18n()
 const { error: notifyError } = useNotifications()
-const { projects, openProject, openState, createProject, listAsyncState, creationState } =
-  useProjectStore()
+const { list, create, open } = useProjectStore()
+
 const isNameDialogOpen = ref(false)
 
-async function handleNewProject(name: string) {
-  const metadata = await createProject(name, 'snowflake-method-v1')
+create.onSuccess((metadata) => {
   router.push({ name: RouteNames.Project, params: { id: metadata.id } })
   isNameDialogOpen.value = false
+})
+
+create.onError(() => {
+  notifyError(t('app.home.createProject.error'))
+})
+
+open.onSuccess((metadata) => {
+  router.push({ name: RouteNames.Project, params: { id: metadata.id } })
+})
+
+open.onError(() => {
+  notifyError(t('app.home.openFile.error'))
+})
+
+list.onError(() => {
+  notifyError(t('app.home.loadProjects.error'))
+})
+
+async function handleNewProject(name: string) {
+  await create.execute(name, 'snowflake-method-v1')
 }
 
 async function handleOpenFile() {
-  const metadata = await openProject()
-  router.push({ name: RouteNames.Project, params: { id: metadata.id } })
+  await open.execute()
 }
-
-watch(
-  () => listAsyncState.value.status,
-  (status) => {
-    if (status === 'error') {
-      notifyError('Failed to load projects')
-    }
-  }
-)
-
-watch(
-  () => openState.value.status,
-  (status) => {
-    if (status === 'error') {
-      notifyError('Failed to open project')
-    }
-  }
-)
-
-watch(
-  () => creationState.value.status,
-  (status) => {
-    if (status === 'error') {
-      notifyError('Failed to create project')
-    }
-  }
-)
 
 interface PrimaryAction {
   id: string
@@ -80,7 +71,7 @@ const primaryActions = computed<PrimaryAction[]>(() => [
     title: t('app.home.openFile.title'),
     description: t('app.home.openFile.description'),
     icon: 'open',
-    loading: openState.value.status === 'loading',
+    loading: open.state.value.status === 'loading',
     handler: handleOpenFile,
   },
   {
@@ -116,13 +107,13 @@ const primaryActions = computed<PrimaryAction[]>(() => [
         </div>
       </section>
 
-      <section v-if="projects.length > 0" class="flex flex-col gap-4">
+      <section v-if="list.projects.value.length > 0" class="flex flex-col gap-4">
         <h2 class="text-xs uppercase tracking-[0.2em] text-ink/40 font-semibold px-2">
           {{ t('app.home.projectList.title') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ProjectListItem v-for="project in projects" :key="project.id" :project="project" />
+          <ProjectListItem v-for="project in list.projects.value" :key="project.id" :project="project" />
         </div>
       </section>
 
@@ -131,7 +122,11 @@ const primaryActions = computed<PrimaryAction[]>(() => [
       </div>
     </main>
 
-    <ProjectNameDialog v-model="isNameDialogOpen" @create="handleNewProject" />
+    <ProjectNameDialog
+      v-model="isNameDialogOpen"
+      :loading="create.state.value.status === 'loading'"
+      @create="handleNewProject"
+    />
   </div>
 </template>
 

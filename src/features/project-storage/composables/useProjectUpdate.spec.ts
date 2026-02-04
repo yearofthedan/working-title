@@ -37,7 +37,7 @@ describe('useProjectUpdate', () => {
         })
       )
 
-      expect(updated.meta.lastModified).toBe('2026-01-11T20:00:00Z')
+      expect(updated!.meta.lastModified).toBe('2026-01-11T20:00:00Z')
     })
 
     it('updates the project in the file system if a handle exists', async ({

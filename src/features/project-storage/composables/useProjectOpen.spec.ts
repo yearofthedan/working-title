@@ -31,15 +31,16 @@ describe('useProjectOpen', () => {
       expect(saved).toBeDefined()
     })
 
-    it('throws error if file is invalid', async ({ storage, fileSystem }: GivenContext) => {
+    it('errors if file is invalid', async ({ storage, fileSystem }: GivenContext) => {
       const mockHandle = await fileSystem.requestNewFileHandle('invalid.json')
       await fileSystem.writeAsJson(mockHandle, { invalid: 'data' } as unknown as never)
       vi.spyOn(fileSystem, 'requestOpenFileHandle').mockResolvedValue(mockHandle)
 
       const { openProject, state } = useProjectOpen(storage, fileSystem)
+      await openProject()
 
-      await expect(openProject()).rejects.toThrow('Invalid project file')
       expect(state.value.status).toBe('error')
+      expect(state.value.error?.message).toEqual('Invalid project file')
     })
   })
 })

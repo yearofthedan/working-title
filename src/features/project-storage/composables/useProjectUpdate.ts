@@ -5,7 +5,13 @@ import type { FileSystemStorageProvider } from '@/infra/files/FileSystemStorageP
 import type { ProjectStorage } from '@/features/project-storage/ProjectStorage'
 
 export function useProjectUpdate(storage: ProjectStorage, fileSystem: FileSystemStorageProvider) {
-  const { state, execute, lastSuccess } = useAsyncState(async (projectData: ProjectData) => {
+  const {
+    state,
+    execute: updateProject,
+    lastSuccess,
+    onSuccess,
+    onError,
+  } = useAsyncState(async (projectData: ProjectData) => {
     projectData.meta.lastModified = now()
     await storage.save(projectData)
 
@@ -18,8 +24,10 @@ export function useProjectUpdate(storage: ProjectStorage, fileSystem: FileSystem
   })
 
   return {
-    updateProject: execute,
+    updateProject,
     state,
     lastSuccess,
+    onSuccess,
+    onError,
   }
 }
