@@ -9,3 +9,9 @@ export const supportsFilePicker = (): boolean => {
 export const browserSupport = {
   supportsFilePicker,
 }
+
+export const refreshPage = () => {
+  if (typeof window !== 'undefined') {
+    window.location.reload()
+  }
+}

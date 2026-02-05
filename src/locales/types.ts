@@ -93,6 +93,16 @@ export interface MessageSchema {
   }
   errors: {
     generic: string
+    boundary: {
+      title: string
+      message: string
+      refresh: string
+      goHome: string
+      technical: string
+      stackTitle: string
+      copy: string
+      copied: string
+    }
   }
   browserSupport: {
     warning: {
