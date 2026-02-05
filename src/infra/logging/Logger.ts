@@ -1,14 +1,14 @@
 import type { Logger, LogContext, LogEntry, LogSeverity, LogHandler } from './types'
 export type { Logger, LogContext, LogEntry, LogSeverity }
-
 export class AppLogger implements Logger {
   private handler: LogHandler
+  private isDev = import.meta.env.DEV
+
   constructor(handler: LogHandler) {
     this.handler = handler
   }
-  private isDev = import.meta.env.DEV
 
-  fatal(error: Error, context?: LogContext): void {
+  fatal = (error: Error, context?: LogContext): void => {
     this.log({
       severity: 'fatal',
       message: error.message,
@@ -18,7 +18,7 @@ export class AppLogger implements Logger {
     })
   }
 
-  error(error: Error | string, context?: LogContext): void {
+  error = (error: Error | string, context?: LogContext): void => {
     const isError = error instanceof Error
     this.log({
       severity: 'error',
@@ -29,7 +29,7 @@ export class AppLogger implements Logger {
     })
   }
 
-  warning(message: string, context?: LogContext): void {
+  warning = (message: string, context?: LogContext): void => {
     this.log({
       severity: 'warning',
       message,
@@ -37,7 +37,7 @@ export class AppLogger implements Logger {
     })
   }
 
-  info(message: string, context?: LogContext): void {
+  info = (message: string, context?: LogContext): void => {
     this.log({
       severity: 'info',
       message,

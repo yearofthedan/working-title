@@ -2,14 +2,41 @@
   --text-field-label: var(--text-xs);
   --text-field-hint: var(--text-xs);
   --text-field-input: var(--text-sm);
+  --text-display: var(--text-2xl);
+  --text-code: var(--text-xs);
+  --text-action: var(--text-sm);
 
   --font-weight-field-label: var(--font-weight-bold);
+  --font-weight-display: var(--font-weight-bold);
+
   --letter-spacing-field-label: var(--tracking-widest);
+  --letter-spacing-action: var(--tracking-widest);
 
   --line-height-field-input: var(--leading-normal);
 }
 
 @layer components {
+  .display-text {
+    font-size: var(--text-display);
+    font-weight: var(--font-weight-display);
+    color: var(--color-ink);
+    line-height: var(--leading-tight);
+  }
+
+  .action-text {
+    font-size: var(--text-action);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--letter-spacing-action);
+    text-transform: uppercase;
+  }
+
+  .code-text {
+    font-size: var(--text-code);
+    font-family: var(--font-family-mono);
+    line-height: var(--leading-relaxed);
+    color: var(--color-ink-muted);
+  }
+
   .label-text {
     font-size: var(--text-field-label);
     font-weight: var(--font-weight-field-label);

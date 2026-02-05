@@ -61,6 +61,7 @@ export default defineConfig([
     files: ['**/*.spec.ts', '**/__testHelpers__/**/*.ts'],
     rules: {
       'no-empty-pattern': ['error', { allowObjectPatternsAsParameters: true }],
+      'vue/one-component-per-file': 'off',
     },
   },
   eslintConfigPrettier,

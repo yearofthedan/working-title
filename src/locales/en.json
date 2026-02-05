@@ -92,7 +92,17 @@
     }
   },
   "errors": {
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "boundary": {
+      "title": "Application Error",
+      "message": "We encountered an unexpected problem. Try refreshing the page or returning to the home screen.",
+      "refresh": "Refresh Page",
+      "goHome": "Go to Home",
+      "technical": "Technical details",
+      "stackTitle": "Error Stack",
+      "copy": "Copy",
+      "copied": "Copied"
+    }
   },
   "browserSupport": {
     "warning": {
