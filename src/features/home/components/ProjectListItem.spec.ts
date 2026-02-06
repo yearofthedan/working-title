@@ -12,8 +12,8 @@ import {
 } from '@/features/project-storage/__testHelpers__/builders'
 import { createProjectStore } from '@/features/project-storage/store'
 import { ProjectStorage } from '@/features/project-storage/ProjectStorage'
-import { buildMockIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
+import { buildMockIndexedDBProvider } from '@/infra/index-db/__testHelpers__/mocks'
 
 describe('ProjectListItem', () => {
   it.scoped({ globalMocks: ['logging'] })

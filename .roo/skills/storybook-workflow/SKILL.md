@@ -1,59 +1,73 @@
 ---
 name: storybook-workflow
-description: Create and maintain Storybook stories with variants and smoke testing. Use when adding new components or documenting component states.
+description: Create and maintain Storybook stories for visual exploration of Vue Components in various states. Use whenever working with new states in Vue Components.
 ---
 
 # Storybook Workflow
 
-Standard boilerplate and interaction rules for component stories with variants and smoke testing.
+## Prerequisites
+
+**Required Context Skills**:
+
+- Load [`workflow-vue`](../workflow-vue/SKILL.md) for component patterns
+- Load [`workflow-general`](../workflow-general/SKILL.md) for tooling setup
+
+**Tools**: Storybook already configured in project (`.storybook/preview.ts`)
+
+## In scope
+
+- Used for **visual documentation** across different interaction states
+- Used to support feature development in a component driven development style
+- Used for automated a11y tests via the `@storybook/addon-a11y` plugin
+
+## Out of scope
+
+- Use as a complex design system for collaboration between designers and developers
+- Use for unit / behavioural testing (use separate vitest specs for these)
 
 ## When to Use
 
-- Creating a new Vue component
-- Documenting functional variants (Loading, Success, Error)
-- Adding "Render Insurance" via smoke tests
-- Verifying component accessibility via play functions
+- When creating a new Vue component to document its visual variants.
+- When adding / removing variants from an existing component.
 
 ## Procedure
 
 ### 1. File Location
 
-Colocate the story file with the component using the `.stories.ts` extension.
-Example: `src/features/common/MyComponent.stories.ts`
+- Stories are always colocated with source code and tests, eg.
 
-### 2. Define Meta
+```
+\features
+  - FooComponent.stories.ts
+  - FooComponent.vue
+  - FooComponent.spec.ts
+```
 
-Use `satisfies Meta` to handle generic components and preserve strict types for `args`.
+### 2. Story scope
 
-### 3. Implement Variants (Permutation Coverage)
+- Export a variant for every significant visual. This allows for manual verification of the component's UI across permutations. Example variants: `Default`, `Loading`, `Error`, `Empty`, `Success`.
 
-Export a variant for every functional state. This ensures "Render Insurance" across the component's surface area.
-Common variants: `Default`, `Loading`, `Error`, `Empty`, `Success`.
+### 3. Story structure
 
-### 4. Shared Smoke Test
-
-Define one primary `runSmokeTest` play function. Its goal is to detect drift between the component and the story (e.g., breaking changes in props or template).
-
-- Use accessible selectors (`getByRole`, `getByText`).
-- Verify visibility and basic interaction if necessary.
-- Do not test complex business logic here (use Vitest for that).
+- Use `satisfies Meta` to handle components and preserve strict types for `args`.
+- **Warning**: Do not use play functions. Save complex interaction tests for Vitest specs.
+- **Warning**: Skip the `title` prop—Storybook structure should follow filesystem
+- Most global context is already registered in `./storybook/preview.ts`. If you need specific versions, you can override / inject this in your stories.
+- Aim for terse but readable stories.
+- Use existing (or create new) builder functions to reduce boilerplate
+- If uncertain, stop and ask the user for guidance. DO NOT make assumptions.
 
 ## Template
 
 ```typescript
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { expect } from '@storybook/test'
 import MyComponent from './MyComponent.vue'
+import { buildPayload } from '@/__testHelpers__/builders'
+// Or create feature-specific builders in __testHelpers__/
 
-/**
- * Use 'satisfies Meta' to handle generic components
- * and preserve strict types for 'args'.
- * Note the title prop is NOT provided so that the storybook structure follows the component tree
- */
 const meta = {
   component: MyComponent,
   argTypes: {
-    // Define controls for variants if necessary
     type: { control: 'select', options: ['success', 'error', 'info'] },
   },
 } satisfies Meta<typeof MyComponent>
@@ -61,43 +75,44 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** * SHARED SMOKE TEST
- * Verifies that the component renders and is visible.
- * This catches "white-screen" errors across different prop permutations.
- */
-const runSmokeTest: Story['play'] = async ({ canvas, step }) => {
-  await step('Verify mount', async () => {
-    // Use an accessible role or a generic container
-    await expect(canvas.getByRole('alert')).toBeVisible()
-  })
+export const Default: Story = {
+  args: {
+    type: 'info',
+    message: 'Information message',
+  },
 }
 
-/** VARIANTS */
-
 export const Success: Story = {
-  args: { type: 'success', message: 'Task complete' },
-  play: runSmokeTest,
+  args: {
+    type: 'success',
+    message: 'Task complete',
+    payload: buildPayload({ some: 'value' }),
+  },
 }
 
 export const Error: Story = {
-  args: { type: 'error', message: 'System failure' },
-  play: runSmokeTest,
+  args: {
+    type: 'error',
+    message: 'System failure',
+  },
 }
 
 export const Loading: Story = {
-  args: { loading: true },
-  play: runSmokeTest,
+  args: {
+    loading: true,
+  },
 }
 ```
 
 ## Validation Checklist
 
 - [ ] Story file is colocated with the component (`ComponentName.stories.ts`).
-- [ ] All functional variants are exported.
-- [ ] Accessible selectors (`getByRole`, `getByText`) are used in the play function.
-- [ ] Shared `smokeTest` is applied to ensure rendering stability.
+- [ ] Story structure follows guidance, and where it does not has been approved by the user
+- [ ] All appropriate variants of the story exist
+- [ ] Storybook still runs (`./do storybook`)
 
 ## References
 
-- [workflow-vue](../workflow-vue/SKILL.md)
-- [workflow-general](../workflow-general/SKILL.md)
+- [`workflow-vue`](../workflow-vue/SKILL.md) - Component organization and testing patterns
+- [`workflow-general`](../workflow-general/SKILL.md) - Commit standards and tooling
+- [.storybook/preview.ts](../../.storybook/preview.ts) - Global context configuration
