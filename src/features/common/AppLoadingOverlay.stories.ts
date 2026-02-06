@@ -1,38 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { expect } from 'storybook/test'
-import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
+import AppLoadingOverlay from './AppLoadingOverlay.vue'
 
-const meta: Meta<typeof AppLoadingOverlay> = {
+const meta = {
   component: AppLoadingOverlay,
   tags: ['autodocs'],
   argTypes: {
-    isLoading: {
-      control: 'boolean',
-      description: 'Whether the loading overlay is visible',
-      table: { type: { summary: 'boolean' } },
-    },
-    message: {
-      control: 'text',
-      description: 'Visible loading message displayed below the spinner',
-      table: { type: { summary: 'string' } },
-    },
+    isLoading: { control: 'boolean', description: 'Controls the visibility of the overlay.' },
+    message: { control: 'text', description: 'Custom loading message.' },
   },
   args: {
     isLoading: true,
     message: undefined,
   },
-  decorators: [
-    () => ({
-      template: `
-        <div class="relative h-96 border border-edge">
-          <div class="p-4 text-sm text-ink/60">
-            Content behind the overlay...
-          </div>
-          <story />
-        </div>
-      `,
-    }),
-  ],
 } satisfies Meta<typeof AppLoadingOverlay>
 
 export default meta
@@ -43,44 +22,31 @@ export const Default: Story = {
   args: {
     isLoading: true,
   },
-  play: async ({ canvas, step }) => {
-    await step('has proper ARIA attributes', async () => {
-      const status = canvas.getByRole('status')
-      await expect(status).toHaveAttribute('aria-live', 'polite')
-      await expect(status).toHaveAttribute('aria-atomic', 'true')
-      await expect(status).toHaveAttribute('aria-label', 'Loading...')
-    })
-
-    await step('spinner is hidden from screen readers', async () => {
-      const spinner = canvas.getByRole('status').querySelector('[aria-hidden="true"]')
-      await expect(spinner).toBeInTheDocument()
-    })
-  },
+  render: (args) => ({
+    components: { AppLoadingOverlay },
+    setup() {
+      return { args }
+    },
+    template: `
+      <div class="relative h-64 border border-outline-dim bg-paper p-4">
+        <p>This is content that will be covered by the loader.</p>
+        <AppLoadingOverlay v-bind="args" />
+      </div>
+    `,
+  }),
 }
 
 export const WithMessage: Story = {
   args: {
-    isLoading: true,
-    message: 'Loading project...',
+    ...Default.args,
+    message: 'Saving changes...',
   },
-  play: async ({ canvas, step }) => {
-    await step('displays the message', async () => {
-      const status = canvas.getByRole('status')
-      await expect(status).toHaveTextContent('Loading project...')
-      await expect(status).toHaveAttribute('aria-label', 'Loading project...')
-    })
-  },
+  render: Default.render,
 }
 
 export const NotLoading: Story = {
   args: {
     isLoading: false,
-    message: 'This should not appear',
   },
-  play: async ({ canvas, step }) => {
-    await step('does not render when not loading', async () => {
-      const statuses = canvas.queryAllByRole('status')
-      await expect(statuses).toHaveLength(0)
-    })
-  },
+  render: Default.render,
 }

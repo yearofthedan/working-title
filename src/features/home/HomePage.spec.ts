@@ -8,11 +8,11 @@ import { HomePageObject } from './__testHelpers__/HomePageObject'
 import {
   buildInMemoryProjectStore,
   buildProjectMetadata,
-  buildMockProjectStorage,
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { createNotificationsBinding } from '@/composables/useNotifications'
+import { buildMockProjectStorage } from '../project-storage/__testHelpers__/mocks'
 
 describe('HomePage', () => {
   it.scoped({ globalMocks: ['logging'] })
