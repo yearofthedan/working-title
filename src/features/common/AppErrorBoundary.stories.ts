@@ -11,7 +11,6 @@ const ThrowingComponent = defineComponent({
 
 const meta = {
   component: AppErrorBoundary,
-  tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },

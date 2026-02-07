@@ -1,0 +1,5 @@
+#!/bin/bash
+# Runs accessibility tests via vitest / storybook a11y addon. Usage: ./do test-a11y [--watch]
+. "$(dirname "$0")"/_common
+echo -e "${INFO_COLOR}Running tests...${RESET_COLOR}"
+pnpm test:a11y "$@"

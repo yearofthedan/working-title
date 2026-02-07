@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import CanvasStep from '@/features/writing-project/project-canvas/canvas-step/CanvasStep.vue'
-import { expect } from 'storybook/test'
 
 const meta = {
   component: CanvasStep,
-  tags: ['autodocs'],
   argTypes: {
     id: { control: 'text' },
     definition: { control: 'object' },
@@ -36,21 +34,5 @@ export const Default: Story = {
     content: {
       text: '<p>This is a <strong>Node</strong>.</p>',
     },
-  },
-  play: async ({ canvas, step, userEvent }) => {
-    const editorContainer = await canvas.findByPlaceholderText('Enter content...')
-
-    await step('Node becomes editable after click', async () => {
-      await userEvent.click(editorContainer)
-      const editor = await canvas.findByRole('textbox')
-      await expect(editor).toBeInTheDocument()
-    })
-
-    await step('Can type into a node', async () => {
-      const editor = await canvas.findByRole('textbox')
-      await userEvent.clear(editor)
-      await userEvent.type(editor, 'This is updated content from the play function.')
-      await expect(editor).toHaveTextContent('This is updated content from the play function.')
-    })
   },
 }

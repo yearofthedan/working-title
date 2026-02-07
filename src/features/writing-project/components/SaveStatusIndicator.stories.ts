@@ -3,7 +3,6 @@ import SaveStatusIndicator from './SaveStatusIndicator.vue'
 
 const meta: Meta<typeof SaveStatusIndicator> = {
   component: SaveStatusIndicator,
-  tags: ['autodocs'],
   argTypes: {
     status: {
       control: 'select',

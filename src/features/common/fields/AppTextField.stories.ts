@@ -3,7 +3,6 @@ import AppTextField from './AppTextField.vue'
 
 const meta = {
   component: AppTextField,
-  tags: ['autodocs'],
   argTypes: {
     modelValue: {
       control: 'text',

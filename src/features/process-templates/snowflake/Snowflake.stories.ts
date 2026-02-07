@@ -5,7 +5,6 @@ import { fullSampleData } from '@/features/demo/project-data'
 
 const meta = {
   component: SnowflakeCanvas,
-  tags: ['autodocs'],
   decorators: [
     () => ({
       template: '<div style="width: 100vw; height: 100vh;"><story /></div>',

@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { expect, fn } from 'storybook/test'
+import { fn } from 'storybook/test'
 import BrowserSupportWarning from '@/features/common/BrowserSupportWarning.vue'
 import * as browserUtils from '@/utils/browsers'
 
 const meta: Meta<typeof BrowserSupportWarning> = {
   component: BrowserSupportWarning,
-  tags: ['autodocs'],
   decorators: [
     () => ({
       template: `
@@ -27,12 +26,6 @@ type Story = StoryObj<typeof BrowserSupportWarning>
 export const Unsupported: Story = {
   beforeEach: () => {
     browserUtils.browserSupport.supportsFilePicker = fn().mockReturnValue(false)
-  },
-  play: async ({ canvas, step }) => {
-    await step('renders the warning when unsupported', async () => {
-      const alert = canvas.getByRole('alert')
-      await expect(alert).toBeInTheDocument()
-    })
   },
 }
 

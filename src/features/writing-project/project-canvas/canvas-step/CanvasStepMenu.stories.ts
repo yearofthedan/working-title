@@ -3,7 +3,6 @@ import CanvasStepMenu from './CanvasStepMenu.vue'
 
 const meta: Meta<typeof CanvasStepMenu> = {
   component: CanvasStepMenu,
-  tags: ['autodocs'],
   argTypes: {
     onClick: { action: 'clicked' },
   },
