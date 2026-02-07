@@ -34,6 +34,7 @@ const inlineTemplate: ProcessTemplate = {
       id: 'step-initial-idea',
       stage: 1,
       category: 'structure',
+      scope: 'paragraph',
       labelText: 'Initial Idea',
       instructionText: 'Write your initial idea here.',
       editorConfig: {
@@ -49,6 +50,7 @@ const inlineTemplate: ProcessTemplate = {
       id: 'step-character-development',
       stage: 2,
       category: 'structure',
+      scope: 'page',
       labelText: 'Character Development',
       instructionText: 'Develop your characters.',
       editorConfig: {
@@ -64,6 +66,7 @@ const inlineTemplate: ProcessTemplate = {
       id: 'step-plot-outline',
       stage: 2,
       category: 'structure',
+      scope: 'page',
       labelText: 'Plot Outline',
       instructionText: 'Outline your plot.',
       editorConfig: {
