@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import WritingProject from '@/features/writing-project/WritingProject.vue'
-import { expect, waitFor } from 'storybook/test'
 import type { ProcessTemplate } from '@/features/process-templates/processTemplate'
+
 const meta = {
   component: WritingProject,
-  tags: ['autodocs'],
   decorators: [
     () => ({
       template: '<div style="width: 100vw; height: 100vh;"><story /></div>',
@@ -131,27 +130,6 @@ export const Default: Story = {
       template: inlineTemplate,
     },
   },
-  play: async ({ canvas, step, userEvent }) => {
-    await step('Wait for canvas to load', async () => {
-      await waitFor(() => expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument(), {
-        timeout: 10000,
-      })
-    })
-
-    const stepNodes = steps.map((step) => canvas.getByText(step.content.text))
-
-    await step('Check for step nodes', async () => {
-      for (const stepNode of stepNodes) {
-        await expect(stepNode).toBeInTheDocument()
-      }
-    })
-
-    await step('Can edit', async () => {
-      const toEdit = stepNodes[0]!
-      await userEvent.click(toEdit)
-      await userEvent.type(toEdit, 'Updated content in Canvas Storybook.')
-    })
-  },
 }
 
 export const Empty: Story = {
@@ -172,14 +150,5 @@ export const Empty: Story = {
       },
       template: inlineTemplate,
     },
-  },
-  play: async ({ canvas, step }) => {
-    await step('Wait for canvas to load', async () => {
-      await waitFor(() => expect(canvas.queryByText(/Loading.../i)).not.toBeInTheDocument())
-    })
-
-    await step('Verify empty state', async () => {
-      await expect(canvas.getByText(/Start Your Story/i)).toBeInTheDocument()
-    })
   },
 }

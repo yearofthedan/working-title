@@ -4,7 +4,6 @@ import { fn } from 'storybook/test'
 
 const meta: Meta<typeof AppConfirmationDialog> = {
   component: AppConfirmationDialog,
-  tags: ['autodocs'],
   args: {
     modelValue: true,
     title: 'Confirm Action',

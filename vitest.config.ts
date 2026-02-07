@@ -47,7 +47,7 @@ export default mergeConfig(viteConfig, {
           }),
         ],
         test: {
-          name: 'storybook',
+          name: 'a11y',
           browser: {
             enabled: true,
             provider: playwright({}),
@@ -58,6 +58,7 @@ export default mergeConfig(viteConfig, {
                 args: ['--disable-dev-shm-usage'],
               },
             },
+            viewport: { width: 1280, height: 720 },
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },

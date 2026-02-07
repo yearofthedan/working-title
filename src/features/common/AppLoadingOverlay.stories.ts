@@ -3,7 +3,6 @@ import AppLoadingOverlay from './AppLoadingOverlay.vue'
 
 const meta = {
   component: AppLoadingOverlay,
-  tags: ['autodocs'],
   argTypes: {
     isLoading: { control: 'boolean', description: 'Controls the visibility of the overlay.' },
     message: { control: 'text', description: 'Custom loading message.' },

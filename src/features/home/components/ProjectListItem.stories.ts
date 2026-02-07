@@ -3,7 +3,6 @@ import ProjectListItem from './ProjectListItem.vue'
 
 const meta: Meta<typeof ProjectListItem> = {
   component: ProjectListItem,
-  tags: ['autodocs'],
   decorators: [
     (story) => ({
       components: { story },
