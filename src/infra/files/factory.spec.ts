@@ -3,7 +3,7 @@ import { it } from '@/__testHelpers__/fixtures'
 
 import { FileSystemStorageProvider } from './FileSystemStorageProvider'
 import { createFileSystemProvider } from './factory'
-import { InMemoryStorageProvider } from './InMemoryStorageProvider'
+import { FallbackFileStorageProvider } from './FallbackFileStorageProvider'
 
 describe('factory', () => {
   it('returns true when API is available', () => {
@@ -12,7 +12,7 @@ describe('factory', () => {
     vi.stubGlobal('showOpenFilePicker', vi.fn())
     const provider = createFileSystemProvider()
 
-    expect(provider).not.toBeInstanceOf(InMemoryStorageProvider)
+    expect(provider).not.toBeInstanceOf(FallbackFileStorageProvider)
     expect(provider).toBeInstanceOf(FileSystemStorageProvider)
   })
 
@@ -22,6 +22,6 @@ describe('factory', () => {
 
     const provider = createFileSystemProvider()
 
-    expect(provider).toBeInstanceOf(InMemoryStorageProvider)
+    expect(provider).toBeInstanceOf(FallbackFileStorageProvider)
   })
 })

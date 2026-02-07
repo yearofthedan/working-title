@@ -7,22 +7,22 @@ describe('useProjectDelete', () => {
   it.scoped({ globalMocks: ['logging'] })
 
   describe('deleteProject', () => {
-    it('deletes the project from storage', async ({ storage }: GivenContext) => {
+    it('deletes the project from projectStorage', async ({ projectStorage }: GivenContext) => {
       const project = buildProjectData({ projectId: 'p1' })
-      await storage.save(project)
+      await projectStorage.instance.save(project)
 
-      const { deleteProject, lastSuccess } = useProjectDelete(storage)
+      const { deleteProject, lastSuccess } = useProjectDelete(projectStorage.instance)
 
       await deleteProject('p1')
 
-      await expect(storage.loadById('p1')).rejects.toThrow()
+      await expect(projectStorage.instance.loadById('p1')).rejects.toThrow()
       expect(lastSuccess.value).toBeDefined()
     })
 
-    it('updates status to error if delete fails', async ({ storage }: GivenContext) => {
-      const { deleteProject, state } = useProjectDelete(storage)
+    it('updates status to error if delete fails', async ({ projectStorage }: GivenContext) => {
+      const { deleteProject, state } = useProjectDelete(projectStorage.instance)
 
-      vi.spyOn(storage, 'delete').mockRejectedValue(new Error('Delete failed'))
+      vi.spyOn(projectStorage.instance, 'delete').mockRejectedValue(new Error('Delete failed'))
 
       await deleteProject('p1')
 

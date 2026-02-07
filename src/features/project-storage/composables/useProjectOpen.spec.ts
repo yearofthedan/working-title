@@ -8,7 +8,7 @@ describe('useProjectOpen', () => {
 
   describe('openProject', () => {
     it('opens a project from file system and saves it to storage', async ({
-      storage,
+      projectStorage,
       fileSystem,
     }: GivenContext) => {
       const mockHandle = await fileSystem.requestNewFileHandle('project.json')
@@ -22,21 +22,21 @@ describe('useProjectOpen', () => {
 
       vi.spyOn(fileSystem, 'requestOpenFileHandle').mockResolvedValue(mockHandle)
 
-      const { openProject, lastSuccess } = useProjectOpen(storage, fileSystem)
+      const { openProject, lastSuccess } = useProjectOpen(projectStorage.instance, fileSystem)
 
       await openProject()
 
       expect(lastSuccess.value).toBeDefined()
-      const saved = await storage.loadById('p1')
+      const saved = await projectStorage.instance.loadById('p1')
       expect(saved).toBeDefined()
     })
 
-    it('errors if file is invalid', async ({ storage, fileSystem }: GivenContext) => {
+    it('errors if file is invalid', async ({ projectStorage, fileSystem }: GivenContext) => {
       const mockHandle = await fileSystem.requestNewFileHandle('invalid.json')
       await fileSystem.writeAsJson(mockHandle, { invalid: 'data' } as unknown as never)
       vi.spyOn(fileSystem, 'requestOpenFileHandle').mockResolvedValue(mockHandle)
 
-      const { openProject, state } = useProjectOpen(storage, fileSystem)
+      const { openProject, state } = useProjectOpen(projectStorage.instance, fileSystem)
       await openProject()
 
       expect(state.value.status).toBe('error')

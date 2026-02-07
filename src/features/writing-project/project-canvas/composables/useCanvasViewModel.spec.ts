@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import {
   buildStep,
   buildProjectData,
-  buildInMemoryProjectStore,
+  buildProjectStore,
 } from '@/features/project-storage/__testHelpers__/builders'
 import {
   buildProcessTemplate,
@@ -50,7 +50,7 @@ describe('useCanvasViewModel', () => {
             [DEFINITIONS_CONTEXT_KEY]: definitionsContext(template),
             [ACTIVE_PROJECT_CONTEXT_KEY]: activeProjectContext(
               ref(buildProjectData({ steps: steps.value, connections: connections.value })),
-              buildInMemoryProjectStore()
+              buildProjectStore()
             ),
           }),
         },

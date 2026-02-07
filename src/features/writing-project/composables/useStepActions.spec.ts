@@ -15,7 +15,7 @@ import {
   buildProjectData,
   buildStep,
   buildConnection,
-  buildInMemoryProjectStore,
+  buildProjectStore,
 } from '@/features/project-storage/__testHelpers__/builders'
 import {
   ACTIVE_PROJECT_CONTEXT_KEY,
@@ -39,7 +39,7 @@ describe('useStepActions', () => {
 
   it('getRootActions returns mapped root actions from template and binds mutation correctly', () => {
     const project = ref(buildProjectData())
-    const context = activeProjectContext(project, buildInMemoryProjectStore())
+    const context = activeProjectContext(project, buildProjectStore())
     const addStepSpy = vi.spyOn(context, 'addStep')
 
     const template = ref<ProcessTemplate>(
@@ -67,7 +67,7 @@ describe('useStepActions', () => {
 
   it('getStepActions returns mapped actions for a specific step and binds mutation correctly', () => {
     const project = ref(buildProjectData())
-    const context = activeProjectContext(project, buildInMemoryProjectStore())
+    const context = activeProjectContext(project, buildProjectStore())
     const addStepSpy = vi.spyOn(context, 'addStep')
 
     const template = ref<ProcessTemplate>(
@@ -105,10 +105,7 @@ describe('useStepActions', () => {
         stepDefinitions: [],
       })
     )
-    const composable = runComposable(
-      template,
-      activeProjectContext(project, buildInMemoryProjectStore())
-    )
+    const composable = runComposable(template, activeProjectContext(project, buildProjectStore()))
     const actions = composable.getStepActions('non-existent', 'instance-1')
     expect(actions).toHaveLength(0)
   })
@@ -148,7 +145,7 @@ describe('useStepActions', () => {
 
       const { getAvailableActions } = runComposable(
         template,
-        activeProjectContext(project, buildInMemoryProjectStore())
+        activeProjectContext(project, buildProjectStore())
       )
       const actions = getAvailableActions('instance-1')
 
@@ -170,7 +167,7 @@ describe('useStepActions', () => {
 
       const { getAvailableActions } = runComposable(
         template,
-        activeProjectContext(project, buildInMemoryProjectStore())
+        activeProjectContext(project, buildProjectStore())
       )
       const actions = getAvailableActions('instance-1')
 
@@ -195,7 +192,7 @@ describe('useStepActions', () => {
 
       const { getAvailableActions } = runComposable(
         template,
-        activeProjectContext(project, buildInMemoryProjectStore())
+        activeProjectContext(project, buildProjectStore())
       )
       const actions = getAvailableActions('instance-1')
 
@@ -217,7 +214,7 @@ describe('useStepActions', () => {
 
       const { getAvailableActions } = runComposable(
         template,
-        activeProjectContext(project, buildInMemoryProjectStore())
+        activeProjectContext(project, buildProjectStore())
       )
       const actions = getAvailableActions('instance-1')
 
@@ -235,7 +232,7 @@ describe('useStepActions', () => {
 
       const { getAvailableActions } = runComposable(
         template,
-        activeProjectContext(project, buildInMemoryProjectStore())
+        activeProjectContext(project, buildProjectStore())
       )
       const actions = getAvailableActions('non-existent')
       expect(actions).toHaveLength(0)

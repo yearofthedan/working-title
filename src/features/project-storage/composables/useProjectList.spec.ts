@@ -6,7 +6,7 @@ import { buildProjectData } from '../__testHelpers__/builders'
 describe('useProjectList', () => {
   it.scoped({ globalMocks: ['logging'] })
 
-  beforeEach(({ storage }: GivenContext) => {
+  beforeEach(({ projectStorage }: GivenContext) => {
     const project1 = buildProjectData({
       projectId: 'p1',
       meta: { name: 'P1', created: '2024-01-01', lastModified: '2024-01-01' },
@@ -15,11 +15,11 @@ describe('useProjectList', () => {
       projectId: 'p2',
       meta: { name: 'P2', created: '2024-01-01', lastModified: '2024-01-01' },
     })
-    return Promise.all([storage.save(project1), storage.save(project2)])
+    return Promise.all([projectStorage.instance.save(project1), projectStorage.instance.save(project2)])
   })
 
-  it('lists projects from storage', async ({ storage }: GivenContext) => {
-    const { state, refreshList } = useProjectList(storage)
+  it('lists projects from storage', async ({ projectStorage }: GivenContext) => {
+    const { state, refreshList } = useProjectList(projectStorage.instance)
 
     await refreshList()
 
