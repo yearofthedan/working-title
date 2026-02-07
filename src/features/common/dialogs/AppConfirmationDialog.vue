@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import AppSpinner from '@/features/common/AppSpinner.vue'
+import AppSpinner from '@/features/common/feedback/AppSpinner.vue'
 
 const props = defineProps<{
   modelValue: boolean

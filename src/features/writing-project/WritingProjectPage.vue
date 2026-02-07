@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import WritingProject from '@/features/writing-project/WritingProject.vue'
-import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
+import AppLoadingOverlay from '@/features/common/feedback/AppLoadingOverlay.vue'
 import { useRoute } from 'vue-router'
 import { useProjectLoader } from './composables/useProjectLoader'
 import { useI18n } from 'vue-i18n'

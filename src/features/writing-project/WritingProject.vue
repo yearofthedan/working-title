@@ -17,7 +17,7 @@ import { toRef, defineAsyncComponent } from 'vue'
 import ProjectSidebar from '@/features/writing-project/project-sidebar/ProjectSidebar.vue'
 import { provideDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 import { provideActiveProjectContext } from '@/features/writing-project/composables/useActiveProjectContext'
-import AppLoadingOverlay from '@/features/common/AppLoadingOverlay.vue'
+import AppLoadingOverlay from '@/features/common/feedback/AppLoadingOverlay.vue'
 import type { Project } from './composables/useProjectLoader'
 
 const ProjectCanvas = defineAsyncComponent(

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import AppSpinner from '@/features/common/AppSpinner.vue'
+import AppSpinner from '@/features/common/feedback/AppSpinner.vue'
 
 defineProps<{
   title: string
