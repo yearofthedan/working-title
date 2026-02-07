@@ -37,6 +37,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-genre',
       category: 'context',
+      scope: 'field',
       labelText: 'template.step.genre.label',
       instructionText: 'template.step.genre.instruction',
       isInitial: true,
@@ -52,6 +53,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-target-audience',
       category: 'context',
+      scope: 'field',
       labelText: 'template.step.target_audience.label',
       instructionText: 'template.step.target_audience.instruction',
       isInitial: true,
@@ -67,6 +69,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-theme',
       category: 'context',
+      scope: 'field',
       labelText: 'template.step.theme.label',
       instructionText: 'template.step.theme.instruction',
       isInitial: true,
@@ -82,6 +85,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-summary',
       category: 'structure',
+      scope: 'paragraph',
       stage: 1,
       labelText: 'template.step.summary.label',
       instructionText: 'template.step.summary.instruction',
@@ -104,6 +108,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-storyline',
       category: 'structure',
+      scope: 'paragraph',
       stage: 2,
       labelText: 'template.step.storyline.label',
       instructionText: 'template.step.storyline.instruction',
@@ -138,6 +143,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-char-summary',
       category: 'character',
+      scope: 'paragraph',
       stage: 3,
       labelText: 'template.step.char_summary.label',
       instructionText: 'template.step.char_summary.instruction',
@@ -166,6 +172,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-plot-synopsis',
       category: 'structure',
+      scope: 'page',
       stage: 3,
       labelText: 'template.step.plot_synopsis.label',
       instructionText: 'template.step.plot_synopsis.instruction',
@@ -188,6 +195,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-major-char',
       category: 'character',
+      scope: 'multi-page',
       stage: 4,
       labelText: 'template.step.major_char.label',
       instructionText: 'template.step.major_char.instruction',
@@ -203,6 +211,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-minor-char',
       category: 'character',
+      scope: 'paragraph',
       stage: 4,
       labelText: 'template.step.minor_char.label',
       instructionText: 'template.step.minor_char.instruction',
@@ -218,6 +227,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-detailed-synopsis',
       category: 'structure',
+      scope: 'multi-page',
       stage: 4,
       labelText: 'template.step.detailed_synopsis.label',
       instructionText: 'template.step.detailed_synopsis.instruction',
@@ -248,6 +258,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-char-chart',
       category: 'character',
+      scope: 'multi-page',
       stage: 5,
       labelText: 'template.step.char_chart.label',
       instructionText: 'template.step.char_chart.instruction',
@@ -263,6 +274,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-scene-overview',
       category: 'drafting',
+      scope: 'paragraph',
       stage: 5,
       labelText: 'template.step.scene_overview.label',
       instructionText: 'template.step.scene_overview.instruction',
@@ -291,6 +303,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-scene-expansion',
       category: 'drafting',
+      scope: 'page',
       stage: 6,
       labelText: 'template.step.scene_expansion.label',
       instructionText: 'template.step.scene_expansion.instruction',
@@ -313,6 +326,7 @@ export const template: ProcessTemplate = {
     {
       id: 'step-chapter',
       category: 'drafting',
+      scope: 'multi-page',
       stage: 7,
       labelText: 'template.step.chapter.label',
       instructionText: 'template.step.chapter.instruction',

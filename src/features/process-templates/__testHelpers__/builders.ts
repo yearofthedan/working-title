@@ -24,6 +24,7 @@ export const buildRootAction = (overrides: Partial<RootAction> = {}): RootAction
 export const buildStepDefinition = (overrides: Partial<StepDefinition> = {}): StepDefinition => ({
   id: 'premise',
   category: 'structure',
+  scope: 'paragraph',
   stage: 1,
   labelText: 'step.premise.label',
   instructionText: 'step.premise.instruction',

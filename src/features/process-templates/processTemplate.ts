@@ -45,6 +45,7 @@ export interface TrackDefinition {
 export interface StepDefinition {
   id: string
   category: StepCategory
+  scope: StepScope
 
   /**
    * Logical sequence in the process.
@@ -79,6 +80,8 @@ export interface StepDefinition {
 }
 
 export type StepCategory = 'structure' | 'character' | 'context' | 'drafting' | string
+
+export type StepScope = 'field' | 'paragraph' | 'page' | 'multi-page'
 
 export interface EditorConfig {
   /** Determines which editor component to render */
