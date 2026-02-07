@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppTextField from '@/features/common/fields/AppTextField.vue'
-import AppSpinner from '@/features/common/AppSpinner.vue'
+import AppSpinner from '@/features/common/feedback/AppSpinner.vue'
 
 const props = defineProps<{
   modelValue: boolean

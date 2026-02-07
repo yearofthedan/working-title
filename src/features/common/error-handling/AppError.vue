@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useClipboard, useBrowserLocation } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import AppIcon from './AppIcon.vue'
+import AppIcon from '../AppIcon.vue'
 import { refreshPage } from '@/utils/browsers'
 
 const props = defineProps<{

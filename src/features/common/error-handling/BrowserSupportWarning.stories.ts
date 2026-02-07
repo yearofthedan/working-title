@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { fn } from 'storybook/test'
-import BrowserSupportWarning from '@/features/common/BrowserSupportWarning.vue'
+import BrowserSupportWarning from '@/features/common/error-handling/BrowserSupportWarning.vue'
 import * as browserUtils from '@/utils/browsers'
 
 const meta: Meta<typeof BrowserSupportWarning> = {

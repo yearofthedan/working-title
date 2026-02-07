@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useNotifications } from '@/composables/useNotifications'
-import AppIcon from './AppIcon.vue'
+import AppIcon from '../AppIcon.vue'
 
 const { t } = useI18n()
 const { notifications, remove, pause, resume } = useNotifications()

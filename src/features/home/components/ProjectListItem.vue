@@ -68,7 +68,7 @@ import { RouteNames } from '@/router/routes'
 import type { ProjectMetadata } from '@/features/project-storage/types'
 import { formatDate } from '@/utils/dates'
 import { useProjectStore } from '@/features/project-storage/context'
-import AppConfirmationDialog from '@/features/common/AppConfirmationDialog.vue'
+import AppConfirmationDialog from '@/features/common/dialogs/AppConfirmationDialog.vue'
 import AppIcon from '@/features/common/AppIcon.vue'
 import { useNotifications } from '@/composables/useNotifications'
 

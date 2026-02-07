@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import { provideProjectStore } from '@/features/project-storage/context'
-import AppNotificationContainer from '@/features/common/AppNotificationContainer.vue'
+import AppNotificationContainer from '@/features/common/feedback/AppNotificationContainer.vue'
 import DevHeader from './DevHeader.vue'
 
 provideProjectStore()
