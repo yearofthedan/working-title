@@ -4,7 +4,7 @@ import { it } from '@/__testHelpers__/fixtures'
 import { ref } from 'vue'
 import { activeProjectContext, SAVE_DEBOUNCE } from './useActiveProjectContext'
 import {
-  buildInMemoryProjectStore,
+  buildProjectStore,
   buildProjectData,
   buildStep,
 } from '@/features/project-storage/__testHelpers__/builders'
@@ -37,7 +37,7 @@ describe('useActiveProjectContext', () => {
           connections: [{ id: 'conn1', source: 'step1', target: 'step2' }],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
 
       expect(context.steps.value).toHaveLength(2)
       expect(context.connections.value).toHaveLength(1)
@@ -57,7 +57,7 @@ describe('useActiveProjectContext', () => {
           ],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
 
       expect(context.contentMap.value.size).toBe(2)
       expect(context.contentMap.value.get('step1')).toEqual({
@@ -73,7 +73,7 @@ describe('useActiveProjectContext', () => {
           steps: [buildStep({ id: 'step1', content: { text: 'Test content' } })],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
 
       const content = context.getContent('step1')
       expect(content).toBeDefined()
@@ -86,7 +86,7 @@ describe('useActiveProjectContext', () => {
           steps: [buildStep({ id: 'step1', stepId: 'summary' })],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
 
       const step = context.getStep('step1')
       expect(step).toBeDefined()
@@ -102,7 +102,7 @@ describe('useActiveProjectContext', () => {
           connections: [],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
       const newStepId = context.addStep('step-type-1')
 
       await vi.advanceTimersByTimeAsync(SAVE_DEBOUNCE + 100)
@@ -128,7 +128,7 @@ describe('useActiveProjectContext', () => {
         })
       )
 
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
       const step2Id = context.addStep('type-2', 'step1Id')
 
       await vi.advanceTimersByTimeAsync(SAVE_DEBOUNCE + 100)
@@ -156,7 +156,7 @@ describe('useActiveProjectContext', () => {
           connections: [],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
 
       const newContent = 'Updated content'
       const updatedTime = '2026-01-11T21:00:00Z'
@@ -179,7 +179,7 @@ describe('useActiveProjectContext', () => {
           connections: [],
         })
       )
-      const context = activeProjectContext(project, buildInMemoryProjectStore())
+      const context = activeProjectContext(project, buildProjectStore())
       context.addConnection('step1Id', 'step2Id')
 
       await vi.advanceTimersByTimeAsync(SAVE_DEBOUNCE + 100)

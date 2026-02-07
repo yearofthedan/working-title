@@ -12,8 +12,8 @@ describe('useProjectUpdate', () => {
   it.scoped({ globalMocks: ['logging'] })
 
   describe('updateProject', () => {
-    it('updates the project in indexdb', async ({ storage, fileSystem }: GivenContext) => {
-      const { updateProject } = useProjectUpdate(storage, fileSystem)
+    it('updates the project in indexdb', async ({ projectStorage, fileSystem }: GivenContext) => {
+      const { updateProject } = useProjectUpdate(projectStorage.instance, fileSystem)
 
       await updateProject(
         buildProjectData({
@@ -22,13 +22,13 @@ describe('useProjectUpdate', () => {
         })
       )
 
-      const saved = await storage.loadById('p1')
+      const saved = await projectStorage.instance.loadById('p1')
       expect(saved).toBeDefined()
       expect(saved?.meta.name).toBe('Test Project')
     })
 
-    it('updates the last modified date', async ({ storage, fileSystem }: GivenContext) => {
-      const { updateProject } = useProjectUpdate(storage, fileSystem)
+    it('updates the last modified date', async ({ projectStorage, fileSystem }: GivenContext) => {
+      const { updateProject } = useProjectUpdate(projectStorage.instance, fileSystem)
 
       const updated = await updateProject(
         buildProjectData({
@@ -41,14 +41,14 @@ describe('useProjectUpdate', () => {
     })
 
     it('updates the project in the file system if a handle exists', async ({
-      storage,
+      projectStorage,
       fileSystem,
     }: GivenContext) => {
       const mockHandle = await fileSystem.requestNewFileHandle('project.json')
       const projectData = buildProjectData()
-      await storage.save(projectData, mockHandle)
+      await projectStorage.instance.save(projectData, mockHandle)
 
-      const { updateProject } = useProjectUpdate(storage, fileSystem)
+      const { updateProject } = useProjectUpdate(projectStorage.instance, fileSystem)
 
       await updateProject({
         ...projectData,
@@ -63,10 +63,10 @@ describe('useProjectUpdate', () => {
     })
 
     it('updates the last success status after saving', async ({
-      storage,
+      projectStorage,
       fileSystem,
     }: GivenContext) => {
-      const { updateProject, lastSuccess } = useProjectUpdate(storage, fileSystem)
+      const { updateProject, lastSuccess } = useProjectUpdate(projectStorage.instance, fileSystem)
 
       expect(lastSuccess.value).toBeNull()
 

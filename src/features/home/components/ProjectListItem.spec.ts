@@ -8,22 +8,19 @@ import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { createNotificationsBinding } from '@/composables/useNotifications'
 import {
   buildProjectMetadata,
-  buildInMemoryProjectStore,
+  buildProjectStore,
 } from '@/features/project-storage/__testHelpers__/builders'
-import { createProjectStore } from '@/features/project-storage/store'
 import { ProjectStorage } from '@/features/project-storage/ProjectStorage'
-import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
-import { buildMockIndexedDBProvider } from '@/infra/index-db/__testHelpers__/mocks'
 
 describe('ProjectListItem', () => {
-  it.scoped({ globalMocks: ['logging'] })
+  it.scoped({ globalMocks: ['logging', 'storage'] })
 
   const renderComponent = (
     project = buildProjectMetadata(),
-    store = buildInMemoryProjectStore({ initialProjects: [project] })
+    projectStorage: ProjectStorage
   ) => {
     const [notifKey, notifStore] = createNotificationsBinding()
-
+    const store = buildProjectStore({ storage: projectStorage })
     render(ProjectListItem, {
       props: { project },
       global: buildGlobals({
@@ -37,30 +34,47 @@ describe('ProjectListItem', () => {
     return { notifStore, store }
   }
 
-  it('renders project name', async () => {
-    renderComponent(buildProjectMetadata({ name: 'Test Project' }))
+  it('renders project name', async ({ projectStorage }) => {
+    const project = buildProjectMetadata({ name: 'Test Project' })
+    await projectStorage.seedProjectMetadata(project)
+
+    renderComponent(project, projectStorage.instance)
+
     await expect.element(page.getByRole('link', { name: 'Test Project' })).toBeVisible()
   })
 
-  it('renders template badge', async () => {
-    renderComponent(buildProjectMetadata({ templateId: 'snowflake-method-v1' }))
+  it('renders template badge', async ({ projectStorage }) => {
+    const project = buildProjectMetadata({ templateId: 'snowflake-method-v1' })
+    await projectStorage.seedProjectMetadata(project)
+
+    renderComponent(project, projectStorage.instance)
     await expect.element(page.getByText(/template: snowflake/i)).toBeVisible()
   })
 
-  it('renders file path when provided', async () => {
-    renderComponent(buildProjectMetadata({ filePath: '/path/to/project.json' }))
+  it('renders file path when provided', async ({ projectStorage }) => {
+    const project = buildProjectMetadata({ filePath: '/path/to/project.json' })
+    await projectStorage.seedProjectMetadata(project)
+
+    renderComponent(project, projectStorage.instance)
+
     await expect.element(page.getByText('/path/to/project.json')).toBeVisible()
   })
 
-  it('does not render file path when not provided', async () => {
-    renderComponent(buildProjectMetadata({ filePath: undefined }))
+  it('does not render file path when not provided', async ({ projectStorage }) => {
+    const project = buildProjectMetadata({ filePath: undefined })
+    await projectStorage.seedProjectMetadata(project)
+
+    renderComponent(project, projectStorage.instance)
+
     const pathElement = page.getByText('/path/to/project.json')
     await expect.element(pathElement).not.toBeInTheDocument()
   })
 
-  it('shows confirmation dialog when delete button is clicked', async () => {
+  it('shows confirmation dialog when delete button is clicked', async ({ projectStorage }) => {
     const project = buildProjectMetadata({ name: 'Delete Me' })
-    renderComponent(project)
+    await projectStorage.seedProjectMetadata(project)
+
+    renderComponent(project, projectStorage.instance)
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()
@@ -71,12 +85,11 @@ describe('ProjectListItem', () => {
       .toBeVisible()
   })
 
-  it('calls deleteProject when deletion is confirmed', async () => {
+  it('calls delete when deletion is confirmed', async ({ projectStorage }) => {
     const project = buildProjectMetadata({ id: '123' })
-    const store = buildInMemoryProjectStore({ initialProjects: [project] })
-    const deleteSpy = vi.spyOn(store.delete, 'execute')
+    await projectStorage.seedProjectMetadata(project)
 
-    renderComponent(project, store)
+    renderComponent(project, projectStorage.instance)
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()
@@ -85,12 +98,14 @@ describe('ProjectListItem', () => {
     await confirmBtn.click()
 
     await vi.waitFor(() => {
-      expect(deleteSpy).toHaveBeenCalledWith('123')
+      expect(vi.mocked(projectStorage.instance.delete)).toHaveBeenCalledWith('123')
     })
   })
 
-  it('shows success notification when deletion is successful', async () => {
-    const { notifStore } = renderComponent(buildProjectMetadata({ id: '123' }))
+  it('shows success notification when deletion is successful', async ({ projectStorage }) => {
+    const project = buildProjectMetadata()
+    await projectStorage.seedProjectMetadata(project)
+    const { notifStore } = renderComponent(project, projectStorage.instance)
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()
@@ -110,13 +125,13 @@ describe('ProjectListItem', () => {
     )
   })
 
-  it('shows error notification when deletion fails', async () => {
-    const provider = buildMockIndexedDBProvider()
-    const store = createProjectStore(new ProjectStorage(provider), new InMemoryStorageProvider())
+  it('shows error notification when deletion fails', async ({ projectStorage }) => {
+    const project = buildProjectMetadata()
+    await projectStorage.seedProjectMetadata(project)
 
-    vi.mocked(provider.removeItem).mockRejectedValue(new Error('Storage failure'))
+    vi.mocked(projectStorage.instance.delete).mockRejectedValue(new Error('Storage failure'))
 
-    const { notifStore } = renderComponent(buildProjectMetadata({ id: '123' }), store)
+    const { notifStore } = renderComponent(project, projectStorage.instance)
 
     const deleteBtn = page.getByRole('button', { name: /delete project/i })
     await deleteBtn.click()

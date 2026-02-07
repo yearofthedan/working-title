@@ -1,9 +1,10 @@
-import { InMemoryStorageProvider } from '@/infra/files/InMemoryStorageProvider'
 import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import type { IndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
 import { ProjectStorage, STORES } from '../ProjectStorage'
 import { createProjectStore } from '../store'
 import type { ProjectData, Step, Connection, ProjectMetadata } from '../types'
+import { TestFileStorageProvider } from '@/infra/files/__testHelpers__/builders'
+import type { FileSystemStorageProvider } from '@/infra/files/FileSystemStorageProvider'
 
 export const buildStep = (overrides: Partial<Step> = {}): Step => ({
   id: 'step-1',
@@ -48,26 +49,34 @@ export const buildProjectMetadata = (
   ...overrides,
 })
 
-export const buildInMemoryProjectStore = (
+export const buildProjectStore = (
   options: {
-    treatAsReal?: boolean
-    delay?: number
-    initialProjects?: ProjectMetadata[]
     storage?: ProjectStorage
-  } = { treatAsReal: true }
+    fileStorage?: FileSystemStorageProvider
+  } = {}
 ) => {
-  let storage = options.storage
+  return createProjectStore(
+    options.storage || new ProjectStorage(buildInMemoryIndexedDBProvider([])),
+    options.fileStorage || new TestFileStorageProvider(1000)
+  )
+}
 
-  if (!storage) {
-    const db = new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
+export const buildInMemoryIndexedDBProvider = (
+  initialProjects: ProjectMetadata[] = []
+): IndexedDBProvider => {
+  const db = new InMemoryIndexedDBProvider() as unknown as IndexedDBProvider
 
-    if (options.initialProjects) {
-      options.initialProjects.forEach((p) => {
-        db.setItem(p.id, p, STORES.REGISTRY)
-      })
-    }
-    storage = new ProjectStorage(db)
-  }
+  initialProjects.forEach((p) => {
+    db.setItem(p.id, p, STORES.REGISTRY)
+  })
 
-  return createProjectStore(storage, new InMemoryStorageProvider(options))
+  return db
+}
+
+export const buildProjectStorage = (overrides: Partial<ProjectStorage> = {}): ProjectStorage => {
+  const projectStorage = new ProjectStorage(buildInMemoryIndexedDBProvider())
+
+  Object.assign(projectStorage, overrides)
+
+  return projectStorage
 }

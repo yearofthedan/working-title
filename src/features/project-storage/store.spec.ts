@@ -1,7 +1,7 @@
 import { describe, expect, vi } from 'vitest'
 import { type ProjectStore } from './store'
 import { now } from '@/utils/dates'
-import { buildInMemoryProjectStore } from './__testHelpers__/builders'
+import { buildProjectStore } from './__testHelpers__/builders'
 import { it as baseTest, type TestFixtures } from '@/__testHelpers__/fixtures'
 
 vi.mock('@/utils/dates', () => ({
@@ -16,7 +16,7 @@ const it = baseTest.extend<{
   store: ProjectStore
 }>({
   store: async ({}, use) => {
-    await use(buildInMemoryProjectStore())
+    await use(buildProjectStore())
   },
 })
 

@@ -1,6 +1,6 @@
-import { IndexedDBProvider } from '../IndexedDBProvider'
+import { type IIndexedDBProvider } from '../IndexedDBProvider'
 
-export class InMemoryIndexedDBProvider implements Partial<IndexedDBProvider> {
+export class InMemoryIndexedDBProvider implements IIndexedDBProvider {
   private stores = new Map<string, Map<IDBValidKey, unknown>>()
 
   constructor(config?: { storeNames: string[] }) {

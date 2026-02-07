@@ -1,6 +1,6 @@
 import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
 import {
-  buildInMemoryProjectStore,
+  buildProjectStore,
   buildProjectData,
 } from '@/features/project-storage/__testHelpers__/builders'
 import {
@@ -20,7 +20,7 @@ import { createLoggerBinding } from '@/composables/useLogger'
 type Providers = Record<string, unknown | symbol>
 
 export const buildProviders = (overrides: Partial<Providers> = {}): Providers => {
-  const store = buildInMemoryProjectStore()
+  const store = buildProjectStore()
 
   const [notificationKey, notificationsContext] = createNotificationsBinding()
   const [loggerKey, loggerContext] = createLoggerBinding()

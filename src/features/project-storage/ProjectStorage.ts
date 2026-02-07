@@ -1,6 +1,10 @@
 import type { ProjectData, ProjectMetadata } from './types'
 import { migrateProjectData } from './migrations'
-import { IndexedDBProvider, type IndexedDBConfig } from '@/infra/index-db/IndexedDBProvider'
+import {
+  IndexedDBProvider,
+  type IIndexedDBProvider,
+  type IndexedDBConfig,
+} from '@/infra/index-db/IndexedDBProvider'
 import { type FileSystemFileHandle } from '@/infra/files/types'
 import { logError, logInfo } from '@/infra/logging/globals'
 
@@ -23,9 +27,9 @@ export const STORAGE_CONFIG: IndexedDBConfig = {
  * Handles serialization, migration, and namespaced keys.
  */
 export class ProjectStorage {
-  private provider: IndexedDBProvider
+  private provider: IIndexedDBProvider
 
-  constructor(provider: IndexedDBProvider = new IndexedDBProvider(STORAGE_CONFIG)) {
+  constructor(provider: IIndexedDBProvider = new IndexedDBProvider(STORAGE_CONFIG)) {
     this.provider = provider
   }
   private isRealHandle(handle: FileSystemFileHandle): handle is FileSystemFileHandle {

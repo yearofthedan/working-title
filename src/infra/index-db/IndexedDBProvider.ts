@@ -6,7 +6,14 @@ export interface IndexedDBConfig {
   storeNames: string[]
 }
 
-export class IndexedDBProvider {
+export interface IIndexedDBProvider {
+  getItem<T = unknown>(key: IDBValidKey, storeName: string): Promise<T | undefined>
+  setItem<T = unknown>(key: IDBValidKey, value: T, storeName: string): Promise<void>
+  removeItem(key: IDBValidKey, storeName: string): Promise<void>
+  getAll<T = unknown>(storeName: string): Promise<T[]>
+}
+
+export class IndexedDBProvider implements IIndexedDBProvider {
   private dbPromise: Promise<IDBDatabase>
   private config: IndexedDBConfig
 

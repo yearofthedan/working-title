@@ -12,7 +12,7 @@ import {
   activeProjectContext,
 } from '@/features/writing-project/composables/useActiveProjectContext'
 import {
-  buildInMemoryProjectStore,
+  buildProjectStore,
   buildProjectData,
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProcessTemplate } from '@/features/process-templates/__testHelpers__/builders'
@@ -22,9 +22,9 @@ import {
 } from '@/features/writing-project/composables/useDefinitionsContext'
 import { ref } from 'vue'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
-import { Icon } from '@iconify/vue'
 import { provideLogger } from '@/composables/useLogger'
 import { provideNotifications } from '@/composables/useNotifications'
+import { FallbackFileStorageProvider } from '@/infra/files/FallbackFileStorageProvider'
 
 setup((app) => {
   const router = createRouter({
@@ -46,16 +46,11 @@ setup((app) => {
     })
   )
 
-  // Register icon components for Storybook
-  app.component('IPhPlus', Icon)
-  app.component('IPhUploadSimple', Icon)
-  app.component('IPhPlay', Icon)
-  app.component('IPhX', Icon)
-  app.component('IPhWarning', Icon)
-
   provideLogger(app.provide)
   provideNotifications(app.provide)
-  const store = buildInMemoryProjectStore()
+  const store = buildProjectStore({
+    fileStorage: new FallbackFileStorageProvider(),
+  })
   app.provide(PROJECT_STORE_KEY, store)
   app.provide(ACTIVE_PROJECT_CONTEXT_KEY, activeProjectContext(ref(buildProjectData()), store))
   app.provide(DEFINITIONS_CONTEXT_KEY, definitionsContext(ref(buildProcessTemplate())))
@@ -78,7 +73,7 @@ const preview: Preview = {
     },
 
     a11y: {
-      test: 'todo',
+      test: 'error',
     },
   },
 }

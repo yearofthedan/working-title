@@ -1,6 +1,6 @@
 import { supportsFilePicker } from '@/utils/browsers'
 import { FileSystemStorageProvider } from './FileSystemStorageProvider'
-import { InMemoryStorageProvider } from './InMemoryStorageProvider'
+import { FallbackFileStorageProvider } from './FallbackFileStorageProvider'
 
 export function createFileSystemProvider(): FileSystemStorageProvider {
   if (supportsFilePicker()) {
@@ -8,5 +8,5 @@ export function createFileSystemProvider(): FileSystemStorageProvider {
   }
 
   console.warn('FileSystem API not supported. Using in memory provider for file storage.')
-  return new InMemoryStorageProvider()
+  return new FallbackFileStorageProvider()
 }
