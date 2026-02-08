@@ -20,7 +20,7 @@ export function createTestI18n(messages?: Record<string, unknown>) {
     legacy: false,
     locale: 'en',
     fallbackLocale: 'en',
-    missingWarn: false,
+    missingWarn: true,
     fallbackWarn: false,
     messages: { en: mergedMessages },
   })

@@ -13,12 +13,15 @@ import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { createNotificationsBinding } from '@/composables/useNotifications'
 import type { ProjectStorage } from '../project-storage/ProjectStorage'
+import type { TestFileStorageProvider } from '@/infra/files/__testHelpers__/builders'
+import type { FileSystemFileHandle } from '@/infra/files/types'
+import { DummyFileHandle } from '@/infra/files/DummyFileHandle'
 
 describe('HomePage', () => {
-  it.scoped({ globalMocks: ['logging', 'storage'] })
-  const renderComponent = (storage: ProjectStorage) => {
+  it.scoped({ globalMocks: ['storage', 'fileStorage'] })
+  const renderComponent = (storage: ProjectStorage, fileStorage?: TestFileStorageProvider) => {
     const [notifKey, notifStore] = createNotificationsBinding()
-    const store = buildProjectStore({ storage })
+    const store = buildProjectStore({ storage, fileStorage })
     render(HomePage, {
       global: buildGlobals({
         provide: buildProviders({
@@ -83,12 +86,23 @@ describe('HomePage', () => {
     })
   })
 
-  it('shows loading state during "Open File" flow', async ({ projectStorage }) => {
-    const { po } = renderComponent(projectStorage.instance)
+  it('shows loading state during "Open File" flow', async ({ projectStorage, fileStorage }) => {
+    let resolveOpen: (handle: FileSystemFileHandle) => void
+    vi.mocked(fileStorage.requestOpenFileHandle).mockReturnValue(
+      new Promise<FileSystemFileHandle>((resolve) => {
+        resolveOpen = resolve
+      })
+    )
+
+    const { po } = renderComponent(projectStorage.instance, fileStorage)
 
     await po.openFileButton.click()
 
     await expect.element(page.getByRole('status', { name: 'loading' })).toBeVisible()
+    // @ts-expect-error is assigned
+    resolveOpen(new DummyFileHandle('test', new Map()))
+
+    await expect.element(page.getByRole('status', { name: 'loading' })).not.toBeInTheDocument()
   })
 
   it('navigates to the demo page', async ({ projectStorage }) => {

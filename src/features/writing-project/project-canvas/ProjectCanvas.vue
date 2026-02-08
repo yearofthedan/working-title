@@ -2,7 +2,7 @@
   <div class="grow relative bg-background" :aria-busy="isLoading">
     <CanvasLayoutIndicator :is-loading="isLayoutRunning && hasInitialLayout" />
 
-    <AppLoadingOverlay :is-loading="!hasInitialLayout" :message="t('app.loading.project')" />
+    <AppLoadingOverlay :is-loading="!hasInitialLayout" :message="t('app.loading.message')" />
 
     <EmptyCanvas v-if="hasInitialLayout && nodes.length === 0" />
 
@@ -26,6 +26,7 @@
           :actions="data.actions"
           @update:content="handleContentUpdate"
           @action-click="handleActionClick"
+          @node-click="handleNodeClick"
         />
       </template>
       <template #node-plainText="{ id, data }">
@@ -40,6 +41,7 @@
           :actions="data.actions"
           @update:content="handleContentUpdate"
           @action-click="handleActionClick"
+          @node-click="handleNodeClick"
         />
       </template>
       <Background />
@@ -71,11 +73,13 @@ import { useStepActions } from '../composables/useStepActions'
 import { useProjectContent, useProjectSteps } from '../composables/useActiveProjectContext'
 import { useDefinitionsContext } from '../composables/useDefinitionsContext'
 import { useI18n } from 'vue-i18n'
+import { useDetailPanel } from '../step-panel/useDetailPanel'
 
 const { template } = useDefinitionsContext()
 const { t } = useI18n()
 const vueFlowInstance = useVueFlow()
 const { navigateToNewNode } = useCanvasNavigation(vueFlowInstance)
+const { openPanel } = useDetailPanel()
 
 const { getAvailableActions } = useStepActions(template)
 
@@ -104,6 +108,7 @@ const nodes = computed(() => {
         placeholder: enriched.placeholder,
         hint: enriched.instruction,
         category: enriched.category,
+        scope: enriched.scope,
       }
 
       const content: CanvasStepContent = {
@@ -134,6 +139,10 @@ const handleActionClick = (action: ActionDefinition) => {
   if (newNodeId) {
     navigateToNewNode(newNodeId)
   }
+}
+
+const handleNodeClick = (id: string) => {
+  openPanel(id)
 }
 
 const isLoading = computed(() => isLayoutRunning.value || !hasInitialLayout.value)

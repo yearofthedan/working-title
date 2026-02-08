@@ -1,13 +1,14 @@
-import { describe, expect, vi, type Mock } from 'vitest'
+import { describe, expect, vi } from 'vitest'
 import { it } from '@/__testHelpers__/fixtures'
 
-import { buildGlobals, render } from '@/__testHelpers__/renderer'
+import { render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import WritingProject from './WritingProject.vue'
-import { template } from '@/features/process-templates/snowflake/template'
+import { template as snowflakeTemplate } from '@/features/process-templates/snowflake/template'
 import { ref } from 'vue'
 import { buildProjectData, buildStep } from '../project-storage/__testHelpers__/builders'
-import { createTestI18n } from '@/i18n/__testHelpers__/i18n-utils'
+import { WritingProjectPageObject } from './__testHelpers__/WritingProjectPageObject'
+import snowflake from '@/features/process-templates/snowflake/locales/en.json'
 
 const navigateToNodeSpy = vi.fn()
 const navigateToNewNodeSpy = vi.fn()
@@ -18,43 +19,25 @@ vi.mock('./project-canvas/composables/useCanvasNavigation', () => ({
   }),
 }))
 
-const strings = {
-  'app.canvas.emptyState.title': 'Start Your Story',
-  'app.canvas.emptyState.description': 'Begin by adding your first step to the canvas.',
-  'template.root.actions.create_summary': 'Create One Sentence Summary',
-  'template.step.summary.label': 'One Sentence Summary',
-  'template.step.summary.placeholder': '',
-  'template.step.summary.instruction': '',
-  'template.step.summary.actions.expand_to_storyline': 'Expand to Storyline',
-  'template.step.storyline.label': 'Storyline',
-  'template.step.storyline.placeholder': '',
-  'template.step.storyline.instruction': '',
-  'writingProject.sidebar.contextTitle': 'Project Context',
-}
-
 describe('WritingProject', () => {
   it.scoped({ globalMocks: ['logging'] })
 
   const renderComponent = (data = ref(buildProjectData())) => {
     const project = {
       data: data.value,
-      template,
+      template: snowflakeTemplate,
     }
-    return render(WritingProject, {
+    const rendered = render(WritingProject, {
       props: {
         project,
       },
-      global: buildGlobals({
-        plugins: [
-          createTestI18n({
-            en: strings,
-          }),
-        ],
-      }),
       attrs: {
         style: 'height: 100vh; width: 100vw;',
       },
     })
+    const po = new WritingProjectPageObject(page)
+
+    return { ...rendered, po }
   }
 
   it('displays the project name in the sidebar', async () => {
@@ -67,10 +50,11 @@ describe('WritingProject', () => {
         },
       })
     )
-    renderComponent(data)
+    const { po } = renderComponent(data)
 
-    await expect.element(page.getByText('My Epic Story')).toBeVisible()
-    await expect.element(page.getByText('Project Context')).toBeVisible()
+    await expect.element(po.sidebar.host).toBeVisible()
+    await expect.element(po.sidebar.projectNameHeading).toBeVisible()
+    await expect.element(po.sidebar.host.getByText('My Epic Story')).toBeVisible()
   })
 
   it('updates project data when node content changes', async () => {
@@ -85,14 +69,17 @@ describe('WritingProject', () => {
         ],
       })
     )
-    renderComponent(data)
 
-    const richTextNode = page.getByText('Initial content')
+    const { po } = renderComponent(data)
 
-    await expect.element(richTextNode).toBeVisible()
-    await richTextNode.click()
-    const editor = page.getByRole('textbox')
-    await editor.fill('Updated via integration')
+    const step = po.canvas.stepByType(snowflake.template.step.summary.label)
+    await expect.element(step.host).toBeVisible()
+    await expect.element(step.host).toHaveTextContent('Initial content')
+
+    await expect.element(step.textbox).toHaveAttribute('contenteditable', 'false')
+    await step.clickToEdit()
+    await expect.element(step.textbox).toHaveAttribute('contenteditable', 'true')
+    await step.textbox.fill('Updated via integration')
     await userEvent.tab()
 
     await vi.waitFor(() =>
@@ -107,21 +94,17 @@ describe('WritingProject', () => {
       })
     )
 
-    renderComponent(data)
+    const { po } = renderComponent(data)
 
-    const startHeading = page.getByText(/Start Your Story/i)
-    await expect.element(startHeading).toBeVisible()
+    await expect.element(po.canvas.emptyState.title).toBeVisible()
 
-    const createButton = page.getByRole('button', { name: /Create One Sentence Summary/i })
-    await expect.element(createButton).toBeVisible()
-
-    await createButton.click()
+    await po.canvas.emptyState.actionButton(snowflake.template.root.actions.create_summary).click()
 
     await vi.waitFor(() => expect(data.value.steps.length).toBe(1))
     expect(data.value.steps[0]!.stepId).toBe('step-summary')
 
-    await expect.element(startHeading).not.toBeInTheDocument()
-    await expect.element(page.getByText('One Sentence Summary')).toBeVisible()
+    await expect.element(po.canvas.emptyState.title).not.toBeInTheDocument()
+    await expect.element(page.getByText(snowflake.template.step.summary.label)).toBeVisible()
   })
 
   it('adds a child node and navigates to it when clicking an action button', async () => {
@@ -136,15 +119,17 @@ describe('WritingProject', () => {
         ],
       })
     )
-    renderComponent(data)
 
-    const node = page.getByText('Summary', { exact: true })
-    await expect.element(node).toBeVisible()
+    const { po } = renderComponent(data)
 
-    // Hover to reveal action buttons
-    await node.hover()
+    const step = po.canvas.stepByType(snowflake.template.step.summary.label)
 
-    const expandButton = page.getByRole('button', { name: /Expand to Storyline/i })
+    await expect.element(step.host).toBeVisible()
+    await step.hover()
+
+    const expandButton = step.actionButton(
+      snowflake.template.step.summary.actions.expand_to_storyline
+    )
     await expect.element(expandButton).toBeVisible()
 
     await expandButton.click()
@@ -153,13 +138,41 @@ describe('WritingProject', () => {
     const newNode = data.value.steps.find((s) => s.stepId === 'step-storyline')
     expect(newNode).toBeDefined()
 
-    // Verify navigation was triggered for the new node ID
     await vi.waitFor(() => {
-      const calls = (navigateToNewNodeSpy as Mock).mock.calls
+      const calls = navigateToNewNodeSpy.mock.calls
       const found = calls.some((call) => call[0] === newNode?.id)
       expect(found).toBe(true)
     })
 
-    await expect.element(page.getByText('Storyline')).toBeVisible()
+    await expect
+      .element(po.canvas.host.getByText(snowflake.template.step.storyline.label))
+      .toBeVisible()
+  })
+
+  it('opens the detail panel when clicking a node', async () => {
+    const data = ref(
+      buildProjectData({
+        steps: [
+          buildStep({
+            id: '1',
+            stepId: 'step-plot-synopsis',
+            content: { text: '<p>Detailed synopsis</p>' },
+          }),
+        ],
+      })
+    )
+
+    const { po } = renderComponent(data)
+
+    const step = po.canvas.stepByType(snowflake.template.step.plot_synopsis.label)
+    await expect.element(step.host).toBeVisible()
+    await step.clickExpand()
+
+    await expect.element(po.detailPanel.host).toBeVisible()
+    await expect.element(po.detailPanel.title).toBeVisible()
+    await expect
+      .element(po.detailPanel.host.getByText(snowflake.template.step.plot_synopsis.label))
+      .toBeVisible()
+    await expect.element(po.detailPanel.contentArea.getByText('Detailed synopsis')).toBeVisible()
   })
 })

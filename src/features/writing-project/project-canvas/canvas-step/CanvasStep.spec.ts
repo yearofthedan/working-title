@@ -5,22 +5,26 @@ import { render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import CanvasStep from './CanvasStep.vue'
 import { DEFAULT_DEBOUNCE } from '@/composables/useDebouncedEmit'
+import { CanvasStepPageObject } from './__testHelpers__/CanvasStepPageObject'
+import type { CanvasStepProps } from '../stepTypes'
 
 describe('CanvasStep', () => {
-  const renderComponent = () => {
-    return render(CanvasStep, {
-      props: {
-        id: '1',
-        definition: {
-          label: 'Test Node',
-          placeholder: 'Enter text...',
-          category: 'structure',
-        },
-        content: {
-          text: '<p>Initial content</p>',
-        },
+  const renderComponent = (
+    props: CanvasStepProps = {
+      id: '1',
+      definition: {
+        label: 'Test Node',
+        placeholder: 'Enter text...',
+        category: 'structure',
       },
-    })
+      content: {
+        text: '<p>Initial content</p>',
+      },
+    }
+  ) => {
+    const rendered = render(CanvasStep, { props })
+    const po = new CanvasStepPageObject(page)
+    return { ...rendered, po }
   }
 
   it('renders correctly with props', async () => {
@@ -31,26 +35,22 @@ describe('CanvasStep', () => {
   })
 
   it('renders in read until clicked', async () => {
-    renderComponent()
+    const { po } = renderComponent()
 
-    const editorContainer = page.getByPlaceholder('Enter text...')
-
-    await expect.element(editorContainer).toBeVisible()
-    await expect.element(editorContainer).toHaveAttribute('contenteditable', 'false')
-    await editorContainer.click()
-    await expect.element(editorContainer).toHaveAttribute('contenteditable', 'true')
-    await expect.element(editorContainer).toHaveRole('textbox')
+    await expect.element(po.textbox).toBeVisible()
+    await expect.element(po.textbox).toHaveAttribute('contenteditable', 'false')
+    await po.clickToEdit()
+    await expect.element(po.textbox).toHaveAttribute('contenteditable', 'true')
   })
 
   it('debounces content updates', async () => {
-    const { emitted } = renderComponent()
+    const { emitted, po } = renderComponent()
 
-    await page.getByPlaceholder('Enter text...').click()
-    const editor = page.getByRole('textbox')
-    await expect.element(editor).toBeVisible()
+    await po.clickToEdit()
+    await expect.element(po.textbox).toHaveAttribute('contenteditable', 'true')
 
     vi.useFakeTimers()
-    await editor.fill('Updated content')
+    await po.textbox.fill('Updated content')
     await vi.advanceTimersByTimeAsync(100)
 
     expect(emitted()['update:content']).toBeUndefined()
@@ -65,14 +65,13 @@ describe('CanvasStep', () => {
   })
 
   it('flushes updates on blur', async () => {
-    const { emitted } = renderComponent()
+    const { emitted, po } = renderComponent()
 
-    await page.getByPlaceholder('Enter text...').click()
-    const editor = page.getByRole('textbox')
-    await expect.element(editor).toBeVisible()
+    await po.clickToEdit()
+    await expect.element(po.textbox).toHaveAttribute('contenteditable', 'true')
 
     vi.useFakeTimers()
-    await editor.fill('Fast update')
+    await po.textbox.fill('Fast update')
     await userEvent.tab()
     await vi.advanceTimersByTimeAsync(100)
 
@@ -85,21 +84,19 @@ describe('CanvasStep', () => {
   })
 
   it('renders actions when provided', async () => {
-    render(CanvasStep, {
-      props: {
-        id: '1',
-        definition: { label: 'Node' },
-        content: { text: '' },
-        actions: [
-          {
-            id: 'action-1',
-            label: 'Append Step',
-            trigger: 'append' as const,
-            targetType: 'step-2',
-            execute: vi.fn(),
-          },
-        ],
-      },
+    renderComponent({
+      id: '1',
+      definition: { label: 'Node' },
+      content: { text: '' },
+      actions: [
+        {
+          id: 'action-1',
+          label: 'Append Step',
+          trigger: 'append' as const,
+          targetType: 'step-2',
+          execute: vi.fn(),
+        },
+      ],
     })
 
     await expect.element(page.getByText('Append Step')).toBeVisible()
@@ -113,16 +110,14 @@ describe('CanvasStep', () => {
       targetType: 'step-2',
       execute: vi.fn(),
     }
-    const { emitted } = render(CanvasStep, {
-      props: {
-        id: '1',
-        definition: { label: 'Node' },
-        content: { text: '' },
-        actions: [action],
-      },
+    const { emitted, po } = renderComponent({
+      id: '1',
+      definition: { label: 'Node' },
+      content: { text: '' },
+      actions: [action],
     })
 
-    await page.getByText('Append Step').click()
+    await po.actionButton('Append Step').click()
     expect(emitted()['action-click']).toBeDefined()
     expect(emitted()['action-click']?.[0]).toEqual([action])
   })

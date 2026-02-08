@@ -2,7 +2,7 @@
   <Transition name="panel-slide">
     <aside
       v-if="isOpen && activeStepId"
-      class="fixed top-0 right-0 h-full w-[400px] bg-paper border-l border-edge shadow-2xl flex flex-col z-50"
+      class="fixed top-0 right-0 h-full w-[600px] bg-paper border-l border-edge shadow-2xl flex flex-col z-50"
       tabindex="-1"
     >
       <!-- Header -->
@@ -23,7 +23,7 @@
       <div
         class="flex-1 overflow-y-auto bg-paper p-6"
         role="region"
-        :aria-label="t('app.writingProject.detailPanel.contentArea')"
+        :aria-label="t('writingProject.detailPanel.contentArea')"
       >
         <div
           v-if="currentStep"
