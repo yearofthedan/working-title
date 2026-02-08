@@ -19,14 +19,17 @@
         </button>
       </header>
 
-      <!-- Content Area (Thin Slice Placeholder) -->
+      <!-- Content Area -->
       <div
         class="flex-1 overflow-y-auto bg-paper p-6"
         role="region"
         :aria-label="t('app.writingProject.detailPanel.contentArea')"
       >
-        <div v-if="currentStep" class="prose prose-sm max-w-none">
-          {{ currentStep.content.text }}
+        <div
+          v-if="currentStep"
+          class="prose prose-sm max-w-none prose-p:leading-relaxed prose-headings:mb-4"
+        >
+          <editor-content :editor="editor" />
         </div>
       </div>
     </aside>
@@ -36,15 +39,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { EditorContent } from '@tiptap/vue-3'
 import AppIcon from '@/features/common/AppIcon.vue'
 import { useDetailPanel } from './useDetailPanel'
 import { useDefinitionsContext } from '../composables/useDefinitionsContext'
 import { useActiveProjectContext } from '../composables/useActiveProjectContext'
+import { useStepEditor } from '../composables/useStepEditor'
 
 const { t } = useI18n()
 const { isOpen, activeStepId, closePanel } = useDetailPanel()
 const { getStepDef } = useDefinitionsContext()
-const { getContent } = useActiveProjectContext()
+const { getContent, updateContent } = useActiveProjectContext()
 
 const currentStep = computed(() => {
   if (!activeStepId.value) return null
@@ -54,6 +59,15 @@ const currentStep = computed(() => {
 const definition = computed(() => {
   if (!currentStep.value) return null
   return getStepDef(currentStep.value.stepId)
+})
+
+const { editor } = useStepEditor({
+  content: computed(() => currentStep.value?.content.text),
+  onUpdate: (newContent) => {
+    if (activeStepId.value) {
+      updateContent(activeStepId.value, newContent)
+    }
+  },
 })
 </script>
 

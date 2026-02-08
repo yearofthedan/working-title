@@ -31,16 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import { useEditor, EditorContent } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import { watch, onBeforeUnmount } from 'vue'
-import { useDebouncedEmit } from '@/composables/useDebouncedEmit'
+import { ref, computed } from 'vue'
+import { EditorContent } from '@tiptap/vue-3'
 import CanvasStepMenu from './CanvasStepMenu.vue'
+import { useStepEditor } from '../../composables/useStepEditor'
 import type { CanvasStepProps, CanvasStepContent } from '../stepTypes'
 import type { ActionDefinition } from '../../composables/useStepActions'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
+const { t } = useI18n()
 const props = defineProps<CanvasStepProps>()
 
 const emit = defineEmits<{
@@ -48,52 +47,24 @@ const emit = defineEmits<{
   (e: 'action-click', action: ActionDefinition): void
 }>()
 
-const { emit: emitContent, flush: flushContent } = useDebouncedEmit((newText: string) => {
-  emit('update:content', props.id, {
-    text: newText,
-  })
-})
-
-const editor = useEditor({
-  content: props.content.text,
-  extensions: [StarterKit],
-  editable: false,
-  editorProps: {
-    attributes: {
-      role: 'textbox',
-      placeholder: props.definition.placeholder ?? '',
-    },
-  },
-  onUpdate: ({ editor: e }) => {
-    const newContent = e.getHTML()
-    if (newContent !== props.content.text) {
-      emitContent(newContent)
-    }
-  },
-  onBlur: () => {
-    flushContent()
+const isEditable = ref(false)
+const { editor } = useStepEditor({
+  content: computed(() => props.content.text),
+  editable: isEditable,
+  placeholder: props.definition.placeholder,
+  onUpdate: (newText) => {
+    emit('update:content', props.id, {
+      text: newText,
+    })
   },
 })
 
 const makeEditable = () => {
   if (editor.value && !editor.value.isEditable) {
-    editor.value.setEditable(true)
+    isEditable.value = true
     editor.value.commands.focus()
   }
 }
-
-watch(
-  () => props.content.text,
-  (newText) => {
-    if (editor.value && editor.value.getHTML() !== newText) {
-      editor.value.commands.setContent(newText, { parseOptions: { preserveWhitespace: 'full' } })
-    }
-  }
-)
-
-onBeforeUnmount(() => {
-  editor.value?.destroy()
-})
 </script>
 
 <style>
