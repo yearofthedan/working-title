@@ -11,8 +11,8 @@ Each skill is organized as a directory containing:
 
 ## Core Development Skills
 
+- [plan-functional-slices/](plan-functional-slices/): **MANDATORY** - Enforces vertical slicing over horizontal layering. Used for planning and implementation.
 - [workflow-general/](workflow-general/): **ALWAYS LOAD FIRST** - General project interactions, `./do` scripts, linting, commits
-- [workflow-functional-changes/](workflow-functional-changes/): Guidance for working on vertical slices, TDD cycles, and verification
 - [workflow-vue/](workflow-vue/): Standards for component and composable creation, styling, and ensuring components stay under the 60-line limit
 - [tdd-enforcement/](tdd-enforcement/): Strict RED-GREEN-REFACTOR enforcement for features with user feedback (notifications, forms, navigation)
 - [storybook-workflow/](storybook-workflow/): Create and maintain Storybook stories with variants and smoke testing

@@ -1,9 +1,9 @@
 ---
-name: storybook-workflow
+name: build-storybook-workflow
 description: Create and maintain Storybook stories for visual exploration of Vue Components in various states. Use whenever working with new states in Vue Components.
 ---
 
-# Storybook Workflow
+# Build: Storybook Workflow
 
 ## Prerequisites
 

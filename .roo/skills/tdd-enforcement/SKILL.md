@@ -197,5 +197,6 @@ Each cycle builds on previous, all tests stay green.
 
 ## References
 
-- [`workflow-functional-changes`](../workflow-functional-changes/SKILL.md) - Overall TDD strategy
+- [`plan-functional-slices`](../plan-functional-slices/SKILL.md) - Vertical slicing mindset
 - [`workflow-vue/references/testing.md`](../workflow-vue/references/testing.md) - Vue component testing patterns
+- [`references/testing-patterns.md`](references/testing-patterns.md) - Global testing strategy and Testing Trophy

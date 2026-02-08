@@ -9,7 +9,8 @@ description: Technical lifecycle for Vue 3 components and composables using Vert
 
 **Required Context Skills**:
 1. Load [`workflow-general`](../workflow-general/SKILL.md) first for tooling and commit standards
-2. Load [`workflow-functional-changes`](../workflow-functional-changes/SKILL.md) for TDD and slicing strategy
+2. Load [`plan-functional-slices`](../plan-functional-slices/SKILL.md) for slicing strategy
+3. Load [`tdd-enforcement`](../tdd-enforcement/SKILL.md) for behavioral changes
 
 ## Procedure
 
@@ -88,4 +89,5 @@ More details under [Performance](references/performance.md)
 ## References
 
 - [General Workflow](../workflow-general/SKILL.md) — `./do` scripts, linting, commits
-- [Functional Changes Workflow](../workflow-functional-changes/SKILL.md) — TDD, vertical slicing
+- [Vertical Slicing](../plan-functional-slices/SKILL.md) — Slicing strategy
+- [TDD Enforcement](../tdd-enforcement/SKILL.md) — TDD cycle
