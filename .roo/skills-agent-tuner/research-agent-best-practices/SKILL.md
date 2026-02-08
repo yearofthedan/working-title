@@ -26,7 +26,7 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 
 **Always start here to avoid unnecessary web requests:**
 
-- Read [`agent-skills-standard.md`](/references/agent-skills-standard.md)
+- Read [`agent-skills-standard.md`](references/agent-skills-standard.md)
 - Check the "Last Updated" date in the document
 - If updated within last 30 days, use this as authoritative source and skip to step 5
 - If > 30 days old, proceed to step 2 to refresh
@@ -93,14 +93,17 @@ Fetch and synthesize the latest agent methodology and best practices from offici
 ## Common Pitfalls
 
 **Outdated Knowledge**
+
 - **Issue**: Relying on cached knowledge instead of current docs
 - **Solution**: Always check local reference date first, refresh if needed
 
 **Vague Recommendations**
+
 - **Issue**: "You should improve your skills format"
 - **Solution**: Provide specific examples: "Move skills to directories with SKILL.md and add YAML frontmatter with name and description fields"
 
 **Overwhelming Changes**
+
 - **Issue**: Recommending 20 changes at once
 - **Solution**: Prioritize by impact, present 3-5 highest-value changes first
 
