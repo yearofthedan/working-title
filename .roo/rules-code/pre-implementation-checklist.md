@@ -8,7 +8,8 @@
 - [ ] Review acceptance criteria in spec
 - [ ] Identify quality standards mentioned (Grade A accessibility, i18n, semantic tokens, etc.)
 - [ ] Load [`workflow-general`](../skills/workflow-general/SKILL.md) - ALWAYS required for code changes
-- [ ] Load [`workflow-functional-changes`](../skills/workflow-functional-changes/SKILL.md) - Required for features
+- [ ] Load [`plan-functional-slices`](../skills/plan-functional-slices/SKILL.md) - Defines the approach to implementing features
+- [ ] Load [`tdd-enforcement`](../skills/tdd-enforcement/SKILL.md) - Defines the TDD approach to code changes
 - [ ] Load [`workflow-vue`](../skills/workflow-vue/SKILL.md) - Required for Vue components
 - [ ] Load [`i18n-workflow`](../skills/i18n-workflow/SKILL.md) - If spec mentions user-facing text
 - [ ] Load [`icon-system`](../skills/icon-system/SKILL.md) - If spec mentions icons
@@ -25,6 +26,7 @@
 - [ ] If uncertain about approach → **ASK USER** rather than guessing
 
 **Communication Check**: Did the user explicitly say:
+
 - "Implement this now"
 - "Go ahead and build it"
 - "Start implementation"
@@ -39,7 +41,8 @@ If NO explicit implementation instruction → **ASK** what they want you to do f
 - [ ] Executed test and confirmed it fails for the right reason
 - [ ] Ready to write implementation code to make test pass
 
-**RED-GREEN-REFACTOR RULE**: 
+**RED-GREEN-REFACTOR RULE**:
+
 - ❌ Implementation code BEFORE failing test = VIOLATION
 - ✅ Failing test → Implementation → Passing test = CORRECT
 
@@ -67,6 +70,7 @@ Review skills and confirm you understand:
 ## Quick Reference: When to Ask vs. When to Implement
 
 **ASK the user when:**
+
 - Spec is ambiguous or has gaps
 - User said "talk to me" or "ask before implementing"
 - You're uncertain about the approach
@@ -74,6 +78,7 @@ Review skills and confirm you understand:
 - Spec doesn't specify quality level clearly
 
 **Proceed with implementation when:**
+
 - Spec is comprehensive and clear
 - User explicitly said "implement" or "build it"
 - Skills clearly document the pattern to follow
