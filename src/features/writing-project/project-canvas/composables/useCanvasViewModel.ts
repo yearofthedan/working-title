@@ -115,6 +115,10 @@ export function useCanvasViewModel(
       const stepDef = definitions.getStepDef(node.stepId)
       const stepContent = getContent(node.id)
 
+      if (!stepDef) {
+        console.warn(`[useCanvasViewModel] No definition found for stepId: ${node.stepId}`)
+      }
+
       nodeMap.set(node.id, {
         id: node.id,
         stepId: node.stepId,
@@ -127,6 +131,7 @@ export function useCanvasViewModel(
         stage: node.stage,
         actions: getAvailableActions(node.id),
         editorFormat: stepDef?.editorConfig.format === 'plain' ? 'plain' : 'rich',
+        scope: stepDef?.scope ?? 'field',
       })
     })
 

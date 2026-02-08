@@ -1,4 +1,4 @@
-import type { StepCategory } from '@/features/process-templates/processTemplate'
+import type { StepCategory, StepScope } from '@/features/process-templates/processTemplate'
 import type { ActionDefinition } from '../composables/useStepActions'
 
 export interface CanvasStepDefinition {
@@ -6,6 +6,7 @@ export interface CanvasStepDefinition {
   placeholder?: string
   hint?: string
   category?: StepCategory
+  scope?: StepScope
 }
 
 export interface CanvasStepContent {

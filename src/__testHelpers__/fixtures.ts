@@ -8,10 +8,11 @@ import { type IIndexedDBProvider } from '@/infra/index-db/IndexedDBProvider'
 import { ProjectStorage, STORAGE_CONFIG, STORES } from '@/features/project-storage/ProjectStorage'
 import { InMemoryIndexedDBProvider } from '@/infra/index-db/__testHelpers__/builders'
 import type { ProjectMetadata } from '@/features/project-storage/types'
+import { TestFileStorageProvider } from '@/infra/files/__testHelpers__/builders'
 
 export interface TestFixtures {
   logHandler: LogHandler
-  globalMocks: Array<'logging' | 'storage'>
+  globalMocks: Array<'logging' | 'storage' | 'fileStorage'>
   db: {
     instance: IIndexedDBProvider
     seedProjectMetadata: (...projects: ProjectMetadata[]) => Promise<void>
@@ -20,6 +21,7 @@ export interface TestFixtures {
     instance: ProjectStorage
     seedProjectMetadata: (...projects: ProjectMetadata[]) => Promise<void>
   }
+  fileStorage: TestFileStorageProvider
 }
 
 export const it = baseTest.extend<TestFixtures>({
@@ -35,6 +37,17 @@ export const it = baseTest.extend<TestFixtures>({
       instance: provider,
       seedProjectMetadata,
     })
+  },
+  fileStorage: async ({ globalMocks }, use) => {
+    const fileStorage = new TestFileStorageProvider(50)
+
+    if (globalMocks.includes('fileStorage')) {
+      vi.spyOn(fileStorage, 'requestNewFileHandle')
+      vi.spyOn(fileStorage, 'requestOpenFileHandle')
+      vi.spyOn(fileStorage, 'writeAsJson')
+      vi.spyOn(fileStorage, 'readAsJson')
+    }
+    await use(fileStorage)
   },
   projectStorage: async ({ db, globalMocks }, use) => {
     const storage = new ProjectStorage(db.instance)

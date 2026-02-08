@@ -57,7 +57,7 @@
       }
     }
   },
-  "forwardPorts": [5173, 6006, 8080],
+  "forwardPorts": [5173, 6006, 8080, 51204, 6363],
   "portsAttributes": {
     "5173": {
       "label": "Vite Dev Server",
@@ -73,6 +73,14 @@
     },
     "9323": {
       "label": "Playwright Internal Debug",
+      "onAutoForward": "silent"
+    },
+    "51204": {
+      "label": "Vitest UI",
+      "onAutoForward": "notify"
+    },
+    "6363": {
+      "label": "Vitest Browser Preview",
       "onAutoForward": "silent"
     }
   },

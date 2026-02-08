@@ -88,7 +88,16 @@
       "error": "Error saving"
     },
     "sidebar": {
-      "contextTitle": "Project Context"
+      "contextTitle": "Project Context",
+      "navigation": "Project Navigation"
+    },
+    "detailPanel": {
+      "contentArea": "Step Content"
+    },
+    "canvas": {
+      "actions": {
+        "openInPanel": "Open in Panel"
+      }
     }
   },
   "errors": {

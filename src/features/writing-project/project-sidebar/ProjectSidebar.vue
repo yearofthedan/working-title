@@ -1,5 +1,8 @@
 <template>
-  <aside class="w-75 flex flex-col bg-paper border-r border-edge transition-colors duration-300">
+  <aside
+    class="w-75 flex flex-col bg-paper border-r border-edge transition-colors duration-300"
+    :aria-labelledby="'sidebar-title'"
+  >
     <header class="p-4 border-b border-edge flex-y gap-1">
       <div class="flex-h items-start justify-between gap-2">
         <h1 class="text-lg font-bold text-ink truncate" :title="projectName">
@@ -7,7 +10,7 @@
         </h1>
         <SaveStatusIndicator :status="saveStatus" :error="saveError" class="mt-1 shrink-0" />
       </div>
-      <h2 class="text-xs font-bold uppercase tracking-widest text-ink/60">
+      <h2 id="sidebar-title" class="text-xs font-bold uppercase tracking-widest text-ink/60">
         {{ t('writingProject.sidebar.contextTitle') }}
       </h2>
     </header>

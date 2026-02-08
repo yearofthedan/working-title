@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures'
+import appMessages from '@/locales/en.json' with { type: 'json' }
 
 test.describe('App Smoke Test', () => {
   test('should load the home page and navigate to a new project', async ({ page }) => {
@@ -16,7 +17,9 @@ test.describe('App Smoke Test', () => {
       await expect(page).toHaveTitle(/Writing Project/)
     })
 
-    const sidebar = page.getByRole('complementary')
+    const sidebar = page.getByRole('complementary', {
+      name: appMessages.writingProject.sidebar.contextTitle,
+    })
     await expect(sidebar).toBeVisible()
 
     const canvas = page.getByText('Start Your Story')
@@ -36,7 +39,9 @@ test.describe('App Smoke Test', () => {
       await expect(page).toHaveTitle(/Demo/)
     })
 
-    const sidebar = page.getByRole('complementary')
+    const sidebar = page.getByRole('complementary', {
+      name: appMessages.writingProject.sidebar.contextTitle,
+    })
     await expect(sidebar).toBeVisible()
 
     // Verify project loaded by checking sidebar content (loads immediately, no layout wait needed)

@@ -29,11 +29,6 @@ export class TestFileStorageProvider extends FallbackFileStorageProvider {
 
   async requestOpenFileHandle(): Promise<FileSystemFileHandle> {
     const name = generateId() + '.json'
-
-    if (this.loadDelay > 0) {
-      await new Promise((r) => setTimeout(r, this.loadDelay))
-    }
-
     this.fileStore.set(name, JSON.stringify(buildProjectData()))
 
     return new TestFileHandle(name, this.fileStore)

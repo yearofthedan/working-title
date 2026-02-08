@@ -9,12 +9,14 @@
         </div>
       </template>
     </Suspense>
+    <StepPanel />
   </div>
 </template>
 
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from 'vue'
 import ProjectSidebar from '@/features/writing-project/project-sidebar/ProjectSidebar.vue'
+import StepPanel from '@/features/writing-project/step-panel/StepPanel.vue'
 import { provideDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 import { provideActiveProjectContext } from '@/features/writing-project/composables/useActiveProjectContext'
 import AppLoadingOverlay from '@/features/common/feedback/AppLoadingOverlay.vue'
@@ -34,3 +36,4 @@ provideDefinitionsContext(toRef(() => props.project.template))
 </script>
 
 <style></style>
+
