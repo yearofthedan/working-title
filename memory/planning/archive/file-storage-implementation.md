@@ -7,16 +7,15 @@ Implement file storage capabilities where users create named projects that auto-
 ## Goals
 
 - [x] Design storage architecture (dual source of truth with auto-sync)
-- [ ] Implement file handle persistence in IndexedDB
-- [ ] Add project creation with file picker
-- [ ] Build home page project list UI
-- [ ] Implement auto-save to filesystem on every edit
-- [ ] Implement open existing file functionality
-- [ ] Add "Save Demo As Project" conversion
-- [ ] Migrate routes to file-based projects
-- [ ] Add auto-save with debouncing (2s)
-- [ ] Implement permission recovery handling
-- [ ] Add save status indicator
+- [x] Implement file handle persistence in IndexedDB
+- [x] Add project creation with file picker
+- [x] Build home page project list UI
+- [x] Implement auto-save to filesystem on every edit
+- [x] Implement open existing file functionality
+- [x] Migrate routes to file-based projects
+- [x] Add auto-save with debouncing (2s)
+- [x] Implement permission recovery handling
+- [x] Add save status indicator
 
 ## Out of Scope
 
@@ -333,32 +332,7 @@ interface ProjectMetadata {
 - Confirmation modal with clear messaging
 - Update project list UI after deletion
 
-### Story 6: Save Demo As Project
-
-**Acceptance Criteria**:
-
-- Given I am viewing the demo project
-- When I make edits to the demo content
-- And I click "Save As Project" in the toolbar
-- Then a native file picker opens
-- When I choose location ~/Documents/MyFirstNovel.json
-- Then the demo content is copied to a new project
-- And the new project is saved to the chosen file
-- And the file handle is stored in IndexedDB
-- And I am redirected to `/project/:projectId`
-- And future edits auto-sync to ~/Documents/MyFirstNovel.json
-
-**Technical Notes**:
-
-- Add "Save As Project" button to [`DemoPage.vue`](../../../src/features/demo/DemoPage.vue) header
-- Open file picker immediately (no name dialog needed)
-- Copy demo data → new `ProjectData` with new UUID
-- Extract name from chosen filename
-- Save to file and IndexedDB
-- Store file handle
-- Navigate to project editor
-
-### Story 7: Handle Permission Loss Gracefully
+### Story 6: Handle Permission Loss Gracefully
 
 **Acceptance Criteria**:
 
@@ -379,7 +353,7 @@ interface ProjectMetadata {
 - Check permission before every filesystem write: `handle.queryPermission()`
 - If denied, call `handle.requestPermission()` (browser prompt)
 - Show non-blocking error toast with action button
-- If user denies, offer "Save As" to choose new location
+- If user denies, offer "Save As" to new location
 - Log permission errors to console for debugging
 
 ## Technical Implementation Details
@@ -563,22 +537,7 @@ export function useProjectData(initialData: ProjectData) {
 - E2E test: click open → file picker → verify project loaded
 - Use Playwright file chooser mocking
 
-### Phase 6: Demo Conversion
-
-**Files to Modify**:
-
-- [`src/features/demo/DemoPage.vue`](../../../src/features/demo/DemoPage.vue)
-  - Add "Save As Project" button to header
-  - Wire to file picker
-  - Copy demo data → new project
-  - Navigate to `/project/:projectId`
-
-**Testing**:
-
-- E2E test: edit demo → save as → verify persisted
-- Verify demo remains unchanged after navigation
-
-### Phase 7: Save Status Indicator
+### Phase 6: Save Status Indicator
 
 **Files to Create**:
 
@@ -606,26 +565,17 @@ export function useProjectData(initialData: ProjectData) {
 - Storybook stories for all states (saving, saved, error)
 - Visual regression testing
 
-### Phase 8: Routing Migration
+### Phase 7: Polish & Error Handling
 
-**Files to Modify**:
+1. Add browser compatibility warning
+2. Improve error messages
+3. Add i18n strings
+4. Update routes
+5. Add loading states
 
-- [`src/router/routes.ts`](../../../src/router/routes.ts)
-  - Change `/project` → `/project/:projectId`
-  - Add route guard: if no `projectId`, redirect to home
-  - Keep `/demo` route unchanged
+**Validation**: Graceful degradation, clear error messages
 
-- [`src/features/writing-project/WritingProjectPage.vue`](../../../src/features/writing-project/WritingProjectPage.vue)
-  - Read `projectId` from route params
-  - Load project via `projectStorage.loadById(projectId)`
-  - Handle 404: project not found → redirect to home with toast
-
-**Testing**:
-
-- E2E test: navigate to `/project/invalid-id` → redirects to home
-- E2E test: direct link to `/project/:validId` → loads project
-
-### Phase 9: Internationalization
+### Phase 8: Internationalization
 
 **Files to Modify**:
 
@@ -653,7 +603,7 @@ export function useProjectData(initialData: ProjectData) {
 }
 ```
 
-### Phase 10: Browser Detection
+### Phase 9: Browser Detection
 
 **Files to Create**:
 
@@ -705,7 +655,6 @@ if (!isSupported) {
 - [ ] Can open existing files from filesystem
 - [ ] Auto-save works during editing (verify file updates on disk)
 - [ ] Can delete projects from list (file remains)
-- [ ] Can save demo as project
 - [ ] File format is valid JSON and human-readable
 - [ ] Save status indicator shows correct states
 - [ ] Permission recovery works when browser revokes access
@@ -790,15 +739,7 @@ if (!isSupported) {
 
 **Validation**: Can create projects via file picker, open existing files
 
-### Iteration 6: Demo Conversion
-
-1. Add "Save As Project" to demo page
-2. Wire to file picker
-3. Test conversion flow
-
-**Validation**: Demo edits can be saved as file-backed project
-
-### Iteration 7: Save Status Indicator
+### Iteration 6: Save Status Indicator
 
 1. Create `SaveStatusIndicator` component
 2. Wire to save status from `useProjectData`
@@ -807,7 +748,7 @@ if (!isSupported) {
 
 **Validation**: Status indicator updates correctly, looks polished
 
-### Iteration 8: Polish & Error Handling
+### Iteration 7: Polish & Error Handling
 
 1. Add browser compatibility warning
 2. Improve error messages
@@ -817,7 +758,7 @@ if (!isSupported) {
 
 **Validation**: Graceful degradation, clear error messages
 
-### Iteration 9: Testing & Documentation
+### Iteration 8: Testing & Documentation
 
 1. Write E2E tests for critical paths
 2. Manual testing on Chrome
