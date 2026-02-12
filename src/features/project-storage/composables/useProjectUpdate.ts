@@ -15,9 +15,14 @@ export function useProjectUpdate(storage: ProjectStorage, fileSystem: FileSystem
     projectData.meta.lastModified = now()
     await storage.save(projectData)
 
-    const handle = await storage.getFileHandle(projectData.projectId)
-    if (handle) {
-      await fileSystem.writePermittedAsJson(handle, projectData)
+    const fileHandle = await storage.getFileHandle(projectData.projectId)
+    if (fileHandle) {
+      await fileSystem.writePermittedAsJson(fileHandle, projectData)
+    }
+
+    const directoryHandle = await storage.getDirectoryHandle(projectData.projectId)
+    if (directoryHandle) {
+      await fileSystem.writeJsonToDirectory(directoryHandle, 'project.wt', projectData)
     }
 
     return projectData

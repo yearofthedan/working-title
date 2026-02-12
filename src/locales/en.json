@@ -35,6 +35,15 @@
         "description": "Open from your computer",
         "error": "Failed to open project"
       },
+      "openDirectory": {
+        "title": "Open Project Folder",
+        "description": "Open .narrative project folder",
+        "error": "Failed to open directory",
+        "invalidFolder": "Invalid folder. Please select a folder ending in .narrative",
+        "missingProjectFile": "Missing project.wt file in the selected folder",
+        "permissionDenied": "Permission denied. Cannot access the selected folder",
+        "corruptedFile": "The project file is corrupted and could not be loaded"
+      },
       "createProject": {
         "error": "Failed to create project"
       },
@@ -77,6 +86,7 @@
     "actions": {
       "save": "Save",
       "cancel": "Cancel",
+      "confirm": "Confirm",
       "delete": "Delete",
       "close": "Close"
     }

@@ -3,7 +3,7 @@
  * Represents the persisted state of a story project.
  */
 
-import { type FileSystemFileHandle } from '@/infra/files/types'
+import { type FileSystemFileHandle, type FileSystemDirectoryHandle } from '@/infra/files/types'
 
 export interface StepContent {
   /**
@@ -41,6 +41,8 @@ export interface ProjectMetadata {
   updatedAt: string
   fileHandle?: FileSystemFileHandle
   filePath?: string
+  directoryHandle?: FileSystemDirectoryHandle
+  directoryPath?: string
 }
 
 export interface ProjectData {

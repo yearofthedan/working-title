@@ -3,7 +3,7 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API
  */
 
-interface FileSystemHandle {
+export interface FileSystemHandle {
   readonly kind: 'file' | 'directory'
   readonly name: string
   isSameEntry(other: FileSystemHandle): Promise<boolean>
@@ -25,7 +25,7 @@ interface FileSystemCreateWritableOptions {
   keepExistingData?: boolean
 }
 
-interface FileSystemWritableFileStream extends WritableStream {
+export interface FileSystemWritableFileStream extends WritableStream {
   write(data: BufferSource | Blob | string | FileSystemWriteChunkType): Promise<void>
   seek(position: number): Promise<void>
   truncate(size: number): Promise<void>
@@ -36,11 +36,34 @@ type FileSystemWriteChunkType =
   | { type: 'seek'; position: number }
   | { type: 'truncate'; size: number }
 
+export interface FileSystemDirectoryHandle extends FileSystemHandle {
+  readonly kind: 'directory'
+  getFileHandle(name: string, options?: { create?: boolean }): Promise<FileSystemFileHandle>
+  getDirectoryHandle(
+    name: string,
+    options?: { create?: boolean }
+  ): Promise<FileSystemDirectoryHandle>
+}
+
 declare global {
   interface Window {
     showOpenFilePicker(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>
     showSaveFilePicker(options?: SaveFilePickerOptions): Promise<FileSystemFileHandle>
+    showDirectoryPicker(options?: DirectoryPickerOptions): Promise<FileSystemDirectoryHandle>
   }
+}
+
+export interface DirectoryPickerOptions {
+  id?: string
+  mode?: 'read' | 'readwrite'
+  startIn?:
+    | 'desktop'
+    | 'documents'
+    | 'downloads'
+    | 'music'
+    | 'pictures'
+    | 'videos'
+    | FileSystemHandle
 }
 
 interface FilePickerOptions {
@@ -69,4 +92,3 @@ interface FilePickerAcceptType {
   description?: string
   accept: Record<string, string[]>
 }
-

@@ -1,4 +1,10 @@
-import type { FileSystemFileHandle, SaveFilePickerOptions, OpenFilePickerOptions } from './types'
+import type {
+  FileSystemFileHandle,
+  FileSystemDirectoryHandle,
+  SaveFilePickerOptions,
+  OpenFilePickerOptions,
+  DirectoryPickerOptions,
+} from './types'
 import { FileSystemError } from './errors'
 import { logError } from '@/infra/logging/globals'
 
@@ -53,6 +59,24 @@ export class FileSystemStorageProvider {
       }
       const error = new FileSystemError(
         `Failed to open file: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        'READ_FAILED'
+      )
+      logError(error, { originalError: err })
+      throw error
+    }
+  }
+
+  async requestDirectoryHandle(
+    options: DirectoryPickerOptions = {}
+  ): Promise<FileSystemDirectoryHandle> {
+    try {
+      return await window.showDirectoryPicker(options)
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new FileSystemError('Directory picker was cancelled', 'ABORTED')
+      }
+      const error = new FileSystemError(
+        `Failed to select directory: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'READ_FAILED'
       )
       logError(error, { originalError: err })
@@ -121,6 +145,47 @@ export class FileSystemStorageProvider {
         }
       }
       throw err
+    }
+  }
+
+  async readJsonFromDirectory<T>(
+    dirHandle: FileSystemDirectoryHandle,
+    fileName: string
+  ): Promise<T> {
+    try {
+      const fileHandle = await dirHandle.getFileHandle(fileName)
+      return await this.readAsJson<T>(fileHandle)
+    } catch (err) {
+      if (err instanceof FileSystemError) throw err
+      const error = new FileSystemError(
+        `Failed to read ${fileName} from directory: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+        'READ_FAILED'
+      )
+      logError(error, { fileName, directory: dirHandle.name, originalError: err })
+      throw error
+    }
+  }
+
+  async writeJsonToDirectory<T>(
+    dirHandle: FileSystemDirectoryHandle,
+    fileName: string,
+    data: T
+  ): Promise<void> {
+    try {
+      const fileHandle = await dirHandle.getFileHandle(fileName, { create: true })
+      await this.writePermittedAsJson(fileHandle, data)
+    } catch (err) {
+      if (err instanceof FileSystemError) throw err
+      const error = new FileSystemError(
+        `Failed to write ${fileName} to directory: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+        'WRITE_FAILED'
+      )
+      logError(error, { fileName, directory: dirHandle.name, originalError: err })
+      throw error
     }
   }
 }

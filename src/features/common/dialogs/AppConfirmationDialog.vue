@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, toRef, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppSpinner from '@/features/common/feedback/AppSpinner.vue'
 
-const props = defineProps<{
+export type ComponentProps = {
   modelValue: boolean
   title: string
   message: string
@@ -11,31 +11,27 @@ const props = defineProps<{
   cancelLabel?: string
   isDangerous?: boolean
   isLoading?: boolean
-}>()
+}
 
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
+const props = defineProps<ComponentProps>()
+
+const emit = defineEmits(['update:modelValue', 'confirm', 'close'])
 
 const { t } = useI18n()
+const isOpen = toRef(() => props.modelValue)
+
 const dialogRef = ref<null | HTMLDialogElement>(null)
 
-watch(
-  () => props.modelValue,
-  (isOpen) => {
-    const dialog = dialogRef.value
-    if (!dialog) return
-    if (isOpen) {
-      if (!dialog.open) dialog.showModal()
-    } else if (dialog.open) {
-      dialog.close()
-    }
-  },
-  { immediate: true }
-)
+watchEffect(async () => {
+  const dialog = dialogRef.value
+  if (!dialog) return
 
-function handleCancel() {
-  emit('cancel')
-  emit('update:modelValue', false)
-}
+  if (isOpen.value) {
+    if (!dialog.open) dialog.showModal()
+  } else {
+    if (dialog.open) dialog.close()
+  }
+})
 
 function handleConfirm() {
   emit('confirm')
@@ -43,6 +39,7 @@ function handleConfirm() {
 
 function handleClose() {
   emit('update:modelValue', false)
+  emit('close')
 }
 </script>
 
@@ -64,21 +61,23 @@ function handleClose() {
       <div class="flex justify-end gap-3 mt-2">
         <button
           type="button"
+          :autofocus="isDangerous"
           class="px-4 py-2 text-ink/60 hover:text-ink transition-colors cursor-pointer disabled:opacity-30"
           :disabled="isLoading"
-          @click="handleCancel"
+          @click="handleClose"
         >
           {{ cancelLabel || t('common.actions.cancel') }}
         </button>
 
         <button
           type="button"
-          class="relative px-6 py-2 rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-w-[100px]"
+          class="relative px-6 py-2 rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-w-25"
           :class="[
             isDangerous
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-primary text-on-primary hover:bg-primary/90',
           ]"
+          :autofocus="!isDangerous"
           :disabled="isLoading"
           @click="handleConfirm"
         >

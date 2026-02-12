@@ -5,7 +5,7 @@ import {
   type IIndexedDBProvider,
   type IndexedDBConfig,
 } from '@/infra/index-db/IndexedDBProvider'
-import { type FileSystemFileHandle } from '@/infra/files/types'
+import { type FileSystemFileHandle, type FileSystemDirectoryHandle } from '@/infra/files/types'
 import { logError, logInfo } from '@/infra/logging/globals'
 
 const APP_NAMESPACE = 'working-title'
@@ -79,6 +79,14 @@ export class ProjectStorage {
   }
 
   /**
+   * Retrieves the directory handle associated with a project.
+   */
+  async getDirectoryHandle(projectId: string): Promise<FileSystemDirectoryHandle | undefined> {
+    const metadata = await this.getMetadata(projectId)
+    return metadata?.directoryHandle as FileSystemDirectoryHandle | undefined
+  }
+
+  /**
    * Lists all projects with their metadata.
    */
   async listProjects(): Promise<ProjectMetadata[]> {
@@ -90,10 +98,12 @@ export class ProjectStorage {
    */
   private async syncRegistry(
     data: ProjectData,
-    fileHandle?: FileSystemFileHandle
+    fileHandle?: FileSystemFileHandle,
+    directoryHandle?: FileSystemDirectoryHandle
   ): Promise<ProjectMetadata> {
     const existing = await this.getMetadata(data.projectId)
     const includeHandle = fileHandle && this.isRealHandle(fileHandle)
+
     const metadata: ProjectMetadata = {
       ...existing,
       id: data.projectId,
@@ -103,16 +113,22 @@ export class ProjectStorage {
       updatedAt: data.meta.lastModified,
       fileHandle: includeHandle ? fileHandle : existing?.fileHandle,
       filePath: includeHandle ? fileHandle?.name : existing?.filePath,
+      directoryHandle: directoryHandle ?? existing?.directoryHandle,
+      directoryPath: directoryHandle ? directoryHandle.name : existing?.directoryPath,
     }
     await this.provider.setItem(data.projectId, metadata, STORES.REGISTRY)
     return metadata
   }
 
-  async save(data: ProjectData, fileHandle?: FileSystemFileHandle): Promise<ProjectMetadata> {
+  async save(
+    data: ProjectData,
+    fileHandle?: FileSystemFileHandle,
+    directoryHandle?: FileSystemDirectoryHandle
+  ): Promise<ProjectMetadata> {
     try {
       const serialized = JSON.stringify(data)
       await this.provider.setItem(this.getProjectKey(data.projectId), serialized, STORES.CONTENT)
-      const metadata = await this.syncRegistry(data, fileHandle)
+      const metadata = await this.syncRegistry(data, fileHandle, directoryHandle)
       logInfo(`Project saved: ${data.projectId}`, { projectId: data.projectId })
       return metadata
     } catch (err) {

@@ -22,6 +22,7 @@ export interface TestFixtures {
     seedProjectMetadata: (...projects: ProjectMetadata[]) => Promise<void>
   }
   fileStorage: TestFileStorageProvider
+  fileSystem: TestFileStorageProvider
 }
 
 export const it = baseTest.extend<TestFixtures>({
@@ -46,7 +47,13 @@ export const it = baseTest.extend<TestFixtures>({
       vi.spyOn(fileStorage, 'requestOpenFileHandle')
       vi.spyOn(fileStorage, 'writeAsJson')
       vi.spyOn(fileStorage, 'readAsJson')
+      vi.spyOn(fileStorage, 'requestDirectoryHandle')
+      vi.spyOn(fileStorage, 'readJsonFromDirectory')
     }
+    await use(fileStorage)
+  },
+  //todo check for uses and remove
+  fileSystem: async ({ fileStorage }, use) => {
     await use(fileStorage)
   },
   projectStorage: async ({ db, globalMocks }, use) => {

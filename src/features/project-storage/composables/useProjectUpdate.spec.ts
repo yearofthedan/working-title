@@ -3,6 +3,7 @@ import { it, type GivenContext } from './__testHelpers__/fixtures'
 import { useProjectUpdate } from './useProjectUpdate'
 import type { ProjectData } from '../types'
 import { buildMeta, buildProjectData } from '../__testHelpers__/builders'
+import { buildMockDirectoryHandle } from '@/infra/files/__testHelpers__/builders'
 
 vi.mock('@/utils/dates', () => ({
   now: vi.fn(() => '2026-01-11T20:00:00Z'),
@@ -73,6 +74,44 @@ describe('useProjectUpdate', () => {
       await updateProject(buildProjectData())
 
       expect(lastSuccess.value).toEqual('2026-01-11T20:00:00Z')
+    })
+
+    it('updates the project in the directory if a directory handle exists', async ({
+      projectStorage,
+      fileSystem,
+    }: GivenContext) => {
+      // 1. Arrange: Create a directory handle and save it to storage
+      const mockDir = buildMockDirectoryHandle('my-project.narrative')
+      const projectData = buildProjectData({ projectId: 'p-dir' })
+
+      await projectStorage.instance.save(projectData, undefined, mockDir)
+
+      vi.spyOn(fileSystem, 'writeJsonToDirectory')
+
+      const { updateProject } = useProjectUpdate(projectStorage.instance, fileSystem)
+
+      // 2. Act: Trigger update
+      await updateProject({
+        ...projectData,
+        meta: {
+          ...projectData.meta,
+          name: 'Updated in Directory',
+        },
+      })
+
+      // 3. Assert: Verify the file inside the directory was updated
+      expect(fileSystem.writeJsonToDirectory).toHaveBeenCalledWith(
+        mockDir,
+        'project.wt',
+        expect.objectContaining({
+          meta: expect.objectContaining({ name: 'Updated in Directory' }),
+        })
+      )
+
+      // Also verify via the mock file system
+      const fileHandle = await mockDir.getFileHandle('project.wt')
+      const fileContent = await fileSystem.readAsJson<ProjectData>(fileHandle)
+      expect(fileContent.meta.name).toBe('Updated in Directory')
     })
   })
 })
