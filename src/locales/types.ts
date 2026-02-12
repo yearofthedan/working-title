@@ -35,6 +35,15 @@ export interface MessageSchema {
         description: string
         error: string
       }
+      openDirectory: {
+        title: string
+        description: string
+        error: string
+        invalidFolder: string
+        missingProjectFile: string
+        permissionDenied: string
+        corruptedFile: string
+      }
       createProject: {
         error: string
       }
@@ -77,6 +86,7 @@ export interface MessageSchema {
     actions: {
       save: string
       cancel: string
+      confirm: string
       delete: string
       close: string
     }

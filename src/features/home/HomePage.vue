@@ -15,7 +15,8 @@ import { useNotifications } from '@/composables/useNotifications'
 const router = useRouter()
 const { t } = useI18n()
 const { error: notifyError } = useNotifications()
-const { list, create, open } = useProjectStore()
+const projectStore = useProjectStore()
+const { list, create, open } = projectStore
 
 const isNameDialogOpen = ref(false)
 
@@ -32,16 +33,39 @@ open.onSuccess((metadata) => {
   router.push({ name: RouteNames.Project, params: { id: metadata.id } })
 })
 
-open.onError(() => {
-  notifyError(t('app.home.openFile.error'))
+open.onError((err) => {
+  const message = err instanceof Error ? err.message : ''
+  switch (message) {
+    case 'INVALID_FOLDER':
+      notifyError(t('app.home.openDirectory.invalidFolder'))
+      break
+    case 'MISSING_PROJECT_FILE':
+      notifyError(t('app.home.openDirectory.missingProjectFile'))
+      break
+    case 'PERMISSION_DENIED':
+      notifyError(t('app.home.openDirectory.permissionDenied'))
+      break
+    case 'CORRUPTED_FILE':
+      notifyError(t('app.home.openDirectory.corruptedFile'))
+      break
+    case 'INVALID_PROJECT_FILE':
+      notifyError(t('app.home.openFile.error'))
+      break
+    default:
+      notifyError(t('app.home.openFile.error'))
+  }
 })
+
+async function handleOpenDirectory() {
+  await open.execute('directory')
+}
 
 list.onError(() => {
   notifyError(t('app.home.loadProjects.error'))
 })
 
 async function handleNewProject(name: string) {
-  await create.execute(name, 'snowflake-method-v1')
+  await create.execute(name, 'snowflake-method-v1', 'directory')
 }
 
 async function handleOpenFile() {
@@ -73,6 +97,14 @@ const primaryActions = computed<PrimaryAction[]>(() => [
     icon: 'open',
     loading: open.state.value.status === 'loading',
     handler: handleOpenFile,
+  },
+  {
+    id: 'open-directory',
+    title: t('app.home.openDirectory.title'),
+    description: t('app.home.openDirectory.description'),
+    icon: 'open',
+    loading: open.state.value.status === 'loading',
+    handler: handleOpenDirectory,
   },
   {
     id: 'demo',
@@ -113,7 +145,11 @@ const primaryActions = computed<PrimaryAction[]>(() => [
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ProjectListItem v-for="project in list.projects.value" :key="project.id" :project="project" />
+          <ProjectListItem
+            v-for="project in list.projects.value"
+            :key="project.id"
+            :project="project"
+          />
         </div>
       </section>
 

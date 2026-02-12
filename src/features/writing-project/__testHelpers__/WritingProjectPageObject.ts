@@ -1,6 +1,5 @@
-import type { BrowserPage } from 'vitest/browser'
 import appMessages from '@/locales/en.json'
-import { BasePageObject } from '@/features/__testHelpers__/BasePageObject'
+import { BasePageObject, type Locatable } from '@/features/__testHelpers__/BasePageObject'
 import { ProjectSidebarPageObject } from '../project-sidebar/__testHelpers__/ProjectSidebarPageObject'
 import { CanvasPageObject } from '../project-canvas/__testHelpers__/ProjectCanvasPageObject'
 import { DetailPanelPageObject } from '../step-panel/__testHelpers__/DetailPanelPageObject'
@@ -8,7 +7,7 @@ import { DetailPanelPageObject } from '../step-panel/__testHelpers__/DetailPanel
 const writingProjectMessages = appMessages.writingProject
 
 export class WritingProjectPageObject extends BasePageObject {
-  constructor(page: BrowserPage) {
+  constructor(page: Locatable) {
     super(page)
   }
 

@@ -75,7 +75,6 @@ Storage Details:
 
 - **Desktop App UX**: Matches VS Code, Figma, etc. - pick location once, auto-saves forever
 - **No "Export" Confusion**: File is always up-to-date, no manual export step
-- **Git-Friendly**: Users can commit project files directly from filesystem
 - **Backup-Friendly**: Standard backup tools (Time Machine, etc.) catch all changes
 - **Clear Mental Model**: "This is my file" vs "I need to remember to export"
 

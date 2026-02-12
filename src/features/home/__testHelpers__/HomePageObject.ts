@@ -1,44 +1,46 @@
+import { BasePageObject, type Locatable } from '@/features/__testHelpers__/BasePageObject'
 import { WritingProjectPageObject } from '@/features/writing-project/__testHelpers__/WritingProjectPageObject'
-import type { BrowserPage } from 'vitest/browser'
 
-export class HomePageObject {
-  private page: BrowserPage
-
-  constructor(page: BrowserPage) {
-    this.page = page
+export class HomePageObject extends BasePageObject {
+  constructor(page: Locatable) {
+    super(page)
   }
 
   get header() {
-    return this.page.getByRole('heading', { name: 'Working Title' })
+    return this.host.getByRole('heading', { name: 'Working Title' })
   }
 
   get viewDemoButton() {
-    return this.page.getByRole('link', { name: 'View Demo' })
+    return this.host.getByRole('link', { name: 'View Demo' })
   }
 
   get newProjectButton() {
-    return this.page.getByRole('button', { name: /new project/i })
+    return this.host.getByRole('button', { name: /new project/i })
   }
 
   get openFileButton() {
-    return this.page.getByRole('button', { name: /open file/i })
+    return this.host.getByRole('button', { name: /open file/i })
+  }
+
+  get openDirectoryButton() {
+    return this.host.getByRole('button', { name: /open project folder/i })
   }
 
   get emptyState() {
-    return this.page.getByText('No projects yet')
+    return this.host.getByText('No projects yet')
   }
 
   projectItem(name: string) {
-    return this.page.getByRole('link', { name })
+    return this.host.getByRole('link', { name })
   }
 
   async navToNewProject() {
     await this.newProjectButton.click()
-    return new WritingProjectPageObject(this.page)
+    return new WritingProjectPageObject(this.host)
   }
 
   async navToDemo() {
     await this.viewDemoButton.click()
-    return new WritingProjectPageObject(this.page)
+    return new WritingProjectPageObject(this.host)
   }
 }

@@ -13,7 +13,6 @@ const meta: Meta<typeof AppConfirmationDialog> = {
     isDangerous: false,
     isLoading: false,
     onConfirm: fn(),
-    onCancel: fn(),
     'onUpdate:modelValue': fn(),
   },
 }

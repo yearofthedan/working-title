@@ -8,12 +8,17 @@ import { HomePageObject } from './__testHelpers__/HomePageObject'
 import {
   buildProjectStore,
   buildProjectMetadata,
+  buildProjectData,
+  buildMeta,
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { createNotificationsBinding } from '@/composables/useNotifications'
 import type { ProjectStorage } from '../project-storage/ProjectStorage'
-import type { TestFileStorageProvider } from '@/infra/files/__testHelpers__/builders'
+import {
+  type TestFileStorageProvider,
+  buildMockDirectoryHandle,
+} from '@/infra/files/__testHelpers__/builders'
 import type { FileSystemFileHandle } from '@/infra/files/types'
 import { DummyFileHandle } from '@/infra/files/DummyFileHandle'
 
@@ -98,11 +103,11 @@ describe('HomePage', () => {
 
     await po.openFileButton.click()
 
-    await expect.element(page.getByRole('status', { name: 'loading' })).toBeVisible()
+    await expect.element(po.openFileButton.getByRole('status')).toBeVisible()
     // @ts-expect-error is assigned
     resolveOpen(new DummyFileHandle('test', new Map()))
 
-    await expect.element(page.getByRole('status', { name: 'loading' })).not.toBeInTheDocument()
+    await expect.element(po.openFileButton.getByRole('status')).not.toBeInTheDocument()
   })
 
   it('navigates to the demo page', async ({ projectStorage }) => {
@@ -169,5 +174,27 @@ describe('HomePage', () => {
         message: 'Failed to open project',
       })
     )
+  })
+
+  it('navigates to the project when "Open Directory (Beta)" is clicked and directory is selected', async ({
+    projectStorage,
+    fileStorage,
+  }) => {
+    const projectData = buildProjectData({
+      projectId: 'dir-project-id',
+      meta: buildMeta({ name: 'Directory Project' }),
+    })
+
+    const mockDir = buildMockDirectoryHandle('test.narrative')
+    vi.mocked(fileStorage.requestDirectoryHandle).mockResolvedValue(mockDir)
+    vi.mocked(fileStorage.readJsonFromDirectory).mockResolvedValue(projectData)
+
+    const { po } = renderComponent(projectStorage.instance, fileStorage)
+
+    await po.openDirectoryButton.click()
+
+    await vi.waitFor(() => {
+      expect(window.location.pathname).toContain('/project/dir-project-id')
+    })
   })
 })

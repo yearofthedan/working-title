@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures'
-import appMessages from '@/locales/en.json' with { type: 'json' }
+import strings from '@/locales/en.json' with { type: 'json' }
 
 test.describe('App Smoke Test', () => {
   test('should load the home page and navigate to a new project', async ({ page }) => {
@@ -11,25 +11,25 @@ test.describe('App Smoke Test', () => {
 
     await test.step('Navigate to new project', async () => {
       await newProjectButton.click()
-      await page.getByLabel(/Project Name/i).fill('My New Project')
-      await page.getByRole('button', { name: /Create Project/i }).click()
+      await page.getByLabel(strings.app.home.newProject.dialog.nameLabel).fill('My New Project')
+      await page.getByRole('button', { name: strings.app.home.newProject.dialog.create }).click()
       await expect(page).toHaveURL(/\/project/)
       await expect(page).toHaveTitle(/Writing Project/)
     })
 
     const sidebar = page.getByRole('complementary', {
-      name: appMessages.writingProject.sidebar.contextTitle,
+      name: strings.writingProject.sidebar.contextTitle,
     })
     await expect(sidebar).toBeVisible()
 
-    const canvas = page.getByText('Start Your Story')
+    const canvas = page.getByText(strings.app.canvas.emptyState.title)
     await expect(canvas).toBeVisible()
   })
 
   test('should load the home page and navigate to the demo', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveTitle(/Working Title/)
-    await expect(page.locator('h1')).toContainText('Working Title')
+    await expect(page.locator('h1')).toContainText(strings.app.name)
 
     const demoLink = page.getByRole('link', { name: /Demo/i })
     await expect(demoLink).toBeVisible()
@@ -40,7 +40,7 @@ test.describe('App Smoke Test', () => {
     })
 
     const sidebar = page.getByRole('complementary', {
-      name: appMessages.writingProject.sidebar.contextTitle,
+      name: strings.writingProject.sidebar.contextTitle,
     })
     await expect(sidebar).toBeVisible()
 

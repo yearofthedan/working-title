@@ -1,5 +1,6 @@
 import type { BrowserPage, Locator } from 'vitest/browser'
 
+export type Locatable = BrowserPage | Locator
 /**
  * Base Page Object providing shared locator logic.
  */
@@ -9,7 +10,7 @@ export abstract class BasePageObject {
    */
   public readonly host: Locator
 
-  constructor(host: BrowserPage | Locator) {
+  constructor(host: Locatable) {
     // Both BrowserPage and Locator share the same API, but 'Locator' is the
     // common denominator for component-level testing.
     this.host = host as unknown as Locator

@@ -46,6 +46,8 @@ export const buildProjectMetadata = (
   templateId: 'snowflake-method-v1',
   createdAt: '2024-01-01T12:00:00Z',
   updatedAt: '2024-01-01T12:00:00Z',
+  directoryHandle: overrides.directoryHandle,
+  directoryPath: overrides.directoryPath,
   ...overrides,
 })
 

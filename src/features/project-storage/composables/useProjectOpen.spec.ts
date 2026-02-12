@@ -40,7 +40,7 @@ describe('useProjectOpen', () => {
       await openProject()
 
       expect(state.value.status).toBe('error')
-      expect(state.value.error?.message).toEqual('Invalid project file')
+      expect(state.value.error?.message).toEqual('INVALID_PROJECT_FILE')
     })
   })
 })
