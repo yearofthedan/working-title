@@ -91,7 +91,7 @@
     "source=${localWorkspaceFolderBasename}-extensions,target=/home/node/.vscode-server/extensions,type=volume",
     "source=${localWorkspaceFolderBasename}-global-storage,target=/home/node/.vscode-server/data/User/globalStorage,type=volume"
   ],
-  "onCreateCommand": "bash .devcontainer/setup.sh",
+  "onCreateCommand": "bash .devcontainer/onCreate.sh",
   "postCreateCommand": "./do bootstrap",
   "postStartCommand": "./do launch-chromium-debug",
   "containerEnv": {
