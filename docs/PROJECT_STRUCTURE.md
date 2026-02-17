@@ -19,7 +19,7 @@ project-root/
 ├── .vscode/                # 
 ├── docs  /                 # 
 ├── e2e/                    #
-├── memory/                 # 
+├── docs/                   # 
     ├── decisions/          #
         ├── active/         #
         ├── archive/        #

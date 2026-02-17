@@ -157,46 +157,12 @@ For EACH feature behavior:
 
 **If you catch ANY of these, STOP. Delete implementation and start with failing test.**
 
-## Real Example: Notification Display Feature
-
-**WRONG APPROACH** (what happened in the failure):
-1. Built `AppNotificationContainer.vue` component ✅
-2. Added Storybook story ✅
-3. Mounted in `App.vue` ✅
-4. Manually tested in browser ✅
-5. **FORGOT**: Tests that `useProjectDelete` actually calls `success()` ❌
-6. Result: UI component works, but notifications never trigger in real usage
-
-**RIGHT APPROACH** (TDD cycle):
-
-**Cycle 1**: Test that delete triggers notification
-```typescript
-// RED: Write failing test
-it('should show success notification when project deleted', ...)
-// GREEN: Add success() call to useProjectDelete
-// REFACTOR: Extract message to i18n
-```
-
-**Cycle 2**: Test that create triggers notification
-```typescript
-// RED: Write failing test
-it('should show success notification when project created', ...)
-// GREEN: Add success() call to useProjectCreate
-// REFACTOR: Ensure consistent message format
-```
-
-**Cycle 3**: Test notification display logic
-```typescript
-// RED: Write failing test
-it('should render notification with correct type icon', ...)
-// GREEN: Implement icon mapping in component
-// REFACTOR: Extract icon logic to computed
-```
-
-Each cycle builds on previous, all tests stay green.
-
 ## References
 
+**Detailed examples and patterns**: See [docs/guides/tdd-patterns.md](../../../docs/guides/tdd-patterns.md)
+
+
+
 - [`plan-functional-slices`](../plan-functional-slices/SKILL.md) - Vertical slicing mindset
-- [`workflow-vue/references/testing.md`](../workflow-vue/references/testing.md) - Vue component testing patterns
-- [`references/testing-patterns.md`](references/testing-patterns.md) - Global testing strategy and Testing Trophy
+- [docs/guides/vue-testing.md](../../../docs/guides/vue-testing.md) - Vue component testing patterns
+- [docs/guides/tdd-patterns.md](../../../docs/guides/tdd-patterns.md) - Real examples and Testing Trophy strategy

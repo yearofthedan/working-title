@@ -16,7 +16,7 @@ When delegating to another mode that should use skills, you MUST:
 
 **VIOLATION CHECK**: Before `switch_mode` or `new_task`, ask yourself:
 - "What project standards must this implementation follow?" (i18n, Tailwind semantic tokens, TDD, accessibility)
-- "Which skills document these standards?" (workflow-general, workflow-vue, i18n-workflow, etc.)
+- "Which skills document these standards?" (workflow-general, workflow-vue, docs/guides/i18n.md, etc.)
 - "Have I loaded ALL relevant skills into context?"
 - If ANY skill is missing → STOP. Load it before switching.
 
@@ -29,11 +29,11 @@ read_file: memory/planning/active/notification-display-spec.md
 read_file: .roo/skills/workflow-general/SKILL.md
 read_file: .roo/skills/workflow-functional-changes/SKILL.md
 read_file: .roo/skills/workflow-vue/SKILL.md
-read_file: .roo/skills/i18n-workflow/SKILL.md
-read_file: .roo/skills/icon-system/SKILL.md
+read_file: docs/guides/i18n.md
+read_file: docs/guides/icons.md
 
 # Then delegate with explicit reference
-I've loaded workflow-general, workflow-functional-changes, workflow-vue, i18n-workflow, and icon-system into context.
+I've loaded workflow-general, workflow-functional-changes, workflow-vue, and the i18n and icon guides into context.
 Switch to code mode and follow these skills to implement the notification display feature per spec.
 ```
 
@@ -48,7 +48,7 @@ Switch to code mode to implement this.
 
 **Real failure example**: Orchestrator delegated to Code mode without loading skills → Code mode:
 - Used raw Tailwind colors instead of semantic tokens (violated workflow-vue)
-- Hardcoded strings instead of i18n (violated i18n-workflow)
+- Hardcoded strings instead of i18n (violated docs/guides/i18n.md)
 - Skipped TDD (violated workflow-functional-changes)
 - Missing accessibility standards (violated workflow-vue "Grade A" requirement)
 

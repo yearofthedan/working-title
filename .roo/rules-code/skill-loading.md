@@ -38,7 +38,7 @@ Review [`.roo/skills/README.md`](../skills/README.md) to identify applicable wor
 - [`workflow-third-party-libraries`](../skills/workflow-third-party-libraries/SKILL.md) - Bundle size, security audit
 
 **For architecture questions:**
-- [`understand-architectural-decisions`](../skills/understand-architectural-decisions/SKILL.md) - ADRs and design rationale
+- [docs/decisions/index.md](../../docs/decisions/index.md) - ADRs and design rationale
 
 ### 3. Load Skills into Context
 
@@ -91,8 +91,8 @@ Done - proceed with task
 - [ ] Loaded [`workflow-general`](../skills/workflow-general/SKILL.md) (ALWAYS for code changes)
 - [ ] Loaded [`workflow-functional-changes`](../skills/workflow-functional-changes/SKILL.md) (for features)
 - [ ] Loaded [`workflow-vue`](../skills/workflow-vue/SKILL.md) (for Vue components)
-- [ ] Loaded [`i18n-workflow`](../skills/i18n-workflow/SKILL.md) (if adding user-facing text)
-- [ ] Loaded [`icon-system`](../skills/icon-system/SKILL.md) (if adding icons)
+- [ ] Reviewed [docs/guides/i18n.md](../../docs/guides/i18n.md) (if adding user-facing text)
+- [ ] Reviewed [docs/guides/icons.md](../../docs/guides/icons.md) (if adding icons)
 - [ ] Skills are now in context and reviewed
 
 **If ANY box is unchecked and relevant, STOP. Load the skill first.**

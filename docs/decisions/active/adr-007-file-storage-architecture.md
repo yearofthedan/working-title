@@ -513,7 +513,7 @@ graph TD
 
 ## Implementation Phases
 
-See companion feature plan: [`memory/planning/active/file-storage-implementation.md`](../../planning/active/file-storage-implementation.md)
+See companion feature plan: [`../../planning/archive/file-storage-implementation.md`](../../planning/active/file-storage-implementation.md)
 
 ## Open Questions
 

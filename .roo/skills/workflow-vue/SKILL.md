@@ -33,7 +33,7 @@ description: Technical lifecycle for Vue 3 components and composables using Vert
 Choose the state pattern based on the component's role:
 
 - **Leaf/Simple Components**: Prefer Props and Events/Models. Keep them "dumb" and reusable.
-- **Feature Slices**: Use Feature Context when state or mutations need to be shared across 3+ components or deep nesting levels. More detailed guidance at [Feature context](references/feature-context.md)
+- **Feature Slices**: Use Feature Context when state or mutations need to be shared across 3+ components or deep nesting levels.
 
 As trees become more complex, refactor the state implementation to avoid prop-drilling.
 
@@ -43,11 +43,11 @@ As trees become more complex, refactor the state implementation to avoid prop-dr
 
 - **Identify**: Find a cohesive template block (e.g., a form section or complex list item).
 - **Move**: Extract to an appropriate place according to organisation principles.
-- **Alternatives**: Consider other approaches in addition or alternative to, such as extracting a **Composable** (Refer to [Composables](references/composables.md) for best practice).
+- **Alternatives**: Consider extracting a **Composable** (see [docs/guides/vue-composables.md](../../../docs/guides/vue-composables.md)).
 
 ### 5. Styling (Hybrid Approach)
 
-More details under [Styling](references/styling.md)
+See [docs/guides/vue-styling.md](../../../docs/guides/vue-styling.md) for complete patterns.
 
 - **Hierarchy**: Semantic Class > Theme Variable > Tailwind v4 Utility.
 - **Layout**: Use custom flex utilities (`flex-h`, `flex-y`).
@@ -62,7 +62,7 @@ More details under [`storybook-workflow`](../storybook-workflow/SKILL.md)
 
 #### Component & Composable testing
 
-More details under [Vue Testing Patterns](references/testing.md)
+See [docs/guides/vue-testing.md](../../../docs/guides/vue-testing.md) for complete patterns.
 
 - Create `[ComponentName].spec.ts` for components and `[ComposableName].spec.ts` for logic.
 - **Focus**: Test that user inputs (clicks, typing) result in the correct output (emits, UI updates).
@@ -70,10 +70,8 @@ More details under [Vue Testing Patterns](references/testing.md)
 
 ### 7. Performance (Optional)
 
-More details under [Performance](references/performance.md)
-
 - **Check**: Is the component using heavy dependencies (>1MB) like Vue Flow or Tiptap, and is it impacting web load time?
-- **Action**: Apply **Async Loading**, **Dormant Pattern**, or **Singleton Adapters** as defined in the Ref.
+- **Action**: Apply **Async Loading**, **Dormant Pattern**, or **Singleton Adapters** as defined in [ADR-003](../../../docs/decisions/active/adr-003-dormant-components.md).
 
 ## Validation Checklist
 
