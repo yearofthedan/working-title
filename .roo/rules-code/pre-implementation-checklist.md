@@ -11,8 +11,8 @@
 - [ ] Load [`plan-functional-slices`](../skills/plan-functional-slices/SKILL.md) - Defines the approach to implementing features
 - [ ] Load [`tdd-enforcement`](../skills/tdd-enforcement/SKILL.md) - Defines the TDD approach to code changes
 - [ ] Load [`workflow-vue`](../skills/workflow-vue/SKILL.md) - Required for Vue components
-- [ ] Load [`i18n-workflow`](../skills/i18n-workflow/SKILL.md) - If spec mentions user-facing text
-- [ ] Load [`icon-system`](../skills/icon-system/SKILL.md) - If spec mentions icons
+- [ ] Review [docs/guides/i18n.md](../../docs/guides/i18n.md) - If spec mentions user-facing text
+- [ ] Review [docs/guides/icons.md](../../docs/guides/icons.md) - If spec mentions icons
 - [ ] Load [`storybook-workflow`](../skills/storybook-workflow/SKILL.md) - If creating/modifying components
 
 **STOP**: If any relevant skill is unchecked, load it before proceeding.
@@ -51,7 +51,7 @@ If NO explicit implementation instruction → **ASK** what they want you to do f
 Review skills and confirm you understand:
 
 - [ ] Tailwind semantic tokens (from workflow-vue) - NO raw colors like `bg-blue-500`
-- [ ] i18n pattern (from i18n-workflow) - NO hardcoded user-facing strings
+- [ ] i18n pattern (from docs/guides/i18n.md) - NO hardcoded user-facing strings
 - [ ] Accessibility requirements (from workflow-vue) - Semantic HTML, ARIA labels
 - [ ] Component structure (from workflow-vue) - Props/emits, < 60 lines target
 - [ ] File organization (from workflow-general) - Correct feature directory

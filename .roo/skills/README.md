@@ -16,13 +16,13 @@ Each skill is organized as a directory containing:
 - [workflow-vue/](workflow-vue/): Standards for component and composable creation, styling, and ensuring components stay under the 60-line limit
 - [tdd-enforcement/](tdd-enforcement/): Strict RED-GREEN-REFACTOR enforcement for features with user feedback (notifications, forms, navigation)
 - [storybook-workflow/](storybook-workflow/): Create and maintain Storybook stories with variants and smoke testing
-- [i18n-workflow/](i18n-workflow/): Two-tier i18n system for app strings and template-specific strings
-- [icon-system/](icon-system/): Add and use Phosphor icons via Iconify with semantic registry
 - [workflow-third-party-libraries/](workflow-third-party-libraries/): Guidelines for adding and isolating external dependencies
+
+**Note**: For i18n and icon patterns, see [docs/guides/](../../docs/guides/) instead of skills.
 
 ## Architecture
 
-- [understand-architectural-decisions/](understand-architectural-decisions/): How to verify changes against ADRs stored in memory/decisions/.
+For architectural decisions and rationale, see [docs/decisions/index.md](../../docs/decisions/index.md).
 
 ## Tooling
 

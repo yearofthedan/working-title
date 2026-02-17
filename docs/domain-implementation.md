@@ -17,14 +17,14 @@ Raw project data is transformed into view-specific models:
 - **Canvas**: Steps → Graph nodes with positions, sizes, and visual properties
 - **Sidebar**: Steps → Ordered list with labels and instructions
 
-See [`src/features/writing-project/view-model/useProjectViewModel.ts`](../../src/features/writing-project/view-model/useProjectViewModel.ts)
+See [`src/features/writing-project/view-model/useProjectViewModel.ts`](../src/features/writing-project/view-model/useProjectViewModel.ts)
 
 ### Graph Partitioning by Tracks
 
 Steps are organized into vertical tracks using graph partitioning algorithms.
 Each track represents a narrative thread (main plot, character arcs, world-building).
 
-See [`src/utils/graphs.ts`](../../src/utils/graphs.ts) and [`src/features/writing-project/utils/elkLayoutAdapter.ts`](../../src/features/writing-project/utils/elkLayoutAdapter.ts)
+See [`src/utils/graphs.ts`](../src/utils/graphs.ts) and [`src/features/writing-project/utils/elkLayoutAdapter.ts`](../src/features/writing-project/utils/elkLayoutAdapter.ts)
 
 ## Implementation Notes
 
@@ -33,12 +33,12 @@ See [`src/utils/graphs.ts`](../../src/utils/graphs.ts) and [`src/features/writin
 The primary template implements Randy Ingermanson's Snowflake Method for novel planning.
 Steps progress from a one-sentence summary to full scene-by-scene outlines.
 
-**File**: [`src/features/snowflake/template.ts`](../../src/features/snowflake/template.ts)
+**File**: [`src/features/process-templates/snowflake/template.ts`](../src/features/process-templates/snowflake/template.ts)
 
 ### Demo Data
 
 Sample project data is available for testing:
-**File**: [`src/features/demo/project-data.ts`](../../src/features/demo/project-data.ts)
+**File**: [`src/features/demo/project-data.ts`](../src/features/demo/project-data.ts)
 
 ## When Working on Features
 
@@ -59,3 +59,9 @@ Sample project data is available for testing:
 - Rich text: Tiptap editor with StarterKit
 - Plain text: Textarea with Tailwind styling
 - All content stored as HTML strings in `step.content.text`
+
+## Further Reading
+
+- **[Domain Concepts](domain.md)**: Core terminology and application purpose
+- **[Tech Stack](tech-stack.md)**: Technologies and libraries used
+- **[Architecture](architecture.md)**: Overall system design and conventions

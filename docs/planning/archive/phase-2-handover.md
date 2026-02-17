@@ -38,4 +38,4 @@ The goal is to determine how the UI should differentiate rendering based on thes
 - [`src/features/process-templates/processTemplate.ts`](src/features/process-templates/processTemplate.ts) (Schema)
 - [`src/features/process-templates/snowflake/template.ts`](src/features/process-templates/snowflake/template.ts) (Definitions)
 - [`src/features/writing-project/project-sidebar/ProjectSidebar.vue`](src/features/writing-project/project-sidebar/ProjectSidebar.vue) (Current inline editor)
-- [`memory/decisions/active/adr-007-file-storage-architecture.md`](memory/decisions/active/adr-007-file-storage-architecture.md) (Architecture baseline)
+- [`../../decisions/active/adr-007-file-storage-architecture.md`](../../decisions/active/adr-007-file-storage-architecture.md) (Architecture baseline)

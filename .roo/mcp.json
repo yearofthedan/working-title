@@ -1,8 +1,27 @@
 {
-  "mcpServers": {
-    "serena": {
-      "command": "serena",
-      "args": ["start-mcp-server", "--project", "/workspaces/working-title"]
-    }
-  }
+	"mcpServers": {
+		"serena": {
+			"command": "serena",
+			"args": [
+				"start-mcp-server",
+				"--project",
+				"/workspaces/working-title"
+			],
+			"disabledTools": [
+				"write_memory",
+				"read_memory",
+				"list_memories",
+				"delete_memory",
+				"edit_memory",
+				"execute_shell_command",
+				"switch_modes",
+				"prepare_for_new_conversation"
+			],
+			"alwaysAllow": [
+				"list_dir",
+				"replace_content",
+				"search_for_pattern"
+			]
+		}
+	}
 }

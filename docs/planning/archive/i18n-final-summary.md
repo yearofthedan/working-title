@@ -25,7 +25,7 @@ The internationalization (i18n) system has been fully implemented across 6 phase
 - `src/features/process-templates/snowflake/locales/index.ts`: Exporter for template locales.
 - `src/i18n/__testHelpers__/i18n-utils.ts`: specialized i18n factory for tests.
 - `.roo/guides/i18n-workflow.md`: Developer manual and troubleshooting.
-- `memory/decisions/active/adr-006-i18n-architecture.md`: ADR documenting the system.
+- `docs/decisions/active/adr-006-i18n-architecture.md`: ADR documenting the system.
 
 ---
 

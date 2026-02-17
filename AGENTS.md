@@ -20,12 +20,13 @@ Executable workflows loaded when relevant. See [Skills README](.roo/skills/READM
 
 **Core workflows**: [`workflow-general`](.roo/skills/workflow-general/), [`workflow-functional-changes`](.roo/skills/workflow-functional-changes/), [`workflow-vue`](.roo/skills/workflow-vue/), [`storybook-workflow`](.roo/skills/storybook-workflow/)
 
-### Memory System (`memory/`)
+### Documentation (`docs/`)
 
-Project planning and architectural decisions:
+Project documentation, planning, and architectural decisions:
 
-- [Planning](memory/planning/README.md) - Roadmap, backlog, active feature plans
-- [Decisions](memory/decisions/index.md) - ADRs documenting architectural choices
+- [Planning](docs/planning/README.md) - Roadmap, backlog, active feature plans
+- [Decisions](docs/decisions/index.md) - ADRs documenting architectural choices
+- [Guides](docs/guides/) - Practical guides for common tasks (icons, i18n, testing, styling)
 
 ### Mode-Specific Rules
 
@@ -47,7 +48,8 @@ User-facing strings must not be hardcoded. Use the two-tier i18n system:
 
 ## 🎯 Quick Start
 
-1. **Starting a feature?** Check [memory/planning/backlog.md](memory/planning/backlog.md)
+1. **Starting a feature?** Check [docs/planning/backlog.md](docs/planning/backlog.md)
 2. **Writing code?** Load [`workflow-general`](.roo/skills/workflow-general/SKILL.md)
-3. **Need architecture context?** Review [memory/decisions/](memory/decisions/index.md)
+3. **Need architecture context?** Review [docs/decisions/](docs/decisions/index.md)
 4. **Building components?** Use [`workflow-vue`](.roo/skills/workflow-vue/SKILL.md)
+5. **Need practical guidance?** Check [docs/guides/](docs/guides/) for icons, i18n, testing, and styling
