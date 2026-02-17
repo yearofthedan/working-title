@@ -5,3 +5,5 @@ sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
 
 # Pull code 
 [ -d ".git" ] || git clone https://github.com/yearofthedan/working-title.git .
+
+uv tool install git+https://github.com/oraios/serena.git
