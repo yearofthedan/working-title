@@ -4,4 +4,4 @@
 sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
 
 # Pull code 
-git clone https://github.com/yearofthedan/working-title.git .
+[ -d ".git" ] || git clone https://github.com/yearofthedan/working-title.git .
