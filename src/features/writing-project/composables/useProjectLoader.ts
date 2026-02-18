@@ -3,7 +3,7 @@ import { loadTemplate, loadTemplateLocales } from '@/features/process-templates/
 import { projectStorage } from '../../project-storage/ProjectStorage'
 import type { ProjectData } from '../../project-storage/types'
 import { registerTemplateMessages } from '@/i18n'
-import { useAsyncState } from '@/composables/useAsyncState'
+import { useAsyncState } from '@/features/common/composables/useAsyncState'
 import { toValue, watch, type MaybeRefOrGetter } from 'vue'
 import { logError } from '@/infra/logging/globals'
 

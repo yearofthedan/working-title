@@ -1,4 +1,4 @@
-import { useAsyncState } from '@/composables/useAsyncState'
+import { useAsyncState } from '@/features/common/composables/useAsyncState'
 import { type ProjectStorage } from '@/features/project-storage/ProjectStorage'
 
 export function useProjectList(storage: ProjectStorage) {

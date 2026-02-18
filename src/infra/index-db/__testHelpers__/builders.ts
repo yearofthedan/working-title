@@ -18,21 +18,23 @@ export class InMemoryIndexedDBProvider implements IIndexedDBProvider {
 
   async getItem<T = unknown>(key: IDBValidKey, storeName: string): Promise<T | undefined> {
     const store = this.getStore(storeName)
-    return (store.get(key) as T) || undefined
+    return Promise.resolve((store.get(key) as T) || undefined)
   }
 
   async setItem<T = unknown>(key: IDBValidKey, value: T, storeName: string): Promise<void> {
     const store = this.getStore(storeName)
     store.set(key, value)
+    return Promise.resolve()
   }
 
   async removeItem(key: IDBValidKey, storeName: string): Promise<void> {
     const store = this.getStore(storeName)
     store.delete(key)
+    return Promise.resolve()
   }
 
   async getAll<T = unknown>(storeName: string): Promise<T[]> {
     const store = this.getStore(storeName)
-    return Array.from(store.values()) as T[]
+    return Promise.resolve(Array.from(store.values()) as T[])
   }
 }

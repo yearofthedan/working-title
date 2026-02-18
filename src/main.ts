@@ -4,8 +4,8 @@ import App from '@/App.vue'
 import { router } from './router/routes'
 import { useDark } from '@vueuse/core'
 import { i18n } from './i18n'
-import { provideLogger } from './composables/useLogger'
-import { provideNotifications } from './composables/useNotifications'
+import { provideLogger } from '@/features/common/useLogger'
+import { provideNotifications } from '@/features/common/feedback/useNotifications'
 import { setupGlobalErrorHandling } from './config/globalErrors'
 
 useDark({

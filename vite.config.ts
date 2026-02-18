@@ -30,7 +30,6 @@ export default defineConfig({
     warmup: {
       clientFiles: [
         './src/features/writing-project/WritingProject.vue',
-        './src/features/writing-project/project-canvas/ProjectCanvas.vue',
         './src/features/demo/DemoPage.vue',
       ],
     },

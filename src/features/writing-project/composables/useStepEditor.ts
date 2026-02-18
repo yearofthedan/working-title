@@ -1,7 +1,7 @@
 import { watch, onBeforeUnmount, type Ref } from 'vue'
 import { useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import { useDebouncedEmit } from '@/composables/useDebouncedEmit'
+import { useDebouncedEmit } from '@/features/common/composables/useDebouncedEmit'
 
 export interface UseStepEditorOptions {
   content: Ref<string | undefined>

@@ -1,5 +1,5 @@
 import { createI18n } from 'vue-i18n'
-import en from '@/locales/en.json'
+import en from '@/i18n/en.json'
 import { snowflakeLocales } from '@/features/process-templates/snowflake/locales'
 
 /**

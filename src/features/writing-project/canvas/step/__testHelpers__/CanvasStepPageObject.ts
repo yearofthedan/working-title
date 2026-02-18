@@ -1,5 +1,5 @@
 import { BasePageObject } from '@/features/__testHelpers__/BasePageObject'
-import strings from '@/locales/en.json'
+import strings from '@/i18n/en.json'
 
 export class CanvasStepPageObject extends BasePageObject {
   get expandButton() {

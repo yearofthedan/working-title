@@ -30,7 +30,6 @@ project-root/
 ├── scripts/                # 
 └── src/                    #
     ├── __testHelpers__/        # 
-    ├── composables/            # 
     ├── config/                 # 
     ├── features/               # 
     │   ├── __testHelpers__/    #
@@ -55,13 +54,13 @@ project-root/
     │       ├── __testHelpers__/        #
     │       ├── components/             #
     │       ├── composables/            #
-    │       ├── project-canvas/         #
+    │       ├── canvas/                 #
     │       │   ├── __testHelpers__/    #
-    │       │   ├── canvas-step/        #
+    │       │   ├── step/               #
     │       │   │   └── __testHelpers__/    #
     │       │   ├── composables/            #
     │       │   └── utils/                  #
-    │       ├── project-sidebar/            #
+    │       ├── sidebar/                #
     │       │   ├── __testHelpers__/    #
     │       │   └── composables/        #
     │       └── step-panel/             #
@@ -69,7 +68,6 @@ project-root/
     ├── i18n/                           # 
     │   └── __testHelpers__/            #
     ├── infra/              # 
-    ├── locales/            # 
     ├── router/             # 
     ├── styles/             # 
     └── utils/              # 

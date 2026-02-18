@@ -18,8 +18,8 @@ describe('graphs', () => {
 
       const result = partitionNodesByRoot(nodes, connections, roots)
 
-      expect(result.groups[0]![1]!.map((n) => n.id)).toEqual(['root-1', 'child-1'])
-      expect(result.groups[1]![1]!.map((n) => n.id)).toEqual(['root-2', 'child-2'])
+      expect(result.groups[0]![1].map((n) => n.id)).toEqual(['root-1', 'child-1'])
+      expect(result.groups[1]![1].map((n) => n.id)).toEqual(['root-2', 'child-2'])
       expect(result.orphans).toHaveLength(0)
     })
 
@@ -36,8 +36,8 @@ describe('graphs', () => {
 
       const result = partitionNodesByRoot(nodes, connections, roots)
 
-      expect(result.groups[0]![1]!.map((n) => n.id)).toEqual(['main-root'])
-      expect(result.groups[1]![1]!.map((n) => n.id)).toEqual(['char-root', 'char-detail'])
+      expect(result.groups[0]![1].map((n) => n.id)).toEqual(['main-root'])
+      expect(result.groups[1]![1].map((n) => n.id)).toEqual(['char-root', 'char-detail'])
     })
 
     it('collects unconnected nodes as orphans', () => {
@@ -46,8 +46,8 @@ describe('graphs', () => {
 
       const result = partitionNodesByRoot(nodes, [], roots)
 
-      expect(result.groups[0]![1]!.map((n) => n.id)).toEqual(['root'])
-      expect(result.orphans!.map((n) => n.id)).toEqual(['orphan'])
+      expect(result.groups[0]![1].map((n) => n.id)).toEqual(['root'])
+      expect(result.orphans.map((n) => n.id)).toEqual(['orphan'])
     })
   })
 })

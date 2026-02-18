@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { AsyncStatus } from '@/composables/useAsyncState'
+import type { AsyncStatus } from '@/features/common/composables/useAsyncState'
 
 defineProps<{
   status: AsyncStatus

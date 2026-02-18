@@ -38,7 +38,7 @@ export const useStepActions = (template: Ref<ProcessTemplate>) => {
     return stepDef.actions.map(({ id, labelText, targetType, trigger }) => ({
       id,
       label: labelText,
-      trigger: trigger as 'append' | 'advance',
+      trigger: trigger,
       targetType,
       execute: () => addStep(targetType, sourceId),
     }))

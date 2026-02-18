@@ -20,7 +20,9 @@
 			"alwaysAllow": [
 				"list_dir",
 				"replace_content",
-				"search_for_pattern"
+				"search_for_pattern",
+				"read_file",
+				"create_text_file"
 			]
 		}
 	}

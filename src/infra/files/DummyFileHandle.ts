@@ -21,28 +21,28 @@ export class DummyFileHandle implements FileSystemFileHandle {
 
   async getFile() {
     const content = this.fileStore.get(this.dummyName) || '{}'
-    return new DummyFile(this.dummyName, content)
+    return Promise.resolve(new DummyFile(this.dummyName, content))
   }
 
   async createWritable() {
-    return {
+    return Promise.resolve({
       write: async (data: string): Promise<void> => {
         this.fileStore.set(this.dummyName, data)
-        return
+        return Promise.resolve()
       },
       close: async () => {},
-    } as FileSystemWritableFileStream
+    } as FileSystemWritableFileStream)
   }
 
   async queryPermission(): Promise<PermissionState> {
-    return 'granted'
+    return Promise.resolve('granted')
   }
   async requestPermission(): Promise<PermissionState> {
-    return 'granted'
+    return Promise.resolve('granted')
   }
 
   async isSameEntry(other: FileSystemHandle): Promise<boolean> {
-    return other === this
+    return Promise.resolve(other === this)
   }
 
   get isDummy() {
@@ -68,7 +68,7 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
     if (!this.fileStore.has(name) && !options?.create) {
       throw new Error(`File ${name} not found`)
     }
-    return new DummyFileHandle(name, this.fileStore)
+    return Promise.resolve(new DummyFileHandle(name, this.fileStore))
   }
 
   async getDirectoryHandle(
@@ -78,19 +78,19 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
     console.debug('DummyDirectoryHandle.getDirectoryHandle', name, options)
     // In this simple dummy, we don't actually support nested directories properly,
     // but we can return another dummy that shares the same store for now.
-    return new DummyDirectoryHandle(name, this.fileStore)
+    return Promise.resolve(new DummyDirectoryHandle(name, this.fileStore))
   }
 
   async queryPermission(): Promise<PermissionState> {
-    return 'granted'
+    return Promise.resolve('granted')
   }
 
   async requestPermission(): Promise<PermissionState> {
-    return 'granted'
+    return Promise.resolve('granted')
   }
 
   async isSameEntry(other: FileSystemHandle): Promise<boolean> {
-    return other === this
+    return Promise.resolve(other === this)
   }
 }
 
@@ -102,6 +102,6 @@ class DummyFile extends File {
   }
 
   async text(): Promise<string> {
-    return this.content
+    return Promise.resolve(this.content)
   }
 }

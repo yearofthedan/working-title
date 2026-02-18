@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import ProjectSidebar from './ProjectSidebar.vue'
 import { provide, ref, computed } from 'vue'
 import { ACTIVE_PROJECT_CONTEXT_KEY } from '@/features/writing-project/composables/useActiveProjectContext'
-import type { AsyncStatus } from '@/composables/useAsyncState'
+import type { AsyncStatus } from '@/features/common/composables/useAsyncState'
 
 interface SidebarStoryArgs {
   saveStatus: AsyncStatus

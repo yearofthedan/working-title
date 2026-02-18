@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useNotifications } from '@/composables/useNotifications'
+import { useNotifications } from './useNotifications'
 import AppIcon from '../AppIcon.vue'
 
 const { t } = useI18n()

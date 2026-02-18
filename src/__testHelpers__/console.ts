@@ -23,5 +23,5 @@ export const overideCommonConsoleNoise = () => {
     },
   }
 
-  window.console = new Proxy(originalConsole, handler) as Console
+  window.console = new Proxy(originalConsole, handler)
 }

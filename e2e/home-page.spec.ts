@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures'
-import strings from '@/locales/en.json' with { type: 'json' }
+import strings from '@/i18n/en.json' with { type: 'json' }
 
 test('Project Management Journey', async ({ page }) => {
   const DUMMY_PROJECT_NAME = 'My E2E Story'

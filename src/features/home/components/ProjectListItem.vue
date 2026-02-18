@@ -70,7 +70,7 @@ import { formatDate } from '@/utils/dates'
 import { useProjectStore } from '@/features/project-storage/context'
 import AppConfirmationDialog from '@/features/common/dialogs/AppConfirmationDialog.vue'
 import AppIcon from '@/features/common/AppIcon.vue'
-import { useNotifications } from '@/composables/useNotifications'
+import { useNotifications } from '@/features/common/feedback/useNotifications'
 
 const props = defineProps<{
   project: ProjectMetadata

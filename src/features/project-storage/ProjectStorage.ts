@@ -83,7 +83,7 @@ export class ProjectStorage {
    */
   async getDirectoryHandle(projectId: string): Promise<FileSystemDirectoryHandle | undefined> {
     const metadata = await this.getMetadata(projectId)
-    return metadata?.directoryHandle as FileSystemDirectoryHandle | undefined
+    return metadata?.directoryHandle
   }
 
   /**

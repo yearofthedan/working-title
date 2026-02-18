@@ -57,7 +57,7 @@ describe('useStepActions', () => {
 
     const composable = runComposable(template, context)
 
-    const actions = composable!.getRootActions()
+    const actions = composable.getRootActions()
 
     expect(actions).toHaveLength(1)
     expect(actions[0]!.trigger).toBe('append')

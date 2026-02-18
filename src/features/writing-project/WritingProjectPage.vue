@@ -12,7 +12,7 @@ const id = route.params.id as string
 const { state, reload } = useProjectLoader(id)
 
 const handleRetry = () => {
-  reload(id)
+  return reload(id)
 }
 </script>
 

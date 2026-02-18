@@ -90,4 +90,4 @@ As storage strategies evolve, this boundary becomes even more critical:
 
 - [ADR-001 Feature Isolation](adr-001-feature-isolation.md) - Prevents features from depending on each other
 - [ADR-004 Process Template Pattern](adr-004-process-template.md) - Templates are external configuration adapted by this layer
-- [Domain Implementation Rules](../../.roo/rules/domain-implementation.md) - Current view transformation implementations
+- [Domain Implementation](../../docs/domain-implementation.md) - Current view transformation implementations

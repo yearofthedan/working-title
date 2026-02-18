@@ -47,8 +47,8 @@ export function buildMockFileHandle(
         }),
       }
     }),
-    queryPermission: vi.fn(async () => 'granted'),
-    requestPermission: vi.fn(async () => 'granted'),
+    queryPermission: vi.fn(async () => Promise.resolve('granted')),
+    requestPermission: vi.fn(async () => Promise.resolve('granted')),
     isSameEntry: vi.fn(async () => false),
   } as unknown as FileSystemFileHandle
 }
@@ -63,7 +63,7 @@ export function buildMockDirectoryHandle(
   return {
     kind: 'directory',
     name,
-    getFileHandle: vi.fn(async (fileName, options) => {
+    getFileHandle: vi.fn(async (fileName: string, options: { create?: boolean }) => {
       if (files.has(fileName)) {
         return buildMockFileHandle(fileName, files.get(fileName), (data) =>
           files.set(fileName, data)
@@ -72,13 +72,13 @@ export function buildMockDirectoryHandle(
       if (options?.create) {
         const handle = buildMockFileHandle(fileName, {}, (data) => files.set(fileName, data))
         files.set(fileName, handle) // Initial set
-        return handle
+        return Promise.resolve(handle)
       }
       throw new Error(`File not found: ${fileName}`)
     }),
-    getDirectoryHandle: vi.fn(async (dirName, options) => {
+    getDirectoryHandle: vi.fn(async (dirName: string, options: { create?: boolean }) => {
       if (options?.create) {
-        return buildMockDirectoryHandle(dirName)
+        return Promise.resolve(buildMockDirectoryHandle(dirName))
       }
       throw new Error(`Directory not found: ${dirName}`)
     }),

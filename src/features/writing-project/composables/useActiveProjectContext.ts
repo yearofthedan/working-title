@@ -1,7 +1,7 @@
 import { computed, inject, provide, type Ref, type InjectionKey } from 'vue'
 import type { ProjectData, Step, Connection } from '../../project-storage/types'
 import { generateId } from '@/utils/ids'
-import { type AsyncStatus } from '@/composables/useAsyncState'
+import { type AsyncStatus } from '@/features/common/composables/useAsyncState'
 import { watchDebounced } from '@vueuse/core'
 import { useProjectStore } from '@/features/project-storage/context'
 import type { ProjectStore } from '@/features/project-storage/store'

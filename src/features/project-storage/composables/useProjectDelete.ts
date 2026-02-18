@@ -1,4 +1,4 @@
-import { useAsyncState } from '@/composables/useAsyncState'
+import { useAsyncState } from '@/features/common/composables/useAsyncState'
 import type { ProjectStorage } from '../ProjectStorage'
 
 export function useProjectDelete(storage: ProjectStorage) {

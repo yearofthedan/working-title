@@ -10,7 +10,7 @@ import { useProjectStore } from '../project-storage/context'
 import { computed, ref } from 'vue'
 import AppIcon from '../common/AppIcon.vue'
 import type { IconKey } from '../common/icons'
-import { useNotifications } from '@/composables/useNotifications'
+import { useNotifications } from '@/features/common/feedback/useNotifications'
 
 const router = useRouter()
 const { t } = useI18n()

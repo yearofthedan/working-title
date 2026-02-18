@@ -29,20 +29,20 @@ Feature-specific composables stay in `src/features/[feature]/composables/`.
 ### ❌ Incorrect
 
 ```
-src/composables/
+src/features/common/composables/
 ├── project/
 │   ├── useProjectLoader.ts
 │   └── useStepActions.ts
 ```
 
-Do not create a top-level `src/composables/` directory for feature logic.
+Do not create nested directories for feature-specific logic in the common area.
 
 ### Global Composables
 
-A few composables are truly global and live in `src/composables/`:
+A few composables are truly global and live in `src/features/common/`:
 
-- [`useLogger`](../../src/composables/useLogger.ts) - Logging infrastructure
-- [`useNotifications`](../../src/composables/useNotifications.ts) - App-wide notification system
+- [`useLogger`](../../src/features/common/useLogger.ts) - Logging infrastructure
+- [`useNotifications`](../../src/features/common/feedback/useNotifications.ts) - App-wide notification system
 
 **Test:** If the composable could be used in ANY feature, it might be global. Otherwise, it's feature-specific.
 
@@ -237,9 +237,9 @@ describe('useProjectLoader', () => {
 ### ❌ Don't: Generic Composable Directories
 
 ```
-src/composables/
-├── useProjectLoader.ts  # Should be in features/
-├── useCanvasLayout.ts   # Should be in features/
+src/features/common/composables/
+├── useProjectLoader.ts  # Should be in features/writing-project/
+├── useCanvasLayout.ts   # Should be in features/writing-project/
 ```
 
 ### ❌ Don't: Single Return Values
@@ -279,7 +279,7 @@ Each composable call should have independent state unless explicitly designed as
 
 When creating a composable:
 
-- [ ] Placed in correct directory (`features/[feature]/composables/` or `src/composables/` for global)
+- [ ] Placed in correct directory (`features/[feature]/composables/` or `src/features/common/composables/` for global)
 - [ ] Parameters use `MaybeRefOrGetter<T>` and accessed via `toValue()`
 - [ ] Returns plain object with refs and methods
 - [ ] Follows `useSomething` naming convention

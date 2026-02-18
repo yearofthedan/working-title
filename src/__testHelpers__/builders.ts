@@ -14,8 +14,8 @@ import {
 
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
 import { ref } from 'vue'
-import { createNotificationsBinding } from '@/composables/useNotifications'
-import { createLoggerBinding } from '@/composables/useLogger'
+import { createNotificationsBinding } from '@/features/common/feedback/useNotifications'
+import { createLoggerBinding } from '@/features/common/useLogger'
 
 type Providers = Record<string, unknown | symbol>
 
