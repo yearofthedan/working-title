@@ -19,6 +19,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "lint": "eslint --fix",
+    "lint:ts": "vue-tsc -b tsconfig.json --noEmit",
     "format": "prettier --write .",
     "prepare": "husky"
   },

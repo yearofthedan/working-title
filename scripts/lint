@@ -1,4 +1,7 @@
 #!/bin/bash
 # Lints the project files. Usage: ./do lint [--fix]
 
-pnpm run lint "$@"
+pnpm run lint "$@" || exit 1
+
+# Catch any obvious ts errors early (eg. dead imports)
+pnpm run lint:ts || exit 1
