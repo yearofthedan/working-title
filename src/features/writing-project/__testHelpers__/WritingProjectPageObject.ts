@@ -1,7 +1,7 @@
-import appMessages from '@/locales/en.json'
+import appMessages from '@/i18n/en.json'
 import { BasePageObject, type Locatable } from '@/features/__testHelpers__/BasePageObject'
-import { ProjectSidebarPageObject } from '../project-sidebar/__testHelpers__/ProjectSidebarPageObject'
-import { CanvasPageObject } from '../project-canvas/__testHelpers__/ProjectCanvasPageObject'
+import { ProjectSidebarPageObject } from '../sidebar/__testHelpers__/ProjectSidebarPageObject'
+import { CanvasPageObject } from '../canvas/__testHelpers__/ProjectCanvasPageObject'
 import { DetailPanelPageObject } from '../step-panel/__testHelpers__/DetailPanelPageObject'
 
 const writingProjectMessages = appMessages.writingProject

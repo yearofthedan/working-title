@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { provide } from 'vue'
-import { provideNotifications, type AppNotification } from '@/composables/useNotifications'
+import { provideNotifications, type AppNotification } from './useNotifications'
 import AppNotificationContainer from './AppNotificationContainer.vue'
 
 type InferredDecorators = Meta<typeof AppNotificationContainer>['decorators']

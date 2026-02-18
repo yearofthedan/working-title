@@ -4,7 +4,7 @@ import { it } from '@/__testHelpers__/fixtures'
 import { render } from '@/__testHelpers__/renderer'
 import { page, userEvent } from 'vitest/browser'
 import CanvasStep from './CanvasStep.vue'
-import { DEFAULT_DEBOUNCE } from '@/composables/useDebouncedEmit'
+import { DEFAULT_DEBOUNCE } from '@/features/common/composables/useDebouncedEmit'
 import { CanvasStepPageObject } from './__testHelpers__/CanvasStepPageObject'
 import type { CanvasStepProps } from '../stepTypes'
 

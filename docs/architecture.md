@@ -26,7 +26,7 @@ These conventions define how code is organized and where different types of logi
 
 Composables live with the concern they serve, not in a generic `composables/` folder. They are a tool for extracting reusable logic, not an architectural layer.
 
-**Example**: `useCanvasViewModel` lives in [`src/features/writing-project/project-canvas/composables/`](../src/features/writing-project/project-canvas/composables/), not in a top-level `src/composables/canvas/` directory.
+**Example**: `useCanvasViewModel` lives in [`src/features/writing-project/canvas/composables/`](../src/features/writing-project/canvas/composables/), not in a top-level `src/composables/canvas/` directory.
 
 **Rationale**: Co-location with features makes dependencies explicit and prevents accidental coupling.
 
@@ -54,7 +54,7 @@ Test utilities follow these rules:
 - **Shared test builders/fixtures**: In `__testHelpers__/` at the nearest common ancestor
 - **Global test utilities**: In [`src/__testHelpers__/`](../src/__testHelpers__/) (e.g., `builders.ts`, `renderer.ts`)
 
-**Example**: [`src/features/writing-project/project-canvas/canvas-step/__testHelpers__/CanvasStepPageObject.ts`](../src/features/writing-project/project-canvas/canvas-step/__testHelpers__/CanvasStepPageObject.ts) tests [`CanvasStep.vue`](../src/features/writing-project/project-canvas/canvas-step/CanvasStep.vue).
+**Example**: [`src/features/writing-project/canvas/step/__testHelpers__/CanvasStepPageObject.ts`](../src/features/writing-project/canvas/step/__testHelpers__/CanvasStepPageObject.ts) tests [`CanvasStep.vue`](../src/features/writing-project/canvas/step/CanvasStep.vue).
 
 **Rationale**: Tests are first-class code. Co-location reduces cognitive distance and makes test utilities easy to find.
 
@@ -63,7 +63,7 @@ Test utilities follow these rules:
 - **[`.roo/skills/`](../.roo/skills/)**: Step-by-step workflows for AI agents (e.g., "How to add an icon")
 - **[`docs/`](../docs/)**: Reference material for humans (e.g., "Icon system overview")
 
-**Example**: [`.roo/skills/icon-system/SKILL.md`](../.roo/skills/icon-system/SKILL.md) says "Run X, update Y, verify Z". [`docs/guides/icons.md`](guides/icons.md) explains "Icons come from Iconify, registry is at X".
+**Example**: [`docs/guides/icons.md`](guides/icons.md) provides step-by-step instructions for adding icons, while also explaining "Icons come from Iconify, registry is at X".
 
 **Rationale**: Different audiences, different formats. Skills are executable; docs are readable.
 

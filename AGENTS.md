@@ -11,7 +11,6 @@ High-level principles loaded for all agents:
 
 - [Architecture](.roo/rules/architecture.md) - Guiding patterns, directory structure, feature isolation
 - [Domain Concepts](.roo/rules/domain.md) - Core terminology and application purpose
-- [Domain Implementation](.roo/rules/domain-implementation.md) - Technical patterns and current template
 - [Tech Stack](.roo/rules/tech-stack.md) - Core technologies and libraries
 
 ### On-Demand Skills (`.roo/skills/`)
@@ -42,9 +41,9 @@ Project documentation, planning, and architectural decisions:
 ### Internationalization (i18n)
 
 User-facing strings must not be hardcoded. Use the two-tier i18n system:
-- **App Strings**: Core UI in [`src/locales/en.json`](src/locales/en.json)
+- **App Strings**: Core UI in [`src/i18n/en.json`](src/i18n/en.json)
 - **Template Strings**: Methodology strings in `src/features/process-templates/{template}/locales/en.json`
-- **Guide**: See [`i18n-workflow`](.roo/skills/i18n-workflow/SKILL.md) for detailed patterns and troubleshooting.
+- **Guide**: See [`i18n-workflow`](docs/guides/i18n.md) for detailed patterns and troubleshooting.
 
 ## 🎯 Quick Start
 

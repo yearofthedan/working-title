@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures'
-import strings from '@/locales/en.json' with { type: 'json' }
+import strings from '@/i18n/en.json' with { type: 'json' }
 
 test.describe('App Smoke Test', () => {
   test('should load the home page and navigate to a new project', async ({ page }) => {

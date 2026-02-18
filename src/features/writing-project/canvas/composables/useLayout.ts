@@ -1,7 +1,7 @@
 import { shallowRef, ref, watch, toValue, type Ref, computed } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { type Edge } from '@vue-flow/core'
-import { calculateTrackedLayout } from '@/features/writing-project/project-canvas/utils/elkLayoutAdapter'
+import { calculateTrackedLayout } from '@/features/writing-project/canvas/utils/elkLayoutAdapter'
 import type { Track, CanvasEdge } from '../types'
 
 const GHOST_WIDTH = 400

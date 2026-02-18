@@ -1,5 +1,5 @@
 import { BasePageObject } from "@/features/__testHelpers__/BasePageObject"
-import { CanvasStepPageObject } from "../canvas-step/__testHelpers__/CanvasStepPageObject"
+import { CanvasStepPageObject } from "../step/__testHelpers__/CanvasStepPageObject"
 import { EmptyCanvasPageObject } from "./EmptyCanvasPageObject"
 
 export class CanvasPageObject extends BasePageObject {

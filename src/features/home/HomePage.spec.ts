@@ -13,7 +13,7 @@ import {
 } from '@/features/project-storage/__testHelpers__/builders'
 import { buildProviders } from '@/__testHelpers__/builders'
 import { PROJECT_STORE_KEY } from '@/features/project-storage/context'
-import { createNotificationsBinding } from '@/composables/useNotifications'
+import { createNotificationsBinding } from '@/features/common/feedback/useNotifications'
 import type { ProjectStorage } from '../project-storage/ProjectStorage'
 import {
   type TestFileStorageProvider,

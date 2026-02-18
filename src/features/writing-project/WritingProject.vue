@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from 'vue'
-import ProjectSidebar from '@/features/writing-project/project-sidebar/ProjectSidebar.vue'
+import ProjectSidebar from '@/features/writing-project/sidebar/ProjectSidebar.vue'
 import StepPanel from '@/features/writing-project/step-panel/StepPanel.vue'
 import { provideDefinitionsContext } from '@/features/writing-project/composables/useDefinitionsContext'
 import { provideActiveProjectContext } from '@/features/writing-project/composables/useActiveProjectContext'
@@ -23,7 +23,7 @@ import AppLoadingOverlay from '@/features/common/feedback/AppLoadingOverlay.vue'
 import type { Project } from './composables/useProjectLoader'
 
 const ProjectCanvas = defineAsyncComponent(
-  () => import('@/features/writing-project/project-canvas/ProjectCanvas.vue')
+  () => import('@/features/writing-project/canvas/ProjectCanvas.vue')
 )
 
 const props = defineProps<{

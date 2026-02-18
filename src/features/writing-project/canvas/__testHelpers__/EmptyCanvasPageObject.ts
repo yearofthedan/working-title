@@ -1,5 +1,5 @@
 import { BasePageObject } from '@/features/__testHelpers__/BasePageObject'
-import appMessages from '@/locales/en.json'
+import appMessages from '@/i18n/en.json'
 
 export class EmptyCanvasPageObject extends BasePageObject {
   get title() {

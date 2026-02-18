@@ -1,4 +1,4 @@
-import { useAsyncState } from '@/composables/useAsyncState'
+import { useAsyncState } from '@/features/common/composables/useAsyncState'
 import type { ProcessTemplate, StepDefinition } from '@/features/process-templates/processTemplate'
 import { loadTemplate } from '@/features/process-templates/templateRegistry'
 import { ProjectStorage } from '@/features/project-storage/ProjectStorage'

@@ -1,4 +1,4 @@
-import { useAsyncState } from '@/composables/useAsyncState'
+import { useAsyncState } from '@/features/common/composables/useAsyncState'
 import type { ProjectData } from '@/features/project-storage/types'
 import type { FileSystemStorageProvider } from '@/infra/files/FileSystemStorageProvider'
 import type { ProjectStorage } from '@/features/project-storage/ProjectStorage'

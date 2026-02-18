@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import CanvasStep from '@/features/writing-project/project-canvas/canvas-step/CanvasStep.vue'
+import CanvasStep from '@/features/writing-project/canvas/step/CanvasStep.vue'
 
 const meta = {
   component: CanvasStep,

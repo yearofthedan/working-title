@@ -12,7 +12,7 @@ import snowflake from '@/features/process-templates/snowflake/locales/en.json'
 
 const navigateToNodeSpy = vi.fn()
 const navigateToNewNodeSpy = vi.fn()
-vi.mock('./project-canvas/composables/useCanvasNavigation', () => ({
+vi.mock('./canvas/composables/useCanvasNavigation', () => ({
   useCanvasNavigation: () => ({
     navigateToNode: navigateToNodeSpy,
     navigateToNewNode: navigateToNewNodeSpy,
