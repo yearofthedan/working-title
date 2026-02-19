@@ -4,7 +4,6 @@
     "dockerfile": "Dockerfile"
   },
   "runArgs": ["--memory=8g", "--memory-swap=8g", "--shm-size=2gb"],
-  // Use a volume for the workspace rather than a bind mount to the host
   "workspaceMount": "source=${localWorkspaceFolderBasename}-workspace,target=/workspaces/${localWorkspaceFolderBasename},type=volume",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
@@ -37,12 +36,6 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit"
         },
-        "[vue]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
         "files.watcherExclude": {
           "**/node_modules/**": true,
           "**/.git/objects/**": true,
@@ -50,46 +43,13 @@
           "**/dist/**": true,
           "**/coverage/**": true,
           "**/.pnpm-store/**": true
-        },
-        "search.exclude": {
-          "**/node_modules": true,
-          "**/dist": true,
-          "**/coverage": true,
-          "**/.pnpm-store": true
         }
       }
     }
   },
   "forwardPorts": [5173, 6006, 8080, 51204, 6363],
-  "portsAttributes": {
-    "5173": {
-      "label": "Vite Dev Server",
-      "onAutoForward": "notify"
-    },
-    "6006": {
-      "label": "Storybook",
-      "onAutoForward": "notify"
-    },
-    "8080": {
-      "label": "Playwright UI",
-      "onAutoForward": "notify"
-    },
-    "9323": {
-      "label": "Playwright Internal Debug",
-      "onAutoForward": "silent"
-    },
-    "51204": {
-      "label": "Vitest UI",
-      "onAutoForward": "notify"
-    },
-    "6363": {
-      "label": "Vitest Browser Preview",
-      "onAutoForward": "silent"
-    }
-  },
   "remoteUser": "node",
   "mounts": [
-    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
     "source=${localWorkspaceFolderBasename}-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
     "source=${localWorkspaceFolderBasename}-extensions,target=/home/node/.vscode-server/extensions,type=volume",
     "source=${localWorkspaceFolderBasename}-global-storage,target=/home/node/.vscode-server/data/User/globalStorage,type=volume"
