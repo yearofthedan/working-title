@@ -1,20 +1,10 @@
-import type {
-  FileSystemFileHandle,
-  FileSystemDirectoryHandle,
-  SaveFilePickerOptions,
-  OpenFilePickerOptions,
-  DirectoryPickerOptions,
-} from './types'
 import { FileSystemError } from './errors'
 import { logError } from '@/infra/logging/globals'
 
 export class FileSystemStorageProvider {
-  defaultTypes: {
-    description: string
-    accept: { [key: string]: string[] }
-  }
+  defaultTypes: FilePickerAcceptType
   constructor(
-    defaultTypes = {
+    defaultTypes: FilePickerAcceptType = {
       description: 'Project Files',
       accept: { 'application/json': ['.json'] },
     }
@@ -42,13 +32,11 @@ export class FileSystemStorageProvider {
   }
 
   async requestOpenFileHandle(): Promise<FileSystemFileHandle> {
-    const options: OpenFilePickerOptions = {
-      multiple: false,
-      types: [this.defaultTypes],
-    }
-
     try {
-      const [handle] = await window.showOpenFilePicker(options)
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [this.defaultTypes],
+      })
       if (!handle) {
         throw new FileSystemError('No file selected', 'ABORTED')
       }

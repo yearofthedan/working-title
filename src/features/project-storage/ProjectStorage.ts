@@ -5,7 +5,6 @@ import {
   type IIndexedDBProvider,
   type IndexedDBConfig,
 } from '@/infra/index-db/IndexedDBProvider'
-import { type FileSystemFileHandle, type FileSystemDirectoryHandle } from '@/infra/files/types'
 import { logError, logInfo } from '@/infra/logging/globals'
 
 const APP_NAMESPACE = 'working-title'

@@ -1,10 +1,3 @@
-import type {
-  FileSystemDirectoryHandle,
-  FileSystemFileHandle,
-  FileSystemHandle,
-  FileSystemWritableFileStream,
-} from './types'
-
 export class DummyFileHandle implements FileSystemFileHandle {
   private dummyName: string
   private fileStore: Map<string, string>
@@ -13,7 +6,11 @@ export class DummyFileHandle implements FileSystemFileHandle {
   constructor(name: string, fileStore: Map<string, string>) {
     this.dummyName = name
     this.fileStore = fileStore
+    this.isFile = true
+    this.isDirectory = false
   }
+  isFile: true
+  isDirectory: false
 
   get name() {
     return this.dummyName
@@ -58,6 +55,44 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
   constructor(name: string, fileStore: Map<string, string>) {
     this.dummyName = name
     this.fileStore = fileStore
+    this.isFile = false
+    this.isDirectory = true
+  }
+  [Symbol.asyncIterator](): AsyncIterableIterator<
+    [string, FileSystemDirectoryHandle | FileSystemFileHandle]
+  > {
+    throw new Error('Method not implemented.')
+  }
+
+  isFile: false
+  isDirectory: true
+
+  removeEntry(): Promise<void> {
+    throw new Error('Method not implemented.')
+  }
+  resolve(): Promise<string[] | null> {
+    throw new Error('Method not implemented.')
+  }
+  keys(): AsyncIterableIterator<string> {
+    throw new Error('Method not implemented.')
+  }
+  values(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle> {
+    throw new Error('Method not implemented.')
+  }
+  entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]> {
+    throw new Error('Method not implemented.')
+  }
+
+  getFile(): Promise<FileSystemFileHandle> {
+    throw new Error('Method not implemented.')
+  }
+
+  getDirectory(): Promise<FileSystemDirectoryHandle> {
+    throw new Error('Method not implemented.')
+  }
+
+  getEntries(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle> {
+    throw new Error('Method not implemented.')
   }
 
   get name() {
@@ -76,8 +111,6 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
     options?: { create?: boolean }
   ): Promise<FileSystemDirectoryHandle> {
     console.debug('DummyDirectoryHandle.getDirectoryHandle', name, options)
-    // In this simple dummy, we don't actually support nested directories properly,
-    // but we can return another dummy that shares the same store for now.
     return Promise.resolve(new DummyDirectoryHandle(name, this.fileStore))
   }
 

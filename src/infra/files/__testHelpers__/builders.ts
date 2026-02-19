@@ -1,6 +1,5 @@
 import { FallbackFileStorageProvider } from '../FallbackFileStorageProvider'
 import { DummyFileHandle, DummyDirectoryHandle } from '../DummyFileHandle'
-import type { FileSystemFileHandle, FileSystemDirectoryHandle } from '../types'
 import { vi } from 'vitest'
 
 import { buildProjectData } from '@/features/project-storage/__testHelpers__/builders'

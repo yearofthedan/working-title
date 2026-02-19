@@ -56,6 +56,10 @@ export default defineConfig([
         ...globals.vue,
       },
     },
+    rules: {
+      // Disable no-useless-assignment for Vue files - should be fixed when vue-eslint-parser brought into the eslint vue plugin
+      'no-useless-assignment': 'off',
+    },
   },
   {
     files: ['**/*.spec.ts', '**/__testHelpers__/**/*.ts'],

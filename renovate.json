@@ -16,6 +16,11 @@
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all production dependencies"
+    },
+    {
+      "description": "Ignore ReDoS advisory for Ajv because upgrading breaks ESLint 10 draft-04 resolution",
+      "matchPackageNames": ["ajv"],
+      "ignoreVulnerabilities": ["GHSA-2g4f-4pwh-qvx6"]
     }
   ]
 }
