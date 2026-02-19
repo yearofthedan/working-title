@@ -19,7 +19,6 @@ import {
   type TestFileStorageProvider,
   buildMockDirectoryHandle,
 } from '@/infra/files/__testHelpers__/builders'
-import type { FileSystemFileHandle } from '@/infra/files/types'
 import { DummyFileHandle } from '@/infra/files/DummyFileHandle'
 
 describe('HomePage', () => {

@@ -3,8 +3,6 @@
  * Represents the persisted state of a story project.
  */
 
-import { type FileSystemFileHandle, type FileSystemDirectoryHandle } from '@/infra/files/types'
-
 export interface StepContent {
   /**
    * The primary narrative content. Expects HTML or Markdown strings from the editor.

@@ -1,6 +1,5 @@
 import { DummyFileHandle } from './DummyFileHandle'
 import { FileSystemStorageProvider } from './FileSystemStorageProvider'
-import type { FileSystemFileHandle } from './types'
 
 export class FallbackFileStorageProvider extends FileSystemStorageProvider {
   protected fileStore = new Map<string, string>()

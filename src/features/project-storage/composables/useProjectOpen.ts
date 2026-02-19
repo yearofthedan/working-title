@@ -23,13 +23,13 @@ export function useProjectOpen(storage: ProjectStorage, fileSystem: FileSystemSt
         projectData = await fileSystem.readJsonFromDirectory<ProjectData>(dirHandle, 'project.wt')
       } catch (err) {
         if (err instanceof Error && err.name === 'NotFoundError') {
-          throw new Error('MISSING_PROJECT_FILE')
+          throw new Error('MISSING_PROJECT_FILE', { cause: err })
         }
         if (err instanceof Error && err.name === 'NotAllowedError') {
-          throw new Error('PERMISSION_DENIED')
+          throw new Error('PERMISSION_DENIED', { cause: err })
         }
         if (err instanceof SyntaxError) {
-          throw new Error('CORRUPTED_FILE')
+          throw new Error('CORRUPTED_FILE', { cause: err })
         }
         throw err
       }

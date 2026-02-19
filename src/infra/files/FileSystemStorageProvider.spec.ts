@@ -1,7 +1,6 @@
 import { describe, expect, beforeEach, vi } from 'vitest'
 import { it } from '@/__testHelpers__/fixtures'
 
-import type { FileSystemFileHandle } from './types'
 import { FileSystemStorageProvider } from './FileSystemStorageProvider'
 
 describe('FileSystemStorageProvider', () => {

@@ -33,7 +33,7 @@ describe('useProjectOpen', () => {
 
     it('errors if file is invalid', async ({ projectStorage, fileSystem }: GivenContext) => {
       const mockHandle = await fileSystem.requestNewFileHandle('invalid.json')
-      await fileSystem.writeAsJson(mockHandle, { invalid: 'data' } as unknown as never)
+      await fileSystem.writeAsJson(mockHandle, { invalid: 'data' })
       vi.spyOn(fileSystem, 'requestOpenFileHandle').mockResolvedValue(mockHandle)
 
       const { openProject, state } = useProjectOpen(projectStorage.instance, fileSystem)
