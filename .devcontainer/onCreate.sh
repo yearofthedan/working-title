@@ -3,8 +3,8 @@
 # Fix permissions on folders after volumes are mounted
 sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
 
-# Install Serena
-uv tool install git+https://github.com/oraios/serena.git
+# Install light-bridge globally
+npm install -g @yearofthedan/light-bridge
 
 # Authenticate with GitHub if needed
 if ! gh auth status &>/dev/null; then

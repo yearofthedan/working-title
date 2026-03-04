@@ -1,0 +1,8 @@
+{
+	"mcpServers": {
+		"light-bridge": {
+			"command": "light-bridge",
+			"args": ["serve", "--workspace", "${workspaceFolder}"]
+		}
+	}
+}

@@ -34,6 +34,13 @@ Project documentation, planning, and architectural decisions:
 - [Code mode skill loading](.roo/rules-code/skill-loading.md) - Skill discovery and loading protocol
 - [Agent Tuner skills](.roo/skills-agent-tuner/) - Skills for optimizing agent setups
 
+### Refactoring
+
+For cross-file refactoring (rename, move file, move symbol, delete file, extract function), use the light-bridge MCP tools instead of manual file editing. The compiler handles the cascade across all affected files.
+
+Load the refactoring skill for guidance on when and how to use these tools:
+see `@yearofthedan/light-bridge` (installed globally in the dev container)
+
 ### Important: Skills and Mode Switching
 
 **Critical**: Mode switching in conversations doesn't re-scan for skills. Implementation modes (code, debug) must explicitly load relevant skills from [`.roo/skills/`](.roo/skills/) using `read_file` when starting work. See [skill loading protocol](.roo/rules-code/skill-loading.md).

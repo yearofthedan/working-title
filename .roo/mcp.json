@@ -1,28 +1,17 @@
 {
 	"mcpServers": {
-		"serena": {
-			"command": "serena",
-			"args": [
-				"start-mcp-server",
-				"--project",
-				"/workspaces/working-title"
-			],
-			"disabledTools": [
-				"write_memory",
-				"read_memory",
-				"list_memories",
-				"delete_memory",
-				"edit_memory",
-				"execute_shell_command",
-				"switch_modes",
-				"prepare_for_new_conversation"
-			],
+		"light-bridge": {
+			"command": "light-bridge",
+			"args": ["serve", "--workspace", "/workspaces/working-title"],
+			"disabled": false,
 			"alwaysAllow": [
-				"list_dir",
-				"replace_content",
-				"search_for_pattern",
-				"read_file",
-				"create_text_file"
+				"rename",
+				"moveFile",
+				"moveSymbol",
+				"findReferences",
+				"getDefinition",
+				"searchText",
+				"replaceText"
 			]
 		}
 	}
