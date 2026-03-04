@@ -1,8 +1,8 @@
 {
 	"mcpServers": {
 		"light-bridge": {
-			"command": "light-bridge",
-			"args": ["serve", "--workspace", "/workspaces/working-title"],
+			"command": "npx",
+			"args": ["-y", "@yearofthedan/light-bridge", "serve", "--workspace", "/workspaces/working-title"],
 			"disabled": false,
 			"alwaysAllow": [
 				"rename",
