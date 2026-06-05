@@ -6,7 +6,7 @@
     "composite": true,
     "resolveJsonModule": true,
     "noEmit": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "types": ["node"],
     "skipLibCheck": true,
     "paths": {
