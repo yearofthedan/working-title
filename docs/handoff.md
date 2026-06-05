@@ -58,7 +58,7 @@ Remove `.roo/mcp.json`, `.cursor/mcp.json`, and the `npm i -g @yearofthedan/ligh
 Add root `.mcp.json` with `@playwright/mcp`. Retire `./do launch-chromium-debug` and its `postStartCommand`. Point the inspect loop at the Vite dev server (5173) and Storybook (6006).
 
 ### [chore] Devcontainer security hardening
-Add `"dev.containers.copyGitConfig": false` and `"dev.containers.gitCredentialHelperConfigLocation": "none"` (stop host git creds leaking into the agent container). Pin the remaining `latest` features (git, github-cli) to exact versions. Drop CDP debug port 9222. Remove/pin the root `uv` installer in the Dockerfile if unused. Add `set -euo pipefail` to `onCreate.sh`. (pnpm version is now managed by Corepack from `package.json`.)
+Add `"dev.containers.copyGitConfig": false` and `"dev.containers.gitCredentialHelperConfigLocation": "none"` (stop host git creds leaking into the agent container). Pin the remaining `latest` features (git, github-cli) to exact versions. Drop CDP debug port 9222. Remove/pin the root `uv` installer in the Dockerfile if unused. Add `set -euo pipefail` to `onCreate.sh`.
 
 ### [chore] Pin git identity in the devcontainer
 Set a repo-local personal identity, and fix `.devcontainer/onCreate.sh` so it honours `GH_USER`/`GH_EMAIL` overrides and defaults to the intended account, instead of taking `git config user.name/email` from whatever account `gh` happens to be logged in as inside the container — mirror weaver's `scripts/bootstrap-gh.sh`. Prevents commits being mis-attributed to the wrong account.
