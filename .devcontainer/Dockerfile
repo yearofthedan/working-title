@@ -19,4 +19,7 @@ RUN mkdir -p /home/node/.vscode-server/extensions \
     && mkdir -p /home/node/.vscode-server/data/User/globalStorage \
     && chown -R node:node /home/node/.vscode-server
 
+# Manage pnpm via Corepack — the exact version comes from package.json "packageManager"
+RUN corepack enable
+
 USER node
