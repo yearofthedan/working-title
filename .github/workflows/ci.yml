@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: '0 6 * * 1' # weekly full security audit — Mondays 06:00 UTC
 
 jobs:
   build-and-test:
@@ -29,9 +31,6 @@ jobs:
       - name: Install Dependencies
         run: ./do install
 
-      - name: Run Security Audit
-        run: ./do audit
-
       - name: Build Project
         run: ./do build
 
@@ -51,3 +50,25 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  # Non-blocking signal — advisories track the published DB, not the diff, so they don't gate merges. Renovate handles remediation.
+  security-audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: 'package.json'
+          cache: 'pnpm'
+
+      - name: Run Security Audit (full prod + dev — non-blocking)
+        run: ./do audit
