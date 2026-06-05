@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "schedule": ["every weekend"],
   "prHourlyLimit": 0,
   "minimumReleaseAge": "3 days",
@@ -18,9 +18,9 @@
       "groupName": "all production dependencies"
     },
     {
-      "description": "Ignore ReDoS advisory for Ajv because upgrading breaks ESLint 10 draft-04 resolution",
+      "description": "Do not upgrade ajv: the upgrade breaks ESLint 10 draft-04 resolution. ReDoS advisory GHSA-2g4f-4pwh-qvx6 is accepted — dismiss it in GitHub > Security > Dependabot alerts to silence any security PR.",
       "matchPackageNames": ["ajv"],
-      "ignoreVulnerabilities": ["GHSA-2g4f-4pwh-qvx6"]
+      "enabled": false
     }
   ]
 }
