@@ -39,9 +39,6 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Add `./do check` aggregate gate
-Add `scripts/check` running `./do lint . && ./do build && ./do test`. The skills reference a single check gate; this makes it real. Keep `./do e2e` separate (slow; runs at Done-when).
-
 ### [chore] Add CLAUDE.md + `.claude/settings.json`
 `CLAUDE.md` imports `docs/architecture.md`, `docs/domain.md`, `docs/tech-stack.md` and states the hard rules (pnpm exact-version discipline, `./do` is the entry point, TDD-first, conventional commits). `.claude/settings.json` allowlists `Bash(./do *)`, `Bash(pnpm *)`, `Bash(git *)`, `Bash(weaver *)`, `Bash(npx playwright *)`.
 

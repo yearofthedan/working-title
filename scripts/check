@@ -1,0 +1,7 @@
+#!/bin/bash
+# Aggregate gate: lint, build, and test. Usage: ./do check
+. "$(dirname "$0")"/_common
+
+DO="$(dirname "$0")/../do"
+
+"$DO" lint . && "$DO" build && "$DO" test
