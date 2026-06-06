@@ -1,8 +1,0 @@
-{
-			"mcpServers": {
-			  "light-bridge": {
-				"command": "npx",
-				"args": ["-y", "@yearofthedan/light-bridge", "serve", "--workspace", "${workspaceFolder}"]
-			  }
-			}
-}

@@ -220,5 +220,5 @@ For EACH feature behavior:
 ## See Also
 
 - [Vue Testing Guide](vue-testing.md) - Component and composable testing patterns
-- [Workflow Functional Changes](../../.roo/skills/workflow-functional-changes/SKILL.md) - Vertical slicing approach
+- [Slice Workflow](../../.claude/skills/slice/SKILL.md) - Vertical slicing approach
 - [Architecture: Test Co-location](../architecture.md#4-test-co-location-pageobjects-next-to-components-shared-builders-in-__testhelpers__) - Where to put test files

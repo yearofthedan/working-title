@@ -39,11 +39,8 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Decommission Roo
-Delete `.roo/`, `.roomodes`, `.cursor/`. Remove `RooVeterinaryInc.roo-cline` + the `roo-cline.autoImportSettingsPath` setting from `.devcontainer/devcontainer.json`. Salvage any rule content not already in `docs/` first.
-
 ### [chore] Drop light-bridge MCP; wire weaver CLI
-Remove `.roo/mcp.json`, `.cursor/mcp.json`, and the `npm i -g @yearofthedan/light-bridge` line in `.devcontainer/onCreate.sh`. Ensure `weaver` is available in the container. (The `code-inspection`/`refactor`/`search-and-replace` skills come from weaver's published skills, not this repo.)
+Remove the `npm i -g @yearofthedan/light-bridge` line in `.devcontainer/onCreate.sh`. Ensure `weaver` is available in the container. (`.roo/mcp.json` and `.cursor/mcp.json` were already removed when Roo was decommissioned. The `code-inspection`/`refactor`/`search-and-replace` skills come from weaver's published skills, not this repo.)
 
 ### [chore] Web-inspect via Playwright MCP
 Add root `.mcp.json` with `@playwright/mcp`. Retire `./do launch-chromium-debug` and its `postStartCommand`. Point the inspect loop at the Vite dev server (5173) and Storybook (6006).
