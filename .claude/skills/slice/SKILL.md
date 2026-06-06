@@ -15,7 +15,7 @@ Steps 1-2 and 4-9 run in the main conversation (interactive spec and review work
 
 1. **Find the task.** Read `docs/handoff.md` — identify the first task by priority. Do not skip items or search `docs/specs/` for existing specs; the first item in the queue is the task, whatever its state.
    - **Has a spec link** → go to step 2.
-   - **`[needs design]` (no spec)** → switch to the `/spec` workflow: create a spec file from the appropriate template, walk through ACs with the user, update handoff.md with the spec link. After the spec is created, **commit the spec file and updated handoff.md** with message `docs(specs): add spec for [short-title]`. Do not begin implementation with an uncommitted spec. Then continue to step 2.
+   - **`[needs design]` (no spec)** → the design phase hasn't happened yet. Don't design from inside slice — redirect the user to `/brainstorm`, which explores the design and flows into `/spec` (creating the spec file, updating handoff.md, and committing both with `docs(specs): add spec for [short-title]`). Once the spec is committed and the handoff entry links to it, re-run `/slice`.
    - **`[chore]` (unambiguous, no spec)** → implement directly; skip the review depth of step 4 if trivial.
 
 2. **Read the spec.** Open the linked spec file. Confirm the task and its ACs with the user BEFORE writing any code.

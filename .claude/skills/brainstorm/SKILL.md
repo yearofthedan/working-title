@@ -14,12 +14,12 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
 <HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold anything, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY task regardless of perceived simplicity.
+Do NOT invoke any implementation skill, write any code, scaffold anything, or take any implementation action until you have presented a design and the user has approved it. This applies to every behaviour change regardless of perceived simplicity. The one exception is a handoff.md `[chore]` — unambiguous deferred admin (config tweaks, dep bumps, doc edits, dead-code removal) where the decision is already made; those go straight to implementation.
 </HARD-GATE>
 
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 
-Every change goes through this process. A single component, a composable, a config tweak — all of them. "Simple" changes are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences), but you MUST present it and get approval.
+Every behaviour change goes through this process — a single component, a composable, a new behaviour. "Simple" changes are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences), but you MUST present it and get approval. (Genuine `[chore]` items are the exception — see the hard gate.)
 
 ## Checklist
 
@@ -33,7 +33,7 @@ Complete these in order:
 6. **User reviews written spec** — ask the user to review the spec file before proceeding
 7. **Transition to implementation** — use `/slice` to implement the spec
 
-**The terminal state is `/slice`.** This project's workflow is `handoff → /spec → /slice`.
+**The terminal state is `/slice`.** This project's workflow is `handoff → /brainstorm → /spec → /slice`.
 
 ## The Process
 
@@ -42,6 +42,7 @@ Complete these in order:
 - Check the current project state first (files, docs, recent commits)
 - Before detailed questions, assess scope: if the request describes multiple independent pieces, flag it and help decompose before refining details. Each sub-piece gets its own spec → slice cycle.
 - For appropriately-scoped work, ask questions one at a time — purpose, constraints, success criteria. Prefer multiple choice. One question per message.
+- Don't burn questions on what an implementer should just decide: styling/spacing/icon choices, variable or function names, or conventions already set in the codebase (Pinia, Tailwind, feature isolation, etc.). Ask about architectural forks, scope, and genuine tradeoffs; delegate the rest.
 
 **Exploring approaches:**
 

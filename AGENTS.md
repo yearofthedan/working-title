@@ -4,7 +4,7 @@ Instructions for AI assistants working on working-title.
 
 ## Workflow
 
-**handoff → /spec → /slice.** Start from [docs/handoff.md](docs/handoff.md) — current state and the prioritised queue of next work.
+**handoff → /brainstorm → /spec → /slice.** Start from [docs/handoff.md](docs/handoff.md) — current state and the prioritised queue of next work. (`[chore]` items skip brainstorm/spec and are implemented directly.)
 
 ## Reference docs
 

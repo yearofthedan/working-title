@@ -24,6 +24,7 @@ metadata:
 6. **Fill in Value / Effort.** Why it's worth doing now and what the implementation surface looks like. If value is low or effort high relative to alternatives, flag it before continuing.
 
 7. **Draft the Behaviour / Fix section with the user.** The core of the spec.
+   - **Slice vertically, not horizontally.** Each AC is a thin slice of user-observable behaviour — a "User can [verb] [noun]" you could demo — not a technical layer. Don't write ACs that build a layer in isolation ("add the composable", then "add the component", then "add the tests"); that defers integration risk to the end and leaves tests last. Too granular ("add a button") means no behaviour; too coarse ("build the panel system") means split. Bootstrapping exception: the first AC may be "component renders in Storybook" to stand the slice up.
    - **Changes:** Write ACs as input → output (or state → rendered result) pairs. For each, ask "what's the laziest wrong implementation that still satisfies this?" Then apply the **type/state matrix check**: enumerate the distinct inputs that exercise different code paths — `.ts` vs `.vue` targets, prop combinations, empty vs populated canvas, loading/error/success states. Things that flow through different code get separate ACs; don't assume symmetry. More than 5 ACs → stop and discuss splitting.
    - **Bugs:** Describe the fix — what to change and where. Bugs don't have ACs; Expected defines the target, Done-when defines verification. The fix dispatches as a single unit.
    - Do NOT proceed past this step without user agreement.

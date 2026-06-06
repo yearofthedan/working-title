@@ -6,7 +6,7 @@
 
 # Handoff Notes
 
-Context that isn't in the architecture or guide docs — what you need to know before picking up work. The workflow is **handoff → /spec → /slice**.
+Context that isn't in the architecture or guide docs — what you need to know before picking up work. The workflow is **handoff → /brainstorm → /spec → /slice**.
 
 ## Start here
 
@@ -20,7 +20,7 @@ New to the codebase? Read in this order:
 
 Tasks have one of three states:
 - **`[chore]`** → implementation is unambiguous; implement directly, no spec needed. Decision context is in the task description. Use for deferred admin (config changes, dep bumps, doc edits, dead-code removal). Inline refactors spotted mid-session don't need an entry — apply them in a separate commit and move on.
-- **`[needs design]`** → problem understood, solution not yet agreed. Run `/spec` to design it with the user before writing code.
+- **`[needs design]`** → problem understood, solution not yet agreed. Start with `/brainstorm` to explore intent and agree a design with the user; it flows into `/spec`. Don't write code, or jump straight to `/spec`, before the design is agreed.
 - **Has a spec link** → already designed. Read the spec, then run `/slice`.
 
 An agent discovering new work adds a `[needs design]` entry and moves on — do not design it in the same session.
@@ -60,7 +60,11 @@ The ported slice/spec are general. Add a step that checks feature-isolation / DD
 ### [needs design] Consolidate ported skills
 Some ported skills overlap once slice/spec exist. Decide what survives standalone and whether to add a `docs/code-standards.md` (the skills reference one; standards currently live across `docs/guides/`).
 
-### [needs design] Bring across remaining Roo skills worth keeping
-`storybook-workflow` and `workflow-third-party-libraries` from `.roo/skills` have no slice/spec equivalent. Assess and port as Claude skills if still useful.
+### [chore] Finish Roo-skill salvage
+Leftover fold-ins from the Roo decommission. Originals recoverable via `git show 8039e2c^:.roo/skills/<name>/SKILL.md`.
+- Fold `workflow-general` standards into AGENTS.md hard rules: no `any`, no type casting, `@/*` alias, build-before-test, tests-as-docs.
+- Check `workflow-vue` heuristics vs `docs/guides/vue-*.md`; fold any missing (Props-vs-Context at 3+ consumers, extract >100 lines, styling hierarchy semantic>theme>utility, `flex-h/flex-y`).
+- Port `adding-do-scripts` → short `docs/guides/do-scripts.md` (only matters when adding `./do` commands).
+- Compare `agent-skills-standard.md` vs the `writing-skills` skill; keep the better.
 
 > **Deferred (COULD):** mutation testing (Stryker) on the domain/composables layer — on hold; revisit after the migration lands.
