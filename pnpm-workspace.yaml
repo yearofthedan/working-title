@@ -1,0 +1,9 @@
+overrides:
+  'markdown-it': '>=14.1.1'
+  'minimatch@<10.2.1': '>=10.2.1'
+auditConfig:
+  ignoreCves:
+    - CVE-2025-69873
+allowBuilds:
+  esbuild: true
+  vue-demi: true
