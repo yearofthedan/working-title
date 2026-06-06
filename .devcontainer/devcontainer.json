@@ -23,11 +23,9 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "ms-playwright.playwright",
-        "RooVeterinaryInc.roo-cline"
+        "ms-playwright.playwright"
       ],
       "settings": {
-        "roo-cline.autoImportSettingsPath": ".roo/roo-code-settings.json",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
