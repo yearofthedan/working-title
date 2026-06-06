@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./do *)",
+      "Bash(pnpm *)",
+      "Bash(weaver *)",
+      "Bash(npx weaver *)",
+      "Bash(npx playwright *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git switch*)",
+      "Bash(git checkout*)",
+      "Bash(git stash*)",
+      "Bash(git rev-parse*)",
+      "Bash(git fetch*)",
+      "Bash(git restore*)"
+    ]
+  }
+}
