@@ -39,9 +39,6 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Add git-tracked `.claude/MEMORY.md`
-Durable cross-cutting rules. `~/.claude/` is wiped on container rebuild; this survives.
-
 ### [chore] Decommission Roo
 Delete `.roo/`, `.roomodes`, `.cursor/`. Remove `RooVeterinaryInc.roo-cline` + the `roo-cline.autoImportSettingsPath` setting from `.devcontainer/devcontainer.json`. Salvage any rule content not already in `docs/` first.
 
