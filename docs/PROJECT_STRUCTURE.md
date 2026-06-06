@@ -6,15 +6,7 @@ project-root/
 ├── .devcontainer/          # 
 ├── .github/                # 
 ├── .husky/                 # 
-├── .roo/                   # 
-    ├── rules/              #
-    ├── rules-architect/    # 
-    ├── rules-code/         # 
-    ├── rules-orchestrator/ # 
-    ├── rules-qa/           #
-    ├── skills/             #
-    ├── skills-agent-tuner/ #
-    ├── skills-qa/          #
+├── .claude/                # Claude Code: skills, agents, settings, memory
 ├── .storybook/             # 
 ├── .vscode/                # 
 ├── docs  /                 # 

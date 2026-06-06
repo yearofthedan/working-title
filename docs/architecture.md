@@ -58,25 +58,7 @@ Test utilities follow these rules:
 
 **Rationale**: Tests are first-class code. Co-location reduces cognitive distance and makes test utilities easy to find.
 
-### 5. Skills = imperative procedures; Docs = reference knowledge
-
-- **[`.roo/skills/`](../.roo/skills/)**: Step-by-step workflows for AI agents (e.g., "How to add an icon")
-- **[`docs/`](../docs/)**: Reference material for humans (e.g., "Icon system overview")
-
-**Example**: [`docs/guides/icons.md`](guides/icons.md) provides step-by-step instructions for adding icons, while also explaining "Icons come from Iconify, registry is at X".
-
-**Rationale**: Different audiences, different formats. Skills are executable; docs are readable.
-
-### 6. Rules = auto-loaded constraints + terminology; full explanations in docs/
-
-- **[`.roo/rules/`](../.roo/rules/)**: Terse, auto-loaded constraints for AI agents (always in context)
-- **[`docs/`](../docs/)**: Detailed explanations and rationale (loaded on demand)
-
-**Example**: [`.roo/rules/architecture.md`](../.roo/rules/architecture.md) says "Feature Isolation: No cross-feature imports". [`docs/decisions/active/adr-001-feature-isolation.md`](decisions/active/adr-001-feature-isolation.md) explains why.
-
-**Rationale**: Rules stay small for token efficiency. Docs provide depth when needed.
-
-### 7. Performance: Async loading for heavy dependencies
+### 5. Performance: Async loading for heavy dependencies
 
 Heavy dependencies (Tiptap, elkjs) are loaded asynchronously to avoid blocking initial page load.
 
