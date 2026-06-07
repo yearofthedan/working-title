@@ -12,7 +12,7 @@ Instructions for AI assistants working on working-title.
 - [Domain](docs/domain.md) — core terminology (Step, Template, Canvas, Track, Connection, Node, Stage)
 - [Tech Stack](docs/tech-stack.md) — stack and libraries
 - [Decisions](docs/decisions/index.md) — ADRs
-- [Guides](docs/guides/) — testing, composables, styling, i18n, icons
+- [Guides](docs/guides/) — testing, typescript, composables, styling, i18n, icons, do-scripts
 
 ## Skills
 

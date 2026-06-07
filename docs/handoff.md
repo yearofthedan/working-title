@@ -33,17 +33,10 @@ The spec's Done-when section is the checklist. Key items: remove the task entry 
 
 ## Current state
 
-Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off Roo onto Claude Code. Commands run through `./do <cmd>` (`test`, `lint`, `build`, `e2e`, `e2e-ui`, `test-a11y`, `dev`, `preview`, `storybook`). The compiler-aware refactoring CLI is `weaver`.
+Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Migrated off Roo onto Claude Code. Commands run through `./do <cmd>` (`test`, `lint`, `build`, `e2e`, `e2e-ui`, `test-a11y`, `dev`, `preview`, `storybook`). The compiler-aware refactoring CLI is `weaver`.
 
-## Roo → Claude migration queue
+## Queue
 
-> Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
-
-### [chore] Finish Roo-skill salvage
-Leftover fold-ins from the Roo decommission. Originals recoverable via `git show 8039e2c^:.roo/skills/<name>/SKILL.md`. Standards stay out of AGENTS.md (keep it lean) — route to concern guides:
-- Fold `workflow-general` standards into the guides, not AGENTS.md: `no any` / no type casting / `@/*` alias → new `docs/guides/typescript.md`; build-before-test + tests-as-docs → `docs/guides/tdd-patterns.md`.
-- Check `workflow-vue` heuristics vs `docs/guides/vue-*.md`; fold any missing (Props-vs-Context at 3+ consumers, extract >100 lines, styling hierarchy semantic>theme>utility, `flex-h/flex-y`).
-- Port `adding-do-scripts` → short `docs/guides/do-scripts.md` (only matters when adding `./do` commands).
-- Compare `agent-skills-standard.md` vs the `writing-skills` skill; keep the better.
+No active work items.
 
 > **Deferred (COULD):** mutation testing (Stryker) on the domain/composables layer — on hold; revisit after the migration lands.

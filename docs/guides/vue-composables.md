@@ -193,6 +193,15 @@ export function useFilteredItems(
 }
 ```
 
+### State: Props vs Feature Context
+
+Choose how shared state reaches a component by counting consumers:
+
+- **Fewer than 3 consumers** — pass via props and emits/`v-model`. Keep leaf components dumb and reusable.
+- **3+ consumers, or deep nesting** — promote to a **feature context** (a composable wired through `provide`/`inject`) so you stop prop-drilling through intermediate components that don't use the value.
+
+Refactor from props to context when a tree grows past that threshold — not pre-emptively.
+
 ## Testing Composables
 
 See [Vue Testing Guide](vue-testing.md#1-composable-testing) for detailed patterns.

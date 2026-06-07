@@ -206,6 +206,14 @@ it('should render notification with correct icon', ...)
 
 Each cycle builds on the previous, all tests stay green.
 
+## Tests are the documentation
+
+The automated tests are this project's primary documentation of behaviour. Write them to be read: clear arrange-act-assert, domain naming, and assertions that describe what the user observes. A reviewer should learn what a unit does from its spec without opening the implementation.
+
+## Build before you test
+
+Run `./do build` before `./do test` (or just `./do check`, which does both). The build surfaces type and compile errors in seconds, whereas a full test run buries them — fix compile failures first, then test behaviour.
+
 ## Validation Checklist
 
 For EACH feature behavior:
