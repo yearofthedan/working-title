@@ -39,9 +39,6 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Web-inspect via Playwright MCP
-Add root `.mcp.json` with `@playwright/mcp`. Retire `./do launch-chromium-debug` and its `postStartCommand`. Point the inspect loop at the Vite dev server (5173) and Storybook (6006).
-
 ### [chore] Devcontainer security hardening
 Add `"dev.containers.copyGitConfig": false` and `"dev.containers.gitCredentialHelperConfigLocation": "none"` (stop host git creds leaking into the agent container). Pin the remaining `latest` features (git, github-cli) to exact versions. Drop CDP debug port 9222. Remove/pin the root `uv` installer in the Dockerfile if unused. Add `set -euo pipefail` to `onCreate.sh`.
 

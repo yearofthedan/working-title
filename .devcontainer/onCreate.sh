@@ -6,6 +6,9 @@ sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
 # Install the weaver refactoring CLI globally
 npm install -g @yearofthedan/weaver@0.1.5
 
+# Install the Playwright agent CLI globally (browser inspect loop)
+npm install -g @playwright/cli@0.1.13
+
 # Authenticate with GitHub if needed
 if ! gh auth status &>/dev/null; then
   echo "🔐 GitHub authentication required"
