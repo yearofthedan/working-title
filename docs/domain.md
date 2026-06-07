@@ -56,6 +56,31 @@ To avoid confusion, note these domain-specific meanings:
 | **Template**   | Writing methodology                  | Code template, HTML template       |
 | **Canvas**     | Visual graph editor                  | HTML5 Canvas element               |
 
+## Bounded contexts & model map
+
+The same concepts are modelled differently across three bounded contexts — this
+is deliberate DDD, not duplication. A "Step" persisted, a "Step" as a methodology
+slot, and a "Step" drawn on the canvas are different types in different features.
+Use this map to find the right type and to avoid adding a fourth definition or
+blurring one context's model into another.
+
+| Concept | Bounded context (feature) | Type(s) — file |
+| --- | --- | --- |
+| Project (runtime aggregate) | `writing-project` | `Project` (joins `ProjectData` + `ProcessTemplate`) — `src/features/writing-project/composables/useProjectLoader.ts` |
+| Step (persisted writing task) | `project-storage` | `Step`, `StepContent` — `src/features/project-storage/types.ts` |
+| Connection (persisted relationship) | `project-storage` | `Connection` — `src/features/project-storage/types.ts` |
+| Project data (stored shape) | `project-storage` | `ProjectData`, `ProjectMetadata` — `src/features/project-storage/types.ts` |
+| Node (visual step) | `writing-project/canvas` | `BasicCanvasNode`, `EnrichedCanvasNode` — `src/features/writing-project/canvas/types.ts` |
+| Edge (visual connection) | `writing-project/canvas` | `CanvasEdge` — `src/features/writing-project/canvas/types.ts` |
+| Track (layout column) | `writing-project/canvas` | `Track` — `src/features/writing-project/canvas/types.ts` |
+| Canvas view | `writing-project/canvas` | `CanvasViewModel` — `src/features/writing-project/canvas/types.ts` |
+| Template (methodology) | `process-templates` | `ProcessTemplate` — `src/features/process-templates/processTemplate.ts` |
+| Step definition (methodology slot) | `process-templates` | `StepDefinition` — `src/features/process-templates/processTemplate.ts` |
+| Track definition (methodology) | `process-templates` | `TrackDefinition` — `src/features/process-templates/processTemplate.ts` |
+
+Pure-TS primitives (e.g. the generic graph `Node` in `src/utils/graphs.ts`) are
+not domain models — they're framework-agnostic utilities the features build on.
+
 ## Further Reading
 
 - **[Domain Implementation](domain-implementation.md)**: Technical patterns and implementation details

@@ -39,15 +39,9 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [needs design] Architecture lens for /spec and /slice
-The ported slice/spec are general. Add a step that checks feature-isolation / DDD boundaries / composable-vs-feature placement before dispatching to the execution agent. Working-title-specific; the canvas/domain split is the thing to protect.
-
-### [needs design] Consolidate ported skills
-Some ported skills overlap once slice/spec exist. Decide what survives standalone and whether to add a `docs/code-standards.md` (the skills reference one; standards currently live across `docs/guides/`).
-
 ### [chore] Finish Roo-skill salvage
-Leftover fold-ins from the Roo decommission. Originals recoverable via `git show 8039e2c^:.roo/skills/<name>/SKILL.md`.
-- Fold `workflow-general` standards into AGENTS.md hard rules: no `any`, no type casting, `@/*` alias, build-before-test, tests-as-docs.
+Leftover fold-ins from the Roo decommission. Originals recoverable via `git show 8039e2c^:.roo/skills/<name>/SKILL.md`. Standards stay out of AGENTS.md (keep it lean) — route to concern guides:
+- Fold `workflow-general` standards into the guides, not AGENTS.md: `no any` / no type casting / `@/*` alias → new `docs/guides/typescript.md`; build-before-test + tests-as-docs → `docs/guides/tdd-patterns.md`.
 - Check `workflow-vue` heuristics vs `docs/guides/vue-*.md`; fold any missing (Props-vs-Context at 3+ consumers, extract >100 lines, styling hierarchy semantic>theme>utility, `flex-h/flex-y`).
 - Port `adding-do-scripts` → short `docs/guides/do-scripts.md` (only matters when adding `./do` commands).
 - Compare `agent-skills-standard.md` vs the `writing-skills` skill; keep the better.

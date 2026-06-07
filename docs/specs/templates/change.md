@@ -21,6 +21,22 @@ Why this change exists. One paragraph max — the background belongs in the arch
 
 *As a …, I want …, so that …*
 
+## Domain & boundaries
+
+> The DDD lens — fill before placement decisions. Name the domain concepts this
+> touches, then where the code lives. The executor must not cross these
+> boundaries (see `docs/architecture.md` §Structural Conventions and the model
+> map in `docs/domain.md`).
+
+- **Domain models involved:** which concepts (Step, Connection, Template, Track,
+  Node, Canvas, …) this reads, creates, or mutates — and which context/feature
+  owns each (per the `docs/domain.md` model map).
+- **Placement:** target layer per unit — `src/utils`/`src/infra` (pure TS, no
+  Vue) vs `src/features/[feature]` (Vue); composable vs component; co-located
+  with its concern.
+- **Boundary risks:** cross-feature imports, Vue leaking into pure TS, or a
+  composable that should be feature-local — flag any the design flirts with.
+
 ## Relevant files
 
 > Files the executor should read before starting. The spec agent populates

@@ -29,6 +29,8 @@ Steps 1-2 and 4-9 run in the main conversation (interactive spec and review work
 
    **Document the decision** in the spec file: replace the open question with the chosen approach, the reasoning, and the consequences. This becomes the implementation instruction. Never forward an unresolved architectural fork to the execution agent — it's optimised for mechanical changes, not design judgment.
 
+   **Boundary gate (before any dispatch).** Read the spec's `## Domain & boundaries` section (populate it from the spec's intent and the code if the spec predates that section). Verify the planned placement against `docs/architecture.md` §Structural Conventions: no cross-feature imports, no Vue outside `features/`, composables co-located with their concern, and each domain model used through its owning context (see the `docs/domain.md` model map). If a planned change would cross a boundary, resolve the placement now — the execution agent does mechanical changes, not boundary judgment.
+
    **Changes: group ACs by neighbourhood.** ACs that modify the same area (same feature directory, same component+test pair, same composable) go in one dispatch. ACs in a different area start a new dispatch.
 
    For each batch, dispatch one `execution-agent` call with:

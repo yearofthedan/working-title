@@ -31,7 +31,9 @@ metadata:
 
 8. **Flag open implementation decisions.** Where you found a meaningful fork with **different correctness or risk profiles** (e.g. composable vs feature-local state, watch vs computed, new abstraction vs inline), add an `## Open decisions` section: the decision (as a question), the viable approaches, the tradeoffs (correctness/maintainability, not just effort), and a recommendation. These are architectural forks, not details the executor figures out. The spec cannot be picked up until every open decision is resolved. Never write "the executor should choose".
 
-9. **Populate Relevant files and Red flags.** List the files you read that hold reusable logic, similar patterns, shared types, or composables — with a note on why each matters. Note code smells in the target area (oversized components, logic that belongs in a composable, duplicated template, cross-feature reach-ins) under Red flags.
+9. **Fill in Domain & boundaries.** From the concepts in the User intent and the code you explored, name the domain models involved and which context/feature owns each — cross-check the model map in `docs/domain.md` (add a row there if a model is missing). Then state the placement per unit (`utils`/`infra` pure TS vs `features/` Vue; composable vs component) and flag any boundary risks (cross-feature imports, Vue in pure TS, a composable that should be feature-local), per `docs/architecture.md` §Structural Conventions. This is the DDD lens; resolve a boundary risk here, not in the execution agent.
+
+   **Populate Relevant files and Red flags.** List the files you read that hold reusable logic, similar patterns, shared types, or composables — with a note on why each matters. Note code smells in the target area (oversized components, logic that belongs in a composable, duplicated template, cross-feature reach-ins) under Red flags.
 
    **Test hotspot assessment:** Check the test files this spec will touch. If any are large/brittle, include a prep step to refactor before adding tests (see `docs/guides/vue-testing.md`).
 
