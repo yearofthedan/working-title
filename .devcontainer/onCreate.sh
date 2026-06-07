@@ -3,8 +3,8 @@
 # Fix permissions on folders after volumes are mounted
 sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
 
-# Install light-bridge globally
-npm install -g @yearofthedan/light-bridge
+# Install the weaver refactoring CLI globally
+npm install -g @yearofthedan/weaver@0.1.5
 
 # Authenticate with GitHub if needed
 if ! gh auth status &>/dev/null; then
