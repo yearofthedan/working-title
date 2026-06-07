@@ -39,9 +39,6 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Pin git identity in the devcontainer
-Set a repo-local personal identity, and fix `.devcontainer/onCreate.sh` so it honours `GH_USER`/`GH_EMAIL` overrides and defaults to the intended account, instead of taking `git config user.name/email` from whatever account `gh` happens to be logged in as inside the container — mirror weaver's `scripts/bootstrap-gh.sh`. Prevents commits being mis-attributed to the wrong account.
-
 ### [chore] Add `anthropic.claude-code` to devcontainer + postStart.sh
 Mirror weaver: add the extension and a `postStart.sh` that refreshes the CLI.
 

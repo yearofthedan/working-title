@@ -25,14 +25,18 @@ fi
 # Pull code if it doesn't already exist
 [ -d ".git" ] || git clone https://github.com/yearofthedan/working-title.git .
 
-# Configure git identity from GitHub
-GH_USER=$(gh api user --jq .login)
-# Prefer the no-reply email to keep personal email private in commits
-GH_EMAIL=$(gh api user/emails --jq '.[] | select(.email | contains("noreply.github.com")) | .email')
-# Fallback to primary if no-reply is not found
-[ -z "$GH_EMAIL" ] && GH_EMAIL=$(gh api user/emails --jq '.[] | select(.primary==true) | .email')
+# Configure repo-local git identity.
+# Prefer explicit GH_USER/GH_EMAIL overrides (e.g. for agents/CI); otherwise
+# derive from the logged-in `gh` account. The constructed no-reply email keeps
+# the personal address private.
+GH_USER="${GH_USER:-$(gh api user -q '.login' 2>/dev/null || true)}"
+GH_ID="${GH_ID:-$(gh api user -q '.id' 2>/dev/null || true)}"
 
-git config user.name "$GH_USER"
-git config user.email "$GH_EMAIL"
-
-echo "✅ Git identity configured: $GH_USER <$GH_EMAIL>"
+if [ -n "$GH_USER" ]; then
+  GH_EMAIL="${GH_EMAIL:-${GH_ID}+${GH_USER}@users.noreply.github.com}"
+  git config user.name "$GH_USER"
+  git config user.email "$GH_EMAIL"
+  echo "✅ Git identity configured: $GH_USER <$GH_EMAIL>"
+else
+  echo "⚠️  Could not determine GitHub user; git identity not configured."
+fi
