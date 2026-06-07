@@ -1,0 +1,36 @@
+#!/bin/bash
+# Authenticate with GitHub and configure the repo-local git identity. Usage: ./do bootstrap-gh
+
+. "$(dirname "$0")"/_common
+
+set -euo pipefail
+
+# --- Authentication ---
+# Pass-through with a token (agents/CI), reuse an existing session, or fall back
+# to interactive web login.
+TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+if [ -n "$TOKEN" ]; then
+  echo "$TOKEN" | gh auth login --with-token
+  echo -e "${SUCCESS_COLOR}Authenticated via token.${RESET_COLOR}"
+elif gh auth status &>/dev/null; then
+  echo -e "${SUCCESS_COLOR}Already authenticated.${RESET_COLOR}"
+else
+  echo -e "${INFO_COLOR}GitHub authentication required.${RESET_COLOR}"
+  gh auth login --hostname github.com --git-protocol https --web -s user -s repo
+fi
+
+# --- Identity (repo-local) ---
+# Prefer explicit GH_USER/GH_EMAIL overrides; otherwise derive from the
+# logged-in gh account. The constructed no-reply email keeps the personal
+# address private.
+GH_USER="${GH_USER:-$(gh api user -q '.login' 2>/dev/null || true)}"
+GH_ID="${GH_ID:-$(gh api user -q '.id' 2>/dev/null || true)}"
+
+if [ -n "$GH_USER" ]; then
+  GH_EMAIL="${GH_EMAIL:-${GH_ID}+${GH_USER}@users.noreply.github.com}"
+  git config user.name "$GH_USER"
+  git config user.email "$GH_EMAIL"
+  echo -e "${SUCCESS_COLOR}Git identity configured: $GH_USER <$GH_EMAIL>${RESET_COLOR}"
+else
+  echo -e "${WARNING_COLOR}Could not determine GitHub user; git identity not configured.${RESET_COLOR}"
+fi

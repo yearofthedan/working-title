@@ -51,6 +51,7 @@
   ],
   "onCreateCommand": "bash .devcontainer/onCreate.sh",
   "postCreateCommand": "./do bootstrap",
+  "postStartCommand": "bash .devcontainer/postStart.sh",
   "containerEnv": {
     "PLAYWRIGHT_BROWSERS_PATH": "/home/node/.cache/ms-playwright",
     "NODE_OPTIONS": "--max-old-space-size=4096",
