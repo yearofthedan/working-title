@@ -1,0 +1,4 @@
+{
+  "dev.containers.copyGitConfig": false,
+  "dev.containers.gitCredentialHelperConfigLocation": "none"
+}

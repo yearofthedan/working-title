@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Fix permissions on folders after volumes are mounted
 sudo chown -R node:node /home/node/.vscode-server ${containerWorkspaceFolder}
@@ -14,7 +15,7 @@ if ! gh auth status &>/dev/null; then
   echo "🔐 GitHub authentication required"
   # Use non-interactive login if GITHUB_TOKEN is available (e.g. for agents/CI)
   # Otherwise, use interactive device flow since browsers won't open in containers
-  if [ -z "$GITHUB_TOKEN" ]; then
+  if [ -z "${GITHUB_TOKEN:-}" ]; then
     gh auth login --hostname github.com --git-protocol https --web -s user -s repo
   else
     echo "Using GITHUB_TOKEN for authentication"
