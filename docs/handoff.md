@@ -39,9 +39,6 @@ Vue 3 + Vite + TypeScript SPA (visual workflow/graph editor). Mid-migration off 
 
 > Bootstrapped by hand: `/slice`, `/spec`, `execution-agent`, `run-checks`, `implementation-context`, `review-changes`, this file, and the spec templates. The items below are run *through* that workflow as slices.
 
-### [chore] Add `anthropic.claude-code` to devcontainer + postStart.sh
-Mirror weaver: add the extension and a `postStart.sh` that refreshes the CLI.
-
 ### [needs design] Architecture lens for /spec and /slice
 The ported slice/spec are general. Add a step that checks feature-isolation / DDD boundaries / composable-vs-feature placement before dispatching to the execution agent. Working-title-specific; the canvas/domain split is the thing to protect.
 

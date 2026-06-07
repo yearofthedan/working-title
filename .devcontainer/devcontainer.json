@@ -23,7 +23,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "anthropic.claude-code"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
