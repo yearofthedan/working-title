@@ -29,7 +29,11 @@ defineOptions({
 
 const modelValue = defineModel<string>({ required: true })
 
-interface Props extends /* @vue-ignore */ InputHTMLAttributes {
+// Re-type `autocomplete` to plain `string`: Vue 3.5.35 widened it to the huge
+// `AutoFill` union, which blows past TS's union complexity limit (TS2590).
+interface Props
+  extends /* @vue-ignore */ Omit<InputHTMLAttributes, 'autocomplete'> {
+  autocomplete?: string
   id?: string
   label?: string
   placeholder?: string
