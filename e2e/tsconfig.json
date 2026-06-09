@@ -6,6 +6,8 @@
     "composite": true,
     "resolveJsonModule": true,
     "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "types": ["node"],
     "paths": {
       "@/*": ["../src/*"]
     },

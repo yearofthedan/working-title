@@ -58,9 +58,7 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
     this.isFile = false
     this.isDirectory = true
   }
-  [Symbol.asyncIterator](): AsyncIterableIterator<
-    [string, FileSystemDirectoryHandle | FileSystemFileHandle]
-  > {
+  [Symbol.asyncIterator](): never {
     throw new Error('Method not implemented.')
   }
 
@@ -73,13 +71,13 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
   resolve(): Promise<string[] | null> {
     throw new Error('Method not implemented.')
   }
-  keys(): AsyncIterableIterator<string> {
+  keys(): never {
     throw new Error('Method not implemented.')
   }
-  values(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle> {
+  values(): never {
     throw new Error('Method not implemented.')
   }
-  entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]> {
+  entries(): never {
     throw new Error('Method not implemented.')
   }
 
@@ -91,7 +89,7 @@ export class DummyDirectoryHandle implements FileSystemDirectoryHandle {
     throw new Error('Method not implemented.')
   }
 
-  getEntries(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle> {
+  getEntries(): never {
     throw new Error('Method not implemented.')
   }
 
