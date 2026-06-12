@@ -39,7 +39,7 @@ metadata:
 
    **Layer-fit pre-check (per AC):** Is the behaviour a pure function of its inputs (unit-test the composable/util directly) or does it need a mounted component / router / canvas wiring? Note it under each AC so the executor doesn't default to mounting everything.
 
-10. **Fill in Public surface (change only).** For every prop/emit, composable signature, store shape, route param, or i18n key: what does it contain (example value)? realistic bounds / 10× case? empty/absent case? adversarial case? If a field has no answer, the spec isn't ready.
+10. **Fill in Public surface (change only).** For every prop/emit, composable signature, store shape, route param, or i18n key: what does it contain (example value)? realistic bounds / 10× case? empty/absent case? adversarial case? If a field has no answer, the spec isn't ready. Keep the surface minimal — expose what a consumer needs, not internals; if a composable export or ref would exist only so a test can reach it, plan to test through the real component/composable entry point instead.
 
 11. **Fill in Edges.** "What must NOT change?" and "what assumptions are we making?" These become regression tests.
 

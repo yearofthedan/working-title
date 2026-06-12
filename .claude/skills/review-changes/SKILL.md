@@ -15,9 +15,9 @@ If a commit range was passed (e.g. `/review-changes abc123..def456`), run `git d
 
 Otherwise run `git diff origin/main...HEAD` for all branch changes. If that returns nothing (branch at main, or no remote), fall back to `git diff HEAD` for staged changes. If still nothing, review the most recently modified files mentioned in this conversation.
 
-## Phase 2: Launch Three Review Agents in Parallel
+## Phase 2: Launch Four Review Agents in Parallel
 
-Use the Agent tool to launch all three concurrently in a single message. Pass each the full diff.
+Use the Agent tool to launch all four concurrently in a single message. Pass each the full diff.
 
 ### Agent 1: Code Reuse Review
 
@@ -30,12 +30,13 @@ Use the Agent tool to launch all three concurrently in a single message. Pass ea
 1. **Redundant state**: state duplicating other state, `ref`s that could be `computed`, watchers that could be direct calls
 2. **Parameter/prop sprawl**: adding props instead of generalizing or restructuring
 3. **Copy-paste with slight variation**: near-duplicate template blocks or `setup` logic that should share an abstraction
-4. **Leaky abstractions**: a feature reaching into another feature's internals; exposing internal refs that should be encapsulated
-5. **Stringly-typed code**: raw strings where a union type, enum, or i18n key already exists
-6. **Unnecessary template nesting**: wrapper `<div>`/`<template>` elements that add no layout value — check if inner component props already provide the behaviour
-7. **Nested conditionals**: `v-if` ladders, nested ternaries, or `setup` branching 3+ deep — flatten with early returns, a computed, or a lookup
-8. **Unnecessary comments**: comments narrating WHAT the code does or referencing the task — delete; keep only non-obvious WHY (hidden constraints, subtle invariants, workarounds)
-9. **Hardcoded strings/styles**: user-facing text not going through i18n; magic Tailwind values that break the styling conventions
+4. **Stringly-typed code**: raw strings where a union type, enum, or i18n key already exists
+5. **Unnecessary template nesting**: wrapper `<div>`/`<template>` elements that add no layout value — check if inner component props already provide the behaviour
+6. **Nested conditionals**: `v-if` ladders, nested ternaries, or `setup` branching 3+ deep — flatten with early returns, a computed, or a lookup
+7. **Unnecessary comments**: comments narrating WHAT the code does or referencing the task — delete; keep only non-obvious WHY (hidden constraints, subtle invariants, workarounds)
+8. **Hardcoded strings/styles**: user-facing text not going through i18n; magic Tailwind values that break the styling conventions
+
+(Cross-feature structure and boundaries are Agent 4's remit, not this one's.)
 
 ### Agent 3: Efficiency Review
 
@@ -46,6 +47,16 @@ Use the Agent tool to launch all three concurrently in a single message. Pass ea
 5. **Reactivity leaks**: missing cleanup, event listeners not removed on unmount, unbounded arrays/maps
 6. **Overly broad operations**: re-rendering the whole canvas when one node changed; loading all items when filtering for one
 
+### Agent 4: Architecture & Boundary Fit
+
+Review the same changes against `docs/architecture.md` §Structural Conventions:
+
+1. **Cross-feature reach-in**: a feature importing another feature's internals instead of a shared/public surface
+2. **Vue boundary leak**: Vue components or Vue-specific composables outside `features/`, or Vue imports creeping into `utils/` or `infra/` (Conventions §2, §3)
+3. **Misplaced composable**: a composable in a shared/top-level location that should be feature-local, co-located with the concern it serves (Convention §1)
+4. **Over-wide surface**: exposing internal refs/state that should stay encapsulated — especially anything exported only so a test can reach it
+5. **I/O outside the infra seam**: direct File System Access / IndexedDB / storage calls in a feature instead of going through an `infra/` provider
+
 ## Phase 3: Fix Issues
 
-Wait for all three agents. Aggregate findings and fix each directly. If a finding is a false positive or not worth addressing, note it and move on. When done, briefly summarize what was fixed (or confirm the code was already clean).
+Wait for all four agents. Aggregate findings and fix each directly. If a finding is a false positive or not worth addressing, note it and move on. When done, briefly summarize what was fixed (or confirm the code was already clean).
