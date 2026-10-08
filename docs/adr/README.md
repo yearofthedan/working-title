@@ -4,9 +4,7 @@
 **Holds:** one record per decision that had real alternatives: context, decision, consequences.
 **Changes when:** a standing rule is added or changed. Records are never edited once merged; a new record supersedes an old one, and the old one's status says which record replaced it.
 
-A decision gets a record when there was a real alternative, reversing it is expensive, and the code can't explain why. Product decisions belong in the product docs, and a choice not yet proven by a story is not a decision yet.
-
-Name new records `NNNN-short-title.md`, numbered in order, in the Status / Context / Decision / Consequences shape. Context lists the forces at play, as facts, including the ones the decision goes against; it neither lists options nor argues for the outcome.
+How to decide whether a decision needs a record, and how to write one: [the writing-adrs skill](../../.agents/skills/writing-adrs/SKILL.md).
 
 | # | Decision | Status |
 | --- | --- | --- |
