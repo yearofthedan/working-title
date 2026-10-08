@@ -9,7 +9,7 @@ A desktop-Chromium PWA with no server: browser storage holds the working copy, a
 ## Platform
 
 - Desktop Chromium only (Chrome, Edge, Arc). Firefox and Safari are told up front that they can't keep work in a folder. Mobile is out of v1. ([ADR 1](adr/0001-desktop-chromium-only.md))
-- No server, no accounts, no network after the first load.
+- No backend: no server, no accounts, no network after the first load. ([ADR 11](adr/0011-no-backend-in-v1.md))
 - Deferred: sync, mobile, a Tauri shell, reading external edits back from the folder, manuscript export. LLM integration is undecided; nothing in v1 is shaped for it, and nothing may make adding it later painful.
 
 ## Quality targets

@@ -18,3 +18,4 @@ Name new records `NNNN-short-title.md`, numbered in order, in the Status / Conte
 | [8](0008-theme-outside-pieces.md) | Theme outside pieces and stages | Accepted |
 | [9](0009-stack.md) | Stack | Accepted |
 | [10](0010-agents-md-only.md) | AGENTS.md as the only agent guide | Accepted |
+| [11](0011-no-backend-in-v1.md) | No backend in v1 | Accepted |
