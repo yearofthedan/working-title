@@ -31,7 +31,7 @@ File `docs/adr/NNNN-short-title.md`, the next number in order. Title names the d
 ```markdown
 # N. Title
 
-Status: Accepted, YYYY-MM-DD
+Status: Proposed, YYYY-MM-DD
 
 ## Context
 
@@ -65,4 +65,4 @@ The question that had to be answered, in one sentence.
 
 ## Changing a decision
 
-A merged record is never edited. Write a new record that supersedes it, set the old record's status to `Superseded by [N](NNNN-title.md)`, update the index, and repoint the rule in `docs/ARCHITECTURE.md`.
+A record is Proposed while the story that proves it is open, and can be edited freely until then, even if it has already merged. The PR that merges that story sets it to `Accepted, YYYY-MM-DD`. An Accepted record is never edited. To change it, write a new record that supersedes it, set the old record's status to `Superseded by [N](NNNN-title.md)`, update the index, and repoint the rule in `docs/ARCHITECTURE.md`.

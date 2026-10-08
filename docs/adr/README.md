@@ -2,7 +2,7 @@
 
 **For:** anyone who needs to know why a rule in [ARCHITECTURE.md](../ARCHITECTURE.md) is the way it is, before changing it.
 **Holds:** one record per decision that had real alternatives: context, decision, alternatives considered, consequences.
-**Changes when:** a standing rule is added or changed. Records are never edited once merged; a new record supersedes an old one, and the old one's status says which record replaced it.
+**Changes when:** a standing rule is added or changed. A record can be edited while it is Proposed, until the story that proves it merges. Once Accepted it is never edited; a new record supersedes an old one, and the old one's status says which record replaced it.
 
 How to decide whether a decision needs a record, and how to write one: [the writing-adrs skill](../../.agents/skills/writing-adrs/SKILL.md).
 

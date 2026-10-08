@@ -43,7 +43,7 @@ A PR is done when all of these hold:
 ## Where docs go
 
 - `docs/ARCHITECTURE.md`: today's rules.
-- `docs/adr/`: why, one record per decision; never edited once merged, superseded by a new record.
+- `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the rule it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
 
