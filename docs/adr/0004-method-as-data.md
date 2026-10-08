@@ -15,6 +15,10 @@ How does the code know the writing method: written into the code, or read from a
 
 A method is a declarative definition of piece types, the facets each carries, and stages, each with its dependencies and guidance. A generic engine reads it; the code never names a method. Each project records its method and version.
 
+## Alternatives considered
+
+- **Snowflake written into the code.** Fastest to start, but every change to guidance or stages is a code change, and a second method is a rewrite.
+
 ## Consequences
 
 Method vocabulary appears only in method definitions, enforced by lint. A toy method shaped differently from the built-in one must run through the engine unchanged, or the check proves nothing. Nothing is generalised beyond what the built-in method exercises.

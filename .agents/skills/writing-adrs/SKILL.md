@@ -41,11 +41,16 @@ The question that had to be answered, in one sentence.
 
 ## Decision
 
+## Alternatives considered
+
+- **Option.** What it offered, and why it lost.
+
 ## Consequences
 ```
 
-- **Context** opens with the question that had to be answered, in one sentence, so the reader knows what was being decided before reading why. It then lists the forces at play: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. It neither lists options nor argues for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
+- **Context** opens with the question that had to be answered, in one sentence, so the reader knows what was being decided before reading why. It then lists the forces at play: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. Options go under Alternatives considered, not here, and the context doesn't argue for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
 - **Decision** states what was decided, in a few sentences, at the level that stays true while details change. No library names unless the decision is about that library and a story has proven it.
+- **Alternatives considered** names each real option that lost, what it offered, and why it lost, one bullet each. This is the evidence for the first test; a record with no alternative fails it.
 - **Consequences** states what follows, good and bad: what becomes easy, what becomes hard, what is now ruled out, and which checks enforce it.
 - Names no person and tells no story of how the decision was reached.
 

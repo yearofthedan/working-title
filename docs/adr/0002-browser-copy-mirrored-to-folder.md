@@ -17,6 +17,12 @@ With no server, where on the writer's machine does the work live, and which copy
 
 Browser storage is the working copy. A background mirror writes each changed piece to a folder the writer picks, through the File System Access API. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1.
 
+## Alternatives considered
+
+- **The folder as the only store.** The writer owns everything directly, but every save waits on slow asynchronous file writes, and nothing can be saved until the writer re-grants access after a reload.
+- **Browser storage only.** Fast and simple, but cleared site data loses everything, and the writer owns no copy.
+- **A native shell (Tauri) now.** Real file access on every OS, but the app stops being a plain web app. Kept possible behind the storage port.
+
 ## Consequences
 
 Typing never waits on the file system. The File System Access API exists only in desktop Chromium, so v1 runs there; other browsers are told up front that they can't keep work in a folder. Folder access needs a user click after every reload, so the app offers a reconnect action and shows when the folder is disconnected. Edits made to the files outside the app are not read back.

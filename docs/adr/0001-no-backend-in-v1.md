@@ -15,6 +15,11 @@ Where does the writer's work live in v1: on a server we run, or on the writer's 
 
 No backend in v1: no server, no accounts, and no network after the first load. All work is stored on the writer's machine, so v1 is single-device.
 
+## Alternatives considered
+
+- **A backend with accounts and cloud storage.** Gives sync and a second device, at the cost of servers to run, secure and pay for, and manuscripts held by us.
+- **A hosted sync service on top of local storage.** Keeps work local but still adds an account, a third party and an ops dependency, for a second device v1 doesn't need.
+
 ## Consequences
 
 The infrastructure stays simple. Sync and a second device are parked; if sync returns it likely grows out of the folder (a folder inside Dropbox or iCloud). An LLM feature may need a backend, which would reopen storage, so storage sits behind a port that a backend could implement later.
