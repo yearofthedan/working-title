@@ -8,7 +8,7 @@ Typing has to stay under one frame and a crash may lose at most about 2 seconds,
 
 ## Decision
 
-IndexedDB (via Dexie) is the working copy, saved about 1 second after a typing pause and immediately on blur, tab switch or close. A background mirror writes changed pieces to the writer's folder about 2 seconds after a pause and at least every 10 seconds while typing. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1. The app requests persistent storage.
+IndexedDB is the working copy, saved about 1 second after a typing pause and immediately on blur, tab switch or close. A background mirror writes changed pieces to the writer's folder about 2 seconds after a pause and at least every 10 seconds while typing. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1. The app requests persistent storage.
 
 ## Consequences
 

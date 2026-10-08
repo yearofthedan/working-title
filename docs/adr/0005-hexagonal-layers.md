@@ -8,7 +8,7 @@ Agents write most of the code, the storage may later move behind Tauri or a back
 
 ## Decision
 
-Hexagonal: domain (pure TypeScript), application (use cases and queries), ports (`ProjectStore`, `Mirror`, `ProseCodec`) and adapters (Dexie, the folder mirror, the React UI with Tiptap and React Flow). Dependencies point inward only. The UI calls only application use cases.
+Hexagonal: domain (pure TypeScript), application (use cases and queries), ports (`ProjectStore`, `Mirror`, `ProseCodec`) and adapters (the browser store, the folder mirror, the UI). Dependencies point inward only. The UI calls only application use cases.
 
 ## Consequences
 

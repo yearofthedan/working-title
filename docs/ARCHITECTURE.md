@@ -27,13 +27,13 @@ Design size is about 300 pieces and 2,000 links, with a 1,000-piece stretch test
 | Start-up | Usable within 2 s; fully offline after first load | Cold load timed; offline reload test |
 | Mirror fidelity | Prose survives editor → Markdown → editor unchanged | Round-trip test over every formatting the editor allows |
 
-Known risks to design against: an editor per graph card made the prototype's canvas slow; automatic graph layout was a recurring source of pain, and React Flow does none, so epic 1 chooses and proves a layout approach; re-granting folder access needs a user gesture, which background saves can't provide.
+Known risks to design against: an editor per graph card made the prototype's canvas slow; automatic graph layout was a recurring source of pain, so epic 1 chooses and proves a layout approach; re-granting folder access needs a user gesture, which background saves can't provide.
 
 ## Storage
 
 ([ADR 2](adr/0002-browser-copy-mirrored-to-folder.md))
 
-- The app never touches storage directly. One storage adapter fronts both the IndexedDB working copy (Dexie) and the folder mirror (File System Access API).
+- The app never touches storage directly. One storage adapter fronts both the IndexedDB working copy and the folder mirror (File System Access API).
 - Browser storage saves about 1 s after a typing pause, and immediately on blur, tab switch or close. The app requests persistent storage.
 - The mirror writes only changed pieces, serialised in a background worker, about 2 s after a pause and at least every 10 s while typing, never on the typing path.
 - When browser storage is empty, the project is rebuilt from the folder, with typed errors for a missing, invalid or unreadable folder. Otherwise browser storage wins.
@@ -64,7 +64,7 @@ Known risks to design against: an editor per graph card made the prototype's can
 
 ## Stack
 
-([ADR 9](adr/0009-stack.md))
+Starting choices, not yet decisions. Each is proven against the quality targets by the first story that depends on it, and that story writes its decision record or replaces the choice.
 
 | Concern | Choice |
 | --- | --- |
@@ -83,10 +83,10 @@ Known risks to design against: an editor per graph card made the prototype's can
 
 Dependencies point inward only: adapters → application → domain.
 
-- `domain/`: pure TypeScript. Project, Piece, Facet, Link, Chapter, Collection and the method engine. No React, Dexie, Tiptap or browser APIs. Type names come from the glossary.
+- `domain/`: pure TypeScript. Project, Piece, Facet, Link, Chapter, Collection and the method engine. No UI framework, storage library, editor or browser APIs. Type names come from the glossary.
 - `application/`: use cases (focus, elaborate, branch, link, capture, move level, regroup chapters) and queries (next moves, upstream, what links here). The UI calls only these.
 - Ports: `ProjectStore`, `Mirror`, `ProseCodec`. Prose is opaque to the domain; the codec turns it into Markdown and lists its mentions.
-- `adapters/`: the Dexie store, the folder mirror, the React UI (Tiptap and React Flow inside it). Adapters never import each other.
+- `adapters/`: the browser store, the folder mirror, the UI (editor and graph inside it). Adapters never import each other.
 - `methods/snowflake-extended`: a schema-validated definition file. Method vocabulary appears only here.
 
 **Shared folders.** A `shared/` may exist at any level; only that level's subtree may import it, and it holds only what the whole subtree needs. Root `shared/` holds generic utilities and imports nothing from domain, application or adapters. A shared folder imports only from shared folders above it.
