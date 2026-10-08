@@ -20,7 +20,7 @@ After:
 
 ## Learned
 
-<!-- What would have saved time, or caught a mistake sooner? If it would come up again, link the PR that proposes the smallest fix: a check first, a CLAUDE.md or skill line second. -->
+<!-- What would have saved time, or caught a mistake sooner? If it would come up again, link the PR that proposes the smallest fix: a check first, an AGENTS.md or skill line second. -->
 
 ## For review
 

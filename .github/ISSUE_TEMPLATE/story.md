@@ -23,7 +23,7 @@ As a ___, I want ___, so that ___.
 
 ## Done when
 
-<!-- What is specific to this story, one line each, each naming its test in Proof. The shared definition of done in CLAUDE.md always applies. -->
+<!-- What is specific to this story, one line each, each naming its test in Proof. The shared definition of done in AGENTS.md always applies. -->
 
 -
 
