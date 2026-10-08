@@ -15,17 +15,19 @@ As a ___, I want ___, so that ___.
 
 <!-- The line of the epic's Is list this story makes true, quoted. -->
 
-## Proof
+## Acceptance criteria
 
-<!-- The tests that show this works, by path: approved scenarios for use-case behaviour; an end-to-end step, speed or durability check, or contract or property test for what scenarios cannot see. With real unknowns, draft and approve the scenarios before any code. -->
+<!-- Agreed before any code. Behaviour as Given/When/Then scenarios in glossary words, each titled with the behaviour and ending in the expected Then. One scenario per behaviour someone would notice; variations that change nothing the writer sees are left to the agent's own tests. Anything that is not behaviour (speed, durability, a check in CI) is one line with its threshold and the test that measures it. With real unknowns, the full .approved.md is drafted and approved before any code. The definition of done in AGENTS.md always applies. -->
 
--
+### Scenario: 
 
-## Done when
+```
+Given 
+When 
+Then 
+```
 
-<!-- What is specific to this story, one line each, each naming its test in Proof. The shared definition of done in AGENTS.md always applies. -->
-
--
+- 
 
 ## Is not
 
