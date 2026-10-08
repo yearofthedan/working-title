@@ -13,11 +13,17 @@ As a ___, I want ___, so that ___.
 
 ## Delivers
 
-<!-- The line of the epic's Is list this story makes true, quoted. -->
+<!-- The line of the epic's Is list this story makes true, quoted. When the story makes only part of a line true, quote that part. -->
 
 ## Acceptance criteria
 
-<!-- Agreed before any code. Behaviour as Given/When/Then scenarios in glossary words, each titled with the behaviour and ending in the expected Then. One scenario per behaviour someone would notice; variations that change nothing the writer sees are left to the agent's own tests. Anything that is not behaviour (speed, durability, a check in CI) is one line with its threshold and the test that measures it. With real unknowns, the full .approved.md is drafted and approved before any code. The definition of done in AGENTS.md always applies. -->
+<!-- Agreed before any code. The definition of done in AGENTS.md always applies.
+Rule: one sentence stating the rule the scenarios illustrate. It carries the precision and goes into the approved file.
+Scenarios: Given/When/Then in glossary words, titled with the behaviour, ending in the expected Then. One per outcome the writer would see differently; with real unknowns, the full .approved.md is drafted and approved before any code.
+Edges: cases specific to this story where the code could break but the writer sees nothing new, names only. If the writer would see a different result, it is a scenario instead. Each edge has a test in the PR.
+Anything that is not behaviour (speed, durability, a check in CI): one line with its threshold and the test that measures it. -->
+
+Rule: 
 
 ### Scenario: 
 
@@ -26,6 +32,8 @@ Given
 When 
 Then 
 ```
+
+Edges: 
 
 - 
 

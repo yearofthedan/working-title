@@ -8,7 +8,7 @@ After:
 
 ## Acceptance criteria
 
-<!-- Each acceptance criterion from the story, the test that checks it, and a link to its result in CI. -->
+<!-- Each acceptance criterion and edge from the story, the test that checks it, and a link to its result in CI. -->
 
 | Acceptance criterion | Test | CI |
 | --- | --- | --- |
