@@ -1,7 +1,7 @@
 # Architecture
 
 **Audience:** anyone changing code.
-**Purpose:** states today's standing rules and where code goes. Why each rule was chosen is in its [decision record](adr/README.md); terms are in [GLOSSARY.md](GLOSSARY.md).
+**Purpose:** states today's standing rules and where code goes. Why each rule was chosen is in its [decision record](adr/README.md); terms are in [glossary.md](glossary.md).
 
 A desktop-Chromium PWA with no server: browser storage holds the working copy, a background mirror writes readable Markdown to a folder the writer picks, and writing methods are data, not code.
 
@@ -102,7 +102,7 @@ Each check runs at the earliest point where it is fast enough; CI reruns everyth
 | Dependency direction and shared-folder scope | eslint-plugin-boundaries | As you type |
 | Domain purity (no react, dexie, @tiptap, `window`, `document`, `indexedDB` in domain or application) | ESLint restricted imports and globals | As you type |
 | No method vocabulary (beat, scene, character, snowflake) as identifiers in the core | ESLint rule | As you type |
-| Every exported domain type is in GLOSSARY.md | Vitest test | On save |
+| Every exported domain type is in glossary.md | Vitest test | On save |
 | A toy three-act method runs through the engine unchanged | Vitest test | On save |
 | Prose round-trips through Markdown unchanged | Vitest property test | On save |
 | Lint and fast tests on changed files; duplicate code (jscpd) | Pre-commit hook | On commit |

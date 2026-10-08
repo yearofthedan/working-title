@@ -1,6 +1,6 @@
 # Architecture decision records
 
-**Audience:** anyone who needs to know why a rule in [ARCHITECTURE.md](../ARCHITECTURE.md) is the way it is, before changing it.
+**Audience:** anyone who needs to know why a rule in [architecture.md](../architecture.md) is the way it is, before changing it.
 **Purpose:** records why each standing rule was chosen over its alternatives, one record per decision.
 
 How to decide whether a decision needs a record, and how to write one: [the writing-adrs skill](../../.agents/skills/writing-adrs/SKILL.md).
