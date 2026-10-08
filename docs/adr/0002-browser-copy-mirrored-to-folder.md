@@ -19,9 +19,9 @@ Browser storage is the working copy. A background mirror writes each changed pie
 
 ## Alternatives considered
 
-- **The folder as the only store.** The writer owns everything directly, but every save waits on slow asynchronous file writes, and nothing can be saved until the writer re-grants access after a reload.
-- **Browser storage only.** Fast and simple, but cleared site data loses everything, and the writer owns no copy.
-- **A native shell (Tauri) now.** Real file access on every OS, but the app stops being a plain web app. Kept possible behind the storage port.
+- **The folder as the only store.** Lost on the first two forces: saves would wait on slow file writes, and nothing could be saved after a reload until the writer clicks to re-grant access.
+- **Browser storage only.** Lost on the third and fourth forces: cleared site data would lose everything, and the writer would own no copy.
+- **A native shell (Tauri) now.** Lost on the first force of [ADR 1](0001-no-backend-in-v1.md): a native app to build, sign and ship on every OS is more than one person should take on for v1.
 
 ## Consequences
 

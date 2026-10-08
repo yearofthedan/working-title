@@ -17,8 +17,8 @@ Use-case tests are the bulk. Each writes a readable `.approved.md` in glossary w
 
 ## Alternatives considered
 
-- **Assertion-style tests.** Standard and well supported, but behaviour is hidden in setup and matchers, so reviewing it means reading test code.
-- **Gherkin and Cucumber.** Readable specs, but a parsing layer and step definitions to maintain, and scenarios that drift from what the code actually does.
+- **Assertion-style tests.** Lost on the second and third forces: the person accepting the work would have to read test code to see behaviour.
+- **Gherkin and Cucumber.** Lost on the fourth force: a parsing layer and step definitions to maintain, for the same readable specs.
 
 ## Consequences
 

@@ -17,7 +17,7 @@ A method is a declarative definition of piece types, the facets each carries, an
 
 ## Alternatives considered
 
-- **Snowflake written into the code.** Fastest to start, but every change to guidance or stages is a code change, and a second method is a rewrite.
+- **Snowflake written into the code.** Lost on the second and third forces: every guidance rewording and every new method would be a code change.
 
 ## Consequences
 

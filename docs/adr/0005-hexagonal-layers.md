@@ -17,8 +17,8 @@ Domain, application, ports and adapters. Dependencies point inward only, and the
 
 ## Alternatives considered
 
-- **Logic in UI components.** Quickest to start, but behaviour can only be tested through the browser, and swapping storage or editor means touching every screen.
-- **Plain layers without ports.** Separates UI from logic, but the core still depends on the storage and editor libraries, so they can't be swapped or faked.
+- **Logic in UI components.** Lost on the fourth force: behaviour could only be tested through a browser, too slow to run on save.
+- **Plain layers without ports.** Lost on the second and third forces: the core would still depend on the storage and editor libraries, so neither could be swapped or kept out of the domain.
 
 ## Consequences
 

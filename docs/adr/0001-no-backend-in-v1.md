@@ -17,8 +17,8 @@ No backend in v1: no server, no accounts, and no network after the first load. A
 
 ## Alternatives considered
 
-- **A backend with accounts and cloud storage.** Gives sync and a second device, at the cost of servers to run, secure and pay for, and manuscripts held by us.
-- **A hosted sync service on top of local storage.** Keeps work local but still adds an account, a third party and an ops dependency, for a second device v1 doesn't need.
+- **A backend with accounts and cloud storage.** Lost on the first and third forces: one person can't run, secure and pay for servers, and we would hold private manuscripts.
+- **A hosted sync service on top of local storage.** Lost on the first two forces: it still adds an account and an outside dependency, to serve a second device the vision doesn't ask for.
 
 ## Consequences
 
