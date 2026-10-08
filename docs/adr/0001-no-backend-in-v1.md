@@ -1,6 +1,6 @@
 # 1. No backend in v1
 
-Status: Accepted, 2026-10-04; reason confirmed 2026-10-08
+Status: Accepted, 2026-10-04
 
 ## Context
 
