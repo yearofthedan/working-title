@@ -2,7 +2,7 @@
 
 **For:** anyone changing code: what the standing rules are and where things go.
 **Holds:** today's rules only. Why each one was chosen is in its [decision record](adr/README.md); terms are in [GLOSSARY.md](GLOSSARY.md).
-**Changes when:** a PR adds or changes a standing rule. The same PR adds a decision record.
+**Changes when:** a decision adds or changes a standing rule. A decision record comes with it when the writing-adrs skill says one is needed.
 
 A desktop-Chromium PWA with no server: browser storage holds the working copy, a background mirror writes readable Markdown to a folder the writer picks, and writing methods are data, not code.
 
