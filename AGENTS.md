@@ -34,7 +34,7 @@ The words to use in code, tests, scenarios and UI:
 A PR is done when all of these hold:
 
 - CI is green on the head commit: typecheck, lint, glossary check, duplication check, unit and scenario tests, every epic demo spec, speed and durability checks, CodeQL.
-- Dan has read every approved file in the diff. His merge is the approval.
+- The reviewer has read every approved file in the diff. Their merge is the approval.
 - A new or changed standing rule comes with `docs/ARCHITECTURE.md` updated, and a decision record in `docs/adr/` when the writing-adrs skill says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/GLOSSARY.md`.
 - The PR's Learned section is filled: what would have saved time, or caught a mistake sooner? A lesson that would recur gets its own PR with the smallest fix: a check first, a rule in this file or a skill second.
