@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
+How is the code split, and which way may its parts depend on each other?
+
 - Agents write most of the code and copy the patterns they find.
 - Storage may later move behind a native shell or a backend.
 - The editor's internal document format must not become the stored or domain format.

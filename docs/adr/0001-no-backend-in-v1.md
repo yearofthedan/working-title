@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04; reason confirmed 2026-10-08
 
 ## Context
 
+Where does the writer's work live in v1: on a server we run, or on the writer's machine?
+
 - One person builds and runs the app, with no time or budget for operating services.
 - The vision has one writer working alone; collaboration is not in it. Devices, sync and local or cloud storage were left to the architecture stage to decide.
 - Manuscripts are private; holding them on a server brings security and trust obligations.

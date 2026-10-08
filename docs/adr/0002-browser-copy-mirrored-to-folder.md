@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
+With no server, where on the writer's machine does the work live, and which copy is the one the app trusts?
+
 - Words are never lost: the first design principle. A crash may lose at most about 2 seconds of typing.
 - Every keystroke must render within a frame. File writes from a browser are asynchronous and much slower than that.
 - Browsers can clear site storage, through the writer or under storage pressure.

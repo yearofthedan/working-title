@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
+What shape does the writer's folder take?
+
 - The folder is the only copy outside the browser and the source for restoring it, so it must hold everything.
 - Writers may read or open the files without the app, in any editor or a notes tool such as Obsidian.
 - Pieces are restructured often: beats added and removed, scenes moved between beats.

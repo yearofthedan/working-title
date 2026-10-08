@@ -35,6 +35,8 @@ Status: Accepted, YYYY-MM-DD
 
 ## Context
 
+The question that had to be answered, in one sentence.
+
 - One force per bullet, stated as fact.
 
 ## Decision
@@ -42,7 +44,7 @@ Status: Accepted, YYYY-MM-DD
 ## Consequences
 ```
 
-- **Context** lists the forces at play: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. It neither lists options nor argues for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
+- **Context** opens with the question that had to be answered, in one sentence, so the reader knows what was being decided before reading why. It then lists the forces at play: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. It neither lists options nor argues for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
 - **Decision** states what was decided, in a few sentences, at the level that stays true while details change. No library names unless the decision is about that library and a story has proven it.
 - **Consequences** states what follows, good and bad: what becomes easy, what becomes hard, what is now ruled out, and which checks enforce it.
 - Names no person and tells no story of how the decision was reached.

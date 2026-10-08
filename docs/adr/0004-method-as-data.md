@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
+How does the code know the writing method: written into the code, or read from a definition?
+
 - The app starts with one method, Snowflake, extended, and writers use others.
 - "Method offers, writer decides" is a design principle, and changing the flow is a likely later feature.
 - Each stage's guidance and prompts will be reworded many times while the method is tuned.

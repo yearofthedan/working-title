@@ -4,6 +4,8 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
+How is behaviour specified and checked, when agents write both the code and its tests?
+
 - Agents write both the code and its tests. Tests that pass on wrong code are the main risk.
 - The person who accepts the work reviews behaviour, not code, and reviews in pull request diffs.
 - Assertion code hides behaviour behind setup and matchers.
