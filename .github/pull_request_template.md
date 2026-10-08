@@ -26,3 +26,4 @@ After:
 
 - [ ] Approved files changed in this PR are listed here for review:
 - [ ] docs/ARCHITECTURE.md and an ADR in docs/adr/ are updated, or no standing rule changed
+- [ ] docs/GLOSSARY.md has every new term used in scenarios or the UI, or none was added
