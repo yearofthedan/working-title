@@ -13,19 +13,29 @@ As a ___, I want ___, so that ___.
 
 ## Delivers
 
-<!-- The line of the epic's Is list this story makes true, quoted. -->
+<!-- The line of the epic's Is list this story makes true, quoted. When the story makes only part of a line true, quote that part. -->
 
-## Proof
+## Acceptance criteria
 
-<!-- The tests that show this works, by path: approved scenarios for use-case behaviour; an end-to-end step, speed or durability check, or contract or property test for what scenarios cannot see. With real unknowns, draft and approve the scenarios before any code. -->
+<!-- Agreed before any code. The definition of done in AGENTS.md always applies.
+Rule: one sentence stating the rule the scenarios illustrate. It carries the precision and goes into the approved file.
+Scenarios: Given/When/Then in glossary words, titled with the behaviour, ending in the expected Then. One per outcome the writer would see differently; with real unknowns, the full .approved.md is drafted and approved before any code.
+Edges: cases specific to this story where the code could break but the writer sees nothing new, names only. If the writer would see a different result, it is a scenario instead. Each edge has a test in the PR.
+Anything that is not behaviour (speed, durability, a check in CI): one line with its threshold and the test that measures it. -->
 
--
+Rule: 
 
-## Done when
+### Scenario: 
 
-<!-- What is specific to this story, one line each, each naming its test in Proof. The shared definition of done in AGENTS.md always applies. -->
+```
+Given 
+When 
+Then 
+```
 
--
+Edges: 
+
+- 
 
 ## Is not
 

@@ -6,11 +6,11 @@ Before:
 
 After:
 
-## Proof
+## Acceptance criteria
 
-<!-- Each Done when line from the story, the test that proves it, and a link to its result in CI. -->
+<!-- Each acceptance criterion and edge from the story, the test that checks it, and a link to its result in CI. -->
 
-| Done when | Test | CI |
+| Acceptance criterion | Test | CI |
 | --- | --- | --- |
 |  |  |  |
 
@@ -25,4 +25,5 @@ After:
 ## For review
 
 - [ ] Approved files changed in this PR are listed here for review:
-- [ ] ARCHITECTURE.md is updated, or no standing rule changed
+- [ ] docs/ARCHITECTURE.md and an ADR in docs/adr/ are updated, or no standing rule changed
+- [ ] docs/GLOSSARY.md has every new term used in scenarios or the UI, or none was added
