@@ -10,10 +10,9 @@ Name new records `NNNN-short-title.md`, numbered in order, in the Status / Conte
 
 | # | Decision | Status |
 | --- | --- | --- |
-| [1](0001-desktop-chromium-only.md) | Desktop Chromium only | Accepted |
-| [2](0002-browser-copy-mirrored-to-folder.md) | Browser working copy mirrored to a folder | Accepted |
+| [1](0001-no-backend-in-v1.md) | No backend in v1 | Accepted |
+| [2](0002-browser-copy-mirrored-to-folder.md) | Browser working copy, mirrored to the writer's folder | Accepted |
 | [3](0003-one-markdown-file-per-piece.md) | One Markdown file per piece, in flat folders | Accepted |
 | [4](0004-method-as-data.md) | Method as data | Accepted |
 | [5](0005-hexagonal-layers.md) | Hexagonal layers | Accepted |
-| [6](0006-approved-scenarios.md) | Approved scenarios as file snapshots | Accepted |
-| [7](0007-no-backend-in-v1.md) | No backend in v1 | Accepted |
+| [6](0006-approved-scenarios.md) | Approved scenarios as the behaviour spec | Accepted |

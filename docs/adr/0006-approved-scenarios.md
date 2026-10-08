@@ -1,15 +1,15 @@
-# 6. Approved scenarios as file snapshots
+# 6. Approved scenarios as the behaviour spec
 
-Status: Accepted, 2026-10-04, format agreed 2026-10-08
+Status: Accepted, 2026-10-04
 
 ## Context
 
-Dan judges behaviour, and agents write both the code and its tests. Assertion code is hard to review and easy to make pass on wrong code. Options: assertion-style use-case tests, Gherkin and Cucumber, or approved scenarios.
+Agents write both the code and its tests, and a person has to judge behaviour. Assertion code is hard to review and easy to make pass on wrong code. Options: assertion-style tests, Gherkin and Cucumber, or approved scenarios.
 
 ## Decision
 
-Use-case tests are the bulk and write readable `.approved.md` files through a dedicated domain-language printer, compared with Vitest's `toMatchFileSnapshot`. The file opens with a one-sentence rule; each scenario is a heading naming the behaviour, with Given, When and Then as a tree in a fenced block, in glossary words. CI never writes or updates snapshots.
+Use-case tests are the bulk. Each writes a readable `.approved.md` in glossary words through a dedicated printer, and the reviewer approves behaviour by reading its diff. CI never writes or updates approvals.
 
 ## Consequences
 
-Review is a readable diff; rubber-stamping is the known failure mode. The printer is separate from the mirror format, so a mirror change does not rewrite every approval. Domain invariants keep their own unit and property tests, and mutation testing checks that tests would fail on wrong code.
+Use cases run against in-memory fakes of the ports, so port contract tests keep fakes honest. The printer is separate from the folder format, so a format change does not rewrite every approval. Rubber-stamping is the known failure mode; mutation testing checks that tests would fail on wrong code.

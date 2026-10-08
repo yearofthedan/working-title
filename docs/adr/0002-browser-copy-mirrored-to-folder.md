@@ -1,15 +1,15 @@
-# 2. Browser working copy mirrored to a folder
+# 2. Browser working copy, mirrored to the writer's folder
 
 Status: Accepted, 2026-10-04
 
 ## Context
 
-Typing has to stay under one frame and a crash may lose at most about 2 seconds, while the writer's work also has to survive cleared browser data. With no backend ([ADR 7](0007-no-backend-in-v1.md)), the options are the folder as the only store, or browser storage as the working copy with the folder as a mirror.
+With no backend ([ADR 1](0001-no-backend-in-v1.md)), work lives on the writer's machine. It has to survive a crash and cleared browser data, and the writer should own a readable copy. Options: the folder as the only store, browser storage only, or browser storage as the working copy with the folder as a mirror.
 
 ## Decision
 
-IndexedDB is the working copy, saved about 1 second after a typing pause and immediately on blur, tab switch or close. A background mirror writes changed pieces to the writer's folder about 2 seconds after a pause and at least every 10 seconds while typing. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1. The app requests persistent storage.
+Browser storage is the working copy. A background mirror writes each changed piece to a folder the writer picks, through the File System Access API. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1.
 
 ## Consequences
 
-Folder access needs a user click after every reload, so the app offers an explicit reconnect action and shows when the folder is disconnected. Edits made to the files outside the app are not read back.
+Typing never waits on the file system. The File System Access API exists only in desktop Chromium, so v1 runs there; other browsers are told up front that they can't keep work in a folder. Folder access needs a user click after every reload, so the app offers a reconnect action and shows when the folder is disconnected. Edits made to the files outside the app are not read back.
