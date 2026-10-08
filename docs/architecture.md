@@ -111,8 +111,6 @@ Each check runs at the earliest point where it is fast enough; CI reruns everyth
 
 ## Testing
 
-([ADR 6](adr/0006-approved-scenarios.md))
-
 Work outside-in: write the scenario, then build down.
 
 - **Approved scenarios** are the bulk. Each use-case test runs against in-memory fakes of the ports and writes an `.approved.md` through the scenario printer. The file opens with the rule in one sentence; each scenario is a heading naming the behaviour; Given, When and Then sit in a fenced block as a tree (├ └ │), one complete phrase per line in glossary words; Then shows only the slice the scenario is about. Builder methods are named after the phrase they print (`withListLine` prints "with the list line").
