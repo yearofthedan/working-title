@@ -6,11 +6,11 @@ Status: Accepted, 2026-10-04
 
 What shape does the writer's folder take?
 
-- The folder is the only copy outside the browser and the source for restoring it, so it must hold everything.
-- Writers may read or open the files without the app, in any editor or a notes tool such as Obsidian.
-- Pieces are restructured often: beats added and removed, scenes moved between beats.
-- The browser's file API has no reliable directory move.
-- A project is about 300 pieces, and a restore has to read all of them.
+- **Restore source.** The folder is the only copy outside the browser and the source for restoring it, so it must hold everything.
+- **Readable.** Writers may open the files without the app, in any editor or a notes tool such as Obsidian.
+- **Restructuring.** Pieces are restructured often: beats added and removed, scenes moved between beats.
+- **File API.** The browser's file API has no reliable directory move.
+- **Size.** A project is about 300 pieces, and a restore has to read all of them.
 
 ## Decision
 
@@ -18,9 +18,12 @@ One Markdown file per piece, in flat folders by type. Structure (ID, type, paren
 
 ## Alternatives considered
 
-- **One project file (JSON).** Lost on the second force: unreadable without the app.
-- **.docx.** Lost on the first force: it can't hold the plan's structure, so the folder couldn't restore the project.
-- **Markdown nested by the tree.** Lost on the third and fourth forces: frequent restructuring, with no directory move, becomes a copy-then-delete of many files.
+| Option | Restore source | Readable | Restructuring | File API | Size |
+| --- | --- | --- | --- | --- | --- |
+| **Markdown per piece, flat folders (chosen)** | Structure in frontmatter | Yes | Frontmatter change only | No moves needed | 300 small reads |
+| One project file (JSON) | Yes | No | Fine | Fine | Whole file rewritten each save |
+| .docx | Can't hold the plan's structure | Yes | Fine | Hard to write from a browser | Fine |
+| Markdown nested by the tree | Yes | Yes | Many files move | Copy-then-delete for every move | Fine |
 
 ## Consequences
 

@@ -6,10 +6,10 @@ Status: Accepted, 2026-10-04; reason confirmed 2026-10-08
 
 Where does the writer's work live in v1: on a server we run, or on the writer's machine?
 
-- One person builds and runs the app, with no time or budget for operating services.
-- The vision has one writer working alone; collaboration is not in it. Devices, sync and local or cloud storage were left to the architecture stage to decide.
-- Manuscripts are private; holding them on a server brings security and trust obligations.
-- Later wants pull the other way: sync across devices, and possibly LLM features with our own logic on top, which would need server-side code.
+- **Solo builder.** One person builds and runs the app, with no time or budget for operating services.
+- **Solo writer.** The vision has one writer working alone; collaboration is not in it. Devices, sync and local or cloud storage were left to the architecture stage to decide.
+- **Privacy.** Manuscripts are private; holding them on a server brings security and trust obligations.
+- **Later wants.** Sync across devices, and possibly LLM features with our own logic on top, would need server-side code.
 
 ## Decision
 
@@ -17,8 +17,11 @@ No backend in v1: no server, no accounts, and no network after the first load. A
 
 ## Alternatives considered
 
-- **A backend with accounts and cloud storage.** Lost on the first and third forces: one person can't run, secure and pay for servers, and we would hold private manuscripts.
-- **A hosted sync service on top of local storage.** Lost on the first two forces: it still adds an account and an outside dependency, to serve a second device the vision doesn't ask for.
+| Option | Solo builder | Solo writer | Privacy | Later wants |
+| --- | --- | --- | --- | --- |
+| **No backend (chosen)** | Nothing to run | Fits | Work stays with the writer | Deferred; storage port leaves room |
+| Backend with accounts and cloud storage | Servers to run, secure, pay for | More than needed | We hold manuscripts | Ready |
+| Hosted sync service over local storage | Account and outside dependency | Second device not asked for | Third party holds copies | Sync only |
 
 ## Consequences
 

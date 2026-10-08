@@ -37,20 +37,23 @@ Status: Accepted, YYYY-MM-DD
 
 The question that had to be answered, in one sentence.
 
-- One force per bullet, stated as fact.
+- **Short name.** One force per bullet, stated as fact.
 
 ## Decision
 
 ## Alternatives considered
 
-- **Option.** Lost on the force it failed, named from Context.
+| Option | Force A | Force B |
+| --- | --- | --- |
+| **Chosen option (chosen)** | How it fares | How it fares |
+| Other option | How it fares | How it fares |
 
 ## Consequences
 ```
 
-- **Context** opens with the question that had to be answered, in one sentence, so the reader knows what was being decided before reading why. It then lists the forces at play: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. Options go under Alternatives considered, not here, and the context doesn't argue for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
+- **Context** opens with the question that had to be answered, in one sentence, so the reader knows what was being decided before reading why. It then lists the forces at play, each with a short bold name that the alternatives table reuses as a column: constraints, quality targets, design principles, facts about the platform or the team, and the forces the decision goes against. Options go under Alternatives considered, not here, and the context doesn't argue for the outcome. A reader should be able to see why a reasonable person could land elsewhere.
 - **Decision** states what was decided, in a few sentences, at the level that stays true while details change. No library names unless the decision is about that library and a story has proven it.
-- **Alternatives considered** names each real option that lost and the force in Context it failed, one bullet each. A drawback that no force names is not a reason; if no force rules an option out, the context is missing one or the option didn't lose. This is the evidence for the first test; a record with no alternative fails it.
+- **Alternatives considered** is a table: one row per real option, the chosen one first, and one column per force from Context, named by its short name. Each cell says in a few words how that option fares against that force. A drawback with no force column is not a reason: if no column rules an option out, the context is missing a force or the option didn't lose. This is the evidence for the first test; a record with no alternative fails it.
 - **Consequences** states what follows, good and bad: what becomes easy, what becomes hard, what is now ruled out, and which checks enforce it.
 - Names no person and tells no story of how the decision was reached.
 

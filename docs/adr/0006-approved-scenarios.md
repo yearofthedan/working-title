@@ -6,10 +6,10 @@ Status: Accepted, 2026-10-04
 
 How is behaviour specified and checked, when agents write both the code and its tests?
 
-- Agents write both the code and its tests. Tests that pass on wrong code are the main risk.
-- The person who accepts the work reviews behaviour, not code, and reviews in pull request diffs.
-- Assertion code hides behaviour behind setup and matchers.
-- Gherkin and Cucumber add a parsing layer and step definitions to maintain.
+- **Agents test themselves.** Agents write both the code and its tests. Tests that pass on wrong code are the main risk.
+- **Behaviour review.** The person who accepts the work reviews behaviour, not code, in pull request diffs.
+- **Hidden behaviour.** Assertion code hides behaviour behind setup and matchers.
+- **Upkeep.** Every layer between the spec and the code is something to maintain.
 
 ## Decision
 
@@ -17,8 +17,11 @@ Use-case tests are the bulk. Each writes a readable `.approved.md` in glossary w
 
 ## Alternatives considered
 
-- **Assertion-style tests.** Lost on the second and third forces: the person accepting the work would have to read test code to see behaviour.
-- **Gherkin and Cucumber.** Lost on the fourth force: a parsing layer and step definitions to maintain, for the same readable specs.
+| Option | Agents test themselves | Behaviour review | Hidden behaviour | Upkeep |
+| --- | --- | --- | --- | --- |
+| **Approved scenarios (chosen)** | Diff shows any change; mutation testing backs it | Read the diff | Printed in glossary words | A printer and builders |
+| Assertion-style tests | Easy to pass on wrong code | Read test code | Hidden | Low |
+| Gherkin and Cucumber | Readable specs | Read the feature file | Visible | Parser and step definitions |
 
 ## Consequences
 

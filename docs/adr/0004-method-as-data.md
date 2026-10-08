@@ -6,10 +6,10 @@ Status: Accepted, 2026-10-04
 
 How does the code know the writing method: written into the code, or read from a definition?
 
-- The app starts with one method, Snowflake, extended, and writers use others.
-- "Method offers, writer decides" is a design principle, and changing the flow is a likely later feature.
-- Each stage's guidance and prompts will be reworded many times while the method is tuned.
-- Agents copy what they see: method words in core code spread fast.
+- **More methods.** The app starts with one method, Snowflake, extended, and writers use others.
+- **Writer decides.** "Method offers, writer decides" is a design principle, and changing the flow is a likely later feature.
+- **Tuning.** Each stage's guidance and prompts will be reworded many times while the method is tuned.
+- **Agents copy.** Agents copy what they see: method words in core code spread fast.
 
 ## Decision
 
@@ -17,7 +17,10 @@ A method is a declarative definition of piece types, the facets each carries, an
 
 ## Alternatives considered
 
-- **Snowflake written into the code.** Lost on the second and third forces: every guidance rewording and every new method would be a code change.
+| Option | More methods | Writer decides | Tuning | Agents copy |
+| --- | --- | --- | --- | --- |
+| **Method as data (chosen)** | New definition, no code | Flow is data the writer could change later | Edit the definition | Lint keeps method words out of the core |
+| Snowflake written into the code | Rewrite | Code change | Code change | Method words everywhere |
 
 ## Consequences
 

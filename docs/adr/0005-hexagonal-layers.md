@@ -6,10 +6,10 @@ Status: Accepted, 2026-10-04
 
 How is the code split, and which way may its parts depend on each other?
 
-- Agents write most of the code and copy the patterns they find.
-- Storage may later move behind a native shell or a backend.
-- The editor's internal document format must not become the stored or domain format.
-- Behaviour has to be testable without a browser, fast enough to run on save.
+- **Agents copy.** Agents write most of the code and copy the patterns they find.
+- **Storage may move.** Storage may later move behind a native shell or a backend.
+- **Editor format.** The editor's internal document format must not become the stored or domain format.
+- **Fast tests.** Behaviour has to be testable without a browser, fast enough to run on save.
 
 ## Decision
 
@@ -17,8 +17,11 @@ Domain, application, ports and adapters. Dependencies point inward only, and the
 
 ## Alternatives considered
 
-- **Logic in UI components.** Lost on the fourth force: behaviour could only be tested through a browser, too slow to run on save.
-- **Plain layers without ports.** Lost on the second and third forces: the core would still depend on the storage and editor libraries, so neither could be swapped or kept out of the domain.
+| Option | Agents copy | Storage may move | Editor format | Fast tests |
+| --- | --- | --- | --- | --- |
+| **Hexagonal layers (chosen)** | Lint enforces direction | Swap behind a port | Converted in an adapter | Use cases on fakes |
+| Logic in UI components | Logic spreads across screens | Touches every screen | Leaks into logic | Browser only |
+| Plain layers without ports | Better | Core depends on the library | Core depends on the editor | Needs the real libraries |
 
 ## Consequences
 
