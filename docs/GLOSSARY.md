@@ -1,8 +1,7 @@
 # Glossary
 
-**For:** anyone naming things in this repo: types, use cases, tests, scenarios, UI text, docs.
-**Holds:** the core vocabulary, what each word means, and the words not to use instead.
-**Changes when:** a PR adds a domain type or a new term to scenarios or the UI; the PR adds the term here.
+**Audience:** anyone naming things in this repo: types, use cases, tests, scenarios, UI text, docs.
+**Purpose:** gives each idea one word, used everywhere it is named, and lists the words not to use instead.
 
 There are two vocabularies. The **core** is method-neutral and is the only language in domain and application code. The **method vocabulary** (novel, beat, scene, character, place) lives only in a method definition under `methods/`, and in scenarios and UI text that show a method's pieces.
 

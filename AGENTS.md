@@ -1,8 +1,7 @@
 # Agents' guide
 
-**For:** every agent working in this repo, at the start of every session.
-**Holds:** how work is done here, the definition of done, and where the rules live. The communication standards and the glossary are imported below so they are always in context.
-**Changes when:** the way work is done changes, or a PR's Learned section shows a lesson that would recur and a rule is the smallest fix.
+**Audience:** every agent working in this repo.
+**Purpose:** tells an agent how work is done here, what done means, and where the rules live.
 
 working-title is a local-first planning and drafting tool for novelists, built on Snowflake, extended.
 
@@ -47,4 +46,4 @@ A PR is done when all of these hold:
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the rule it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
 
-Every file in `docs/` opens with who it is for, what it holds and when it changes. The exception is `docs/communication-standards.md`: a verbatim copy of [agent-standards/communication-standards.md](https://github.com/yearofthedan/snippets/blob/main/agent-standards/communication-standards.md), updated only by copying a newer version.
+Every file in `docs/` opens with its audience and purpose. The exception is `docs/communication-standards.md`: a verbatim copy of [agent-standards/communication-standards.md](https://github.com/yearofthedan/snippets/blob/main/agent-standards/communication-standards.md), updated only by copying a newer version.
