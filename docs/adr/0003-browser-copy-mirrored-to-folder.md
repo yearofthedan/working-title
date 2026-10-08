@@ -1,4 +1,4 @@
-# 2. Browser working copy, mirrored to the writer's folder
+# 3. Browser working copy, mirrored to the writer's folder
 
 Status: Accepted, 2026-10-04
 

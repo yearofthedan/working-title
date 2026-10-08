@@ -1,4 +1,4 @@
-# 4. Method as data
+# 5. Method as data
 
 Status: Accepted, 2026-10-04
 

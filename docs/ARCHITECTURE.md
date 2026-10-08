@@ -8,7 +8,7 @@ A desktop-Chromium PWA with no server: browser storage holds the working copy, a
 
 ## Platform
 
-- Desktop Chromium only (Chrome, Edge, Arc). Firefox and Safari are told up front that they can't keep work in a folder. Mobile is out of v1. ([ADR 2](adr/0002-browser-copy-mirrored-to-folder.md))
+- Desktop Chromium only (Chrome, Edge, Arc). Firefox and Safari are told up front that they can't keep work in a folder. Mobile is out of v1. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md))
 - No backend: no server, no accounts, no network after the first load. ([ADR 1](adr/0001-no-backend-in-v1.md))
 - Deferred: sync, mobile, a Tauri shell, reading external edits back from the folder, manuscript export. LLM integration is undecided; nothing in v1 is shaped for it, and nothing may make adding it later painful.
 
@@ -31,7 +31,7 @@ Known risks to design against: an editor per graph card made the prototype's can
 
 ## Storage
 
-([ADR 2](adr/0002-browser-copy-mirrored-to-folder.md))
+([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md))
 
 - The app never touches storage directly. One storage adapter fronts both the IndexedDB working copy and the folder mirror (File System Access API).
 - Browser storage saves about 1 s after a typing pause, and immediately on blur, tab switch or close. The app requests persistent storage.
@@ -42,7 +42,7 @@ Known risks to design against: an editor per graph card made the prototype's can
 
 ## Folder format
 
-([ADR 3](adr/0003-one-markdown-file-per-piece.md))
+([ADR 4](adr/0004-one-markdown-file-per-piece.md))
 
 - Flat folders by type (`beats/`, `scenes/`, `cast/`), one Markdown file per piece, named `slug--shortid.md`.
 - Frontmatter holds ID, type, parent, order, schema version and method version. Filenames are for humans only.
@@ -53,7 +53,7 @@ Known risks to design against: an editor per graph card made the prototype's can
 
 ## Data model
 
-- **Method as data.** A method declares piece types, the facets each carries, and stages. A stage elaborates or branches, declares its dependencies and carries guidance (instruction text and an optional scaffold). A generic engine reads it. Each project records its schema version and its method and version, with a migration hook for both. ([ADR 4](adr/0004-method-as-data.md))
+- **Method as data.** A method declares piece types, the facets each carries, and stages. A stage elaborates or branches, declares its dependencies and carries guidance (instruction text and an optional scaffold). A generic engine reads it. Each project records its schema version and its method and version, with a migration hook for both. ([ADR 5](adr/0005-method-as-data.md))
 - **Piece.** A stable ID, a type and facets, one content slot per stage.
 - **Tree.** Every piece has exactly one parent and an order among its siblings. Collections (cast, places) are roots outside the planning tree.
 - **Chapter.** An ordered grouping of scenes in manuscript order, separate from the tree. Prose is stored on each scene.
@@ -79,7 +79,7 @@ Starting choices, not yet decisions. Each is proven against the quality targets 
 
 ## Code structure
 
-([ADR 5](adr/0005-hexagonal-layers.md))
+([ADR 2](adr/0002-hexagonal-layers.md))
 
 Dependencies point inward only: adapters → application → domain.
 

@@ -1,4 +1,4 @@
-# 3. One Markdown file per piece, in flat folders
+# 4. One Markdown file per piece, in flat folders
 
 Status: Accepted, 2026-10-04
 

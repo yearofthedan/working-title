@@ -1,4 +1,4 @@
-# 5. Hexagonal layers
+# 2. Hexagonal layers
 
 Status: Accepted, 2026-10-04
 
