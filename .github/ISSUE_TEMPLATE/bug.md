@@ -13,6 +13,6 @@ labels: bug
 
 ## What happened
 
-## Scenario
+## Reproducing test
 
-<!-- The fix starts with an approved scenario that reproduces this. Its path goes here. -->
+<!-- The fix starts with a failing test that reproduces this, at whatever level the bug lives: a scenario, an end-to-end step, or a speed, durability, contract or property test. Its path goes here. -->

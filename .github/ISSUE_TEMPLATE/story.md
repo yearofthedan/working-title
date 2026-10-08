@@ -15,15 +15,17 @@ As a ___, I want ___, so that ___.
 
 <!-- The line of the epic's Is list this story makes true, quoted. -->
 
-## Scenarios
+## Proof
 
-<!-- The approved scenario files this story adds or changes, by path. With real unknowns, draft and approve them before any code. -->
+<!-- The tests that show this works, by path: approved scenarios for use-case behaviour; an end-to-end step, speed or durability check, or contract or property test for what scenarios cannot see. With real unknowns, draft and approve the scenarios before any code. -->
 
 -
 
 ## Done when
 
-- The story's scenarios are approved and passing.
+<!-- What is specific to this story, one line each, each naming its test in Proof. The shared definition of done in CLAUDE.md always applies. -->
+
+-
 
 ## Is not
 
