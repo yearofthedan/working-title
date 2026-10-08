@@ -11,17 +11,17 @@ How is behaviour specified and checked, when agents write both the code and its 
 - **Hidden behaviour.** Assertion code hides behaviour behind setup and matchers.
 - **Upkeep.** Every layer between the spec and the code is something to maintain.
 
-## Decision
-
-Use-case tests are the bulk. Each writes a readable `.approved.md` in glossary words through a dedicated printer, and the reviewer approves behaviour by reading its diff. CI never writes or updates approvals.
-
-## Alternatives considered
+## Options considered
 
 | Option | Agents test themselves | Behaviour review | Hidden behaviour | Upkeep |
 | --- | --- | --- | --- | --- |
-| **Approved scenarios (chosen)** | Diff shows any change; mutation testing backs it | Read the diff | Printed in glossary words | A printer and builders |
+| Approved scenarios | Diff shows any change; mutation testing backs it | Read the diff | Printed in glossary words | A printer and builders |
 | Assertion-style tests | Easy to pass on wrong code | Read test code | Hidden | Low |
 | Gherkin and Cucumber | Readable specs | Read the feature file | Visible | Parser and step definitions |
+
+## Decision
+
+Use-case tests are the bulk. Each writes a readable `.approved.md` in glossary words through a dedicated printer, and the reviewer approves behaviour by reading its diff. CI never writes or updates approvals.
 
 ## Consequences
 

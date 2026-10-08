@@ -11,17 +11,17 @@ Where does the writer's work live in v1: on a server we run, or on the writer's 
 - **Privacy.** Manuscripts are private; holding them on a server brings security and trust obligations.
 - **Later wants.** Sync across devices, and possibly LLM features with our own logic on top, would need server-side code.
 
-## Decision
-
-No backend in v1: no server, no accounts, and no network after the first load. All work is stored on the writer's machine, so v1 is single-device.
-
-## Alternatives considered
+## Options considered
 
 | Option | Solo builder | Solo writer | Privacy | Later wants |
 | --- | --- | --- | --- | --- |
-| **No backend (chosen)** | Nothing to run | Fits | Work stays with the writer | Deferred; storage port leaves room |
+| No backend | Nothing to run | Fits | Work stays with the writer | Deferred; storage port leaves room |
 | Backend with accounts and cloud storage | Servers to run, secure, pay for | More than needed | We hold manuscripts | Ready |
 | Hosted sync service over local storage | Account and outside dependency | Second device not asked for | Third party holds copies | Sync only |
+
+## Decision
+
+No backend in v1: no server, no accounts, and no network after the first load. All work is stored on the writer's machine, so v1 is single-device.
 
 ## Consequences
 

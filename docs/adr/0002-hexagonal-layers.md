@@ -11,17 +11,17 @@ How is the code split, and which way may its parts depend on each other?
 - **Editor format.** The editor's internal document format must not become the stored or domain format.
 - **Fast tests.** Behaviour has to be testable without a browser, fast enough to run on save.
 
-## Decision
-
-Domain, application, ports and adapters. Dependencies point inward only, and the UI calls only application use cases. Prose is opaque to the domain; an adapter converts it.
-
-## Alternatives considered
+## Options considered
 
 | Option | Agents copy | Storage may move | Editor format | Fast tests |
 | --- | --- | --- | --- | --- |
-| **Hexagonal layers (chosen)** | Lint enforces direction | Swap behind a port | Converted in an adapter | Use cases on fakes |
+| Hexagonal layers | Lint enforces direction | Swap behind a port | Converted in an adapter | Use cases on fakes |
 | Logic in UI components | Logic spreads across screens | Touches every screen | Leaks into logic | Browser only |
 | Plain layers without ports | Better | Core depends on the library | Core depends on the editor | Needs the real libraries |
+
+## Decision
+
+Domain, application, ports and adapters. Dependencies point inward only, and the UI calls only application use cases. Prose is opaque to the domain; an adapter converts it.
 
 ## Consequences
 

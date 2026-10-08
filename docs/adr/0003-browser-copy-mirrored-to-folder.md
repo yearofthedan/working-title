@@ -12,18 +12,18 @@ With no server, where on the writer's machine does the work live, and which copy
 - **Ownership.** Writers expect to own their files and open them in other tools.
 - **Folder access.** With no backend ([ADR 1](0001-no-backend-in-v1.md)), work lives on the writer's machine. Writable folder access from a web app exists only in desktop Chromium (File System Access API); Mozilla rates it harmful and WebKit has declined it. Access must be re-granted by a user click after each reload.
 
-## Decision
-
-Browser storage is the working copy. A background mirror writes each changed piece to a folder the writer picks, through the File System Access API. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1.
-
-## Alternatives considered
+## Options considered
 
 | Option | Words never lost | Instant typing | Cleared storage | Ownership | Folder access |
 | --- | --- | --- | --- | --- | --- |
-| **Browser copy, mirrored to folder (chosen)** | Saves locally within a second | Typing never waits on files | Restore from folder | Readable folder | Chromium only; reconnect after reload |
+| Browser copy, mirrored to folder | Saves locally within a second | Typing never waits on files | Restore from folder | Readable folder | Chromium only; reconnect after reload |
 | Folder as the only store | Nothing saved until access is re-granted | Every save waits on a file write | Fine | Fine | Chromium only, and blocks saving |
 | Browser storage only | Fine | Fine | Everything lost | No copy | Not needed |
 | Native shell (Tauri) now | Fine | Fine | Fine | Fine | Every OS, but a native app to build and ship |
+
+## Decision
+
+Browser storage is the working copy. A background mirror writes each changed piece to a folder the writer picks, through the File System Access API. When browser storage is empty, the project is restored from the folder; otherwise browser storage wins. The mirror is write-only in v1.
 
 ## Consequences
 

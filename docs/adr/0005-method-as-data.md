@@ -11,16 +11,16 @@ How does the code know the writing method: written into the code, or read from a
 - **Tuning.** Each stage's guidance and prompts will be reworded many times while the method is tuned.
 - **Agents copy.** Agents copy what they see: method words in core code spread fast.
 
-## Decision
-
-A method is a declarative definition of piece types, the facets each carries, and stages, each with its dependencies and guidance. A generic engine reads it; the code never names a method. Each project records its method and version.
-
-## Alternatives considered
+## Options considered
 
 | Option | More methods | Writer decides | Tuning | Agents copy |
 | --- | --- | --- | --- | --- |
-| **Method as data (chosen)** | New definition, no code | Flow is data the writer could change later | Edit the definition | Lint keeps method words out of the core |
+| Method as data | New definition, no code | Flow is data the writer could change later | Edit the definition | Lint keeps method words out of the core |
 | Snowflake written into the code | Rewrite | Code change | Code change | Method words everywhere |
+
+## Decision
+
+A method is a declarative definition of piece types, the facets each carries, and stages, each with its dependencies and guidance. A generic engine reads it; the code never names a method. Each project records its method and version.
 
 ## Consequences
 
