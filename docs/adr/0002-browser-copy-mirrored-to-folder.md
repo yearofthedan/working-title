@@ -4,7 +4,12 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
-With no backend ([ADR 1](0001-no-backend-in-v1.md)), work lives on the writer's machine. It has to survive a crash and cleared browser data, and the writer should own a readable copy. Options: the folder as the only store, browser storage only, or browser storage as the working copy with the folder as a mirror.
+- Words are never lost: the first design principle. A crash may lose at most about 2 seconds of typing.
+- Every keystroke must render within a frame. File writes from a browser are asynchronous and much slower than that.
+- Browsers can clear site storage, through the writer or under storage pressure.
+- Writers expect to own their files and open them in other tools.
+- With no backend ([ADR 1](0001-no-backend-in-v1.md)), everything lives on the writer's machine.
+- Writable folder access from a web app exists only in desktop Chromium (File System Access API); Mozilla rates it harmful and WebKit has declined it. Access must be re-granted by a user click after each reload.
 
 ## Decision
 

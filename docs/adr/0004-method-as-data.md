@@ -4,7 +4,10 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
-The app is built on one writing method now, and others may follow. Options: hard-code the method, or describe a method as data read by a generic engine.
+- The app starts with one method, Snowflake, extended, and writers use others.
+- "Method offers, writer decides" is a design principle, and changing the flow is a likely later feature.
+- Each stage's guidance and prompts will be reworded many times while the method is tuned.
+- Agents copy what they see: method words in core code spread fast.
 
 ## Decision
 

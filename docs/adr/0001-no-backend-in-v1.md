@@ -4,7 +4,10 @@ Status: Accepted, 2026-10-04; reason confirmed 2026-10-08
 
 ## Context
 
-v1 is one writer on one desktop browser. A server would bring accounts, sync and a second device, and also infrastructure to run, secure and pay for.
+- One person builds and runs the app, with no time or budget for operating services.
+- v1 serves one writer on one desktop browser.
+- Manuscripts are private; holding them on a server brings security and trust obligations.
+- Later wants pull the other way: sync across devices, and possibly LLM features with our own logic on top, which would need server-side code.
 
 ## Decision
 

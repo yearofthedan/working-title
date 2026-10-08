@@ -4,7 +4,10 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
-Agents write both the code and its tests, and a person has to judge behaviour. Assertion code is hard to review and easy to make pass on wrong code. Options: assertion-style tests, Gherkin and Cucumber, or approved scenarios.
+- Agents write both the code and its tests. Tests that pass on wrong code are the main risk.
+- The person who accepts the work reviews behaviour, not code, and reviews in pull request diffs.
+- Assertion code hides behaviour behind setup and matchers.
+- Gherkin and Cucumber add a parsing layer and step definitions to maintain.
 
 ## Decision
 

@@ -4,7 +4,10 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
-Agents write most of the code, storage may later move behind a native shell or a backend, and the editor's format must not leak into the core. Options: logic in UI components, or ports and adapters.
+- Agents write most of the code and copy the patterns they find.
+- Storage may later move behind a native shell or a backend.
+- The editor's internal document format must not become the stored or domain format.
+- Behaviour has to be testable without a browser, fast enough to run on save.
 
 ## Decision
 
