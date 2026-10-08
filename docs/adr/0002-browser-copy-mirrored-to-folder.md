@@ -4,7 +4,7 @@ Status: Accepted, 2026-10-04
 
 ## Context
 
-Typing has to stay under one frame and a crash may lose at most about 2 seconds, while the writer's work also has to survive cleared browser data. With no backend ([ADR 11](0011-no-backend-in-v1.md)), the options are the folder as the only store, or browser storage as the working copy with the folder as a mirror.
+Typing has to stay under one frame and a crash may lose at most about 2 seconds, while the writer's work also has to survive cleared browser data. With no backend ([ADR 7](0007-no-backend-in-v1.md)), the options are the folder as the only store, or browser storage as the working copy with the folder as a mirror.
 
 ## Decision
 

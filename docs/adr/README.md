@@ -14,7 +14,4 @@ Name new records `NNNN-short-title.md`, numbered in order, in the Status / Conte
 | [4](0004-method-as-data.md) | Method as data | Accepted |
 | [5](0005-hexagonal-layers.md) | Hexagonal layers | Accepted |
 | [6](0006-approved-scenarios.md) | Approved scenarios as file snapshots | Accepted |
-| [7](0007-chapters-separate-from-the-tree.md) | Chapters separate from the tree | Accepted |
-| [8](0008-theme-outside-pieces.md) | Theme outside pieces and stages | Accepted |
-| [10](0010-agents-md-only.md) | AGENTS.md as the only agent guide | Accepted |
-| [11](0011-no-backend-in-v1.md) | No backend in v1 | Accepted |
+| [7](0007-no-backend-in-v1.md) | No backend in v1 | Accepted |

@@ -9,7 +9,7 @@ A desktop-Chromium PWA with no server: browser storage holds the working copy, a
 ## Platform
 
 - Desktop Chromium only (Chrome, Edge, Arc). Firefox and Safari are told up front that they can't keep work in a folder. Mobile is out of v1. ([ADR 1](adr/0001-desktop-chromium-only.md))
-- No backend: no server, no accounts, no network after the first load. ([ADR 11](adr/0011-no-backend-in-v1.md))
+- No backend: no server, no accounts, no network after the first load. ([ADR 7](adr/0007-no-backend-in-v1.md))
 - Deferred: sync, mobile, a Tauri shell, reading external edits back from the folder, manuscript export. LLM integration is undecided; nothing in v1 is shaped for it, and nothing may make adding it later painful.
 
 ## Quality targets
@@ -56,11 +56,11 @@ Known risks to design against: an editor per graph card made the prototype's can
 - **Method as data.** A method declares piece types, the facets each carries, and stages. A stage elaborates or branches, declares its dependencies and carries guidance (instruction text and an optional scaffold). A generic engine reads it. Each project records its schema version and its method and version, with a migration hook for both. ([ADR 4](adr/0004-method-as-data.md))
 - **Piece.** A stable ID, a type and facets, one content slot per stage.
 - **Tree.** Every piece has exactly one parent and an order among its siblings. Collections (cast, places) are roots outside the planning tree.
-- **Chapter.** An ordered grouping of scenes in manuscript order, separate from the tree. Prose is stored on each scene; a new scene starts in a chapter of its own; a chapter's view is read-only. ([ADR 7](adr/0007-chapters-separate-from-the-tree.md))
+- **Chapter.** An ordered grouping of scenes in manuscript order, separate from the tree. Prose is stored on each scene; a new scene starts in a chapter of its own; a chapter's view is read-only.
 - **Link.** From, to, kind and origin (manual or mention). A mention creates its link. "What links here" is a lookup.
 - **Progress per piece.** Stage completion is tracked per piece. Next moves are the stages whose dependencies are met for the focused piece.
 - **Piece summary.** A small indexed record per piece (stage reached, which facets hold text), updated on save, so a card shows its stage without loading facet text. A focus change reads the focus, its parent, children and linked pieces with their summaries in one query.
-- **Theme.** One project-level text, not a piece, not a stage, never linked. ([ADR 8](adr/0008-theme-outside-pieces.md))
+- **Theme.** One project-level text, not a piece, not a stage, never linked.
 
 ## Stack
 
