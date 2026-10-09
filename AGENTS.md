@@ -22,8 +22,6 @@ The words to use in code, tests, scenarios and UI:
 
 ## How work is done
 
-How work is done, what done means, and the builder's steps for writing, agreeing and starting a story:
-
 @docs/dev-flow.md
 
 ## Where docs go

@@ -9,7 +9,7 @@ usage() {
 usage: ./do <task>
 
 Tasks:
-  setup      Install the skills the build work runs under into your OMP.
+  setup      Install Ponytail, the skill the build work runs under, into your OMP.
 EOF
 }
 

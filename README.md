@@ -2,6 +2,6 @@
 
 A local-first planning and drafting tool for novelists, built on the Snowflake method.
 
-Run `./do setup` once per machine. It installs into your OMP the skills the build work runs under.
+Run `./do setup` once per machine. It installs Ponytail, the skill the build work runs under, into your OMP.
 
 How work is done, and what done means: [docs/dev-flow.md](docs/dev-flow.md).
