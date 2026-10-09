@@ -22,18 +22,9 @@ The words to use in code, tests, scenarios and UI:
 
 ## How work is done
 
-- Work comes from a story issue. Its acceptance criteria were agreed before any code: build to them.
-- Never edit the story yourself once coding starts. When you disagree with it, or it left something open, record the call in the PR's Decisions section. A change of scope goes back to the story's owner, who updates the story.
-- One story per PR. PRs go to `main` only through review, squash-merged. Never push to `main`.
-- When a story's acceptance criteria list Edges, each one needs a test in the PR table.
+How work is done, what done means, and the builder's steps for writing, agreeing and starting a story:
 
-## Definition of done
-
-A PR is done when all of these hold:
-
-- A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the writing-adrs skill says it needs one.
-- A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
-- The PR's Learned section is filled: what would have saved time, or caught a mistake sooner? A lesson that would recur gets its own PR with the smallest fix: a check first, a rule in this file or a skill second.
+@docs/dev-flow.md
 
 ## Where docs go
 
