@@ -27,7 +27,7 @@ Then fill the template:
 
 **Every rule has a basis today.** A rule that only holds once something a later story creates exists — a CI check before CI exists, a snapshot approval before there is a snapshot harness — belongs to that later story. Move it to that story's `Delivers` and name it here under `Is not`. A story's acceptance criteria are things this pull request can be judged against.
 
-**One rule per story.** If the draft needs two `Rule:` lines, it is two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, and say so in the draft.
+**One rule per story.** Count rules, not sentences: a `Rule:` that joins behaviours the writer would see separately — an `and` between things that could ship on their own — is two rules written as one sentence. Two rules mean two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, and say so in the draft.
 
 ## Show it, then file it
 
