@@ -13,7 +13,7 @@ How to write anything, from replies to commit messages, docs and PR bodies:
 
 The words to use in code, tests, scenarios and UI:
 
-@docs/glossary.md
+@docs/ubiquitous-language.md
 
 ## Read before changing code
 
@@ -32,7 +32,7 @@ The words to use in code, tests, scenarios and UI:
 A PR is done when all of these hold:
 
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the writing-adrs skill says it needs one.
-- A new term used in code, scenarios or the UI is in `docs/glossary.md`.
+- A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The PR's Learned section is filled: what would have saved time, or caught a mistake sooner? A lesson that would recur gets its own PR with the smallest fix: a check first, a rule in this file or a skill second.
 
 ## Where docs go

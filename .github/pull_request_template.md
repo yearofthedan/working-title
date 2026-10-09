@@ -26,4 +26,4 @@ After:
 
 - [ ] Approved files changed in this PR are listed here for review:
 - [ ] docs/architecture.md and an ADR in docs/adr/ are updated, or the architecture didn't change
-- [ ] docs/glossary.md has every new term used in scenarios or the UI, or none was added
+- [ ] docs/ubiquitous-language.md has every new term used in scenarios or the UI, or none was added
