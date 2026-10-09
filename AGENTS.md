@@ -23,7 +23,7 @@ The words to use in code, tests, scenarios and UI:
 ## How work is done
 
 - Work comes from a story issue. Its acceptance criteria were agreed before any code: build to them.
-- Never edit the story once coding starts. When you disagree with it, or it left something open, record the call in the PR's Decisions section.
+- Never edit the story yourself once coding starts. When you disagree with it, or it left something open, record the call in the PR's Decisions section. A change of scope goes back to the story's owner, who updates the story.
 - One story per PR. PRs go to `main` only through review, squash-merged. Never push to `main`.
 - When a story's acceptance criteria list Edges, each one needs a test in the PR table.
 
