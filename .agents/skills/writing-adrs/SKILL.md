@@ -1,6 +1,6 @@
 ---
 name: writing-adrs
-description: Decide whether a decision needs an architecture decision record, and write or supersede one in docs/adr. Use whenever a decision adds or changes a standing rule in docs/architecture.md, while planning a story or while building one.
+description: Decide whether a decision needs an architecture decision record, and write or supersede one in docs/adr. Use whenever a decision changes the architecture, while planning a story or while building one.
 ---
 
 # Writing ADRs
@@ -20,9 +20,9 @@ Everything else goes somewhere else:
 | It is… | It goes in |
 | --- | --- |
 | A product decision: what the writer sees, can do, or is offered | The product docs and the epic, never an ADR |
-| A choice no story has proven yet, such as a library before it has met the quality targets | `docs/architecture.md` as a starting choice; the story that proves it writes the record |
-| A convention that is cheap to change (file names, folder names, test style) | `docs/architecture.md` or `AGENTS.md` |
-| A detail of how a decision is carried out (timings, syntax, port names) | `docs/architecture.md` as a rule |
+| A choice no story has proven yet, such as a library before it has met the quality targets | The story that depends on it, which writes the record once it is proven |
+| A convention that is cheap to change (file names, folder names, test style) | `AGENTS.md`, or a lint rule |
+| A detail of how a decision is carried out (timings, syntax, port names) | The code, a check, or an explainer in `docs/explainers/` |
 
 ## The record
 
@@ -60,9 +60,9 @@ The question that had to be answered, in one sentence.
 ## After writing
 
 - Add a row to the index in `docs/adr/README.md`.
-- Link the record from the rule it explains in `docs/architecture.md`.
+- Link the record from the part of `docs/architecture.md` it explains.
 - Re-read the record against the three tests and the table above. A record that fails one is deleted, not softened.
 
 ## Changing a decision
 
-A record is Proposed while the story that proves it is open, and can be edited freely until then, even if it has already merged. The PR that merges that story sets it to `Accepted, YYYY-MM-DD`. An Accepted record is never edited. To change it, write a new record that supersedes it, set the old record's status to `Superseded by [N](NNNN-title.md)`, update the index, and repoint the rule in `docs/architecture.md`.
+A record is Proposed while the story that proves it is open, and can be edited freely until then, even if it has already merged. The PR that merges that story sets it to `Accepted, YYYY-MM-DD`. An Accepted record is never edited. To change it, write a new record that supersedes it, set the old record's status to `Superseded by [N](NNNN-title.md)`, update the index, and repoint its links in `docs/architecture.md`.
