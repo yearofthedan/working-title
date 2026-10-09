@@ -16,7 +16,7 @@ After:
 
 ## Decisions
 
-<!-- Calls the story left open that were made while building: architecture decisions, and anywhere the code has drifted from docs/architecture.md. -->
+<!-- Calls the story left open that were made while building, including architecture decisions and anywhere the code has drifted from docs/architecture.md. -->
 
 ## Learned
 
