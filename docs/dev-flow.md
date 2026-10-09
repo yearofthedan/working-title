@@ -23,7 +23,7 @@
 Read the story and its epic, `docs/architecture.md` and the decision records it touches, then:
 
 - Branch from an up-to-date `main`, named `<issue number>-<story title in kebab-case>`.
-- Make the first commit: the first piece of the story that stands on its own. Push the branch and open the PR as a draft, titled with the story's title, with the [PR template](../../.github/pull_request_template.md) as its body and `Closes #<issue number>` at the top.
+- Make the first commit: the first piece of the story that stands on its own. Push the branch and open the PR as a draft, titled with the story's title, with the [PR template](../.github/pull_request_template.md) as its body and `Closes #<issue number>` at the top.
 - From that commit on, the PR body carries the progress and every call the story left open, so the work reads itself out without being asked.
 - Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and a link to where the test ran. Every edge the story lists has a test.
 - Leave the PR in draft until the builder un-drafts it or asks for review.
