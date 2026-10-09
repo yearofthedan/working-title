@@ -82,5 +82,11 @@ expect_status 0 "setup succeeds when the marketplace is already configured"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
+mkdir -p "$work/nowhere"
+status=0
+PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
+expect_status 1 "setup fails when omp is not on PATH"
+expect_err 'omp is not on your PATH' "setup says what is missing"
+
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]

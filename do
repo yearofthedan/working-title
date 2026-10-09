@@ -17,6 +17,10 @@ EOF
 # clone has to install it. Both omp commands fail when they are already done,
 # so each one is checked first.
 setup() {
+  if ! command -v omp >/dev/null 2>&1; then
+    echo "omp is not on your PATH. Install OMP, then run ./do setup again." >&2
+    return 1
+  fi
   if omp plugin list --json 2>/dev/null | grep -qF 'ponytail@ponytail'; then
     echo "Ponytail is already installed."
     return 0
