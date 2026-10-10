@@ -40,7 +40,7 @@ for (const finding of existing) {
 
 if (added.length === 0) {
   console.log(
-    `No advisory is added by this change${existing.length ? `, and ${existing.length} is already in ${baseName}` : ''}.`,
+    `No advisory is added by this change against ${baseName}${existing.length ? `, which already carries ${existing.length} of them` : ''}.`,
   );
   process.exit(0);
 }
