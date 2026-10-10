@@ -1,6 +1,6 @@
 # 6. Vite+ as the toolchain
 
-Status: Proposed, 2026-10-10
+Status: Accepted, 2026-10-10
 
 ## Context
 
@@ -22,7 +22,7 @@ Which tools format, lint, type-check and test the code, and run the git hooks?
 
 ## Decision
 
-Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. Structural checks are written for Oxlint, the linter inside it; a check about the import graph as a whole may use a dedicated tool beside it.
+Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. The exception is the specs that need the built app in a browser, which run in the runner [ADR 7](0007-playwright-for-browser-specs.md) chose. Structural checks are written for Oxlint, the linter inside it; a check about the import graph as a whole may use a dedicated tool beside it.
 
 **Agents copy** and **Keeping in step** decided it: one config, one command and one version to move. The ESLint option leads on **Structural checks**, **Maturity** and **Lock-in**, and those weigh less now than they will: no custom rule is needed until the layers exist, and with few tests and no structural rules yet, leaving costs little. That is why the reversal point is named below, before the cost grows.
 

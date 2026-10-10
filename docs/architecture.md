@@ -13,6 +13,8 @@ UI ──► application ──► domain ◄── method definition
           ports
             │
    browser working copy ──► folder mirror
+
+service worker ──► the built app, cached on the first load
 ```
 
 - **UI:** what the writer sees and does. It calls only the application. ([ADR 2](adr/0002-hexagonal-layers.md))
@@ -21,6 +23,7 @@ UI ──► application ──► domain ◄── method definition
 - **Method definition:** Snowflake, extended, as data the engine reads. The code never names a method. ([ADR 5](adr/0005-method-as-data.md))
 - **Browser working copy:** where every change is saved first, so typing never waits on a file. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md))
 - **Folder mirror:** the writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md))
+- **Service worker:** serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that, as the start-up target asks. ([ADR 1](adr/0001-no-backend-in-v1.md))
 
 ## Constraints
 
@@ -43,11 +46,4 @@ Design size is about 300 pieces and 2,000 links.
 
 ## Toolchain
 
-The code is TypeScript, checked and tested with [Vite+](https://github.com/voidzero-dev/vite-plus#readme) ([ADR 6](adr/0006-vite-plus-toolchain.md)): one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint and Oxfmt behind one config, `vite.config.ts`, and [`vp check`](https://viteplus.dev/guide/check) type-checks through tsgolint. pnpm manages packages, on the Node.js version in `.node-version`.
-
-In `pnpm-workspace.yaml`, the [catalog](https://pnpm.io/catalogs) holds the `vite-plus` version and a `vite` alias for the Vite+ core, and an [override](https://pnpm.io/settings/dependency-resolution#overrides) points every `vite` import at that alias, so dependencies get the copy Vite+ bundles ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)). An upgrade changes both catalog entries together ([upgrading](https://viteplus.dev/guide/upgrade-project)). The [peer rule](https://pnpm.io/settings/peer-dependencies#peerdependencyrules) accepts any `vite` version, because the core's own version number falls outside the ranges other packages ask for; a dependency that needs a newer Vite than Vite+ bundles is not warned about.
-
-| Run | What it checks |
-| --- | --- |
-| `./do check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
-| Pre-commit hook, installed by `pnpm install` through `prepare` ([commit hooks](https://viteplus.dev/guide/commit-hooks)) | `./do precommit`: `vp check --fix` on the staged files (`vp staged`) |
+The code is TypeScript, checked and tested with [Vite+](https://github.com/voidzero-dev/vite-plus#readme) ([ADR 6](adr/0006-vite-plus-toolchain.md)), and the browser specs of the built app run in [Playwright](https://playwright.dev/docs/intro) ([ADR 7](adr/0007-playwright-for-browser-specs.md)). pnpm manages packages, on the Node.js version in `.node-version`. Tasks run through `./do`, which lists them, and where tests go and what runs them is in [the testing standard](standards/testing.md).

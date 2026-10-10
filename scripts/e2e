@@ -1,0 +1,10 @@
+#!/bin/sh
+# Run the browser specs against a build of the app.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+# Installs Chromium here, so a fresh clone runs the specs with no setup step.
+playwright install chromium
+playwright test "$@"

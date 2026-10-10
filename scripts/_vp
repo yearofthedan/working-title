@@ -1,6 +1,3 @@
-# Sourced by the tasks that run vp: stops with a hint when the dependencies
-# are not installed, rather than a bare "vp: not found".
-
 if ! command -v vp >/dev/null 2>&1; then
   echo "vp is not installed. Run pnpm install, then try again." >&2
   exit 1

@@ -1,11 +1,8 @@
 #!/bin/sh
 
-# Tests for ./do and the tasks in scripts/, with stubs for omp and gh that record
-# what they are asked to do. Run: sh tests/do.test.sh, or ./do test, which runs it.
-
 set -eu
 
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
@@ -84,6 +81,8 @@ cat >"$copy/node_modules/.bin/vp" <<'STUB'
 echo "$*" >> "$VP_LOG"
 STUB
 chmod +x "$copy/node_modules/.bin/vp"
+printf '#!/bin/sh\necho "playwright $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/playwright"
+chmod +x "$copy/node_modules/.bin/playwright"
 VP_LOG="$work/vp-calls"
 export VP_LOG
 run_copy() {
@@ -110,9 +109,14 @@ run_copy check
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
 expect_vp 'test' "check runs the tests"
+expect_vp 'playwright test' "check runs the browser specs"
 
 run_copy precommit
 expect_vp 'staged' "precommit runs vp staged"
+
+run_copy preview
+expect_vp 'build' "preview builds the app"
+expect_vp 'preview' "preview serves the build"
 
 # Without the stub, and with a PATH that holds no vp of its own.
 rm "$copy/node_modules/.bin/vp"
@@ -152,9 +156,6 @@ PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
 expect_err 'run ./do setup again' "setup says how to retry"
-
-# --- lessons: every entry is checked, the window boundary holds, and a lookup
-# that fails is not an entry that is current
 
 lesson_repo="$work/lessons-repo"
 mkdir -p "$lesson_repo/docs"

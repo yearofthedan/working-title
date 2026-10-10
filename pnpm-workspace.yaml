@@ -1,8 +1,18 @@
+# The catalog (https://pnpm.io/catalogs) holds the vite-plus version and a vite
+# alias for the Vite+ core, and the override
+# (https://pnpm.io/settings/dependency-resolution#overrides) points every vite
+# import at that alias, so dependencies get the copy Vite+ bundles
+# (https://viteplus.dev/guide/local-cli#manual-installation). An upgrade changes
+# both catalog entries together (https://viteplus.dev/guide/upgrade-project).
 overrides:
   vite@*: 'catalog:'
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
+# The peer rule (https://pnpm.io/settings/peer-dependencies#peerdependencyrules)
+# accepts any vite version, because the core's own version number falls outside
+# the ranges other packages ask for. A dependency that needs a newer Vite than
+# Vite+ bundles is not warned about.
 peerDependencyRules:
   allowAny:
     - vite

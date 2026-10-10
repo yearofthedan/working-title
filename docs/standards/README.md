@@ -16,3 +16,5 @@ What belongs elsewhere:
 
 - [Communication standards](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, and the body naming who wrote it.
+- [Coding](coding.md): when a comment has value, and what to do instead when it has none.
+- [Testing](testing.md): a test beside its code, browser specs in `e2e/`, and what runs each.

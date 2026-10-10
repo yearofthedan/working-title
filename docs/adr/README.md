@@ -12,4 +12,5 @@ How to decide whether a decision needs a record, and how to write one: [the writ
 | [3](0003-browser-copy-mirrored-to-folder.md) | Browser working copy, mirrored to the writer's folder | Accepted |
 | [4](0004-one-markdown-file-per-piece.md) | One Markdown file per piece, in flat folders | Accepted |
 | [5](0005-method-as-data.md) | Method as data | Accepted |
-| [6](0006-vite-plus-toolchain.md) | Vite+ as the toolchain | Proposed |
+| [6](0006-vite-plus-toolchain.md) | Vite+ as the toolchain | Accepted |
+| [7](0007-playwright-for-browser-specs.md) | Playwright for the browser specs | Accepted |
