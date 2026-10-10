@@ -39,6 +39,10 @@ How a story is planned, built and handed over is in the skills below, which is w
 
 Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs.
 
+## What the builder remembers
+
+A session can lose part of its conversation, to a restart or a summary, and keeps nothing from one session to the next. When the builder refers to something you have no record of, such as a plan you offered or an answer they gave, say plainly that your context may be missing it, and take their account as the record. Never correct the builder from a context that can be incomplete.
+
 ## Where docs go
 
 - `docs/product.md`: what the product is for, and its design principles.
