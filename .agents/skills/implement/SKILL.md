@@ -48,7 +48,7 @@ With no open pull request and earlier lines merged, tick them off in the plan co
 
 A pull request whose work is done is handed over, not left in draft:
 
-1. **Run the review.** `/review` over the branch's diff against `main` — the whole change, not only the last commit.
+1. **Run the review.** Ponytail's review, `/ponytail-review`, over the branch's diff against `main` — the whole change, not only the last commit.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
    - When a lesson it names was already named in an earlier pull request's `Learned`, propose a lesson pull request carrying the smallest fix — a check first, then a rule in AGENTS.md, `docs/dev-flow.md` or a skill. Add it to the plan on the issue once the builder confirms.
@@ -65,7 +65,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, record the call in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
-- Re-read [the agents' guide](../../../AGENTS.md) and [the dev flow](../../../docs/dev-flow.md) before handing over: the definition of done holds for every pull request.
+- Re-read [the agents' guide](../../../AGENTS.md) and [the dev flow](../../../docs/dev-flow.md) before handing over: the definition of done above holds for every pull request.
 
 ## Definition of done
 
