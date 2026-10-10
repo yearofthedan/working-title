@@ -15,6 +15,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | Resume makes a pull request's body an input, not only a record | [#27](https://github.com/yearofthedan/working-title/pull/27) | none |
 | An aside from the builder is information, not an instruction: nothing they asked for is ended or changed on the strength of one | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
 | A thing already written down — a doc, a comment, a decision — is checked for whether it should be that way, rather than followed because it is there | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
+| A rule that has landed does not stop its lesson: it is met again anyway, so the fix has to be something other than a rule | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
 
 ## The columns
 
