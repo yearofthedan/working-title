@@ -12,9 +12,9 @@ After:
 
 ## Acceptance criteria
 
-<!-- Each acceptance criterion and edge from the story, the test that checks it, and a link to its result in CI. -->
+<!-- Each acceptance criterion and edge from the story, the test that checks it, and where it was seen to fail and pass: a CI link, or the local run described. -->
 
-| Acceptance criterion | Test | CI |
+| Acceptance criterion | Test | Run |
 | --- | --- | --- |
 |  |  |  |
 
