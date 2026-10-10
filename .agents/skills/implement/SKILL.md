@@ -23,7 +23,7 @@ A ready issue with no plan comment gets a plan before any code.
 
 1. Read the issue, its epic, `docs/architecture.md` and the decision records it touches.
 2. Work out the pull requests it takes. Each line is a thin slice that stands on its own, and each ends in something the builder can check. **Enabling pull requests come before the story's own pull request**: the ones that set up what the rest needs land first. Cut the lines so that as few as possible depend on an earlier one — a line that needs only `main` can start while the line before it is still in review.
-3. Propose the lines to the builder, numbered, one sentence each.
+3. Propose the lines to the builder, numbered, each one an imperative phrase: the line becomes the pull request's title, and so the message the merge lands as.
 4. Do not post anything until they confirm. Then post the lines on the issue as a checklist comment, and start the first unstarted line.
 
 Tick a line off in that comment as its pull request merges. The last unticked line is the one whose pull request closes the issue.
@@ -32,7 +32,7 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 
 - Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
-- Open the pull request as a draft, titled with the line, with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
+- Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the repository's squash message is the pull request title, so the title is what lands in the log, as `15: Add the implement skill`. Its body is the [pull request template](../../../.github/pull_request_template.md), with `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
 - Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and where it ran. Every edge the issue lists has a test.
 
