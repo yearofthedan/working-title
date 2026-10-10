@@ -43,7 +43,9 @@ Design size is about 300 pieces and 2,000 links.
 
 ## Toolchain
 
-The code is TypeScript. [Vite+](https://viteplus.dev/guide/) builds, checks and tests it: one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint and Oxfmt behind one config, `vite.config.ts`. pnpm manages packages, on Node.js 24. The `vite` and `vitest` overrides in `pnpm-workspace.yaml` keep every dependency on the copies Vite+ bundles, so they move with `vite-plus` on every upgrade ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)).
+The code is TypeScript, checked and tested with [Vite+](https://viteplus.dev/guide/) ([ADR 6](adr/0006-vite-plus-toolchain.md)): one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint, Oxfmt and tsgolint, which type-checks with TypeScript 7, behind one config, `vite.config.ts`. pnpm manages packages, on Node.js 24.
+
+The `vite` and `vitest` overrides in `pnpm-workspace.yaml` pin the copies Vite+ bundles, so every dependency uses them. They are fixed versions: an upgrade of `vite-plus` updates them by hand to match ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)).
 
 | Run | What it checks |
 | --- | --- |

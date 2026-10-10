@@ -75,6 +75,7 @@ status=0
 PATH="$work/nowhere" "$root/scripts/setup-omp.sh" >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
+expect_err 'run pnpm setup:omp again' "setup says how to retry"
 
 # --- lessons: every entry is checked, the window boundary holds, and a lookup
 # that fails is not an entry that is current
