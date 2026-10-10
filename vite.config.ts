@@ -3,17 +3,19 @@ import { configDefaults, defineConfig } from 'vite-plus';
 
 const themeColor = '#fbfaf7';
 
-// Playwright's calls that find an element. A property restricted with no object is
-// restricted on every object (https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-restricted-properties),
-// so an aliased page is caught too.
-const locatorCalls = [
-  'getByRole',
-  'getByLabel',
+// A property restricted with no object is restricted on every object, and one with an
+// object only where that name is written
+// (https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-restricted-properties).
+// The selector actions are restricted on `page` alone because a locator's own `click()`
+// is how the driver acts.
+export const findsByRoleOrLabel = ['getByRole', 'getByLabel'];
+export const findsAnyOtherWay = [
   'getByText',
   'getByPlaceholder',
   'getByAltText',
   'getByTitle',
   'getByTestId',
+  'getByRef',
   'locator',
   'frameLocator',
   '$',
@@ -21,6 +23,38 @@ const locatorCalls = [
   '$eval',
   '$$eval',
   'waitForSelector',
+];
+export const pageSelectorActions = [
+  'check',
+  'click',
+  'dblclick',
+  'dispatchEvent',
+  'dragAndDrop',
+  'fill',
+  'focus',
+  'getAttribute',
+  'hover',
+  'innerHTML',
+  'innerText',
+  'inputValue',
+  'isChecked',
+  'isDisabled',
+  'isEditable',
+  'isEnabled',
+  'isHidden',
+  'isVisible',
+  'press',
+  'selectOption',
+  'setChecked',
+  'setInputFiles',
+  'tap',
+  'textContent',
+  'type',
+  'uncheck',
+];
+const restricted = (anyObject: string[], message: string) => [
+  ...anyObject.map((property) => ({ property, message })),
+  ...pageSelectorActions.map((property) => ({ object: 'page', property, message })),
 ];
 
 export default defineConfig({
@@ -72,10 +106,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...locatorCalls.map((property) => ({
-              property,
-              message: 'Find elements in the writer driver, e2e/writer.ts.',
-            })),
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay],
+              'Find elements in the writer driver, e2e/writer.ts.',
+            ),
           ],
         },
       },
@@ -84,12 +118,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...locatorCalls
-              .filter((property) => !['getByRole', 'getByLabel'].includes(property))
-              .map((property) => ({
-                property,
-                message: 'The writer driver finds elements by role or label, as the writer does.',
-              })),
+            ...restricted(
+              findsAnyOtherWay,
+              'The writer driver finds elements by role or label, as the writer does.',
+            ),
           ],
         },
       },

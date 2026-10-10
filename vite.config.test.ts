@@ -2,30 +2,15 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { findsAnyOtherWay, findsByRoleOrLabel, pageSelectorActions } from './vite.config';
 
-const everyLocatorCall = [
-  'getByRole',
-  'getByLabel',
-  'getByText',
-  'getByPlaceholder',
-  'getByAltText',
-  'getByTitle',
-  'getByTestId',
-  'locator',
-  'frameLocator',
-  '$',
-  '$$',
-  '$eval',
-  '$$eval',
-  'waitForSelector',
-];
-const byRoleOrLabel = ['getByRole', 'getByLabel'];
-const notByRoleOrLabel = everyLocatorCall.filter((call) => !byRoleOrLabel.includes(call));
+const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
 
 const callingOnPage = (call: string) =>
   `import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.${call}('x');\n`;
 
-// Samples are linted where they sit, so they go in e2e/, as files Playwright does not collect.
+// Samples are linted where they sit, so they go in e2e/, named so that Playwright's
+// default testMatch does not collect them (https://playwright.dev/docs/api/class-testconfig#test-config-test-match).
 let samples: string;
 const lintErrors = new Map<string, string[]>();
 const errorsIn = (file: string) => lintErrors.get(join(samples, file)) ?? [];
@@ -38,11 +23,15 @@ beforeAll(() => {
     writeFileSync(join(samples, file), content);
     files.push(join(samples, file));
   };
-  for (const call of everyLocatorCall) {
+  for (const call of calls) {
     write(`spec-${call}.ts`, callingOnPage(call));
     write(`driver-${call}/writer.ts`, callingOnPage(call));
   }
   write('spec-no-locator.ts', callingOnPage('reload'));
+  write(
+    'driver-acting-on-a-locator/writer.ts',
+    "import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.getByRole('button').click();\n",
+  );
 
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
@@ -58,7 +47,7 @@ beforeAll(() => {
 afterAll(() => rmSync(samples, { recursive: true, force: true }));
 
 describe('e2e locators', { timeout: 60_000 }, () => {
-  test.each(everyLocatorCall)('a spec calling %s fails lint, pointing to the driver', (call) => {
+  test.each(calls)('a spec calling page.%s fails lint, pointing to the driver', (call) => {
     expect(errorsIn(`spec-${call}.ts`)).toEqual([expect.stringContaining('e2e/writer.ts')]);
   });
 
@@ -66,13 +55,20 @@ describe('e2e locators', { timeout: 60_000 }, () => {
     expect(errorsIn('spec-no-locator.ts')).toEqual([]);
   });
 
-  test.each(byRoleOrLabel)('the driver calling %s passes lint', (call) => {
+  test.each(findsByRoleOrLabel)('the driver calling page.%s passes lint', (call) => {
     expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([]);
   });
 
-  test.each(notByRoleOrLabel)('the driver calling %s fails lint', (call) => {
-    expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([
-      expect.stringContaining('by role or label'),
-    ]);
+  test('the driver acting on a locator it found passes lint', () => {
+    expect(errorsIn('driver-acting-on-a-locator/writer.ts')).toEqual([]);
   });
+
+  test.each([...findsAnyOtherWay, ...pageSelectorActions])(
+    'the driver calling page.%s fails lint',
+    (call) => {
+      expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([
+        expect.stringContaining('by role or label'),
+      ]);
+    },
+  );
 });
