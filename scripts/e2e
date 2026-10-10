@@ -5,6 +5,7 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
-# Installs Chromium here, so a fresh clone runs the specs with no setup step.
-playwright install chromium
+# Installs Chromium and its system libraries here, so a fresh clone or a fresh
+# CI runner runs the specs with no setup step. On macOS it installs no libraries.
+playwright install --with-deps chromium
 playwright test "$@"
