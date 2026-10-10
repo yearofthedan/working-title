@@ -20,6 +20,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A reply says done only for what a tool result has shown | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
 | A comment says what the code cannot; a behaviour or a convention gets a test before it gets a comment | [#31](https://github.com/yearofthedan/working-title/pull/31) | [Coding standard: Comments](standards/coding.md#comments) |
 | A closing keyword before an issue number closes the issue wherever it sits in a pull request's body, even inside a sentence about another pull request ([GitHub: linking with a keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)) | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
+| A claim about a tool written in code — a comment, the reason for a config line — is checked against the tool's docs, as one in prose is; "What you assert" did not stop it here | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
 
 ## The columns
 
