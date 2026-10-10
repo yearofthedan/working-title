@@ -1,0 +1,13 @@
+#!/bin/sh
+# Approve the scenarios printed by the tests named, writing their .approved.md files.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+if [ "$#" -eq 0 ]; then
+  echo "Name the test file to approve: ./do approve <test file> [-t <test name>]" >&2
+  exit 2
+fi
+
+exec vp test --update=all "$@"

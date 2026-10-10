@@ -45,6 +45,7 @@ export default defineConfig({
   },
   test: {
     exclude: [...configDefaults.exclude, 'e2e/**'],
+    update: 'none',
   },
   staged: {
     '*': 'vp check --fix',
