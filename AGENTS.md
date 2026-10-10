@@ -26,7 +26,7 @@ The words to use in code, tests, scenarios and UI:
 
 ## Running tasks
 
-Every task runs through `./do`, never the tools underneath: `./do` alone lists the tasks, each a file in `scripts/`.
+Every task runs through `./do`, never the tools underneath: `./do` alone lists the tasks, each a file in `scripts/`. A new task is a new file there, never a script in `package.json`, which keeps only `prepare`: one file per task stays readable as tasks grow, where a `package.json` of scripts does not.
 
 ## How work lands
 
