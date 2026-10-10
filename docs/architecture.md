@@ -57,4 +57,5 @@ Browser specs of the built app run in [Playwright](https://playwright.dev/docs/i
 | --- | --- |
 | `./do check` | Format, lint and types (`vp check`), then the tests (`vp test`), then the browser specs (`./do e2e`) |
 | `./do e2e` | The browser specs in `e2e/`, against a build of the app (`playwright test`) |
+| `./do preview` | Nothing: it builds the app and serves the build (`vp build`, `vp preview`), for checking it by hand |
 | Pre-commit hook, installed by `pnpm install` through `prepare` ([commit hooks](https://viteplus.dev/guide/commit-hooks)) | `./do precommit`: `vp check --fix` on the staged files (`vp staged`) |

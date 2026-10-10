@@ -117,6 +117,10 @@ expect_vp 'playwright test' "check runs the browser specs"
 run_copy precommit
 expect_vp 'staged' "precommit runs vp staged"
 
+run_copy preview
+expect_vp 'build' "preview builds the app"
+expect_vp 'preview' "preview serves the build"
+
 # Without the stub, and with a PATH that holds no vp of its own.
 rm "$copy/node_modules/.bin/vp"
 status=0
