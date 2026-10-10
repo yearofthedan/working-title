@@ -24,6 +24,10 @@ The words to use in code, tests, scenarios and UI:
 - [docs/architecture.md](docs/architecture.md): the shape of the system, its parts and constraints, and the quality targets.
 - [docs/adr/](docs/adr/README.md): why each architecture decision was made. Read the record before changing what it decided.
 
+## Running tasks
+
+Every task runs through `./do`, never the tools underneath: `./do` alone lists the tasks, each a file in `scripts/`.
+
 ## How work lands
 
 - Never push to `main`: a change reaches it the way [commits and merges](docs/standards/commits.md) sets out.

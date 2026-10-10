@@ -1,7 +1,5 @@
 #!/bin/sh
-
-# Lists the lesson entries past the window in docs/lessons.md.
-# Run: pnpm lessons [file]
+# List the lesson entries past the window in docs/lessons.md.
 
 set -eu
 

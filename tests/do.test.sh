@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Tests for the scripts in scripts/, with stubs for omp and gh that record what
-# they are asked to do. Run: sh tests/scripts.test.sh, or pnpm test, which runs it.
+# Tests for ./do and the tasks in scripts/, with stubs for omp and gh that record
+# what they are asked to do. Run: sh tests/do.test.sh, or ./do test, which runs it.
 
 set -eu
 
@@ -32,9 +32,9 @@ no() {
 }
 
 status=0
-run_setup() {
+run_do() {
   status=0
-  "$root/scripts/setup-omp.sh" >"$work/out" 2>"$work/err" || status=$?
+  "$root/do" "$@" >"$work/out" 2>"$work/err" || status=$?
 }
 
 # A machine with no marketplaces configured and nothing installed.
@@ -44,20 +44,48 @@ fresh() {
   : >"$OMP_LOG"
 }
 
+expect_out() { if grep -q "$1" "$work/out"; then ok "$2"; else no "$2"; fi; }
 expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $status)"; fi; }
 expect_err() { if grep -q "$1" "$work/err"; then ok "$2"; else no "$2"; fi; }
 expect_call() { if grep -q "$1" "$OMP_LOG"; then ok "$2"; else no "$2"; fi; }
 expect_no_call() { if grep -q "$1" "$OMP_LOG"; then no "$2"; else ok "$2"; fi; }
 
 fresh
-run_setup
+run_do
+expect_status 0 "no task exits zero"
+expect_out 'usage: ./do' "no task prints the usage"
+expect_out 'setup  *Install Ponytail' "no task lists each task with its summary"
+expect_no_call 'plugin' "no task runs nothing"
+
+for file in "$root"/scripts/*; do
+  name=$(basename "$file")
+  case "$name" in _*) continue ;; esac
+  if grep -q "^  $name  *[^ ]" "$work/out"; then ok "$name has a summary"; else no "$name has a summary"; fi
+done
+
+fresh
+run_do frobnicate
+expect_status 2 "an unknown task exits non-zero"
+expect_err 'no task called frobnicate' "an unknown task says so"
+expect_err 'usage: ./do' "an unknown task prints the tasks"
+expect_no_call 'plugin' "an unknown task runs nothing"
+
+printf '#!/bin/sh\n# Private.\necho ran\n' >"$root/scripts/_probe"
+chmod +x "$root/scripts/_probe"
+run_do _probe
+rm -f "$root/scripts/_probe"
+expect_status 2 "a private script is not a task"
+if grep -q ran "$work/out"; then no "a private script does not run"; else ok "a private script does not run"; fi
+
+fresh
+run_do setup
 expect_status 0 "setup succeeds on a fresh machine"
 expect_call 'plugin marketplace add DietrichGebert/ponytail' "setup adds the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
 printf '{"npm":[],"marketplace":[{"id":"ponytail@ponytail","scope":"user"}]}' >"$OMP_LIST"
 : >"$OMP_LOG"
-run_setup
+run_do setup
 expect_status 0 "setup succeeds when Ponytail is installed"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_no_call 'plugin install' "setup re-installs nothing"
@@ -65,17 +93,17 @@ expect_no_call 'plugin install' "setup re-installs nothing"
 printf '{"npm":[],"marketplace":[]}' >"$OMP_LIST"
 printf 'ponytail  DietrichGebert/ponytail\n' >"$OMP_MARKETPLACES"
 : >"$OMP_LOG"
-run_setup
+run_do setup
 expect_status 0 "setup succeeds when the marketplace is already configured"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
 mkdir -p "$work/nowhere"
 status=0
-PATH="$work/nowhere" "$root/scripts/setup-omp.sh" >"$work/out" 2>"$work/err" || status=$?
+PATH="$work/nowhere:/usr/bin:/bin" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
-expect_err 'run pnpm setup:omp again' "setup says how to retry"
+expect_err 'run ./do setup again' "setup says how to retry"
 
 # --- lessons: every entry is checked, the window boundary holds, and a lookup
 # that fails is not an entry that is current
@@ -125,7 +153,7 @@ lessons_file() { # $1 name, then the rows
 
 lessons_run() { # $1 window, $2 file
   status=0
-  (cd "$lesson_repo" && LESSON_WINDOW="$1" "$root/scripts/lessons.sh" "$2") >"$work/out" 2>"$work/err" || status=$?
+  (cd "$lesson_repo" && LESSON_WINDOW="$1" "$root/do" lessons "$2") >"$work/out" 2>"$work/err" || status=$?
 }
 
 lessons_file multi.md '| An old one | [#1](u), [#2](u) | none |'

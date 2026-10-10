@@ -3,10 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "vp check && vp test",
-    "test": "vp test",
-    "lessons": "sh scripts/lessons.sh",
-    "setup:omp": "sh scripts/setup-omp.sh",
     "prepare": "vp config --no-agent"
   },
   "devDependencies": {

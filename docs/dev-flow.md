@@ -28,6 +28,6 @@ In a fresh session, run `/skill:implement <issue number>`, or ask the agent to p
 
 ## Set up a machine
 
-Run `pnpm install` in a fresh clone; it also installs the pre-commit hook. Run `pnpm setup:omp` once per machine. It installs Ponytail, the skill the build work runs under, into your OMP.
+Run `pnpm install` in a fresh clone; it also installs the pre-commit hook. Run `./do setup` once per machine. It installs Ponytail, the skill the build work runs under, into your OMP.
 
 `/skill:implement <issue number>` needs OMP's `skills.enableSkillCommands` setting on, which is its default. With it off, ask the agent to pick up, resume or carry on with the story instead: the skill is model-invocable either way, so the wording reaches it.

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Run every local check: format, lint and types, then the tests.
+
+set -eu
+
+vp check
+"$(dirname "$0")/../do" test

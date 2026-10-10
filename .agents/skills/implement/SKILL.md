@@ -55,7 +55,7 @@ A pull request whose work is done is handed over, not left in draft:
    > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
-   - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `pnpm lessons` and drop the entries it names.
+   - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
 5. **Mark the pull request ready for review.**

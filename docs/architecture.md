@@ -49,5 +49,5 @@ The `vite` and `vitest` overrides in `pnpm-workspace.yaml` pin the copies Vite+ 
 
 | Run | What it checks |
 | --- | --- |
-| `pnpm check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
+| `./do check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
 | Pre-commit hook, installed by `pnpm install` | `vp check --fix` on the staged files (`vp staged`) |
