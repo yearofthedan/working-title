@@ -135,6 +135,24 @@ if [ "$(grep -c '^pnpm audit --json$' "$VP_LOG")" = 2 ]; then ok "check audits t
 expect_vp 'test' "check runs the tests"
 expect_vp 'playwright test' "check runs the browser specs"
 
+run_copy approve
+expect_status 2 "approve without a test refuses"
+expect_err 'Name the test file to approve' "approve without a test says what it needs"
+
+run_copy approve -t thing
+expect_status 2 "approve without a test file first refuses"
+
+: >"$copy/thing.test.ts"
+run_copy approve "$copy/thing.test.ts"
+expect_vp "test --update=all $copy/thing.test.ts" "approve updates only the test file named"
+
+for flag in -u --update --update=all; do
+  run_copy test "$flag"
+  expect_status 2 "test refuses $flag"
+done
+expect_err 'never write approved files' "test says it does not write approved files"
+expect_err 'Verify the intent of the update' "test asks for the intent of the update to be verified"
+
 run_copy precommit
 expect_vp 'staged' "precommit runs vp staged"
 

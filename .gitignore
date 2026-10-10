@@ -4,3 +4,4 @@ dist/
 .vitest/
 test-results/
 playwright-report/
+src/test-helpers/approved-sample-*/
