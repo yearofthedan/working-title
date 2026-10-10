@@ -1,0 +1,13 @@
+{
+  "name": "working-title",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "vp config --no-agent"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "vite-plus": "catalog:"
+  },
+  "packageManager": "pnpm@12.10.1"
+}

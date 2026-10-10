@@ -40,3 +40,14 @@ Design size is about 300 pieces and 2,000 links.
 | Data | Filtering and querying the whole project takes under 100 ms |
 | Start-up | Usable within 2 s, and fully offline after the first load |
 | Fidelity | Prose survives the round trip to Markdown and back unchanged |
+
+## Toolchain
+
+The code is TypeScript, checked and tested with [Vite+](https://github.com/voidzero-dev/vite-plus#readme) ([ADR 6](adr/0006-vite-plus-toolchain.md)): one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint and Oxfmt behind one config, `vite.config.ts`, and [`vp check`](https://viteplus.dev/guide/check) type-checks through tsgolint. pnpm manages packages, on the Node.js version in `.node-version`.
+
+In `pnpm-workspace.yaml`, the [catalog](https://pnpm.io/catalogs) holds the `vite-plus` version and a `vite` alias for the Vite+ core, and an [override](https://pnpm.io/settings/dependency-resolution#overrides) points every `vite` import at that alias, so dependencies get the copy Vite+ bundles ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)). An upgrade changes both catalog entries together ([upgrading](https://viteplus.dev/guide/upgrade-project)). The [peer rule](https://pnpm.io/settings/peer-dependencies#peerdependencyrules) accepts any `vite` version, because the core's own version number falls outside the ranges other packages ask for; a dependency that needs a newer Vite than Vite+ bundles is not warned about.
+
+| Run | What it checks |
+| --- | --- |
+| `./do check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
+| Pre-commit hook, installed by `pnpm install` through `prepare` ([commit hooks](https://viteplus.dev/guide/commit-hooks)) | `./do precommit`: `vp check --fix` on the staged files (`vp staged`) |
