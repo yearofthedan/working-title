@@ -19,7 +19,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 ## The columns
 
 - **Lesson** — one line, saying what to do or what to know. A one-off fact stays in the `Learned` section that named it instead: a lesson is something that could come back.
-- **Found in** — every pull request that has named the lesson, oldest first. The list is the whole record: its length is how often the lesson has been found, and a list holding two entries inside the window is what has recurred, which is what proposes a lesson pull request. Rows are only merged when they say the same thing, and then the lists are joined with the older entries first.
+- **Found in** — every pull request that has named the lesson, oldest first. Each entry is a link to the pull request, `[#12](https://github.com/yearofthedan/working-title/pull/12)`: `./do lessons` reads the number from the link, and an entry that names no pull request is reported rather than passed over. The list is the whole record: its length is how often the lesson has been found, and a list holding two entries inside the window is what has recurred, which is what proposes a lesson pull request. Rows are only merged when they say the same thing, and then the lists are joined with the older entries first.
 - **Tripwire** — what stops the lesson. `none` until it is found twice inside the window, because one meeting is not evidence that it recurs; `proposed` once a lesson pull request is proposed; and then the tripwire itself once that lands, which is a check wherever a check can be written and a rule only where none can. A lesson met again with its tripwire already in place is a lesson of its own: the tripwire for that one did not stop it.
 
 ## The window

@@ -40,6 +40,12 @@ LESSON_WINDOW=${LESSON_WINDOW:-50}
 
 lessons() {
   file=${1:-docs/lessons.md}
+  case "$LESSON_WINDOW" in
+  '' | *[!0-9]*)
+    printf 'the lesson window must be a number of commits, not "%s".\n' "$LESSON_WINDOW" >&2
+    return 1
+    ;;
+  esac
   base=origin/main
   git rev-parse --verify -q "$base" >/dev/null 2>&1 || base=main
   if [ ! -f "$file" ]; then
@@ -49,8 +55,15 @@ lessons() {
 
   rows=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | wc -l | tr -d ' ')
   report=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | while IFS= read -r row; do
-    lesson=$(printf '%s' "$row" | cut -d'|' -f2 | cut -c1-58)
-    for pr in $(printf '%s' "$row" | cut -d'|' -f3 | grep -o '#[0-9][0-9]*' | tr -d '#'); do
+    lesson=$(printf '%s' "$row" | cut -d'|' -f2 | sed 's/^ *//; s/ *$//')
+    entries=$(printf '%s' "$row" | cut -d'|' -f3)
+    numbers=$(printf '%s' "$entries" | grep -oE 'pull/[0-9]+|#[0-9]+' | sed 's|^pull/||; s|^#||' | sort -n -u) || true
+    if [ -z "$numbers" ] && printf '%s' "$entries" | grep -qF ']('; then
+      printf 'error: "%s" — the entry "%s" in Found in names no pull request\n' "$lesson" "$entries" >&2
+      printf 'error\n'
+      continue
+    fi
+    for pr in $numbers; do
       if ! answer=$(gh pr view "$pr" --json state,mergeCommit -q '"\(.state) \(.mergeCommit.oid // "")"' 2>/dev/null); then
         printf 'error: "%s" — gh could not read #%s\n' "$lesson" "$pr" >&2
         printf 'error\n'

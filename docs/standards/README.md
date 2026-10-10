@@ -14,5 +14,5 @@ What belongs elsewhere:
 
 ## Pages
 
-- [communication-standards.md](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
+- [Communication standards](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, and the body naming who wrote it.

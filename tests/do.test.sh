@@ -159,10 +159,26 @@ lessons_run 50 docs/closed.md
 expect_status 1 "an entry closed without merging is dropped"
 if grep -q 'closed without merging' "$work/out"; then ok "an entry closed without merging says so"; else no "an entry closed without merging says so"; fi
 
+lessons_file urlform.md '| A url-only one | [the old one](https://example.test/pull/1) | none |'
+lessons_run 1 docs/urlform.md
+expect_status 1 "an entry whose text is not #N is still checked"
+if grep -q '^drop:.*#1' "$work/out"; then ok "the number is read from the link's url"; else no "the number is read from the link's url"; fi
+
+lessons_file unreadable.md '| A link with no number | [the tracker](https://example.test/issues) | none |'
+lessons_run 50 docs/unreadable.md
+expect_status 1 "an entry that names no pull request exits non-zero"
+if grep -q 'names no pull request' "$work/err"; then ok "an entry that names no pull request says so"; else no "an entry that names no pull request says so"; fi
+if grep -q 'nothing past the window' "$work/out"; then no "an unreadable entry does not read as a clean index"; else ok "an unreadable entry does not read as a clean index"; fi
+
 lessons_file clean.md '| A fresh one | [#2](u) | none |' '| An open one | [#3](u) | none |'
 lessons_run 50 docs/clean.md
 expect_status 0 "lessons exits zero when nothing is past the window"
 if grep -q 'nothing past the window' "$work/out"; then ok "lessons says nothing is past the window"; else no "lessons says nothing is past the window"; fi
+
+lessons_run abc docs/clean.md
+expect_status 1 "a window that is not a number exits non-zero"
+if grep -q 'must be a number' "$work/err"; then ok "a window that is not a number says what it wants"; else no "a window that is not a number says what it wants"; fi
+if grep -q 'nothing past the window' "$work/out"; then no "a broken window does not read as a clean index"; else ok "a broken window does not read as a clean index"; fi
 
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
