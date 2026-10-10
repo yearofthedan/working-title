@@ -53,4 +53,4 @@ Check what a tool, a platform or a library does against its current docs before 
 
 File names are lowercase kebab-case. The exceptions are names a tool looks for: `AGENTS.md`, `README.md` and `SKILL.md`.
 
-Every file in `docs/` opens with its audience and purpose. The exceptions are the records in `docs/adr/`, which follow [the writing-adrs skill](.agents/skills/writing-adrs/SKILL.md)'s shape, and [docs/standards/communication-standards.md](docs/standards/communication-standards.md): a verbatim copy of [agent-standards/communication-standards.md](https://github.com/yearofthedan/snippets/blob/main/agent-standards/communication-standards.md), updated only by copying a newer version.
+Every file in `docs/` opens with its audience and purpose. The exceptions are the records in `docs/adr/`, which follow [the writing-adrs skill](.agents/skills/writing-adrs/SKILL.md)'s shape.

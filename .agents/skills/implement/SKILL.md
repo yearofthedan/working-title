@@ -69,7 +69,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, record the call in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - A question or aside from the builder is not agreement to a change. Answer it, and when it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
-- What is already written down — a doc, a comment, a decision — is checked against its own purpose before you extend it, follow it or quote it as a reason. When it does not serve that purpose, raise it with the builder rather than building on it or moving it yourself.
+- When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
 - Re-read the definition of done below before handing over.
