@@ -46,6 +46,7 @@ describe('approved files', { timeout: 60_000 }, () => {
     const { status, output } = run('test');
     expect(status).not.toBe(0);
     expect(output).toContain(printed.trim());
+    expect(output).toContain('Verify the intent of the update before continuing.');
     expect(existsSync(first)).toBe(false);
   });
 
@@ -63,6 +64,7 @@ describe('approved files', { timeout: 60_000 }, () => {
     expect(status).not.toBe(0);
     expect(output).toContain('- the first sample printed this');
     expect(output).toContain('+ the first sample changed');
+    expect(output).toContain('Verify the intent of the update before continuing.');
     expect(readFileSync(first, 'utf8')).toBe(printed);
   });
 });

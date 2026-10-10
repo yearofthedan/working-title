@@ -150,7 +150,8 @@ for flag in -u --update --update=all; do
   run_copy test "$flag"
   expect_status 2 "test refuses $flag"
 done
-expect_err 'never write approved files' "test says how to approve instead"
+expect_err 'never write approved files' "test says it does not write approved files"
+expect_err 'Verify the intent of the update' "test asks for the intent of the update to be verified"
 
 run_copy precommit
 expect_vp 'staged' "precommit runs vp staged"

@@ -14,21 +14,26 @@ export const approvedFile = (testPath: string, testName: string): string =>
     `${basename(testPath).replace(/\.test\.ts$/, '')}.${slug(testName)}.approved.md`,
   );
 
+const verifyIntent = (approve: string): string =>
+  `Scenarios are updated explicitly and intentionally, with ${approve}. Verify the intent of the update before continuing.`;
+
 export const expectApproved = async (printed: string): Promise<void> => {
   const { testPath, currentTestName } = expect.getState();
   if (!testPath || !currentTestName) {
     throw new Error('expectApproved runs inside a test');
   }
   const file = approvedFile(testPath, currentTestName);
+  const approve = `./do approve ${relative(process.cwd(), testPath)}`;
   try {
     await expect(printed).toMatchFileSnapshot(file);
   } catch (error) {
-    if (existsSync(file)) {
+    if (existsSync(file) && error instanceof Error) {
+      error.message += `\n\n${verifyIntent(approve)}`;
       throw error;
     }
     throw new Error(
       `${relative(process.cwd(), file)} is not approved yet. The scenario printed:\n\n${printed}\n` +
-        `Approve it with ./do approve ${relative(process.cwd(), testPath)}`,
+        verifyIntent(approve),
       { cause: error },
     );
   }
