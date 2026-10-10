@@ -41,7 +41,7 @@ Check what a tool, a platform or a library does against its current docs before 
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/dev-flow.md`: the builder's page for writing, agreeing and implementing a story.
-- `docs/lessons.md`: the lessons that keep recurring, how often each has been found, and what stops it.
+- `docs/lessons.md`: the lessons still in play, where each one was found, and what stops it.
 - `.agents/skills/<name>/SKILL.md`: how an agent does a repeated job.
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.

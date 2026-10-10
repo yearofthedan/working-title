@@ -22,7 +22,7 @@ After:
 
 ## Learned
 
-<!-- What would have saved time, or caught a mistake sooner? If it would come up again, link the PR that proposes the smallest fix: a check first, an AGENTS.md or skill line second. -->
+<!-- What would have saved time, or caught a mistake sooner? A lesson is a row in [docs/lessons.md](../docs/lessons.md); one found twice inside the window proposes a lesson pull request carrying the smallest fix: a check first, a rule second. A one-off fact stays here. -->
 
 ## For review
 

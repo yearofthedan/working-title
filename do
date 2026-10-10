@@ -33,9 +33,9 @@ setup() {
   echo "Installed Ponytail. Run /reload-plugins in an open OMP session to load it."
 }
 
-# The window docs/lessons.md counts against: entries older than this many commits
-# behind main come off the list. Commits, not days, so a quiet stretch expires
-# nothing. An entry whose pull request has not merged yet counts as current.
+# The window docs/lessons.md counts entries against, in commits behind main.
+# What it means — commits rather than days, and which entries count as current —
+# is in that file.
 LESSON_WINDOW=${LESSON_WINDOW:-50}
 
 lessons() {
@@ -49,27 +49,44 @@ lessons() {
 
   rows=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | wc -l | tr -d ' ')
   report=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | while IFS= read -r row; do
-    pr=$(printf '%s' "$row" | grep -o '#[0-9][0-9]*' | tail -n 1 | tr -d '#')
-    [ -n "$pr" ] || continue
     lesson=$(printf '%s' "$row" | cut -d'|' -f2 | cut -c1-58)
-    sha=$(gh pr view "$pr" --json mergeCommit -q '.mergeCommit.oid // empty' 2>/dev/null || true)
-    if [ -z "$sha" ]; then
-      continue
-    fi
-    behind=$(git rev-list --count "$sha..$base" 2>/dev/null || echo 0)
-    if [ "$behind" -gt "$LESSON_WINDOW" ]; then
-      printf 'drop: "%s" — newest entry #%s is %s commits behind %s, window %s\n' \
-        "$lesson" "$pr" "$behind" "$base" "$LESSON_WINDOW"
-    fi
-  done || true)
-  stale=$(printf '%s\n' "$report" | grep -c '^drop:' || true)
+    for pr in $(printf '%s' "$row" | cut -d'|' -f3 | grep -o '#[0-9][0-9]*' | tr -d '#'); do
+      if ! answer=$(gh pr view "$pr" --json state,mergeCommit -q '"\(.state) \(.mergeCommit.oid // "")"' 2>/dev/null); then
+        printf 'error: "%s" — gh could not read #%s\n' "$lesson" "$pr" >&2
+        printf 'error\n'
+        continue
+      fi
+      state=${answer%% *}
+      sha=${answer#* }
+      if [ "$state" = "CLOSED" ]; then
+        printf 'drop: "%s" — #%s was closed without merging\n' "$lesson" "$pr"
+        continue
+      fi
+      if [ "$state" != "MERGED" ]; then
+        continue
+      fi
+      if ! behind=$(git rev-list --count "$sha..$base" 2>/dev/null); then
+        printf 'error: "%s" — git could not count commits to #%s\n' "$lesson" "$pr" >&2
+        printf 'error\n'
+        continue
+      fi
+      if [ "$behind" -gt "$LESSON_WINDOW" ]; then
+        printf 'drop: "%s" — #%s is %s commits behind %s, window %s\n' \
+          "$lesson" "$pr" "$behind" "$base" "$LESSON_WINDOW"
+      fi
+    done
+  done) || true
+  dropped=$(printf '%s\n' "$report" | grep -c '^drop:' || true)
+  failed=$(printf '%s\n' "$report" | grep -c '^error$' || true)
 
-  if [ "$stale" -eq 0 ]; then
+  if [ "$dropped" -eq 0 ] && [ "$failed" -eq 0 ]; then
     printf 'nothing past the window of %s commits, across %s rows.\n' "$LESSON_WINDOW" "$rows"
     return 0
   fi
-  printf '%s\n' "$report"
-  printf '%s to drop from %s; a row goes when its list empties.\n' "$stale" "$file"
+  if [ "$dropped" -gt 0 ]; then
+    printf '%s\n' "$report" | grep '^drop:' || true
+    printf '%s to drop from %s; a row goes when its list empties.\n' "$dropped" "$file"
+  fi
   return 1
 }
 

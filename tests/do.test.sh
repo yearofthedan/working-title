@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Tests for ./do, with a stub omp that records what it is asked to do.
+# Tests for ./do, with stubs for omp and gh that record what they are asked to do.
 # Run: sh tests/do.test.sh
 
 set -eu
@@ -88,7 +88,8 @@ PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
 
-# --- lessons: the entry past the window is named, the others are left alone
+# --- lessons: every entry is checked, the window boundary holds, and a lookup
+# that fails is not an entry that is current
 
 lesson_repo="$work/lessons-repo"
 mkdir -p "$lesson_repo/docs"
@@ -103,36 +104,63 @@ mkdir -p "$lesson_repo/docs"
     git commit -qm "$n"
   done
 )
-printf '%s\n%s\n\n' "$(git -C "$lesson_repo" rev-list --max-parents=0 main)" \
-  "$(git -C "$lesson_repo" rev-parse main)" >"$work/gh-shas"
+first=$(git -C "$lesson_repo" rev-list --max-parents=0 main)
+tip=$(git -C "$lesson_repo" rev-parse main)
+printf 'merged:%s\nmerged:%s\nopen:\nfail:\nclosed:\n' "$first" "$tip" >"$work/gh-answers"
 cat >"$work/bin/gh" <<'STUB'
 #!/bin/sh
-if [ "$1 $2" = "pr view" ]; then sed -n "${3}p" "$GH_SHAS"; fi
+if [ "$1 $2" = "pr view" ]; then
+  line=$(sed -n "${3}p" "$GH_ANSWERS")
+  case "$line" in
+  merged:*) printf 'MERGED %s\n' "${line#merged:}" ;;
+  open:*) printf 'OPEN \n' ;;
+  closed:*) printf 'CLOSED \n' ;;
+  esac
+  case "$line" in
+  fail:* | '') exit 1 ;;
+  esac
+fi
 STUB
 chmod +x "$work/bin/gh"
-GH_SHAS="$work/gh-shas"
-export GH_SHAS
-cat >"$lesson_repo/docs/lessons.md" <<'MD'
-# Lessons
+GH_ANSWERS="$work/gh-answers"
+export GH_ANSWERS
 
-| Lesson | Found in | Tripwire |
-| --- | --- | --- |
-| An old one | [#1](u) | none |
-| A fresh one | [#2](u) | none |
-| One still open | [#3](u) | none |
-MD
-
-lessons_run() {
-  status=0
-  (cd "$lesson_repo" && LESSON_WINDOW="$1" "$root/do" lessons docs/lessons.md) >"$work/out" 2>"$work/err" || status=$?
+lessons_file() { # $1 name, then the rows
+  name=$1
+  shift
+  {
+    printf '| Lesson | Found in | Tripwire |\n| --- | --- | --- |\n'
+    for row in "$@"; do printf '%s\n' "$row"; done
+  } >"$lesson_repo/docs/$name"
 }
 
-lessons_run 1
-expect_status 1 "lessons exits non-zero when an entry is past the window"
-if grep -q '^drop:.*#1' "$work/out"; then ok "lessons names the entry past the window"; else no "lessons names the entry past the window"; fi
-if grep -qE '^drop:.*#(2|3)' "$work/out"; then no "lessons leaves the fresh and unmerged rows alone"; else ok "lessons leaves the fresh and unmerged rows alone"; fi
+lessons_run() { # $1 window, $2 file
+  status=0
+  (cd "$lesson_repo" && LESSON_WINDOW="$1" "$root/do" lessons "$2") >"$work/out" 2>"$work/err" || status=$?
+}
 
-lessons_run 50
+lessons_file multi.md '| An old one | [#1](u), [#2](u) | none |'
+lessons_run 1 docs/multi.md
+expect_status 1 "lessons exits non-zero with an entry past the window"
+if grep -q '^drop:.*#1' "$work/out"; then ok "lessons checks every entry of a row"; else no "lessons checks every entry of a row"; fi
+if grep -q '#2' "$work/out"; then no "lessons leaves the entry inside the window"; else ok "lessons leaves the entry inside the window"; fi
+
+lessons_run 2 docs/multi.md
+expect_status 0 "a window equal to an entry's age does not drop it"
+
+lessons_file broken.md '| A missing one | [#4](u) | none |'
+lessons_run 50 docs/broken.md
+expect_status 1 "a lookup that fails exits non-zero"
+if grep -q 'nothing past the window' "$work/out"; then no "a failed lookup does not read as a clean index"; else ok "a failed lookup does not read as a clean index"; fi
+if grep -q '#4' "$work/err"; then ok "a failed lookup names the entry"; else no "a failed lookup names the entry"; fi
+
+lessons_file closed.md '| An abandoned one | [#5](u) | none |'
+lessons_run 50 docs/closed.md
+expect_status 1 "an entry closed without merging is dropped"
+if grep -q 'closed without merging' "$work/out"; then ok "an entry closed without merging says so"; else no "an entry closed without merging says so"; fi
+
+lessons_file clean.md '| A fresh one | [#2](u) | none |' '| An open one | [#3](u) | none |'
+lessons_run 50 docs/clean.md
 expect_status 0 "lessons exits zero when nothing is past the window"
 if grep -q 'nothing past the window' "$work/out"; then ok "lessons says nothing is past the window"; else no "lessons says nothing is past the window"; fi
 
