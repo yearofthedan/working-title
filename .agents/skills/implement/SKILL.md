@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use to pick up, resume or carry on, or fix review findings
+description: Use to implement a ready story or bug across the pull requests its issue plans, handing each one over reviewed. Also use when the builder says pick up, resume or carry on, or asks for a pull request's review findings to be fixed.
 ---
 
 # Implementing a story
@@ -30,7 +30,7 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 
 ## Start a line
 
-- Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`.
+- Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. When the line before this one is still waiting for review, branch from that line's branch instead and point the pull request at it, then retarget it to `main` once that line merges: waiting for review must not stall the next line.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
 - Open the pull request as a draft, titled with the line, with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
@@ -73,5 +73,5 @@ A pull request is done when all of these hold:
 
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
-- The `Learned` section is filled, and any lesson that recurs has a proposed lesson pull request with the smallest fix.
+- The `Learned` section is filled, and a lesson an earlier pull request's `Learned` already named has a proposed lesson pull request carrying the smallest fix.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
