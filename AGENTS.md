@@ -15,6 +15,10 @@ The words to use in code, tests, scenarios and UI:
 
 @docs/ubiquitous-language.md
 
+## Read before writing a story or making a call
+
+- [docs/product.md](docs/product.md): what the product is for, and the design principles that decide calls no story or epic covers.
+
 ## Read before changing code
 
 - [docs/architecture.md](docs/architecture.md): the shape of the system, its parts and constraints, and the quality targets.
@@ -37,6 +41,7 @@ A PR is done when all of these hold:
 
 ## Where docs go
 
+- `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
