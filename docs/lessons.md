@@ -8,14 +8,16 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | Lesson | Found in | Tripwire |
 | --- | --- | --- |
 | Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22), [#27](https://github.com/yearofthedan/working-title/pull/27), [#28](https://github.com/yearofthedan/working-title/pull/28) | [AGENTS.md: What you assert](../AGENTS.md#what-you-assert) |
-| Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24) | none |
+| Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24), [#31](https://github.com/yearofthedan/working-title/pull/31) | proposed |
 | A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
 | A rule written as one sentence can still be two rules | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
 | A worktree does not contain a child session: it shares `.git` — the hooks, the remote, the credentials | [#27](https://github.com/yearofthedan/working-title/pull/27) | none |
 | Resume makes a pull request's body an input, not only a record | [#27](https://github.com/yearofthedan/working-title/pull/27) | none |
 | An aside from the builder is information, not an instruction: nothing they asked for is ended or changed on the strength of one | [#28](https://github.com/yearofthedan/working-title/pull/28), [#29](https://github.com/yearofthedan/working-title/pull/29) | proposed |
-| A thing already written down — a doc, a comment, a decision — is checked for whether it should be that way, rather than followed because it is there | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
+| A thing already written down — a doc, a comment, a decision — is checked for whether it should be that way, rather than followed because it is there | [#28](https://github.com/yearofthedan/working-title/pull/28), [#31](https://github.com/yearofthedan/working-title/pull/31) | proposed |
 | A decision record says why its option won and why each other one lost; its table alone can argue for another option | [#29](https://github.com/yearofthedan/working-title/pull/29) | [writing-adrs: Decision](../.agents/skills/writing-adrs/SKILL.md#the-record) |
+| A test is evidence only once it has been seen to fail without the thing it checks | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
+| A reply says done only for what a tool result has shown | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
 
 ## The columns
 
