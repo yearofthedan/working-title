@@ -50,4 +50,4 @@ The code is TypeScript, checked and tested with [Vite+](https://viteplus.dev/gui
 | Run | What it checks |
 | --- | --- |
 | `./do check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
-| Pre-commit hook, installed by `pnpm install` | `vp check --fix` on the staged files (`vp staged`) |
+| Pre-commit hook, installed by `pnpm install` | `./do precommit`: `vp check --fix` on the staged files (`vp staged`) |

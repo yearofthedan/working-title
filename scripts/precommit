@@ -1,0 +1,6 @@
+#!/bin/sh
+# Check and fix the staged files, as the pre-commit hook does.
+
+set -eu
+
+vp staged "$@"
