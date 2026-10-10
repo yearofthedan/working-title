@@ -33,7 +33,7 @@ How a story is planned, built and handed over is in the skills below, which is w
 
 ## What you assert
 
-Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply. The same wrong belief has cost this repo twice: a story written on "Claude Code reads only `CLAUDE.md`", and a bug drafted naming a command OMP already bundles. [The lessons index](docs/lessons.md) counts it.
+Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs.
 
 ## Where docs go
 

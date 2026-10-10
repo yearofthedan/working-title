@@ -7,7 +7,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 
 | Lesson | Found in | Tripwire |
 | --- | --- | --- |
-| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22), [#27](https://github.com/yearofthedan/working-title/pull/27) | a rule in AGENTS.md: what you assert |
+| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22), [#27](https://github.com/yearofthedan/working-title/pull/27), [#28](https://github.com/yearofthedan/working-title/pull/28) | [AGENTS.md: What you assert](../AGENTS.md#what-you-assert) |
 | Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24) | none |
 | A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
 | A rule written as one sentence can still be two rules | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
