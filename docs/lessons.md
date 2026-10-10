@@ -9,7 +9,7 @@ A row is a lesson that could come back. A one-off fact — a command that exits 
 
 | Lesson | First named | Times found | Tripwire |
 | --- | --- | --- | --- |
-| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22) | 2 | proposed |
+| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22) | 2 | a rule in AGENTS.md: what you assert |
 | Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24) | 1 | none |
 | A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | 1 | none |
 | A rule written as one sentence can still be two rules | [#25](https://github.com/yearofthedan/working-title/pull/25) | 1 | none |

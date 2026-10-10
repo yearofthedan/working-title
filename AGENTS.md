@@ -31,6 +31,10 @@ The words to use in code, tests, scenarios and UI:
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
 
+## What you assert
+
+Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply. The same wrong belief has cost this repo twice: a story written on "Claude Code reads only `CLAUDE.md`", and a bug drafted naming a command OMP already bundles. [The lessons index](docs/lessons.md) counts it.
+
 ## Where docs go
 
 - `docs/product.md`: what the product is for, and its design principles.
