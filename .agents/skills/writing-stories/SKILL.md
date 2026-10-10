@@ -1,6 +1,6 @@
 ---
 name: writing-stories
-description: Write a story for a line of an epic, check it holds up, and show it to the builder before filing it. Use when the builder asks for a story, or when an epic has a line no story delivers.
+description: Draft a story from an epic line and check it before filing
 ---
 
 # Writing stories
