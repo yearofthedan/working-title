@@ -300,5 +300,24 @@ expect_status 0 "a staged file with no credential passes"
 run_secrets secrets
 expect_status 0 "the secrets task passes with no credential"
 
+# The commit holds the staged copy, which the working tree may no longer match.
+printf 'GH_TOKEN=%s\n' "$token" >"$secrets_repo/partial.txt"
+git -C "$secrets_repo" add partial.txt
+printf 'nothing here\n' >"$secrets_repo/partial.txt"
+run_secrets precommit
+expect_status 1 "a credential left in the index is refused"
+expect_out 'partial.txt' "the partly staged file is named"
+
+# A rename carries the file's content to a new path, which the diff reports as R.
+for i in $(seq 1 20); do printf 'line %s of a file long enough to stay a rename\n' "$i" >>"$secrets_repo/plain.txt"; done
+git -C "$secrets_repo" add -A
+git -C "$secrets_repo" commit -qm base
+git -C "$secrets_repo" mv plain.txt moved.txt
+printf 'GH_TOKEN=%s\n' "$token" >>"$secrets_repo/moved.txt"
+git -C "$secrets_repo" add -A
+run_secrets precommit
+expect_status 1 "a rename that carries a credential is refused"
+expect_out 'moved.txt' "the renamed file is named"
+
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
