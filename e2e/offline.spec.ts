@@ -1,10 +1,10 @@
 import { expect, test, type BrowserContext, type Page, type Response } from '@playwright/test';
 
-// Given the app was loaded once while online, the writer goes offline.
 async function loadOnceThenGoOffline(page: Page, context: BrowserContext) {
   await page.goto('/');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await context.setOffline(true);
+  // Without this, a setOffline that stopped cutting the network would let both tests pass online.
   const reachable = await page.evaluate(() =>
     fetch('/not-precached').then(
       () => true,
