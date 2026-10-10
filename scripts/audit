@@ -1,8 +1,49 @@
 #!/bin/sh
-# Refuse the lockfile when a dependency in it has a known security advisory.
+# Refuse a dependency this change brings in that has a known advisory, and warn
+# about the ones the base already carried.
 
 set -eu
 
-. "$(dirname "$0")/_vp"
+base=${AUDIT_BASE:-}
+if [ -z "$base" ]; then
+  if [ -n "${GITHUB_BASE_REF:-}" ]; then
+    base="origin/$GITHUB_BASE_REF"
+  else
+    base='origin/main'
+  fi
+fi
 
-exec pnpm audit
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+is_json() {
+  node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
+}
+
+# A gate that cannot answer must not pass. Without a network a builder gets a
+# warning instead, so a check that needs no advisory data still runs.
+no_answer() {
+  if [ "${CI:-}" = 'true' ]; then
+    echo "error: $1" >&2
+    exit 1
+  fi
+  echo "warning: $1" >&2
+  exit 0
+}
+
+pnpm audit --json >"$work/head.json" || true
+is_json "$work/head.json" || no_answer 'the advisory service could not be reached, so nothing was audited'
+
+mkdir -p "$work/base"
+for file in package.json pnpm-workspace.yaml pnpm-lock.yaml; do
+  git show "$base:$file" >"$work/base/$file" 2>/dev/null ||
+    {
+      echo "error: $file is not readable at $base. Fetch it, then try again." >&2
+      exit 1
+    }
+done
+
+(cd "$work/base" && pnpm audit --json >"$work/base.json") || true
+is_json "$work/base.json" || no_answer "the advisory service could not be reached to audit $base"
+
+node "$(dirname "$0")/_audit.mjs" "$work/base.json" "$work/head.json" "$base"
