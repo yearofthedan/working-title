@@ -9,7 +9,7 @@ working-title is a local-first planning and drafting tool for novelists, built o
 
 How to write anything, from replies to commit messages, docs and PR bodies:
 
-@docs/communication-standards.md
+@docs/standards/communication-standards.md
 
 The words to use in code, tests, scenarios and UI:
 
@@ -49,4 +49,4 @@ Check what a tool, a platform or a library does against its current docs before 
 
 File names are lowercase kebab-case. The exceptions are names a tool looks for: `AGENTS.md`, `README.md` and `SKILL.md`.
 
-Every file in `docs/` opens with its audience and purpose. The exception is `docs/communication-standards.md`: a verbatim copy of [agent-standards/communication-standards.md](https://github.com/yearofthedan/snippets/blob/main/agent-standards/communication-standards.md), updated only by copying a newer version.
+Every file in `docs/` opens with its audience and purpose. The exception is [docs/standards/communication-standards.md](docs/standards/communication-standards.md): a verbatim copy of [agent-standards/communication-standards.md](https://github.com/yearofthedan/snippets/blob/main/agent-standards/communication-standards.md), updated only by copying a newer version.

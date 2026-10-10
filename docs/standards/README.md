@@ -10,9 +10,9 @@ What belongs elsewhere:
 | It is | It goes in |
 | --- | --- |
 | How a session behaves — check a claim before asserting it, never edit an agreed issue | `AGENTS.md` and the skills, where it binds without being looked up |
-| How to write anything at all — directness, placement, living docs and dated records | [communication-standards.md](../communication-standards.md), the verbatim copy |
 | What a machine enforces — a ruleset, a check | a pointer to it, and the check's own message |
 
 ## Pages
 
+- [communication-standards.md](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, and the body naming who wrote it.
