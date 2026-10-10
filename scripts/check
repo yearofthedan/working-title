@@ -1,5 +1,6 @@
 #!/bin/sh
-# Run every local check: secrets, format, lint and types, the tests, then the browser specs.
+# Run every local check: secrets, format, lint and types, the dependency audit,
+# the tests, then the browser specs.
 
 set -eu
 
@@ -7,5 +8,6 @@ set -eu
 
 "$(dirname "$0")/../do" secrets
 vp check
+"$(dirname "$0")/../do" audit
 "$(dirname "$0")/../do" test
 "$(dirname "$0")/../do" e2e
