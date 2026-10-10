@@ -45,7 +45,7 @@ Design size is about 300 pieces and 2,000 links.
 
 The code is TypeScript, checked and tested with [Vite+](https://viteplus.dev/guide/) ([ADR 6](adr/0006-vite-plus-toolchain.md)): one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint, Oxfmt and tsgolint, which type-checks with TypeScript 7, behind one config, `vite.config.ts`. pnpm manages packages, on Node.js 24.
 
-The `vite` and `vitest` overrides in `pnpm-workspace.yaml` pin the copies Vite+ bundles, so every dependency uses them. They are fixed versions: an upgrade of `vite-plus` updates them by hand to match ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)).
+`pnpm-workspace.yaml` is laid out as `vp migrate` writes it: its `catalog` pins `vite-plus` and points `vite` at the Vite+ core, so every dependency that imports `vite` gets the bundled copy, and an upgrade changes both versions there together. Its `peerDependencyRules` accept any `vite` version, because the core's own version number falls outside the ranges other packages ask for; a dependency that needs a newer Vite than Vite+ bundles is not warned about.
 
 | Run | What it checks |
 | --- | --- |

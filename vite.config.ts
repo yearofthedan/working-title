@@ -2,7 +2,6 @@ import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   fmt: {
-    // The docs are written by hand to their own standards, not reflowed.
     ignorePatterns: ['**/*.md'],
     singleQuote: true,
   },

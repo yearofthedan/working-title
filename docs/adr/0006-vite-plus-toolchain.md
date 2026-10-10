@@ -26,4 +26,4 @@ Vite+ formats, lints, type-checks and tests the code, and installs the git hooks
 
 ## Consequences
 
-`./do check` is the one local check. Upgrades move the whole toolchain at once, and the `vite` and `vitest` overrides move with them by hand. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config and the test imports, since its tools can each run alone.
+`./do check` is the one local check. Upgrades move the whole toolchain at once, from one `catalog` entry. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config and the test imports, since its tools can each run alone.
