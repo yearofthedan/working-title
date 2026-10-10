@@ -51,7 +51,7 @@ A pull request whose work is done is handed over, not left in draft:
 1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. The commands that do this — `/review`, ponytail's `/ponytail-review` — are typed by the person at the keyboard and expanded from prompt input, which an agent's output never re-enters, so run the review yourself, as the `reviewer` agent over the diff, rather than writing one.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
-   - Read [the lessons index](../../../docs/lessons.md) and update it: raise the **Times found** of a lesson already there, add a row at 1 for one that is not, and name the tripwire when something now stops it. A lesson that reaches 2 with `Tripwire: none` is the queue for a lesson pull request — the smallest fix, a check first, then a rule in AGENTS.md or a skill. Add it to the plan, before the closing line, once the builder confirms.
+   - Read [the lessons index](../../../docs/lessons.md) and update it: raise **Times found** for a lesson that is already a row, add a row at 1 for one that is not, and leave **Tripwire** alone unless a lesson pull request has been proposed or has landed. A lesson found a second time is what proposes a lesson pull request — the smallest fix, a check wherever a check can be written and a rule only where none can — and its tripwire is written with it: `proposed` while it waits, then the check or the rule once it lands. Add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
 5. **Mark the pull request ready for review.**
 
@@ -73,5 +73,5 @@ A pull request is done when all of these hold:
 
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
-- The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: every lesson it names is a row, at 1 or raised, and a lesson at 2 with no tripwire has a proposed lesson pull request.
+- The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: a lesson it names is a row at 1 or a raised count, and a lesson found a second time has a proposed lesson pull request.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
