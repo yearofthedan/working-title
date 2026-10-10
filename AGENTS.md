@@ -15,6 +15,10 @@ The words to use in code, tests, scenarios and UI:
 
 @docs/ubiquitous-language.md
 
+## Read before writing a story or making a call
+
+- [docs/product.md](docs/product.md): what the product is for, and the design principles that decide calls no story or epic covers.
+
 ## Read before changing code
 
 - [docs/architecture.md](docs/architecture.md): the shape of the system, its parts and constraints, and the quality targets.
@@ -29,6 +33,7 @@ How a story is planned, built and handed over is in the skills below, which is w
 
 ## Where docs go
 
+- `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/dev-flow.md`: the builder's page for writing and agreeing a story.
