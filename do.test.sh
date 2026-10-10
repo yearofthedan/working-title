@@ -329,5 +329,14 @@ expect_status 1 "a commit holding two credentials is refused"
 expect_out 'one.txt' "the first credential is named"
 expect_out 'two.txt' "the second credential is named"
 
+# A commit with nothing left to scan, such as one that only deletes files.
+git -C "$secrets_repo" reset -q
+printf 'gone\n' >"$secrets_repo/gone.txt"
+git -C "$secrets_repo" add gone.txt
+git -C "$secrets_repo" commit -qm gone
+git -C "$secrets_repo" rm -q gone.txt
+run_secrets precommit
+expect_status 0 "a commit that only deletes files is not refused"
+
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
