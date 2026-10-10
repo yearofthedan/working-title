@@ -5,4 +5,10 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
+# The scan reads the staged content, which `vp staged` may rewrite, so it runs first.
+if [ -n "$(git diff --cached --name-only --diff-filter=ACM)" ]; then
+  git diff --cached --name-only --diff-filter=ACM -z |
+    xargs -0 -- "$(dirname "$0")/secrets" --no-glob
+fi
+
 vp staged "$@"

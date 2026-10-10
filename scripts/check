@@ -1,10 +1,11 @@
 #!/bin/sh
-# Run every local check: format, lint and types, the tests, then the browser specs.
+# Run every local check: secrets, format, lint and types, the tests, then the browser specs.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
 
+"$(dirname "$0")/secrets"
 vp check
 "$(dirname "$0")/../do" test
 "$(dirname "$0")/../do" e2e

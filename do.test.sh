@@ -83,6 +83,14 @@ STUB
 chmod +x "$copy/node_modules/.bin/vp"
 printf '#!/bin/sh\necho "playwright $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/playwright"
 chmod +x "$copy/node_modules/.bin/playwright"
+printf '#!/bin/sh\necho "secretlint $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/secretlint"
+chmod +x "$copy/node_modules/.bin/secretlint"
+(
+  cd "$copy" || exit 1
+  git init -q -b main .
+  git config user.email t@example.com
+  git config user.name t
+)
 VP_LOG="$work/vp-calls"
 export VP_LOG
 run_copy() {
@@ -91,6 +99,7 @@ run_copy() {
   "$copy/do" "$@" >"$work/out" 2>"$work/err" || status=$?
 }
 expect_vp() { if grep -qx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
+expect_vp_literal() { if grep -Fqx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
 
 printf '#!/bin/sh\necho ran\n' >"$copy/outside"
 chmod +x "$copy/outside"
@@ -108,6 +117,7 @@ if grep -q '_probe' "$work/out"; then no "a private script is not listed"; else 
 run_copy check
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
+expect_vp_literal 'secretlint **/*' "check scans the project for secrets"
 expect_vp 'test' "check runs the tests"
 expect_vp 'playwright test' "check runs the browser specs"
 
@@ -245,6 +255,50 @@ lessons_run abc docs/clean.md
 expect_status 1 "a window that is not a number exits non-zero"
 if grep -q 'must be a number' "$work/err"; then ok "a window that is not a number says what it wants"; else no "a window that is not a number says what it wants"; fi
 if grep -q 'nothing past the window' "$work/out"; then no "a broken window does not read as a clean index"; else ok "a broken window does not read as a clean index"; fi
+
+# The secrets task and the hook, with the real scanner: a credential is named
+# and refused, and a file without one passes.
+secrets_repo="$work/secrets-repo"
+mkdir -p "$secrets_repo/node_modules/.bin"
+cp "$root/do" "$secrets_repo/do"
+cp -R "$root/scripts" "$secrets_repo/scripts"
+cp "$root/.secretlintrc.json" "$secrets_repo/"
+ln -s "$root/node_modules/.bin/secretlint" "$secrets_repo/node_modules/.bin/secretlint"
+printf '#!/bin/sh\nexit 0\n' >"$secrets_repo/node_modules/.bin/vp"
+chmod +x "$secrets_repo/node_modules/.bin/vp"
+(
+  cd "$secrets_repo" || exit 1
+  git init -q -b main .
+  git config user.email t@example.com
+  git config user.name t
+)
+run_secrets() {
+  status=0
+  (cd "$secrets_repo" && "$secrets_repo/do" "$@") >"$work/out" 2>"$work/err" || status=$?
+}
+
+# Built from parts, so this file holds no credential for the project scan to find.
+token="ghp_$(printf '%s' 16C7e42F292c6912E708e4CdE8D9e5F0A1b2)"
+printf 'GH_TOKEN=%s\n' "$token" >"$secrets_repo/leaked.txt"
+
+run_secrets secrets
+expect_status 1 "the secrets task refuses a credential"
+expect_out 'leaked.txt' "the secrets task names the file"
+expect_out 'GITHUB_TOKEN' "the secrets task names the rule"
+
+git -C "$secrets_repo" add leaked.txt
+run_secrets precommit
+expect_status 1 "a staged credential is refused"
+expect_out 'leaked.txt' "the refused commit names the file"
+
+git -C "$secrets_repo" rm -q --cached leaked.txt
+rm "$secrets_repo/leaked.txt"
+printf 'nothing to hide\n' >"$secrets_repo/plain.txt"
+git -C "$secrets_repo" add plain.txt
+run_secrets precommit
+expect_status 0 "a staged file with no credential passes"
+run_secrets secrets
+expect_status 0 "the secrets task passes with no credential"
 
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
