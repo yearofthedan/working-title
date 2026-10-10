@@ -5,7 +5,7 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
-"$(dirname "$0")/secrets"
+"$(dirname "$0")/../do" secrets
 vp check
 "$(dirname "$0")/../do" test
 "$(dirname "$0")/../do" e2e

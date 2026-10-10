@@ -9,7 +9,7 @@ set -eu
 # xargs reports a failing command as 123 on Linux; the hook refuses with 1 anywhere.
 if [ -n "$(git diff --cached --name-only --diff-filter=ACM)" ]; then
   git diff --cached --name-only --diff-filter=ACM -z |
-    xargs -0 -- "$(dirname "$0")/secrets" --no-glob ||
+    xargs -0 -- "$(dirname "$0")/../do" secrets --no-glob ||
     exit 1
 fi
 
