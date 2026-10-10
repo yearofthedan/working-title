@@ -1,4 +1,6 @@
-Closes #
+Part of #
+
+<!-- `Part of #<issue number>` for a pull request that is not the last line of the story's plan; on the one that finishes the last line, write `Closes #<issue number>` instead. -->
 
 ## Before / After
 
