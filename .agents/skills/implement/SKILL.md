@@ -81,4 +81,5 @@ A pull request is done when all of these hold:
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
+- A check the change adds has been seen to fail on the case it exists for — the test, the hook, the rule — and that run is linked from its row in the acceptance table: a check that has only ever passed is not evidence.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
