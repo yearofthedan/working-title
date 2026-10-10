@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# Runs a task from scripts/: ./do <task> [args]. Run ./do with no task to see
-# them. Each task is one executable file, summarised by its first comment line.
-# A name starting with _ is private to the other scripts.
-
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

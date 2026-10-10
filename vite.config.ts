@@ -1,18 +1,27 @@
 import { VitePWA } from 'vite-plugin-pwa';
 import { configDefaults, defineConfig } from 'vite-plus';
 
+const themeColor = '#fbfaf7';
+
 export default defineConfig({
   plugins: [
+    {
+      name: 'theme-color',
+      transformIndexHtml: () => [
+        { tag: 'meta', attrs: { name: 'theme-color', content: themeColor }, injectTo: 'head' },
+      ],
+    },
     VitePWA({
+      // shortcut: a new build takes over open tabs without asking, which can lose unsaved input
+      // (https://vite-pwa-org.netlify.app/guide/auto-update); prompt instead once the writer can type.
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'working-title',
         short_name: 'working-title',
         description: 'Plan and draft a novel.',
-        // Matches the theme-color meta in index.html.
-        theme_color: '#fbfaf7',
-        background_color: '#fbfaf7',
+        theme_color: themeColor,
+        background_color: themeColor,
         display: 'standalone',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -20,8 +29,6 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The default precaches js, css and html only, and the fonts must open offline too
-        // (https://vite-pwa-org.netlify.app/guide/service-worker-precache).
         globPatterns: ['**/*.{js,css,html,woff2}'],
       },
     }),

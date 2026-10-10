@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do and the tasks in scripts/, with stubs for omp and gh that record
-# what they are asked to do. Run: sh do.test.sh, or ./do test, which runs it.
-
 set -eu
 
 root=$(cd "$(dirname "$0")" && pwd)
@@ -159,9 +156,6 @@ PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
 expect_err 'run ./do setup again' "setup says how to retry"
-
-# --- lessons: every entry is checked, the window boundary holds, and a lookup
-# that fails is not an entry that is current
 
 lesson_repo="$work/lessons-repo"
 mkdir -p "$lesson_repo/docs"
