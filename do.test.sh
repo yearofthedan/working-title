@@ -86,6 +86,8 @@ printf '#!/bin/sh\necho "playwright $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bi
 chmod +x "$copy/node_modules/.bin/playwright"
 printf '#!/bin/sh\necho "secretlint $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/secretlint"
 chmod +x "$copy/node_modules/.bin/secretlint"
+printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/pnpm"
+chmod +x "$copy/node_modules/.bin/pnpm"
 (
   cd "$copy" || exit 1
   git init -q -b main .
@@ -119,6 +121,7 @@ run_copy check
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
 expect_vp_literal 'secretlint **/*' "check scans the project for secrets"
+expect_vp 'pnpm audit --json' "check audits the lockfile"
 expect_vp 'test' "check runs the tests"
 expect_vp 'playwright test' "check runs the browser specs"
 

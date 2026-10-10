@@ -1,0 +1,8 @@
+#!/bin/sh
+# Refuse the lockfile when a dependency in it has a known security advisory.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+exec pnpm audit
