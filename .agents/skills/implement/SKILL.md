@@ -22,7 +22,7 @@ An issue without the label is not built: say so, say that the builder agrees it 
 A ready issue with no plan comment gets a plan before any code.
 
 1. Read the issue, its epic, `docs/architecture.md` and the decision records it touches.
-2. Work out the pull requests it takes. Each line is a thin slice that stands on its own, and each ends in something the builder can check. **Enabling pull requests come before the story's own pull request**: the ones that set up what the rest needs land first.
+2. Work out the pull requests it takes. Each line is a thin slice that stands on its own, and each ends in something the builder can check. **Enabling pull requests come before the story's own pull request**: the ones that set up what the rest needs land first. Cut the lines so that as few as possible depend on an earlier one — a line that needs only `main` can start while the line before it is still in review.
 3. Propose the lines to the builder, numbered, one sentence each.
 4. Do not post anything until they confirm. Then post the lines on the issue as a checklist comment, and start the first unstarted line.
 
@@ -30,7 +30,7 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 
 ## Start a line
 
-- Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. When the line before this one is still waiting for review, branch from that line's branch instead and point the pull request at it, then retarget it to `main` once that line merges: waiting for review must not stall the next line.
+- Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
 - Open the pull request as a draft, titled with the line, with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
@@ -51,7 +51,7 @@ A pull request whose work is done is handed over, not left in draft:
 1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. The commands that do this — `/review`, ponytail's `/ponytail-review` — are typed by the person at the keyboard and expanded from prompt input, which an agent's output never re-enters, so run the review yourself, as the `reviewer` agent over the diff, rather than writing one.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
-   - When a lesson it names was already named in an earlier pull request's `Learned`, propose a lesson pull request carrying the smallest fix — a check first, then a rule in AGENTS.md or a skill. Add it to the plan, before the closing line, once the builder confirms.
+   - Look for the lesson before claiming it is new: read the `Learned` sections of recently merged pull requests across every story, not only this one's — `gh pr list --state merged --limit 20 --json number,body`. A lesson this pull request's `Learned` names that an earlier pull request's already named becomes a proposed lesson pull request carrying the smallest fix — a check first, then a rule in AGENTS.md or a skill. Add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
 5. **Mark the pull request ready for review.**
 
