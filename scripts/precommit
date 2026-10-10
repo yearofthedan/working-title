@@ -6,9 +6,11 @@ set -eu
 . "$(dirname "$0")/_vp"
 
 # The scan reads the staged content, which `vp staged` may rewrite, so it runs first.
+# xargs reports a failing command as 123 on Linux; the hook refuses with 1 anywhere.
 if [ -n "$(git diff --cached --name-only --diff-filter=ACM)" ]; then
   git diff --cached --name-only --diff-filter=ACM -z |
-    xargs -0 -- "$(dirname "$0")/secrets" --no-glob
+    xargs -0 -- "$(dirname "$0")/secrets" --no-glob ||
+    exit 1
 fi
 
 vp staged "$@"
