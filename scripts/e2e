@@ -1,0 +1,10 @@
+#!/bin/sh
+# Run the browser specs against a build of the app.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+# Downloads the browser on first run; a no-op once it is installed.
+playwright install chromium
+playwright test "$@"

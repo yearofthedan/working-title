@@ -2,3 +2,5 @@ node_modules/
 dist/
 .vite-hooks/_/
 .vitest/
+test-results/
+playwright-report/

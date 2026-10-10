@@ -1,0 +1,16 @@
+/* The design tokens. Every colour and type setting comes from here; the values
+   and both typefaces are placeholders until they are chosen. */
+@import '@fontsource-variable/literata';
+@import '@fontsource-variable/inter';
+
+:root {
+  --color-background: #fbfaf7;
+  --color-text: #1f1d1a;
+
+  --font-prose: 'Literata Variable', serif;
+  --font-interface: 'Inter Variable', sans-serif;
+
+  --text-prose: 1.125rem;
+  --text-interface: 0.875rem;
+  --leading-prose: 1.6;
+}

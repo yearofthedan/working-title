@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Tests for ./do and the tasks in scripts/, with stubs for omp and gh that record
-# what they are asked to do. Run: sh tests/do.test.sh, or ./do test, which runs it.
+# what they are asked to do. Run: sh do.test.sh, or ./do test, which runs it.
 
 set -eu
 
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
@@ -84,6 +84,8 @@ cat >"$copy/node_modules/.bin/vp" <<'STUB'
 echo "$*" >> "$VP_LOG"
 STUB
 chmod +x "$copy/node_modules/.bin/vp"
+printf '#!/bin/sh\necho "playwright $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/playwright"
+chmod +x "$copy/node_modules/.bin/playwright"
 VP_LOG="$work/vp-calls"
 export VP_LOG
 run_copy() {
@@ -110,6 +112,7 @@ run_copy check
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
 expect_vp 'test' "check runs the tests"
+expect_vp 'playwright test' "check runs the browser specs"
 
 run_copy precommit
 expect_vp 'staged' "precommit runs vp staged"

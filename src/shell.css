@@ -1,0 +1,15 @@
+@import './tokens.css';
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-interface);
+  font-size: var(--text-interface);
+}
+
+main {
+  font-family: var(--font-prose);
+  font-size: var(--text-prose);
+  line-height: var(--leading-prose);
+}
