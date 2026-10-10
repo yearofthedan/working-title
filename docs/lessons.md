@@ -21,3 +21,5 @@ A row is a lesson that could come back. A one-off fact — a command that exits 
 - **First named** links the pull request whose `Learned` section named the lesson first. A later pull request meeting it again does not move it.
 - **Times found** counts the pull requests that have named it, the first one included. It is evidence, not a control: the count is what said #22's lesson had come back, and a count that keeps climbing with a tripwire in place is its own lesson — the tripwire is not working.
 - **Tripwire** is what stops the lesson. It is `none` until the lesson is found a second time, because one meeting is not evidence that it recurs; `proposed` once a lesson pull request is proposed; and then the tripwire itself once that lands — a check wherever a check can be written, and a rule only where none can.
+
+A row is never removed. A lesson with a tripwire is the file working, not a finished task: the count is what shows whether the tripwire holds, and a row deleted on resolution would let the same lesson come back looking new — at 1, needing a second meeting before anything could be proposed.
