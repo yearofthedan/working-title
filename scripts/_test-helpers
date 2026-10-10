@@ -1,0 +1,69 @@
+# Sourced by do.test.sh and scripts/*.test.sh, after each sets $root to the repo
+# root. Gives a scratch folder, the assertions, and stubs that record their calls.
+
+set -eu
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$work/bin"
+PATH="$work/bin:$PATH"
+export PATH
+
+failures=0
+status=0
+ok() { printf 'ok   %s\n' "$1"; }
+no() {
+  printf 'FAIL %s\n' "$1"
+  failures=$((failures + 1))
+}
+finish() {
+  printf '\n%d failed\n' "$failures"
+  [ "$failures" -eq 0 ]
+}
+
+run_do() {
+  status=0
+  "$root/do" "$@" >"$work/out" 2>"$work/err" || status=$?
+}
+
+expect_out() { if grep -q "$1" "$work/out"; then ok "$2"; else no "$2"; fi; }
+expect_err() { if grep -q "$1" "$work/err"; then ok "$2"; else no "$2"; fi; }
+expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $status)"; fi; }
+
+# A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint
+# and pnpm that record their calls in $VP_LOG, so nothing is written into the
+# repo and no real check runs. The copy is a git repo whose origin/main holds the
+# lockfile, as the audit needs.
+make_copy() {
+  copy="$work/copy"
+  mkdir -p "$copy/node_modules/.bin"
+  cp "$root/do" "$copy/do"
+  cp -R "$root/scripts" "$copy/scripts"
+  cp "$root/.secretlintrc.json" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
+  for tool in vp playwright secretlint; do
+    prefix="$tool "
+    [ "$tool" = vp ] && prefix=''
+    printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
+    chmod +x "$copy/node_modules/.bin/$tool"
+  done
+  printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\ncase "$*" in "audit --json") if [ -z "${PNPM_AUDIT_SILENT:-}" ]; then if grep -q vulnerable-fixture pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %%s "{\\"advisories\\":{}}"; fi; fi;; esac\n' >"$copy/node_modules/.bin/pnpm"
+  chmod +x "$copy/node_modules/.bin/pnpm"
+  (
+    cd "$copy" || exit 1
+    git init -q -b main .
+    git config user.email t@example.com
+    git config user.name t
+    git add package.json pnpm-workspace.yaml pnpm-lock.yaml
+    git commit -qm base
+    git update-ref refs/remotes/origin/main HEAD
+  )
+  VP_LOG="$work/vp-calls"
+  export VP_LOG
+}
+run_copy() {
+  status=0
+  : >"$VP_LOG"
+  "$copy/do" "$@" >"$work/out" 2>"$work/err" || status=$?
+}
+expect_vp() { if grep -qx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
+expect_vp_literal() { if grep -Fqx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }

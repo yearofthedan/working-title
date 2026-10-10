@@ -15,7 +15,7 @@ tasks() {
   echo "Tasks:"
   for file in "$scripts"/*; do
     name=$(basename "$file")
-    case "$name" in _*) continue ;; esac
+    case "$name" in _* | *.test.sh) continue ;; esac
     [ -f "$file" ] && [ -x "$file" ] || continue
     summary=$(sed -n '2,/^[^#]/s/^# *//p' "$file" | head -n 1)
     printf '  %-10s %s\n' "$name" "$summary"
@@ -28,7 +28,7 @@ case "$task" in
   tasks
   exit 0
   ;;
-_* | */*)
+_* | */* | *.test.sh)
   printf '%s is not a task.\n\n' "$task" >&2
   tasks >&2
   exit 2
