@@ -40,3 +40,12 @@ Design size is about 300 pieces and 2,000 links.
 | Data | Filtering and querying the whole project takes under 100 ms |
 | Start-up | Usable within 2 s, and fully offline after the first load |
 | Fidelity | Prose survives the round trip to Markdown and back unchanged |
+
+## Toolchain
+
+The code is TypeScript. [Vite+](https://viteplus.dev/guide/) builds, checks and tests it: one dependency, `vite-plus`, bundles Vite, Vitest, Oxlint and Oxfmt behind one config, `vite.config.ts`. pnpm manages packages, on Node.js 24. The `vite` and `vitest` overrides in `pnpm-workspace.yaml` keep every dependency on the copies Vite+ bundles, so they move with `vite-plus` on every upgrade ([manual installation](https://viteplus.dev/guide/local-cli#manual-installation)).
+
+| Run | What it checks |
+| --- | --- |
+| `pnpm check` | Format, lint and types (`vp check`), then the tests (`vp test`) |
+| Pre-commit hook, installed by `pnpm install` | `vp check --fix` on the staged files (`vp staged`) |

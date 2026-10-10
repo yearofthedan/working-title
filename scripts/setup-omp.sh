@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Installs Ponytail, the skill the build work runs under, into your OMP.
+# Run: pnpm setup:omp
+
+set -eu
+
+# Ponytail is installed into the builder's OMP, not into the repo, so a fresh
+# clone has to install it. Both omp commands fail when they are already done,
+# so each one is checked first.
+setup() {
+  if ! command -v omp >/dev/null 2>&1; then
+    echo "omp is not on your PATH. Install OMP, then run pnpm setup:omp again." >&2
+    return 1
+  fi
+  if omp plugin list --json 2>/dev/null | grep -qF 'ponytail@ponytail'; then
+    echo "Ponytail is already installed."
+    return 0
+  fi
+  if ! omp plugin marketplace list 2>/dev/null | grep -qF 'DietrichGebert/ponytail'; then
+    omp plugin marketplace add DietrichGebert/ponytail
+  fi
+  omp plugin install ponytail@ponytail
+  echo "Installed Ponytail. Run /reload-plugins in an open OMP session to load it."
+}
+
+setup

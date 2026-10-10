@@ -1,0 +1,21 @@
+{
+  "name": "working-title",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "vp check && vp test",
+    "test": "vp test",
+    "lessons": "sh scripts/lessons.sh",
+    "setup:omp": "sh scripts/setup-omp.sh",
+    "prepare": "vp config --no-agent"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "typescript": "7.0.2",
+    "vite-plus": "1.1.0"
+  },
+  "engines": {
+    "node": ">=24.11"
+  },
+  "packageManager": "pnpm@12.10.1"
+}

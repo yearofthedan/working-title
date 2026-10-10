@@ -1,0 +1,6 @@
+# Dependencies that import vite or vitest themselves resolve to the copies
+# Vite+ bundles: https://viteplus.dev/guide/local-cli#manual-installation
+# Keep both in step with the vite-plus version on every upgrade.
+overrides:
+  vite@*: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vitest@*: 5.0.3
