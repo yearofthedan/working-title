@@ -36,7 +36,7 @@ How a story is planned, built and handed over is in the skills below, which is w
 - `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
-- `docs/dev-flow.md`: the builder's page for writing and agreeing a story.
+- `docs/dev-flow.md`: the builder's page for writing, agreeing and implementing a story.
 - `.agents/skills/<name>/SKILL.md`: how an agent does a repeated job.
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
