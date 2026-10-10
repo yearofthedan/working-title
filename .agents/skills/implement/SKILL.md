@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement an agreed story or bug through pull requests planned on its issue, and hand each one over reviewed. Use when the builder says pick up #N, resume #N or carry on, asks you to fix the review findings on a pull request, or asks for a story or bug to be built.
+description: Implement ready stories and bugs: pick up, resume, carry on, fix findings
 ---
 
 # Implementing a story
