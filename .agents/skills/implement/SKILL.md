@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement ready stories and bugs: pick up, resume, carry on, fix findings
+description: Use to pick up, resume or carry on, or fix review findings
 ---
 
 # Implementing a story
