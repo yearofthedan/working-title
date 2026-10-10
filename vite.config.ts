@@ -20,7 +20,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The default precaches js, css and html only; the fonts must open offline too.
+        // The default precaches js, css and html only, and the fonts must open offline too
+        // (https://vite-pwa-org.netlify.app/guide/service-worker-precache).
         globPatterns: ['**/*.{js,css,html,woff2}'],
       },
     }),

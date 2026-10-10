@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
-// The specs run against the built app, since the service worker exists only in a build.
+// The specs run against a build, because vite.config.ts leaves the service worker off in dev
+// (https://vite-pwa-org.netlify.app/guide/development).
 export default defineConfig({
   testDir: 'e2e',
   use: { baseURL: 'http://localhost:4173' },

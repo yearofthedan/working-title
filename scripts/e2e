@@ -5,6 +5,6 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
-# Downloads the browser on first run; a no-op once it is installed.
+# Installs Chromium here, so a fresh clone runs the specs with no setup step.
 playwright install chromium
 playwright test "$@"
