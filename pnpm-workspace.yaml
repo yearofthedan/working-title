@@ -18,3 +18,20 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: '*'
+# A release younger than three days is not resolved, the same span Renovate waits
+# before it offers one (renovate.json), so a version withdrawn as compromised does
+# not reach a machine
+# (https://pnpm.io/settings/dependency-resolution#minimumreleaseage). Setting a cutoff
+# at all also makes it strict (minimumReleaseAgeStrict), so a dependency with no
+# version in range old enough fails the install instead of falling back to a young one.
+minimumReleaseAge: 4320
+# A release whose publisher trust is weaker than an earlier release's is refused, which
+# is what a hijacked account publishing under a package's name looks like
+# (https://pnpm.io/settings/dependency-resolution#trustpolicy).
+trustPolicy: no-downgrade
+# The two releases the trust check refuses, and why each one stays: workbox-build@7.4.1
+# accepts no other release of that plugin, and semver's 6.x line carries no provenance
+# attestation while 7.5.x releases published before it do.
+trustPolicyExclude:
+  - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
+  - semver@6.3.1
