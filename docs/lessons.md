@@ -1,23 +1,27 @@
 # Lessons
 
 **Audience:** an agent handing a pull request over, and the builder deciding what to fix next.
-**Purpose:** the lessons that keep recurring, how often each has been found, and what stops it.
+**Purpose:** the lessons still in play, where each one was found, and what stops it.
 
-A lesson is something that would have saved time, or caught a mistake sooner. Every pull request's `Learned` section names the lessons it met; this file indexes them across every story, so a repeat can be told from a new one without reading the `Learned` section of every merged pull request. The hand-over step in [the implement skill](../.agents/skills/implement/SKILL.md) says how a row is kept, and when a lesson pull request is proposed.
+A lesson is something that would have saved time, or caught a mistake sooner. Every pull request's `Learned` section names the lessons it met; this file indexes them, so a repeat can be told from a new one without reading the `Learned` section of every merged pull request.
 
-A row is a lesson that could come back. A one-off fact — a command that exits non-zero, an API's shape — stays in the `Learned` section that named it.
-
-| Lesson | First named | Times found | Tripwire |
-| --- | --- | --- | --- |
-| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22) | 2 | proposed |
-| Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24) | 1 | none |
-| A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | 1 | none |
-| A rule written as one sentence can still be two rules | [#25](https://github.com/yearofthedan/working-title/pull/25) | 1 | none |
-| A worktree does not contain a child session: it shares `.git` — the hooks, the remote, the credentials | [#27](https://github.com/yearofthedan/working-title/pull/27) | 1 | none |
-| Resume makes a pull request's body an input, not only a record | [#27](https://github.com/yearofthedan/working-title/pull/27) | 1 | none |
+| Lesson | Found in | Tripwire |
+| --- | --- | --- |
+| Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22), [#27](https://github.com/yearofthedan/working-title/pull/27), [#28](https://github.com/yearofthedan/working-title/pull/28) | [AGENTS.md: What you assert](../AGENTS.md#what-you-assert) |
+| Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24) | none |
+| A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
+| A rule written as one sentence can still be two rules | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
+| A worktree does not contain a child session: it shares `.git` — the hooks, the remote, the credentials | [#27](https://github.com/yearofthedan/working-title/pull/27) | none |
+| Resume makes a pull request's body an input, not only a record | [#27](https://github.com/yearofthedan/working-title/pull/27) | none |
+| An aside from the builder is information, not an instruction: nothing they asked for is ended or changed on the strength of one | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
+| A thing already written down — a doc, a comment, a decision — is checked for whether it should be that way, rather than followed because it is there | [#28](https://github.com/yearofthedan/working-title/pull/28) | none |
 
 ## The columns
 
-- **First named** links the pull request whose `Learned` section named the lesson first. A later pull request meeting it again does not move it.
-- **Times found** counts the pull requests that have named it, the first one included. It is evidence, not a control: the count is what said #22's lesson had come back, and a count that keeps climbing with a tripwire in place is its own lesson — the tripwire is not working.
-- **Tripwire** is what stops the lesson. It is `none` until the lesson is found a second time, because one meeting is not evidence that it recurs; `proposed` once a lesson pull request is proposed; and then the tripwire itself once that lands — a check wherever a check can be written, and a rule only where none can.
+- **Lesson** — one line, saying what to do or what to know. A one-off fact stays in the `Learned` section that named it instead: a lesson is something that could come back.
+- **Found in** — every pull request that has named the lesson, oldest first. Each entry is a link to the pull request, `[#12](https://github.com/yearofthedan/working-title/pull/12)`: `./do lessons` reads the number from the link, and an entry that names no pull request is reported rather than passed over. The list is the whole record: its length is how often the lesson has been found, and a list holding two entries inside the window is what has recurred, which is what proposes a lesson pull request. Rows are only merged when they say the same thing, and then the lists are joined with the older entries first.
+- **Tripwire** — what stops the lesson. `none` until it is found twice inside the window, because one meeting is not evidence that it recurs; `proposed` once a lesson pull request is proposed; and then the tripwire itself once that lands, which is a check wherever a check can be written and a rule only where none can. A lesson met again with its tripwire already in place is a lesson of its own: the tripwire for that one did not stop it.
+
+## The window
+
+An entry older than the window comes off the list, and when a row's last entry comes off, the row goes. The window is a number of commits behind `main` — commits, not days, so a quiet stretch expires nothing and a busy one clears quickly — and `./do lessons` owns the number and prints the entries past it. An entry whose pull request is still open counts as current; one whose pull request was closed without merging comes off at once, since it can never age.

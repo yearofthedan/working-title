@@ -23,7 +23,8 @@ In a fresh session, run `/skill:implement <issue number>`, or ask the agent to p
 - proposes the story's pull requests, and posts them on the issue as a checklist once you confirm;
 - works one line at a time, each in its own draft pull request, `Part of #<issue number>` for the earlier ones and `Closes #<issue number>` for the one that finishes;
 - resumes from an open pull request in a new session, so a lost context does not lose the work;
-- hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it.
+- hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it;
+- lands each change with the issue number on the title and on the commits, squash-merged, naming in the body who wrote it: [commits and merges](standards/commits.md).
 
 ## Set up a machine
 

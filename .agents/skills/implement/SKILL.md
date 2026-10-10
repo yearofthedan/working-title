@@ -23,7 +23,7 @@ A ready issue with no plan comment gets a plan before any code.
 
 1. Read the issue, its epic, `docs/architecture.md` and the decision records it touches.
 2. Work out the pull requests it takes. Each line is a thin slice that stands on its own, and each ends in something the builder can check. **Enabling pull requests come before the story's own pull request**: the ones that set up what the rest needs land first. Cut the lines so that as few as possible depend on an earlier one — a line that needs only `main` can start while the line before it is still in review.
-3. Propose the lines to the builder, numbered, one sentence each.
+3. Propose the lines to the builder, numbered, each one an imperative phrase: the line becomes the pull request's title, and so the message the merge lands as.
 4. Do not post anything until they confirm. Then post the lines on the issue as a checklist comment, and start the first unstarted line.
 
 Tick a line off in that comment as its pull request merges. The last unticked line is the one whose pull request closes the issue.
@@ -32,9 +32,9 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 
 - Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
-- Open the pull request as a draft, titled with the line, with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
+- Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
-- Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and where it ran. Every edge the issue lists has a test.
+- Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and where it ran.
 
 The pull request that finishes the last unticked line says `Closes #<issue number>` where the others say `Part of`. The last line is known when the plan is made and again when the plan is updated, so a line that turns out to be last is opened, or edited, to close.
 
@@ -48,10 +48,15 @@ With no open pull request and earlier lines merged, tick them off in the plan co
 
 A pull request whose work is done is handed over, not left in draft:
 
-1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. The commands that do this — `/review`, ponytail's `/ponytail-review` — are typed by the person at the keyboard and expanded from prompt input, which an agent's output never re-enters, so run the review yourself, as the `reviewer` agent over the diff, rather than writing one.
+1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. Run it yourself, as the `reviewer` agent, and hand it this brief, adding whatever this change makes particular:
+
+   > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself? Start from [the standards index](../../../docs/standards/README.md), which says where the rest of the rules are. Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
+   >
+   > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
-   - Read [the lessons index](../../../docs/lessons.md) and update it: raise **Times found** for a lesson that is already a row, add a row at 1 for one that is not, and leave **Tripwire** alone unless a lesson pull request has been proposed or has landed. A lesson found a second time is what proposes a lesson pull request — the smallest fix, a check wherever a check can be written and a rule only where none can — and its tripwire is written with it: `proposed` while it waits, then the check or the rule once it lands. Add it to the plan, before the closing line, once the builder confirms.
+   - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
+   - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
 5. **Mark the pull request ready for review.**
 
@@ -65,7 +70,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, record the call in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
-- Re-read the definition of done below before handing over: it holds for every pull request.
+- Re-read the definition of done below before handing over.
 
 ## Definition of done
 
@@ -73,5 +78,5 @@ A pull request is done when all of these hold:
 
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
-- The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: a lesson it names is a row at 1 or a raised count, and a lesson found a second time has a proposed lesson pull request.
+- The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
