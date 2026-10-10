@@ -5,7 +5,7 @@ description: Write a story for a line of an epic, check it holds up, and show it
 
 # Writing stories
 
-A story is a thin slice the writer can use on its own, landing as one pull request. It is drafted in the [story template](../../../.github/ISSUE_TEMPLATE/story.md), and the builder agrees it by adding the `ready` label. Until then it is not built.
+A story is drafted in the [story template](../../../.github/ISSUE_TEMPLATE/story.md), and the builder agrees it by adding the `ready` label. Until then it is not built.
 
 ## Start from the epic line
 
@@ -13,15 +13,7 @@ A story exists to make one line of its epic's `Is` list true. Take the line, or 
 
 A story that makes a line true only in part quotes that part, and the rest of the line stays open for a later story.
 
-Then fill the template:
-
-- **Outcome** says who wants it and what changes for them, in the writer's words. If it cannot be said in one sentence, the slice is too big.
-- **Acceptance criteria** carry the rule the story is built to, one `Rule:` line, and the scenarios that illustrate it.
-  - Scenarios are Given/When/Then in the [ubiquitous language](../../../docs/ubiquitous-language.md), titled with the behaviour, each ending in the `Then` the writer would see. One per outcome the writer would see differently.
-  - Edges are cases where the code could break but the writer sees nothing new. Names only; each one gets a test in the PR.
-  - Anything that is not behaviour (speed, durability, a check in CI) is one line with its threshold and the test that measures it.
-- **Is not** names the near misses a reader might expect here, each pointing at the story or epic where it lives.
-- **Pointers** link the [architecture](../../../docs/architecture.md) sections the story touches.
+Fill the rest of the template as its own comments say: they are the authority on each section. What this skill decides is which line the story carries, and that the draft passes the checks below.
 
 ## Check the draft before showing it
 
