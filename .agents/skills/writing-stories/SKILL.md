@@ -1,6 +1,6 @@
 ---
 name: writing-stories
-description: Draft a story from an epic line and check it before filing
+description: Use when drafting a story from an epic line, before filing it
 ---
 
 # Writing stories
