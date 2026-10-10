@@ -26,7 +26,7 @@ The words to use in code, tests, scenarios and UI:
 
 ## How work lands
 
-- Pull requests go to `main` only through review, squash-merged. Never push to `main`.
+- Never push to `main`. A change reaches it as a pull request, squash-merged, with the shape [commits and merges](docs/standards/commits.md) sets out.
 - Work comes from an issue whose acceptance criteria were agreed before any code. Never edit an agreed issue to fit what was built: a change of scope goes back to its owner.
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
@@ -42,6 +42,7 @@ Check what a tool, a platform or a library does against its current docs before 
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/dev-flow.md`: the builder's page for writing, agreeing and implementing a story.
 - `docs/lessons.md`: the lessons still in play, where each one was found, and what stops it.
+- `docs/standards/commits.md`: what a change's commit, pull request title and merge message look like.
 - `.agents/skills/<name>/SKILL.md`: how an agent does a repeated job.
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
