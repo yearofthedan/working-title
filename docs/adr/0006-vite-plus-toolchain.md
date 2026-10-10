@@ -24,6 +24,13 @@ Which tools format, lint, type-check and test the code, and run the git hooks?
 
 Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. Structural checks are written for its linter, Oxlint; a check about the import graph as a whole may use a dedicated tool alongside it.
 
+**Agents copy** and **One build tool** decided it: one config and one command, from the maintainers of the Vite and Vitest the stack is built on. The table favours ESLint on **Structural checks**, **Maturity** and **Lock-in**, and these weigh less than they look while the project is young: the first custom rule is not needed until the layers exist, the toolchain is expected to change, and leaving Vite+ rewrites config and test imports, not app code.
+
+- **ESLint and Prettier** lost on **Agents copy** and **One build tool**: four configs and a hook manager to keep in step, for checks Vite+ can also express. Its lead is real only where Oxlint cannot express a check.
+- **Biome** lost on the same two columns without ESLint's lead on the others: separate from Vite and Vitest, a hook manager besides, and custom rules in GritQL.
+
+If the ban on method words or the import rules cannot be written reliably for Oxlint, ESLint is the better choice, and this record is superseded.
+
 ## Consequences
 
 `./do check` is the one local check. Upgrades move the whole toolchain at once, from one `catalog` entry. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config and the test imports, since its tools can each run alone.

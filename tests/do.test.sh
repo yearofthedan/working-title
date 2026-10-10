@@ -70,10 +70,13 @@ expect_err 'no task called frobnicate' "an unknown task says so"
 expect_err 'usage: ./do' "an unknown task prints the tasks"
 expect_no_call 'plugin' "an unknown task runs nothing"
 
-printf '#!/bin/sh\n# Private.\necho ran\n' >"$root/scripts/_probe"
-chmod +x "$root/scripts/_probe"
-run_do _probe
-rm -f "$root/scripts/_probe"
+# A copy of ./do, so the private script is never written into the repo.
+mkdir -p "$work/copy/scripts"
+cp "$root/do" "$work/copy/do"
+printf '#!/bin/sh\n# Private.\necho ran\n' >"$work/copy/scripts/_probe"
+chmod +x "$work/copy/scripts/_probe"
+status=0
+"$work/copy/do" _probe >"$work/out" 2>"$work/err" || status=$?
 expect_status 2 "a private script is not a task"
 if grep -q ran "$work/out"; then no "a private script does not run"; else ok "a private script does not run"; fi
 
