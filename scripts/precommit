@@ -5,4 +5,7 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
+# The scan runs first, since `vp staged` may rewrite the files it checks.
+"$(dirname "$0")/../do" secrets --staged
+
 vp staged "$@"
