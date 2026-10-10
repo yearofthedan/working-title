@@ -1,6 +1,6 @@
 ---
 name: writing-adrs
-description: Use when a decision needs an architecture decision record, or changes one
+description: Decide whether a decision needs an architecture decision record, and write or supersede one in docs/adr. Use whenever a decision changes the architecture, while planning a story or while building one.
 ---
 
 # Writing ADRs

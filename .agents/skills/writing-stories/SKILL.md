@@ -1,6 +1,6 @@
 ---
 name: writing-stories
-description: Use when drafting a story from an epic line, before filing it
+description: Use when drafting a story from an epic line: write it in the story template, check it holds up, and show it to the builder before filing it.
 ---
 
 # Writing stories
