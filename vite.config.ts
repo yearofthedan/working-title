@@ -42,6 +42,9 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
+    rules: {
+      'unicorn/no-thenable': 'error',
+    },
   },
   test: {
     exclude: [...configDefaults.exclude, 'e2e/**'],

@@ -48,12 +48,13 @@ describe('printScenarios', () => {
 describe('Scenario', () => {
   test.each([
     ['a line break', 'two\nlines'],
-    ['a carriage return', 'two\r\nlines'],
+    ['a carriage return', 'two\rlines'],
     ['nothing', '  '],
   ])('refuses a phrase holding %s', (_, phrase) => {
     expect(() => new Scenario('One').Given(phrase)).toThrow('one non-empty line');
     expect(() => new Scenario(phrase)).toThrow('one non-empty line');
     expect(() => printScenarios(phrase, [])).toThrow('one non-empty line');
+    expect(() => new Scenario('One').Given('a thing').And(phrase)).toThrow('one non-empty line');
   });
 
   test('refuses an "and" with no step before it', () => {
