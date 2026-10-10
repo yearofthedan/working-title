@@ -48,7 +48,7 @@ With no open pull request and earlier lines merged, tick them off in the plan co
 
 A pull request whose work is done is handed over, not left in draft:
 
-1. **Run the review.** Ponytail's review, `/ponytail-review`, over the branch's diff against `main` — the whole change, not only the last commit.
+1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. The commands that do this — `/review`, ponytail's `/ponytail-review` — are typed by the person at the keyboard and expanded from prompt input, which an agent's output never re-enters, so run the review yourself, as the `reviewer` agent over the diff, rather than writing one.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
    - When a lesson it names was already named in an earlier pull request's `Learned`, propose a lesson pull request carrying the smallest fix — a check first, then a rule in AGENTS.md or a skill. Add it to the plan, before the closing line, once the builder confirms.
