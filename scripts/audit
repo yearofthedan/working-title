@@ -46,4 +46,10 @@ done
 (cd "$work/base" && pnpm audit --json >"$work/base.json") || true
 is_json "$work/base.json" || no_answer "the advisory service could not be reached to audit $base"
 
-node "$(dirname "$0")/_audit.mjs" "$work/base.json" "$work/head.json" "$base"
+# The revision is named too, so a base that is behind the branch is visible.
+label=$base
+if revision=$(git rev-parse --short "$base" 2>/dev/null); then
+  label="$base ($revision)"
+fi
+
+node "$(dirname "$0")/_audit.mjs" "$work/base.json" "$work/head.json" "$label"

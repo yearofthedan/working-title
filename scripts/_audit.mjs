@@ -10,12 +10,18 @@ const collect = (jsonPath) => {
   const findings = new Map();
   for (const advisory of Object.values(advisories)) {
     for (const finding of advisory.findings ?? []) {
-      for (const path of finding.paths ?? []) {
-        findings.set(`${advisory.github_advisory_id}|${path}`, {
-          version: finding.version,
-          advisory,
-        });
-      }
+      const dev = finding.dev ? 'dev' : 'prod';
+      const key = [advisory.github_advisory_id, advisory.module_name, finding.version, dev].join(
+        '|',
+      );
+      const seen = findings.get(key) ?? {
+        advisory,
+        version: finding.version,
+        dev,
+        paths: new Set(),
+      };
+      for (const path of finding.paths ?? []) seen.paths.add(path);
+      findings.set(key, seen);
     }
   }
   return findings;
@@ -25,8 +31,8 @@ const base = collect(baseJsonPath);
 const head = collect(headJsonPath);
 const added = [...head].filter(([key]) => !base.has(key));
 const existing = [...head].filter(([key]) => base.has(key));
-const describe = ([, { version, advisory }]) =>
-  `${advisory.module_name}@${version}  ${advisory.severity}  ${advisory.title}  via ${advisory.github_advisory_id}  ${advisory.url}`;
+const describe = ([, { advisory, version, dev, paths }]) =>
+  `${advisory.module_name}@${version}  ${dev}  ${advisory.severity}  ${advisory.title}  via ${advisory.github_advisory_id}  at ${[...paths].join(', ')}  ${advisory.url}`;
 
 for (const finding of existing) {
   console.log(`warning: ${describe(finding)} — already in ${baseName}`);
