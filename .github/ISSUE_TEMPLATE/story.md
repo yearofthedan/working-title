@@ -17,7 +17,7 @@ As a ___, I want ___, so that ___.
 
 ## Acceptance criteria
 
-<!-- Agreed before any code.
+<!-- Agreed before any code. The definition of done in the [implement skill](../../.agents/skills/implement/SKILL.md) always applies.
 Rule: one sentence stating the rule the scenarios illustrate. It carries the precision and goes into the approved file.
 Scenarios: Given/When/Then in the ubiquitous language, titled with the behaviour, ending in the expected Then. One per outcome the writer would see differently; with real unknowns, the full .approved.md is drafted and approved before any code.
 Edges: cases specific to this story where the code could break but the writer sees nothing new, names only. If the writer would see a different result, it is a scenario instead. Each edge has a test in the PR.

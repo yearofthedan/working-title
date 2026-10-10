@@ -21,7 +21,7 @@ Adding the `ready` label is the agreement. Until you add it, nothing is built: a
 In a fresh session, run `/skill:implement <issue number>`, or ask the agent to pick up, resume or carry on with it. The [implement skill](../.agents/skills/implement/SKILL.md) is what the agent works to. From there it:
 
 - proposes the story's pull requests, and posts them on the issue as a checklist once you confirm;
-- works one line at a time, each in its own draft pull request, `Part of #12` for the earlier ones and `Closes #12` for the one that finishes;
+- works one line at a time, each in its own draft pull request, `Part of #<issue number>` for the earlier ones and `Closes #<issue number>` for the one that finishes;
 - resumes from an open pull request in a new session, so a lost context does not lose the work;
 - hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it.
 
