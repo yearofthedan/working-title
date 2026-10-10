@@ -4,8 +4,7 @@
 set -eu
 
 # Ponytail is installed into the builder's OMP, not into the repo, so a fresh
-# clone has to install it. Both omp commands fail when they are already done,
-# so each one is checked first.
+# clone has to install it.
 setup() {
   if ! command -v omp >/dev/null 2>&1; then
     echo "omp is not on your PATH. Install OMP, then run ./do setup again." >&2

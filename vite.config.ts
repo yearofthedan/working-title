@@ -12,8 +12,8 @@ export default defineConfig({
       ],
     },
     VitePWA({
-      // shortcut: a new build takes over open tabs without asking, which can lose unsaved input
-      // (https://vite-pwa-org.netlify.app/guide/auto-update); prompt instead once the writer can type.
+      // shortcut: a new build takes over open tabs without asking and can lose unsaved input, prompt
+      // instead once the writer can type (https://vite-pwa-org.netlify.app/guide/auto-update).
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
@@ -44,8 +44,6 @@ export default defineConfig({
     },
   },
   test: {
-    // .spec.ts too, so a colocated spec runs rather than falling between the two runners.
-    include: ['**/*.{test,spec}.ts'],
     exclude: [...configDefaults.exclude, 'e2e/**'],
   },
   staged: {

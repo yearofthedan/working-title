@@ -26,4 +26,4 @@ When communicating with the user, protect their cognitive load. Prefer a table, 
 - **Relevance:** is this information important to the work, or important to the conversation you just had? Sometimes when you clarify a point it can feel like important context, but on reflection is noise to someone who wasn't there. Assess for relevance, and if it isn't, cut it.
 - **Placement:** is this already captured somewhere, and does capturing it *here* durably serve the reader? If another artifact owns it, link it — don't copy it, and don't let a wrapper restate what the thing it wraps already records. Just because something is relevant, doesn't always mean it's in the right place. Ensure the information is stored in the right place, and if that place isn't here, cut it.
 
-What is already written down gets the same check before you extend it, follow it or quote it as a reason. Being there is not evidence that it belongs there.
+What is already written down gets the same check before you extend it, follow it or quote it as a reason. Being there is not evidence that it belongs there. When it fails, raise it with whoever owns it rather than cutting it.
