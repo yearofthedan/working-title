@@ -3,6 +3,26 @@ import { configDefaults, defineConfig } from 'vite-plus';
 
 const themeColor = '#fbfaf7';
 
+// Playwright's calls that find an element. A property restricted with no object is
+// restricted on every object (https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-restricted-properties),
+// so an aliased page is caught too.
+const locatorCalls = [
+  'getByRole',
+  'getByLabel',
+  'getByText',
+  'getByPlaceholder',
+  'getByAltText',
+  'getByTitle',
+  'getByTestId',
+  'locator',
+  'frameLocator',
+  '$',
+  '$$',
+  '$eval',
+  '$$eval',
+  'waitForSelector',
+];
+
 export default defineConfig({
   plugins: [
     {
@@ -45,6 +65,35 @@ export default defineConfig({
     rules: {
       'unicorn/no-thenable': 'error',
     },
+    overrides: [
+      {
+        files: ['e2e/**'],
+        excludeFiles: ['e2e/**/writer.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...locatorCalls.map((property) => ({
+              property,
+              message: 'Find elements in the writer driver, e2e/writer.ts.',
+            })),
+          ],
+        },
+      },
+      {
+        files: ['e2e/**/writer.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...locatorCalls
+              .filter((property) => !['getByRole', 'getByLabel'].includes(property))
+              .map((property) => ({
+                property,
+                message: 'The writer driver finds elements by role or label, as the writer does.',
+              })),
+          ],
+        },
+      },
+    ],
   },
   test: {
     // The approved-file tests run sample tests in folders of their own, which a run

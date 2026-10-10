@@ -5,6 +5,7 @@
 
 - **A test sits beside the code it tests**, named after it: `piece.test.ts` beside `piece.ts`, `scripts/audit.test.sh` beside `scripts/audit`.
 - **Browser specs of the built app are in `e2e/`**, as `<name>.spec.ts`, and run in Playwright ([ADR 7](../adr/0007-playwright-for-browser-specs.md)). They drive the whole app, so no one file is theirs.
+- **A spec drives the app through the writer driver**, `e2e/writer.ts`: its `writer` fixture names what the writer does, in the [ubiquitous language](../ubiquitous-language.md), and holds every locator, found by role or label as the writer would find it. Lint fails a locator anywhere else in `e2e/`, and a test id or a CSS selector in the driver; `vite.config.test.ts` shows each case failing.
 - **The folder decides the runner**: Playwright runs only `e2e/` (`playwright.config.ts`), and Vitest runs every `*.test.*` and `*.spec.*` outside it, by [its default include](https://vitest.dev/config/include) with `e2e/` excluded in `vite.config.ts`, so a test named either way runs somewhere.
 - `./do test` runs the tests, `./do e2e` the browser specs, and `./do check` every local check, the tests and the specs among them. What the checks are is `scripts/check`, which is what `./do` lists.
 

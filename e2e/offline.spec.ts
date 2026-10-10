@@ -1,7 +1,8 @@
-import { expect, test, type BrowserContext, type Page, type Response } from '@playwright/test';
+import type { BrowserContext, Page, Response } from '@playwright/test';
+import { expect, test, type Writer } from './writer';
 
-async function loadOnceThenGoOffline(page: Page, context: BrowserContext) {
-  await page.goto('/');
+async function loadOnceThenGoOffline(writer: Writer, page: Page, context: BrowserContext) {
+  await writer.opensTheApp();
   await page.evaluate(() => navigator.serviceWorker.ready);
   await context.setOffline(true);
   // Without this, a setOffline that stopped cutting the network would let both tests pass online.
@@ -14,19 +15,19 @@ async function loadOnceThenGoOffline(page: Page, context: BrowserContext) {
   expect(reachable, 'the network is cut').toBe(false);
 }
 
-test('the shell opens offline', async ({ page, context }) => {
-  await loadOnceThenGoOffline(page, context);
-  await page.reload();
-  await expect(page.getByRole('heading', { name: 'working-title' })).toBeVisible();
+test('the shell opens offline', async ({ writer, page, context }) => {
+  await loadOnceThenGoOffline(writer, page, context);
+  await writer.reloads();
+  await expect(writer.theAppsName).toBeVisible();
 });
 
-test('the fonts render offline, because they are precached', async ({ page, context }) => {
-  await loadOnceThenGoOffline(page, context);
+test('the fonts render offline, because they are precached', async ({ writer, page, context }) => {
+  await loadOnceThenGoOffline(writer, page, context);
   const fonts: Response[] = [];
   page.on('response', (response) => {
     if (response.url().endsWith('.woff2')) fonts.push(response);
   });
-  await page.reload();
+  await writer.reloads();
   const statuses = await page.evaluate(async () =>
     Promise.all(
       ['Literata Variable', 'Inter Variable'].map(async (family) =>
