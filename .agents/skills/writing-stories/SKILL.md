@@ -21,7 +21,7 @@ Fill the rest of the template as its own comments say: they are the authority on
 
 **A named tool or place has a decision behind it.** A criterion that names a tool or a place — a test runner, a library, a folder — rests on a decision record or a standard that already says so. Where none does, the criterion states the need without the name, such as "runs as one browser spec", and the draft says the choice is made while building.
 
-**One rule per story.** Count rules, not sentences: a `Rule:` that joins behaviours the writer would see separately — an `and` between things that could ship on their own — is two rules written as one sentence. Two rules mean two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, and say so in the draft.
+**One rule per story.** Count rules, not sentences: a `Rule:` that joins behaviours the writer would see separately — an `and` between things that could ship on their own — is two rules written as one sentence. Two rules mean two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, or when both halves change the same files and reviewing them apart would cost more than it saves. Say which in the draft.
 
 ## Show it, then file it
 
