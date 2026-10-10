@@ -4,7 +4,7 @@ Status: Accepted, 2026-10-10
 
 ## Context
 
-What runs the specs that need the built app in a real browser: opening offline after the first load now, and each epic's demo and the speed checks later ([#18](https://github.com/yearofthedan/working-title/issues/18))?
+What runs the specs that need the built app in a real browser: opening offline after the first load and installing now, and each epic's demo later ([#18](https://github.com/yearofthedan/working-title/issues/18))?
 
 - **The built app.** The service worker exists only in a build, and opening offline means loading the app, cutting the network, and reloading the page.
 - **Agents copy.** Every runner and config beside Vite+ is another pattern to copy wrongly ([ADR 6](0006-vite-plus-toolchain.md)).
@@ -25,4 +25,6 @@ Specs that need the built app in a browser run in Playwright. Every other test r
 
 ## Consequences
 
-`./do e2e` runs the browser specs and `./do check` runs them after the tests, so a first run downloads Chromium. A spec builds the app first, which makes it slower than a test, so behaviour that needs no browser is tested in Vitest instead. Leaving Playwright means rewriting every spec and the writer driver. Whether component tests that need a real browser use Vitest browser mode is left to the first story with a component.
+`./do e2e` runs the browser specs and `./do check` runs them after the tests, so a first run downloads Chromium. A spec builds the app first, which makes it slower than a test, so behaviour that needs no build is tested in Vitest instead. Leaving Playwright means rewriting every spec and the writer driver.
+
+This record covers only specs of the built app. Tests that need a real browser but not a build, such as a component's behaviour or the time it takes to render, are left to the first story that needs one, and Vitest browser mode is a candidate there: [the prototype of this app](https://github.com/yearofthedan/working-title-prototype/blob/main/vitest.config.ts) ran its component tests and a render-timing check in it.

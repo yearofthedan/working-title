@@ -1,5 +1,5 @@
 import { VitePWA } from 'vite-plugin-pwa';
-import { defineConfig } from 'vite-plus';
+import { configDefaults, defineConfig } from 'vite-plus';
 
 export default defineConfig({
   plugins: [
@@ -36,7 +36,9 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['**/*.test.ts'],
+    // .spec.ts too, so a colocated spec runs rather than falling between the two runners.
+    include: ['**/*.{test,spec}.ts'],
+    exclude: [...configDefaults.exclude, 'e2e/**'],
   },
   staged: {
     '*': 'vp check --fix',
