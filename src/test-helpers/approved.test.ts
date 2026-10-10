@@ -7,15 +7,22 @@ import { expectApproved } from './approved';
 import { Scenario, printScenarios } from './scenario';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
-const printed = 'the first sample printed this\n';
-const changed = 'the first sample changed\n';
+// The sample's first test prints a scenario ending in the outcome $FIRST names; its
+// second is always approved, so a failure is the first test's.
+const outcome = 'the first sample does this';
+const changedOutcome = 'the first sample does that';
+const sampleScenario = (then: string) =>
+  printScenarios('A sample rule.', [
+    new Scenario('A sample behaviour').Given('a sample').Then(then),
+  ]);
+const printed = sampleScenario(outcome);
+const secondPrinted = printScenarios('A sample rule.', [new Scenario('Another').Given('another')]);
 
-// A test file with two scenario tests, in a folder of its own that only its runs collect.
 class Sample {
   readonly file: string;
   readonly first: string;
   readonly second: string;
-  prints = printed;
+  prints = outcome;
   status: number | null = null;
   output = '';
 
@@ -29,16 +36,22 @@ class Sample {
       [
         "import { test } from 'vite-plus/test';",
         "import { expectApproved } from '../approved';",
-        "test('first scenario', () => expectApproved(process.env.FIRST ?? ''));",
-        "test('second scenario', () => expectApproved('second\\n'));",
+        "import { Scenario, printScenarios } from '../scenario';",
+        "const print = (s: Scenario) => printScenarios('A sample rule.', [s]);",
+        "test('first scenario', () =>",
+        "  expectApproved(print(new Scenario('A sample behaviour').Given('a sample').Then(process.env.FIRST ?? ''))));",
+        "test('second scenario', () => expectApproved(print(new Scenario('Another').Given('another'))));",
         '',
       ].join('\n'),
     );
   }
 
-  approve(): void {
+  approveFirst(): void {
     writeFileSync(this.first, printed);
-    writeFileSync(this.second, 'second\n');
+  }
+
+  approveSecond(): void {
+    writeFileSync(this.second, secondPrinted);
   }
 
   // CI is removed so the sample runs as on a builder's machine, where Vitest writes a
@@ -61,17 +74,20 @@ class Sample {
 
 const aScenarioTestWhosePrintedScenarioMatchesItsApprovedMd = (s: Scenario, sample: Sample) => {
   s.Given('a scenario test whose printed scenario matches its .approved.md');
-  sample.approve();
+  sample.approveFirst();
+  sample.approveSecond();
 };
 
 const aScenarioTestWhosePrintedScenarioDiffersFromItsApprovedMd = (s: Scenario, sample: Sample) => {
   s.Given('a scenario test whose printed scenario differs from its .approved.md');
-  sample.approve();
-  sample.prints = changed;
+  sample.approveFirst();
+  sample.approveSecond();
+  sample.prints = changedOutcome;
 };
 
-const aScenarioTestWithNoApprovedMd = (s: Scenario) => {
+const aScenarioTestWithNoApprovedMd = (s: Scenario, sample: Sample) => {
   s.Given('a scenario test with no .approved.md');
+  sample.approveSecond();
 };
 
 const aFailingScenarioTestWhosePrintedScenarioIsTheOneAgreedInTheStory = (
@@ -79,8 +95,13 @@ const aFailingScenarioTestWhosePrintedScenarioIsTheOneAgreedInTheStory = (
   sample: Sample,
 ) => {
   s.Given('a failing scenario test whose printed scenario is the one agreed in the story');
+  sample.approveFirst();
+  sample.approveSecond();
+  sample.prints = changedOutcome;
   sample.run('test');
   expect(sample.status).not.toBe(0);
+  expect(sample.output).toContain('FAIL');
+  expect(sample.output).toContain('first scenario');
 };
 
 const theTestsRun = (s: Scenario, sample: Sample) => {
@@ -101,8 +122,8 @@ const itPasses = (s: Scenario, sample: Sample) => {
 const itFailsShowingTheDifferenceAsScenarioLines = (s: Scenario, sample: Sample) => {
   s.Then('it fails, showing the difference as scenario lines');
   expect(sample.status).not.toBe(0);
-  expect(sample.output).toContain(`- ${printed.trim()}`);
-  expect(sample.output).toContain(`+ ${changed.trim()}`);
+  expect(sample.output).toContain(`- Then ${outcome}`);
+  expect(sample.output).toContain(`+ Then ${changedOutcome}`);
   expect(sample.output).toContain('Verify the intent of the update before continuing.');
 };
 
@@ -114,6 +135,7 @@ const theApprovedMdIsUnchanged = (s: Scenario, sample: Sample) => {
 const itFailsShowsThePrintedScenarioAndWritesNoApprovedMd = (s: Scenario, sample: Sample) => {
   s.Then('it fails, shows the printed scenario, and writes no .approved.md');
   expect(sample.status).not.toBe(0);
+  expect(sample.output).toContain('sample.first-scenario.approved.md is not approved yet');
   expect(sample.output).toContain(printed.trim());
   expect(sample.output).toContain('Verify the intent of the update before continuing.');
   expect(existsSync(sample.first)).toBe(false);
@@ -121,7 +143,7 @@ const itFailsShowsThePrintedScenarioAndWritesNoApprovedMd = (s: Scenario, sample
 
 const itsApprovedMdHoldsThePrintedScenarioAndTheTestPasses = (s: Scenario, sample: Sample) => {
   s.Then('its .approved.md holds the printed scenario and the test passes');
-  expect(readFileSync(sample.first, 'utf8')).toBe(printed);
+  expect(readFileSync(sample.first, 'utf8')).toBe(sampleScenario(changedOutcome));
   sample.run('test');
   expect(sample.status, sample.output).toBe(0);
 };
@@ -152,7 +174,7 @@ describe('approved files', { timeout: 120_000 }, () => {
         theApprovedMdIsUnchanged(s, sample);
       }),
       play('A new scenario fails until approved', (s, sample) => {
-        aScenarioTestWithNoApprovedMd(s);
+        aScenarioTestWithNoApprovedMd(s, sample);
         theTestsRun(s, sample);
         itFailsShowsThePrintedScenarioAndWritesNoApprovedMd(s, sample);
       }),
@@ -175,7 +197,7 @@ describe('approved files', { timeout: 120_000 }, () => {
     try {
       sample.run('approve');
       expect(readFileSync(sample.first, 'utf8')).toBe(printed);
-      expect(readFileSync(sample.second, 'utf8')).toBe('second\n');
+      expect(readFileSync(sample.second, 'utf8')).toBe(secondPrinted);
     } finally {
       sample.remove();
     }
