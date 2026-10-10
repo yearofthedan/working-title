@@ -50,7 +50,7 @@ A pull request whose work is done is handed over, not left in draft:
 
 1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. Run it yourself, as the `reviewer` agent, and hand it this brief, adding whatever this change makes particular:
 
-   > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself — its guide, its skills and `docs/communication-standards.md` bind the wording? Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
+   > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself — read [the standards index](../../../docs/standards/README.md), then the guide, the skills and `docs/communication-standards.md`? Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
    >
    > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
