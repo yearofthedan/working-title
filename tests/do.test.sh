@@ -88,5 +88,53 @@ PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
 
+# --- lessons: the entry past the window is named, the others are left alone
+
+lesson_repo="$work/lessons-repo"
+mkdir -p "$lesson_repo/docs"
+(
+  cd "$lesson_repo" || exit 1
+  git init -q -b main .
+  git config user.email t@example.com
+  git config user.name t
+  for n in one two three; do
+    printf '%s\n' "$n" >"f-$n"
+    git add "f-$n"
+    git commit -qm "$n"
+  done
+)
+printf '%s\n%s\n\n' "$(git -C "$lesson_repo" rev-list --max-parents=0 main)" \
+  "$(git -C "$lesson_repo" rev-parse main)" >"$work/gh-shas"
+cat >"$work/bin/gh" <<'STUB'
+#!/bin/sh
+if [ "$1 $2" = "pr view" ]; then sed -n "${3}p" "$GH_SHAS"; fi
+STUB
+chmod +x "$work/bin/gh"
+GH_SHAS="$work/gh-shas"
+export GH_SHAS
+cat >"$lesson_repo/docs/lessons.md" <<'MD'
+# Lessons
+
+| Lesson | Found in | Tripwire |
+| --- | --- | --- |
+| An old one | [#1](u) | none |
+| A fresh one | [#2](u) | none |
+| One still open | [#3](u) | none |
+MD
+
+lessons_run() {
+  status=0
+  (cd "$lesson_repo" && LESSON_WINDOW="$1" "$root/do" lessons docs/lessons.md) >"$work/out" 2>"$work/err" || status=$?
+}
+
+lessons_run 1
+expect_status 1 "lessons exits non-zero when an entry is past the window"
+if grep -q '^drop:.*#1' "$work/out"; then ok "lessons names the entry past the window"; else no "lessons names the entry past the window"; fi
+if grep -qE '^drop:.*#(2|3)' "$work/out"; then no "lessons leaves the fresh and unmerged rows alone"; else ok "lessons leaves the fresh and unmerged rows alone"; fi
+
+lessons_run 50
+expect_status 0 "lessons exits zero when nothing is past the window"
+if grep -q 'nothing past the window' "$work/out"; then ok "lessons says nothing is past the window"; else no "lessons says nothing is past the window"; fi
+
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
