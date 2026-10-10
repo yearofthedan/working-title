@@ -185,13 +185,13 @@ importers:
         specifier: 1.64.0
         version: 1.64.0
       '@secretlint/secretlint-rule-preset-recommend':
-        specifier: ^13.0.7
+        specifier: 13.0.7
         version: 13.0.7
       '@types/node':
         specifier: 24.19.1
         version: 24.19.1
       secretlint:
-        specifier: ^13.0.7
+        specifier: 13.0.7
         version: 13.0.7(supports-color@10.2.2)
       vite-plugin-pwa:
         specifier: 2.0.0
