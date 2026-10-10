@@ -44,7 +44,13 @@ export default defineConfig({
     },
   },
   test: {
-    exclude: [...configDefaults.exclude, 'e2e/**'],
+    // The approved-file tests run sample tests in folders of their own, which a run
+    // of the whole suite, or one they left behind when stopped, must not collect.
+    exclude: [
+      ...configDefaults.exclude,
+      'e2e/**',
+      ...(process.env.APPROVED_SAMPLE ? [] : ['**/approved-sample-*/**']),
+    ],
     update: 'none',
   },
   staged: {

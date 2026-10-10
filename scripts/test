@@ -5,4 +5,13 @@ set -eu
 
 . "$(dirname "$0")/_vp"
 
+for arg in "$@"; do
+  case "$arg" in
+  -u | --update | --update=*)
+    echo "Tests never write approved files. Approve a scenario with ./do approve <test file>." >&2
+    exit 2
+    ;;
+  esac
+done
+
 vp test "$@"

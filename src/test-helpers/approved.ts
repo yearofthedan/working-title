@@ -14,7 +14,6 @@ export const approvedFile = (testPath: string, testName: string): string =>
     `${basename(testPath).replace(/\.test\.ts$/, '')}.${slug(testName)}.approved.md`,
   );
 
-// Vitest reports a missing file snapshot as a bare mismatch, so the printed text is added here.
 export const expectApproved = async (printed: string): Promise<void> => {
   const { testPath, currentTestName } = expect.getState();
   if (!testPath || !currentTestName) {
