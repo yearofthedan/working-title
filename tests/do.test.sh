@@ -60,6 +60,7 @@ expect_no_call 'plugin' "no task runs nothing"
 for file in "$root"/scripts/*; do
   name=$(basename "$file")
   case "$name" in _*) continue ;; esac
+  if [ -x "$file" ]; then ok "$name is executable"; else no "$name is executable"; continue; fi
   if grep -q "^  $name  *[^ ]" "$work/out"; then ok "$name has a summary"; else no "$name has a summary"; fi
 done
 
@@ -70,26 +71,68 @@ expect_err 'no task called frobnicate' "an unknown task says so"
 expect_err 'usage: ./do' "an unknown task prints the tasks"
 expect_no_call 'plugin' "an unknown task runs nothing"
 
-# A copy of ./do, so the private script is never written into the repo.
-mkdir -p "$work/copy/scripts"
-cp "$root/do" "$work/copy/do"
-printf '#!/bin/sh\n# Private.\necho ran\n' >"$work/copy/scripts/_probe"
-chmod +x "$work/copy/scripts/_probe"
-status=0
-"$work/copy/do" _probe >"$work/out" 2>"$work/err" || status=$?
+# A copy of ./do and its tasks, with a stub vp that records its calls, so
+# nothing is written into the repo and no real check runs.
+copy="$work/copy"
+mkdir -p "$copy/node_modules/.bin"
+cp "$root/do" "$copy/do"
+cp -R "$root/scripts" "$copy/scripts"
+printf '#!/bin/sh\n# Private.\necho ran\n' >"$copy/scripts/_probe"
+chmod +x "$copy/scripts/_probe"
+cat >"$copy/node_modules/.bin/vp" <<'STUB'
+#!/bin/sh
+echo "$*" >> "$VP_LOG"
+STUB
+chmod +x "$copy/node_modules/.bin/vp"
+VP_LOG="$work/vp-calls"
+export VP_LOG
+run_copy() {
+  status=0
+  : >"$VP_LOG"
+  "$copy/do" "$@" >"$work/out" 2>"$work/err" || status=$?
+}
+expect_vp() { if grep -qx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
+
+printf '#!/bin/sh\necho ran\n' >"$copy/outside"
+chmod +x "$copy/outside"
+run_copy ../outside
+expect_status 2 "a path is not a task"
+if grep -q ran "$work/out"; then no "a path outside scripts/ does not run"; else ok "a path outside scripts/ does not run"; fi
+
+run_copy _probe
 expect_status 2 "a private script is not a task"
 if grep -q ran "$work/out"; then no "a private script does not run"; else ok "a private script does not run"; fi
+
+run_copy
+if grep -q '_probe' "$work/out"; then no "a private script is not listed"; else ok "a private script is not listed"; fi
+
+run_copy check
+expect_status 0 "check succeeds when vp does"
+expect_vp 'check' "check runs vp check from node_modules"
+expect_vp 'test' "check runs the tests"
+
+run_copy precommit
+expect_vp 'staged' "precommit runs vp staged"
+
+# Without the stub, and with a PATH that holds no vp of its own.
+rm "$copy/node_modules/.bin/vp"
+status=0
+PATH=/usr/bin:/bin "$copy/do" test >"$work/out" 2>"$work/err" || status=$?
+expect_status 1 "a task that needs vp fails without it"
+expect_err 'Run pnpm install' "a task that needs vp says how to get it"
 
 fresh
 run_do setup
 expect_status 0 "setup succeeds on a fresh machine"
 expect_call 'plugin marketplace add DietrichGebert/ponytail' "setup adds the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
+expect_out 'Installed Ponytail' "setup says it installed Ponytail"
 
 printf '{"npm":[],"marketplace":[{"id":"ponytail@ponytail","scope":"user"}]}' >"$OMP_LIST"
 : >"$OMP_LOG"
 run_do setup
 expect_status 0 "setup succeeds when Ponytail is installed"
+expect_out 'already installed' "setup says Ponytail is already installed"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_no_call 'plugin install' "setup re-installs nothing"
 
@@ -101,9 +144,11 @@ expect_status 0 "setup succeeds when the marketplace is already configured"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
+# A PATH holding only what ./do itself needs, so omp is missing wherever this runs.
 mkdir -p "$work/nowhere"
+ln -s "$(command -v dirname)" "$work/nowhere/dirname"
 status=0
-PATH="$work/nowhere:/usr/bin:/bin" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
+PATH="$work/nowhere" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "setup fails when omp is not on PATH"
 expect_err 'omp is not on your PATH' "setup says what is missing"
 expect_err 'run ./do setup again' "setup says how to retry"

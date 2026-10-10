@@ -7,30 +7,30 @@ Status: Proposed, 2026-10-10
 Which tools format, lint, type-check and test the code, and run the git hooks?
 
 - **Structural checks.** Dependency direction, domain purity and the ban on method words in the core are lint rules ([ADR 2](0002-hexagonal-layers.md), [ADR 5](0005-method-as-data.md)), so the linter must express restricted imports and globals per folder, and custom rules.
-- **One build tool.** The app is built with Vite, and its tests run on Vitest.
-- **Agents copy.** Agents write most of the code: fewer tools and configs leave fewer patterns to copy wrongly.
-- **Maturity.** A young tool can change under the code; Oxlint's JS plugins, which custom rules use, are [alpha](https://oxc.rs/docs/guide/usage/linter/js-plugins).
-- **Lock-in.** Tests import from the toolchain (`vite-plus/test`) and lint rules are written for its linter, so leaving it is real work.
+- **Agents copy.** Agents write most of the code: every extra config and command is another pattern to copy wrongly.
+- **Keeping in step.** Tools released separately are upgraded separately, and a version of one can break another.
+- **Maturity.** A young tool can change under the code.
+- **Lock-in.** Every test imports its runner, and every structural check is written for one linter, so leaving a toolchain costs more with each test and rule.
 
 ## Options considered
 
-| Option | Structural checks | One build tool | Agents copy | Maturity | Lock-in |
+| Option | Structural checks | Agents copy | Keeping in step | Maturity | Lock-in |
 | --- | --- | --- | --- | --- | --- |
-| Vite+ (Vite, Vitest, Oxlint, Oxfmt, hooks) | Restricted imports and globals with per-folder overrides; custom rules as JS plugins (alpha) | Same config as the build | One config, one command | 1.x | One package; each tool inside is usable alone |
-| Vite and Vitest, with ESLint and Prettier, and a hook manager | Restricted imports, eslint-plugin-boundaries and custom rules, all stable | Separate configs | Four configs | Settled | Each tool replaceable alone |
-| Vite and Vitest, with Biome, and a hook manager | Restricted imports and globals with overrides; custom rules in GritQL | Separate configs | Three configs | 2.x | Each tool replaceable alone |
+| Vite+: Vite, Vitest, Oxlint, Oxfmt and hooks in one package | Restricted imports and globals per folder; custom rules as JS plugins, in [alpha](https://oxc.rs/docs/guide/usage/linter/js-plugins) | One config, one command | One version for all of them | 1.x | Tests import `vite-plus/test`; rules are Oxlint's |
+| Vite and Vitest, with ESLint, Prettier and a hook manager | Restricted imports, [eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries) and custom rules, all stable | Four configs | Four versions | Settled | Tests import `vitest`; rules are ESLint's, which Oxlint's JS plugins also run |
+| Vite and Vitest, with Biome and a hook manager | Restricted imports and globals per folder; custom rules as [GritQL plugins](https://github.com/biomejs/website/blob/main/src/content/docs/en/linter/plugins.mdx) | Three configs | Three versions | 2.x | Tests import `vitest`; rules are Biome's |
 
 ## Decision
 
-Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. Structural checks are written for its linter, Oxlint; a check about the import graph as a whole may use a dedicated tool alongside it.
+Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. Structural checks are written for Oxlint, the linter inside it; a check about the import graph as a whole may use a dedicated tool beside it.
 
-**Agents copy** and **One build tool** decided it: one config and one command, from the maintainers of the Vite and Vitest the stack is built on. The table favours ESLint on **Structural checks**, **Maturity** and **Lock-in**, and these weigh less than they look while the project is young: the first custom rule is not needed until the layers exist, the toolchain is expected to change, and leaving Vite+ rewrites config and test imports, not app code.
+**Agents copy** and **Keeping in step** decided it: one config, one command and one version to move. The ESLint option leads on **Structural checks**, **Maturity** and **Lock-in**, and those weigh less now than they will: no custom rule is needed until the layers exist, and with few tests and no structural rules yet, leaving costs little. That is why the reversal point is named below, before the cost grows.
 
-- **ESLint and Prettier** lost on **Agents copy** and **One build tool**: four configs and a hook manager to keep in step, for checks Vite+ can also express. Its lead is real only where Oxlint cannot express a check.
-- **Biome** lost on the same two columns without ESLint's lead on the others: separate from Vite and Vitest, a hook manager besides, and custom rules in GritQL.
+- **ESLint, Prettier and a hook manager** lost on **Agents copy** and **Keeping in step**: four configs and four versions to keep together, for checks Vite+ can also express. Its lead on **Structural checks** is decisive only where Oxlint cannot express a check.
+- **Biome and a hook manager** lost on the same two columns. It leads Vite+ on **Maturity** but not ESLint, so if Vite+ is reversed, ESLint is the option to reverse to.
 
-If the ban on method words or the import rules cannot be written reliably for Oxlint, ESLint is the better choice, and this record is superseded.
+If the ban on method words or the import rules cannot be written reliably for Oxlint, when the layers first need them, ESLint is the better choice and this record is superseded.
 
 ## Consequences
 
-`./do check` is the one local check. Upgrades move the whole toolchain at once, from one `catalog` entry. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config and the test imports, since its tools can each run alone.
+`./do check` is the one local check. Upgrades move the whole toolchain at once. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config, each structural rule and each test's imports, and that cost grows with every one written.
