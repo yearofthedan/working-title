@@ -3,7 +3,6 @@
   "extends": ["config:recommended"],
   "schedule": ["before 6am on monday"],
   "minimumReleaseAge": "3 days",
-  "internalChecksFilter": "strict",
   "packageRules": [
     {
       "description": "The Vite+ toolchain moves as one (ADR 6), so both catalog entries go together",
