@@ -74,6 +74,7 @@ copy="$work/copy"
 mkdir -p "$copy/node_modules/.bin"
 cp "$root/do" "$copy/do"
 cp -R "$root/scripts" "$copy/scripts"
+cp "$root/.secretlintrc.json" "$copy/"
 printf '#!/bin/sh\n# Private.\necho ran\n' >"$copy/scripts/_probe"
 chmod +x "$copy/scripts/_probe"
 cat >"$copy/node_modules/.bin/vp" <<'STUB'
@@ -318,6 +319,15 @@ git -C "$secrets_repo" add -A
 run_secrets precommit
 expect_status 1 "a rename that carries a credential is refused"
 expect_out 'moved.txt' "the renamed file is named"
+
+# Every hit is named, not only the first.
+printf 'GH_TOKEN=%s\n' "$token" >"$secrets_repo/one.txt"
+printf 'GH_TOKEN=%s\n' "$token" >"$secrets_repo/two.txt"
+git -C "$secrets_repo" add -A
+run_secrets precommit
+expect_status 1 "a commit holding two credentials is refused"
+expect_out 'one.txt' "the first credential is named"
+expect_out 'two.txt' "the second credential is named"
 
 printf '\n%d failed\n' "$failures"
 [ "$failures" -eq 0 ]
