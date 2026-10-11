@@ -53,7 +53,7 @@ Before a line's first commit, set out every call the line needs, grouped by the 
 8. **The shape of stored data**, and what happens to data already saved.
 9. **Test strategy**: the level each case is tested at, and what is faked.
 
-A call in any class that comes up once the line is underway goes through the same gate: stop, propose it, and build nothing that depends on it until the builder says yes. Record each answer in the pull request's `Decisions`.
+A call in any class that comes up once the line is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
 ## Resume
 
