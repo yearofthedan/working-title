@@ -39,7 +39,7 @@ make_copy() {
   mkdir -p "$copy/node_modules/.bin"
   cp "$root/do" "$copy/do"
   cp -R "$root/scripts" "$copy/scripts"
-  cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.cjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
+  cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.mjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
   for tool in vp playwright secretlint depcruise; do
     prefix="$tool "
     [ "$tool" = vp ] && prefix=''

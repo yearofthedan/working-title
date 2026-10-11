@@ -25,4 +25,4 @@ Domain, application, ports and adapters. Dependencies point inward only, and the
 
 ## Consequences
 
-Dependency direction and domain purity are lint rules that fail as you type. Storage, mirror and editor can each be replaced behind their port.
+Dependency direction and domain purity are checked on every change, so a wrong way round import fails before it lands. Storage, mirror and editor can each be replaced behind their port.

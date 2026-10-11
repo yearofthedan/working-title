@@ -1,8 +1,11 @@
 // The layers of docs/architecture.md, and the import graph rules that hold them there
 // (docs/adr/0002-hexagonal-layers.md). Which layer may import which is written once, below.
+//
+// shortcut: this reads the code with a second TypeScript, 6 beside the 7 inside Vite+, because
+// dependency-cruiser reads a `typescript` below 7; one version when it reads 7.
 
 /** @type {import('dependency-cruiser').IConfiguration} */
-module.exports = {
+export default {
   forbidden: [
     ...Object.entries({
       domain: ['application', 'ports', 'adapters', 'ui'],
@@ -28,9 +31,9 @@ module.exports = {
   ],
   options: {
     doNotFollow: { path: 'node_modules' },
-    // Without this a `../ui/app` specifier stays unresolved, so no rule of this file
-    // can see where it points: `.ts` is off by default because dependency-cruiser
-    // wants a `typescript` below 7 to read TypeScript, which this project does not have.
-    enhancedResolveOptions: { extensions: ['.js', '.ts', '.tsx'] },
+    // A layer reaches another through a type as easily as through a value, and without this
+    // dependency-cruiser reads such a dependency and drops it
+    // (https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#tsprecompilationdeps).
+    tsPreCompilationDeps: true,
   },
 };

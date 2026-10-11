@@ -62,6 +62,15 @@ write src/ui/round.ts "import { back } from './back';
 export const round = back;"
 write src/ui/back.ts "import { round } from './round';
 export const back = round;"
+# TypeScript of its own, and an import of a type, which a reader of plain JavaScript
+# could miss: both are read, not passed over.
+write src/domain/enum.ts "import { two } from '../ui/two';
+export enum Thing { One }
+export const thing = (label: string): Thing => (label === two ? Thing.One : Thing.One);"
+write src/ui/type-only.ts "import type { Story } from '../domain/story';
+export const summary = (story: Story): string => story.summary;"
+write src/domain/story.ts "export interface Story { summary: string }"
+write src/ui/re-export-type.ts "export type { Story } from '../domain/story';"
 run_layers
 refused "a project with an import out of turn is refused"
 
@@ -76,6 +85,13 @@ for from in $layers; do
     fi
   done
 done
+
+expect_out 'layer-direction-domain: src/domain/enum.ts → src/ui/two.ts' \
+  "a file of TypeScript syntax is refused"
+expect_out 'layer-direction-ui: src/ui/type-only.ts → src/domain/story.ts' \
+  "an import of a type over a layer is refused"
+expect_out 'layer-direction-ui: src/ui/re-export-type.ts → src/domain/story.ts' \
+  "a type re-exported over a layer is refused"
 
 expect_out 'no-circular: src/ui/back.ts →' "a cycle is refused"
 expect_out 'src/ui/round.ts →' "the cycle is shown round to back"
