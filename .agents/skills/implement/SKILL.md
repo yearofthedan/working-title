@@ -82,5 +82,5 @@ A pull request is done when all of these hold:
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
 - Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine.
-- In a task, the cases above are what this repo writes. A line about what a tool does has the tool's docs linked in its row and one run where it holds on this repo, and no test of the tool's own behaviour.
+- In a task, each `Done when` line has the evidence the [task template](../../../.github/ISSUE_TEMPLATE/task.md) asks for, and the cases above are only the lines it says are tested here.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.

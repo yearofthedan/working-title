@@ -5,7 +5,7 @@ title: ""
 labels: task
 ---
 
-<!-- Add this issue as a sub-issue of its epic's issue, in the epic's milestone. When the behaviour is code this repo writes, it is a story instead. -->
+<!-- Add this issue as a sub-issue of its epic's issue, in the epic's milestone. -->
 
 ## Outcome
 
