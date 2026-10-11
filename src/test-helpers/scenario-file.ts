@@ -48,10 +48,13 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
     if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
     return { keyword: 'And', phrase: oneLine('A step phrase', and[1]) };
   }
-  throw new Error(`Line ${at} is not a step: ${JSON.stringify(line)}`);
+  throw new Error(`Line ${at} reads as a step but is not one: ${JSON.stringify(line)}`);
 };
 
 const isStepLine = (line: string): boolean => stepLine.test(line) || continuation.test(line);
+
+/** The runner prints the accessibility tree of `main`, whose every line names a node. */
+const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
 
 const firstDifference = (printed: string, text: string): number => {
   const a = printed.split('\n');
@@ -119,6 +122,9 @@ export const readScenarioFile = (text: string): ScenarioFile => {
           `Line ${at} is a step after what the runner observed: ${JSON.stringify(line)}`,
         );
       }
+      if (!isObservedLine(line)) {
+        throw new Error(`Line ${at} is not what the runner prints: ${JSON.stringify(line)}`);
+      }
       observed.push(line);
       continue;
     }
@@ -134,17 +140,19 @@ export const readScenarioFile = (text: string): ScenarioFile => {
       if (line.trim() === '') {
         throw new Error(`Line ${at} is blank between steps: ${JSON.stringify(line)}`);
       }
-      if (isStepLine(line)) {
+      if (isStepLine(line) || looksLikeAStep.test(line)) {
         steps.push(stepIn(line, steps, at));
         continue;
-      }
-      if (looksLikeAStep.test(line)) {
-        throw new Error(`Line ${at} reads as a step but is not one: ${JSON.stringify(line)}`);
       }
       const last = [...steps].reverse().find((step) => step.keyword !== 'And');
       if (last?.keyword !== 'Then') {
         throw new Error(
           `Line ${at} is not a step, and only a Then is followed by what the runner observed: ${JSON.stringify(line)}`,
+        );
+      }
+      if (!isObservedLine(line)) {
+        throw new Error(
+          `Line ${at} is neither a step nor what the runner prints: ${JSON.stringify(line)}`,
         );
       }
       observed = [line];
