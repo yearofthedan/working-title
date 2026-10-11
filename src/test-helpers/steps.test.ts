@@ -4,7 +4,7 @@ import { stepTable } from './steps';
 const step = (phrase: string) => ({ keyword: 'When' as const, phrase });
 
 describe('a step table', () => {
-  it('plays the move whose phrase it matches, with what the phrase captured', async () => {
+  it('plays the action whose phrase it matches, with what the phrase captured', async () => {
     const played: string[] = [];
     const table = stepTable({
       'a new project': () => {
@@ -20,16 +20,25 @@ describe('a step table', () => {
     expect(played).toEqual(['a new project', 'the one-sentence summary <- "a widow hunts"']);
   });
 
-  it('refuses a phrase no move answers', async () => {
+  it('refuses a phrase nothing plays', async () => {
     const table = stepTable({ 'a new project': () => {} });
-    await expect(table.play(step('a reloaded app'))).rejects.toThrow('No move answers the phrase');
+    await expect(table.play(step('a reloaded app'))).rejects.toThrow('Nothing plays the phrase');
   });
 
-  it('refuses a phrase two moves answer', async () => {
+  it('refuses a phrase two actions play', async () => {
     const table = stepTable({
       'a new project': () => {},
       'a {what} project': () => {},
     });
-    await expect(table.play(step('a new project'))).rejects.toThrow('Two moves answer the phrase');
+    await expect(table.play(step('a new project'))).rejects.toThrow('2 actions play the phrase');
+  });
+
+  it.each([
+    ['a repeated placeholder', { 'types {text} into {text}': () => {} }, 'uses {text} twice'],
+    ['a placeholder that is not a name', { 'types {1x}': () => {} }, 'placeholder reads {name}'],
+    ['a placeholder holding a dash', { 'types {some-text}': () => {} }, 'placeholder reads {name}'],
+    ['a stray brace', { 'types {text': () => {} }, 'placeholder reads {name}'],
+  ])('refuses %s', (_, actions, message) => {
+    expect(() => stepTable(actions)).toThrow(message);
   });
 });
