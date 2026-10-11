@@ -8,7 +8,7 @@ export interface PieceKind {
   readonly facets: readonly Facet[];
 }
 
-/** Snowflake, extended, is the one method so far, so a kind has no parent kind to branch from yet. */
+// shortcut: a method's one kind, and no kinds under it, until #2 adds the pieces that branch.
 export interface Method {
   readonly name: string;
   readonly version: number;

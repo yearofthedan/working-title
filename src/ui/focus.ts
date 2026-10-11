@@ -15,6 +15,7 @@ const field = ({ id, label, text }: Focus['facets'][number], elaborate: Focus['e
   return wrapper;
 };
 
+// shortcut: plain DOM, until the first #2 story that renders the graph picks a framework.
 export const renderFocus = (main: HTMLElement, focus: Focus): void => {
   main.replaceChildren(...focus.facets.map((facet) => field(facet, focus.elaborate)));
 };

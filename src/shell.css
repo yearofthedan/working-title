@@ -15,6 +15,7 @@ main {
   padding: 2rem;
 }
 
+/* shortcut: the field's look, until the stories that put pieces on screen pick one. */
 .facet {
   display: grid;
   gap: 0.5rem;
