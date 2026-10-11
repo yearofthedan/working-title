@@ -25,4 +25,4 @@ Domain, application, ports and adapters. Dependencies point inward only, and the
 
 ## Consequences
 
-Dependency direction and domain purity are checked on every change, so a wrong way round import fails before it lands. Storage, mirror and editor can each be replaced behind their port.
+Dependency direction is checked by `./do check`, which a push and a pull request both run, so a wrong way round import fails before it merges. Domain purity has no check yet. Storage, mirror and editor can each be replaced behind their port.

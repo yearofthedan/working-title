@@ -33,4 +33,4 @@ If a structural check cannot be written reliably for Oxlint, ESLint is the bette
 
 ## Consequences
 
-`./do check` is the one local check. Upgrades move the whole toolchain at once; a check whose tool cannot read the TypeScript the toolchain uses may carry its own beside it, as the layer check does ([`.dependency-cruiser.mjs`](../../.dependency-cruiser.mjs)), which is a second TypeScript to bring back in step. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config, each structural rule and each test's imports, and that cost grows with every one written.
+`./do check` is the one local check. Upgrades move the whole toolchain at once. A check whose tool cannot read the TypeScript the toolchain uses may carry a second one beside it, to bring back in step. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config, each structural rule and each test's imports, and that cost grows with every one written.
