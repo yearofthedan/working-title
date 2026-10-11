@@ -32,8 +32,8 @@ main {
   font: inherit;
   color: inherit;
   background: none;
-  border: 1px solid currentColor;
-  border-radius: 0.25rem;
-  padding: 0.5rem;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  padding: 0.25rem 0;
   resize: vertical;
 }

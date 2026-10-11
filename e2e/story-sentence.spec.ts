@@ -37,3 +37,17 @@ test('text with line breaks, quotes and non-Latin characters survives', async ({
   await writer.reloads();
   await expect(writer.theField(summary)).toHaveValue(awkward);
 });
+
+// The app's first principle: words are never lost, so a project it cannot read is left
+// where it is rather than replaced by an empty one.
+test('saved data that cannot be read is left alone', async ({ writer, page }) => {
+  await writer.opensTheApp();
+  await page.evaluate(() => localStorage.setItem('working-title:project', '{not json'));
+  await writer.reloads();
+  const [fields, saved] = await page.evaluate(() => [
+    document.querySelectorAll('textarea').length,
+    localStorage.getItem('working-title:project'),
+  ]);
+  expect(fields).toBe(0);
+  expect(saved).toBe('{not json');
+});
