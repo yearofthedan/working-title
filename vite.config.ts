@@ -130,8 +130,11 @@ export default defineConfig({
     ],
   },
   test: {
-    // Only ./do approve writes approved files, so a run never does (Vitest: update). It is
-    // read at the root, not per project: a project-level `update` let a run write snapshots.
+    // Only ./do approve writes approved files, so a run never does (./do test refuses
+    // --update). `update` is one of the options Vitest reads from the root config only, not
+    // from a project (https://vitest.dev/config/: options "not supported inside a project
+    // config ... can only be set in the root Vitest config"). Observed: with it inside a
+    // project, a run wrote the approved file it was meant to compare with.
     update: 'none',
     projects: [
       {
