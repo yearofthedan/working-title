@@ -23,8 +23,7 @@ export interface ScenarioFile {
 const rank = { Given: 0, When: 1, Then: 2 } as const;
 const stepKeywords = Object.keys(rank) as (keyof typeof rank)[];
 
-const stepLine = /^(Given|When|Then) (.+)$/;
-const continuation = /^ └ and (.+)$/;
+const stepLine = /^(Given|When|Then|And) (.+)$/;
 const looksLikeAStep = new RegExp(`^(${stepKeywords.join('|')})\\b`, 'i');
 
 const oneLine = (what: string, line: string): string => {
@@ -37,7 +36,11 @@ const oneLine = (what: string, line: string): string => {
 const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
   const plain = stepLine.exec(line);
   if (plain) {
-    const keyword = plain[1] as keyof typeof rank;
+    const keyword = plain[1] as StepKeyword;
+    if (keyword === 'And') {
+      if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
+      return { keyword, phrase: oneLine('A step phrase', plain[2]) };
+    }
     const last = [...soFar].reverse().find((step) => step.keyword !== 'And');
     if (last && rank[keyword] < rank[last.keyword as keyof typeof rank]) {
       throw new Error(
@@ -46,15 +49,10 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
     }
     return { keyword, phrase: oneLine('A step phrase', plain[2]) };
   }
-  const and = continuation.exec(line);
-  if (and) {
-    if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
-    return { keyword: 'And', phrase: oneLine('A step phrase', and[1]) };
-  }
   throw new Error(`Line ${at} reads as a step but is not one: ${JSON.stringify(line)}`);
 };
 
-const isStepLine = (line: string): boolean => stepLine.test(line) || continuation.test(line);
+const isStepLine = (line: string): boolean => stepLine.test(line);
 
 /** The runner prints the accessibility tree of `main`, whose every line names a node. */
 const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
@@ -196,9 +194,7 @@ export const printScenarioFile = ({ rule, scenarios }: ScenarioFile): string =>
       `### Scenario: ${behaviour}`,
       '',
       '```',
-      ...steps.map((step) =>
-        step.keyword === 'And' ? ` └ and ${step.phrase}` : `${step.keyword} ${step.phrase}`,
-      ),
+      ...steps.map((step) => `${step.keyword} ${step.phrase}`),
       ...(observed ?? []),
       '```',
     ]),

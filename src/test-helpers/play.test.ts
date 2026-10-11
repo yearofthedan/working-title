@@ -10,7 +10,7 @@ const file = [
   '```',
   'Given a toy',
   'When the writer types "the line"',
-  ' └ and reloads',
+  'And reloads',
   'Then the writer sees',
   '- main:',
   '  - text: A toy',

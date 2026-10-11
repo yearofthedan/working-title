@@ -12,7 +12,7 @@ describe('a scenario file', () => {
         '```',
         'Given a toy',
         'When it runs',
-        ' └ and again',
+        'And again',
         'Then the writer sees',
         '- main:',
         '  - text: A toy',
@@ -122,16 +122,7 @@ describe('a scenario file', () => {
     ],
     [
       'an "and" with nothing before it',
-      [
-        'Rule: A toy rule.',
-        '',
-        '### Scenario: A toy behaviour',
-        '',
-        '```',
-        ' └ and again',
-        '```',
-        '',
-      ],
+      ['Rule: A toy rule.', '', '### Scenario: A toy behaviour', '', '```', 'And again', '```', ''],
       '"and" with no step before it',
     ],
     [
