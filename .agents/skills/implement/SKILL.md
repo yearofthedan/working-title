@@ -31,12 +31,29 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 ## Start a line
 
 - Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
+- Confirm the line's calls with the builder, as the next section says. Nothing is committed before they say yes.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
 - Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
 - Keep the acceptance criteria table current: one row for each criterion and each edge, or each `Done when` line of a task, its test or docs link, and where it ran.
 
 The pull request that finishes the last unticked line says `Closes #<issue number>` where the others say `Part of`. The last line is known when the plan is made and again when the plan is updated, so a line that turns out to be last is opened, or edited, to close.
+
+## Confirm the line's calls
+
+Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
+
+1. **Tooling and dependencies**, including a choice not to use one.
+2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).
+3. **Decision records the line touches**: how the line follows each one, and any you think is wrong for this case. A challenge names the record, what this line shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](../writing-adrs/SKILL.md), ahead of the line that depends on it.
+4. **Reading the issue**: how you read an acceptance criterion or a `Done when` line that allows more than one reading.
+5. **Scope** beyond the plan line, including changing or removing existing behaviour.
+6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
+7. **What the writer sees**: copy, interaction and layout.
+8. **The shape of stored data**, and what happens to data already saved.
+9. **Test strategy**: the level each case is tested at, and what is faked.
+
+A call in any class that comes up once the line is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
 ## Resume
 
@@ -67,7 +84,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 ## Build rules
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
-- Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, record the call in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
+- Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the line's calls](#confirm-the-lines-calls) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - A question or aside from the builder is not agreement to a change. Answer it, and when it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
