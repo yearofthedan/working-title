@@ -1,42 +1,41 @@
-import { describe, expect, test } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { isProject, newProject, type Method, type Project } from './project';
 
+// A toy method, shaped differently from the built-in one: the method's own words belong in
+// `methods/`, and the core knows only kinds and facets ([ADR 5](../../docs/adr/0005-method-as-data.md)).
 const method: Method = {
-  name: 'snowflake-extended',
+  name: 'toy',
   version: 1,
-  rootKind: {
-    id: 'story',
-    facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary' }],
-  },
+  rootKind: { id: 'root', facets: [{ id: 'note', label: 'Note' }] },
 };
 
 const project: Project = {
-  method: 'snowflake-extended',
+  method: 'toy',
   version: 1,
-  root: { kindId: 'story', facets: { 'one-sentence-summary': 'A widow hunts' } },
+  root: { kind: 'root', facets: { note: 'First line' } },
 };
 
 describe('isProject', () => {
-  test('reads a project, with a facet filled in or not', () => {
+  it('reads a project, with a facet filled in or not', () => {
     expect(isProject(project)).toBe(true);
     expect(isProject(newProject(method))).toBe(true);
   });
 
   // Every value the app could find where it left a project: JSON.parse reads each of these
   // without error, so a parse alone never tells them from a project.
-  test.each([
+  it.each([
     ['null', null],
     ['a number', 0],
     ['a string', 'x'],
     ['an array', []],
     ['an empty object', {}],
-    ['no facets', { method: 'snowflake-extended', version: 1, root: { kindId: 'story' } }],
+    ['no facets', { method: 'toy', version: 1, root: { kind: 'root' } }],
     [
       'a facet that is not text',
-      { ...project, root: { kindId: 'story', facets: { 'one-sentence-summary': { a: 1 } } } },
+      { ...project, root: { kind: 'root', facets: { note: { a: 1 } } } },
     ],
-    ['no method', { version: 1, root: { kindId: 'story', facets: {} } }],
-    ['no version', { method: 'snowflake-extended', root: { kindId: 'story', facets: {} } }],
+    ['no method', { version: 1, root: { kind: 'root', facets: {} } }],
+    ['no version', { method: 'toy', root: { kind: 'root', facets: {} } }],
   ])('refuses %s', (_, value) => {
     expect(isProject(value)).toBe(false);
   });

@@ -29,6 +29,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A mutation run's restore is checked by reading the restored file, not only by the next run | [#57](https://github.com/yearofthedan/working-title/pull/57) | [implement: Definition of done](../.agents/skills/implement/SKILL.md#definition-of-done) |
 | A run's whole output is read, warnings included: reading only its pass and fail lines hides a warning the change added | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
 | A fact about who did the work comes from the session's own context: another agent's account of itself names that agent, not the writer | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A thing named after a pattern is checked against that pattern's own documentation before its purpose is stated or changed: the repo's prose about it is not the source | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
 
 ## The columns
 

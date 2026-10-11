@@ -20,7 +20,7 @@ export interface FacetText {
 }
 
 export interface Piece {
-  readonly kindId: string;
+  readonly kind: string;
   readonly facets: FacetText;
 }
 
@@ -33,7 +33,7 @@ export interface Project {
 export const newProject = (method: Method): Project => ({
   method: method.name,
   version: method.version,
-  root: { kindId: method.rootKind.id, facets: {} },
+  root: { kind: method.rootKind.id, facets: {} },
 });
 
 /**

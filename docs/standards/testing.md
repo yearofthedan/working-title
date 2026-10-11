@@ -11,6 +11,9 @@
 
 ## Approved scenarios
 
+The harness comes from the [Approved Scenarios](https://lexler.github.io/augmented-coding-patterns/patterns/approved-scenarios/) pattern, a special case of [Constrained Tests](https://lexler.github.io/augmented-coding-patterns/patterns/constrained-tests/): an approval file holds the input and the expected output, the runner regenerates it from what it observes, the execution logic is written and validated once, and the format is a data file a parser reads rather than an API a test calls.
+
+- **An approved file holds the scenario's wording, and not yet the output it observed.** `./do approve` regenerates it from the printed scenario, so a behaviour change that leaves the phrases identical leaves the diff empty. The pattern's file carries the observed result as well.
 - **A scenario test prints the story's scenarios and checks them against an approved file**: the steps in `src/test-helpers/scenario.ts` print the rule, a heading per behaviour and the Given/When/Then lines, and `expectApproved` compares them with an approved file beside the test, named after the test file and the test's full name: `approved.test.ts`'s test "approved files > the harness approves its own scenarios" has `approved.approved-files-the-harness-approves-its-own-scenarios.approved.md`.
 - **Each step is a helper named after the phrase it prints, which runs that step**: `theTestsRun` prints "When the tests run" and runs them. No line of an approved file is typed by hand. `src/test-helpers/approved.test.ts` is the example.
 - **Only `./do approve <test file>` writes approved files.** The agent writing the code runs it, and only for scenarios the builder agreed in the story, so the approved file reads as the story did. A pull request lists every approved file it changes.

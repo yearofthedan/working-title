@@ -15,8 +15,7 @@ export interface Focus {
 export const openProject = async (method: Method, store: ProjectStore): Promise<Focus> => {
   const project: Project = (await store.load()) ?? newProject(method);
   const save = () => store.save(project);
-  // The story is the only piece so far, so it is always the focus: shortcut, until #2 adds
-  // pieces beside and under it.
+  // shortcut: the story is always the focus, until #2 adds pieces beside and under it.
   return {
     facets: method.rootKind.facets.map(({ id, label }) => ({
       id,
