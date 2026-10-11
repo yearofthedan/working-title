@@ -10,7 +10,7 @@ Which tools format, lint, type-check and test the code, and run the git hooks?
 - **Agents copy.** Agents write most of the code: every extra config and command is another pattern to copy wrongly.
 - **Keeping in step.** Tools released separately are upgraded separately, and a version of one can break another.
 - **Maturity.** A young tool can change under the code.
-- **Lock-in.** Every test imports its runner, and every structural check is written for one linter, so leaving a toolchain costs more with each test and rule.
+- **Lock-in.** Every test imports its runner, and every structural check is written for the tools that run it, so leaving a toolchain costs more with each test and rule.
 
 ## Options considered
 
@@ -29,7 +29,7 @@ Vite+ formats, lints, type-checks and tests the code, and installs the git hooks
 - **ESLint, Prettier and a hook manager** lost on **Agents copy** and **Keeping in step**: four configs and four versions to keep together, for checks Vite+ can also express. Its lead on **Structural checks** is decisive only where Oxlint cannot express a check.
 - **Biome and a hook manager** lost on the same two columns. It leads Vite+ on **Maturity** but not ESLint, so if Vite+ is reversed, ESLint is the option to reverse to.
 
-If a structural check cannot be written reliably for Oxlint, ESLint is the better choice and this record is superseded.
+If a structural check cannot be written reliably for Oxlint and no dedicated tool suits it either, ESLint is the better choice and this record is superseded.
 
 ## Consequences
 

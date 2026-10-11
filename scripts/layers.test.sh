@@ -104,6 +104,6 @@ write src/application/plan.ts "import type { Story } from '../domain/story';
 export const plan = (story: Story) => story.summary;"
 run_layers
 allowed "imports that point inward are allowed"
-not_err 'error' "nothing is reported where there is nothing to refuse"
+not_out 'error' "nothing is reported where there is nothing to refuse"
 
 finish

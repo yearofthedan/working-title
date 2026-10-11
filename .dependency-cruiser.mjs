@@ -1,8 +1,8 @@
 // The layers of docs/architecture.md, and the import graph rules that hold them there
 // (docs/adr/0002-hexagonal-layers.md). Which layer may import which is written once, below.
 //
-// shortcut: this reads the code with a second TypeScript, 6 beside the 7 inside Vite+, because
-// dependency-cruiser reads a `typescript` below 7; one version when it reads 7.
+// shortcut: its own TypeScript, 6, as it reads only a `typescript` below 7 and the toolchain is
+// on 7; one version when it reads 7 (the range is what `depcruise --info` prints).
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 export default {
