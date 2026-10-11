@@ -1,13 +1,34 @@
 #!/bin/sh
-# Approve what a test run produced: vp test --update=all, which writes the snapshots a run refuses to write.
+# Write what a scenario's runner observed into the file, choosing the runner by where
+# the file is: a journey in e2e/, a page scenario beside the page.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
 
 if [ "$#" -eq 0 ] || [ ! -f "$1" ]; then
-  echo "Name the test file to approve first: ./do approve <test file> [-t <test name>]" >&2
+  echo "Name the scenario file to approve first: ./do approve <scenario file>" >&2
   exit 2
 fi
 
-exec vp test --update=all "$@"
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+case "$1" in
+/*) path=${1#"$root"/} ;;
+*) path=$1 ;;
+esac
+
+case "$path" in
+e2e/*)
+  entry=e2e/scenarios.spec.ts
+  runner=playwright
+  filter=--grep
+  ;;
+*)
+  entry=src/scenarios.browser.test.ts
+  runner=vp
+  filter=-t
+  ;;
+esac
+
+# The entry matches the file it read, and only that one records.
+SCENARIO_APPROVE=$path exec "$runner" test "$entry" "$filter" "$path"

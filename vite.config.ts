@@ -58,7 +58,12 @@ const restricted = (anyObject: string[], message: string) => [
   ...pageSelectorActions.map((property) => ({ object: 'page', property, message })),
 ];
 
+// ./do approve runs a runner with this set, and only that run may write a scenario's
+// observed block. It reaches a browser-mode test through the define below.
+const approving = process.env.SCENARIO_APPROVE !== undefined;
+
 export default defineConfig({
+  define: { __SCENARIO_APPROVE__: JSON.stringify(process.env.SCENARIO_APPROVE ?? '') },
   plugins: [
     {
       name: 'theme-color',
@@ -131,11 +136,14 @@ export default defineConfig({
   },
   test: {
     // A run never writes a scenario's observed block; only ./do approve does, and ./do test
-    // refuses --update. Left at `none` so no run writes a Vitest snapshot either. `update` is
-    // one of the options Vitest reads from the root config only, not from a project
+    // refuses --update. A browser test may write a file only when that run says so
+    // (https://vitest.dev/config/api#api-allowwrite).
+    api: { allowWrite: approving },
+    // `update` is set at the root because Vitest reads it there and not from a project
     // (https://vitest.dev/config/: options "not supported inside a project config ... can only
     // be set in the root Vitest config"). Observed: with it inside a project, a run wrote the
-    // file it was meant to compare with.
+    // file it was meant to compare with. Left at `none` so no run writes a Vitest snapshot
+    // either.
     update: 'none',
     projects: [
       {
@@ -149,6 +157,7 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
+          api: { allowWrite: approving },
           browser: {
             enabled: true,
             provider: playwright(),

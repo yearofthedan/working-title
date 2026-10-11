@@ -1,12 +1,16 @@
 import { describe, it } from 'vite-plus/test';
+import * as browser from 'vite-plus/test/browser';
 import { projectStore } from './adapters/local-storage-project-store';
 import { openProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
 import { browserScope } from './test-helpers/browser-scope';
 import { readScenarioFile } from './test-helpers/scenario-file';
-import { playScenarios } from './test-helpers/play';
+import { playScenarios, type Runner } from './test-helpers/play';
 import { renderFocus } from './ui/focus/focus';
 import { focusPageActions } from './ui/focus/writer';
+
+// ./do approve sets this to the scenario file it is approving; a plain run has it empty.
+declare const __SCENARIO_APPROVE__: string;
 
 // Vite reads each file as raw text. Its client types are not wired into this project's
 // tsconfig, so the shape the glob returns is declared here.
@@ -17,7 +21,7 @@ interface RawGlob {
   ): Record<string, string>;
 }
 
-const files = (import.meta as unknown as RawGlob).glob('./**/scenarios/*.approved.md', {
+const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.approved.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -30,19 +34,41 @@ const theStoryOnScreen = async () => {
   renderFocus(main, await openProject(snowflakeExtended, projectStore()));
 };
 
-for (const [path, text] of Object.entries(files)) {
+// The page a scenario plays on is fresh for each test, and both scopes below read the tree
+// from the page the test is on.
+const runnerFor = (approving: boolean): Runner => {
+  const scope = browserScope(theStoryOnScreen);
+  return {
+    tree: async () => scope.tree(),
+    ...(approving
+      ? {
+          write: async (where: string, text: string) => {
+            await browser.server.commands.writeFile(where, text);
+          },
+        }
+      : {}),
+  };
+};
+
+for (const [key, text] of Object.entries(files)) {
+  const path = key.replace(/^\//, '');
+  const approving = __SCENARIO_APPROVE__ !== '' && __SCENARIO_APPROVE__ === path;
+  if (__SCENARIO_APPROVE__ !== '' && !approving) continue;
+
   describe(path, () => {
+    const scope = browserScope(theStoryOnScreen);
+    const actions = focusPageActions(scope);
+
+    if (approving) {
+      it('records what the page shows', async () => {
+        await playScenarios({ path, text }, runnerFor(true), actions, { approve: true });
+      });
+      return;
+    }
+
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
-        const scope = browserScope(theStoryOnScreen);
-        await playScenarios(
-          { path, text },
-          { tree: async () => scope.tree() },
-          focusPageActions(scope),
-          {
-            only: behaviour,
-          },
-        );
+        await playScenarios({ path, text }, runnerFor(false), actions, { only: behaviour });
       });
     }
   });
