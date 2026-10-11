@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { findsAnyOtherWay, findsByRoleOrLabel, pageSelectorActions } from './vite.config';
 
 const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
@@ -47,23 +47,23 @@ beforeAll(() => {
 afterAll(() => rmSync(samples, { recursive: true, force: true }));
 
 describe('e2e locators', { timeout: 60_000 }, () => {
-  test.each(calls)('a spec calling page.%s fails lint, pointing to the driver', (call) => {
+  it.each(calls)('a spec calling page.%s fails lint, pointing to the driver', (call) => {
     expect(errorsIn(`spec-${call}.ts`)).toEqual([expect.stringContaining('e2e/writer.ts')]);
   });
 
-  test('a spec with no locator passes lint', () => {
+  it('a spec with no locator passes lint', () => {
     expect(errorsIn('spec-no-locator.ts')).toEqual([]);
   });
 
-  test.each(findsByRoleOrLabel)('the driver calling page.%s passes lint', (call) => {
+  it.each(findsByRoleOrLabel)('the driver calling page.%s passes lint', (call) => {
     expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([]);
   });
 
-  test('the driver acting on a locator it found passes lint', () => {
+  it('the driver acting on a locator it found passes lint', () => {
     expect(errorsIn('driver-acting-on-a-locator/writer.ts')).toEqual([]);
   });
 
-  test.each([...findsAnyOtherWay, ...pageSelectorActions])(
+  it.each([...findsAnyOtherWay, ...pageSelectorActions])(
     'the driver calling page.%s fails lint',
     (call) => {
       expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([

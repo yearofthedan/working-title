@@ -12,6 +12,9 @@ export interface Scenario {
   readonly observed?: readonly string[];
 }
 
+/** The step a scenario ends with: the runner prints the page there, and the block under it. */
+export const OBSERVED = 'the writer sees';
+
 export interface ScenarioFile {
   readonly rule: string;
   readonly scenarios: readonly Scenario[];
@@ -20,8 +23,7 @@ export interface ScenarioFile {
 const rank = { Given: 0, When: 1, Then: 2 } as const;
 const stepKeywords = Object.keys(rank) as (keyof typeof rank)[];
 
-const stepLine = /^(Given|When|Then) (.+)$/;
-const continuation = /^ └ and (.+)$/;
+const stepLine = /^(Given|When|Then|And) (.+)$/;
 const looksLikeAStep = new RegExp(`^(${stepKeywords.join('|')})\\b`, 'i');
 
 const oneLine = (what: string, line: string): string => {
@@ -34,7 +36,11 @@ const oneLine = (what: string, line: string): string => {
 const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
   const plain = stepLine.exec(line);
   if (plain) {
-    const keyword = plain[1] as keyof typeof rank;
+    const keyword = plain[1] as StepKeyword;
+    if (keyword === 'And') {
+      if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
+      return { keyword, phrase: oneLine('A step phrase', plain[2]) };
+    }
     const last = [...soFar].reverse().find((step) => step.keyword !== 'And');
     if (last && rank[keyword] < rank[last.keyword as keyof typeof rank]) {
       throw new Error(
@@ -43,15 +49,10 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
     }
     return { keyword, phrase: oneLine('A step phrase', plain[2]) };
   }
-  const and = continuation.exec(line);
-  if (and) {
-    if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
-    return { keyword: 'And', phrase: oneLine('A step phrase', and[1]) };
-  }
   throw new Error(`Line ${at} reads as a step but is not one: ${JSON.stringify(line)}`);
 };
 
-const isStepLine = (line: string): boolean => stepLine.test(line) || continuation.test(line);
+const isStepLine = (line: string): boolean => stepLine.test(line);
 
 /** The runner prints the accessibility tree of `main`, whose every line names a node. */
 const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
@@ -91,6 +92,14 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     if (steps.length === 0) {
       throw new Error(`The scenario ${JSON.stringify(behaviour)} holds no step`);
     }
+    steps.forEach((step, at) => {
+      if (step.phrase !== OBSERVED) return;
+      if (step.keyword !== 'Then' || at !== steps.length - 1) {
+        throw new Error(
+          `"${OBSERVED}" is the last step of a scenario and follows a Then, and here it is a ${step.keyword} at ${at + 1} of ${steps.length}`,
+        );
+      }
+    });
     scenarios.push({ behaviour, steps, ...(observed ? { observed } : {}) });
     behaviour = undefined;
     steps = [];
@@ -185,10 +194,28 @@ export const printScenarioFile = ({ rule, scenarios }: ScenarioFile): string =>
       `### Scenario: ${behaviour}`,
       '',
       '```',
-      ...steps.map((step) =>
-        step.keyword === 'And' ? ` └ and ${step.phrase}` : `${step.keyword} ${step.phrase}`,
-      ),
+      ...steps.map((step) => `${step.keyword} ${step.phrase}`),
       ...(observed ?? []),
       '```',
     ]),
   ].join('\n') + '\n';
+
+/** Replace one scenario's observed block, leaving every other line as it was. */
+export const withObserved = (
+  text: string,
+  behaviour: string,
+  observed: readonly string[],
+): string => {
+  const file = readScenarioFile(text);
+  if (!file.scenarios.some((scenario) => scenario.behaviour === behaviour)) {
+    throw new Error(`The file holds no scenario named ${JSON.stringify(behaviour)}`);
+  }
+  return printScenarioFile({
+    ...file,
+    scenarios: file.scenarios.map((scenario) =>
+      scenario.behaviour === behaviour
+        ? { ...scenario, ...(observed.length > 0 ? { observed } : { observed: undefined }) }
+        : scenario,
+    ),
+  });
+};

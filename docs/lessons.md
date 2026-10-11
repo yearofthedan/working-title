@@ -7,6 +7,8 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 
 | Lesson | Found in | Tripwire |
 | --- | --- | --- |
+| A call the builder has to answer goes in a message of its own, and the work waits for it: a question buried in a status report is not asked | [#57](https://github.com/yearofthedan/working-title/pull/57) | [AGENTS.md: Working with the builder](../AGENTS.md#working-with-the-builder) |
+| A claim that an API is missing is checked against the installed version, by asking it, not only against the docs and the types: Vitest 5.0.3 exports its aria renderer under different names than the docs give | [#57](https://github.com/yearofthedan/working-title/pull/57) | [AGENTS.md: What you assert](../AGENTS.md#what-you-assert) |
 | Tool behaviour is checked against the current docs before it is stated as fact, in a story or in a claim about what a platform can do | [#22](https://github.com/yearofthedan/working-title/pull/22), [#27](https://github.com/yearofthedan/working-title/pull/27), [#28](https://github.com/yearofthedan/working-title/pull/28), [#51](https://github.com/yearofthedan/working-title/pull/51) | [AGENTS.md: What you assert](../AGENTS.md#what-you-assert) |
 | Every deliverable is checked for a basis today when a story is written | [#24](https://github.com/yearofthedan/working-title/pull/24), [#31](https://github.com/yearofthedan/working-title/pull/31) | [writing-stories: Check the draft](../.agents/skills/writing-stories/SKILL.md#check-the-draft-before-showing-it) |
 | A run is only evidence if the answer is not already written where the run can read it | [#25](https://github.com/yearofthedan/working-title/pull/25) | none |
@@ -26,6 +28,12 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A break is confirmed to have landed, by reading the file, before its run is believed: a break that changed nothing looks exactly like a case that cannot fail | [#59](https://github.com/yearofthedan/working-title/pull/59) | none |
 | A change with no obvious calls still makes them: readings of the issue, where a rule lives, how far a list reaches. Set them out and get a yes, rather than declaring none | [#55](https://github.com/yearofthedan/working-title/pull/55) | none |
 | A check can pass on nothing — a crawl that read no file, a case generated from the rules it tests — so it needs a case written apart from what it checks, saying what it saw | [#56](https://github.com/yearofthedan/working-title/pull/56) | none |
+| Seeing a case fail means first seeing that the change meant to break it landed: a mutation that changes nothing passes as a case that cannot fail | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A mutation run's restore is checked by reading the restored file, not only by the next run | [#57](https://github.com/yearofthedan/working-title/pull/57) | [implement: Definition of done](../.agents/skills/implement/SKILL.md#definition-of-done) |
+| A run's whole output is read, warnings included: reading only its pass and fail lines hides a warning the change added | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A fact about who did the work comes from the session's own context: another agent's account of itself names that agent, not the writer | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| An option is set where the tool documents reading it, not where it looks like it belongs: Vitest takes `update` from the root config, so one inside a project was ignored and the run wrote the files it was meant to compare with | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A thing named after a pattern is checked against that pattern's own documentation before its purpose is stated or changed: the repo's prose about it is not the source | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
 
 ## The columns
 

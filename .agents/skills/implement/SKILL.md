@@ -41,7 +41,7 @@ The pull request that finishes the last unticked line says `Closes #<issue numbe
 
 ## Confirm the line's calls
 
-Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
+Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. The calls go in a message of their own, and nothing is built while they are unanswered: work that assumes an answer is a guess, and a call left as a clause inside a status report is not asked. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
 
 1. **Tooling and dependencies**, including a choice not to use one.
 2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).
@@ -98,6 +98,6 @@ A pull request is done when all of these hold:
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
-- Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine.
+- Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine. A case is shown failing by breaking the code that should catch it, on committed work, and the file is read after the break is undone: a restore that quietly puts back the wrong version reads as a passing case, and as a flaky one later.
 - In a task, each `Done when` line has the evidence the [task template](../../../.github/ISSUE_TEMPLATE/task.md) asks for, and the cases above are only the lines it says are tested here.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
