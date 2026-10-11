@@ -3,6 +3,60 @@ import { configDefaults, defineConfig } from 'vite-plus';
 
 const themeColor = '#fbfaf7';
 
+// A property restricted with no object is restricted on every object, and one with an
+// object only where that name is written
+// (https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-restricted-properties).
+// The selector actions are restricted on `page` alone because a locator's own `click()`
+// is how the driver acts.
+export const findsByRoleOrLabel = ['getByRole', 'getByLabel'];
+export const findsAnyOtherWay = [
+  'getByText',
+  'getByPlaceholder',
+  'getByAltText',
+  'getByTitle',
+  'getByTestId',
+  'getByRef',
+  'locator',
+  'frameLocator',
+  '$',
+  '$$',
+  '$eval',
+  '$$eval',
+  'waitForSelector',
+];
+export const pageSelectorActions = [
+  'check',
+  'click',
+  'dblclick',
+  'dispatchEvent',
+  'dragAndDrop',
+  'fill',
+  'focus',
+  'getAttribute',
+  'hover',
+  'innerHTML',
+  'innerText',
+  'inputValue',
+  'isChecked',
+  'isDisabled',
+  'isEditable',
+  'isEnabled',
+  'isHidden',
+  'isVisible',
+  'press',
+  'selectOption',
+  'setChecked',
+  'setInputFiles',
+  'tap',
+  'textContent',
+  'type',
+  'uncheck',
+];
+const restricted = (anyObject: string[], message: string) => [
+  ...anyObject.map((property) => ({ property, message })),
+  ...pageSelectorActions.map((property) => ({ object: 'page', property, message })),
+];
+
 export default defineConfig({
   plugins: [
     {
@@ -45,6 +99,33 @@ export default defineConfig({
     rules: {
       'unicorn/no-thenable': 'error',
     },
+    overrides: [
+      {
+        files: ['e2e/**'],
+        excludeFiles: ['e2e/**/writer.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay],
+              'Find elements in the writer driver, e2e/writer.ts.',
+            ),
+          ],
+        },
+      },
+      {
+        files: ['e2e/**/writer.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted(
+              findsAnyOtherWay,
+              'The writer driver finds elements by role or label, as the writer does.',
+            ),
+          ],
+        },
+      },
+    ],
   },
   test: {
     // The approved-file tests run sample tests in folders of their own, which a run

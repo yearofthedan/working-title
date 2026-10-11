@@ -1,7 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './writer';
 
-test("the install splash uses the page's background colour", async ({ page }) => {
-  await page.goto('/');
+test("the install splash uses the page's background colour", async ({ writer, page }) => {
+  await writer.opensTheApp();
   const { background_color } = await (await page.request.get('/manifest.webmanifest')).json();
   const [manifest, body] = await page.evaluate((colour) => {
     // The browser normalises both colours to rgb() so a hex value compares with a computed one.
