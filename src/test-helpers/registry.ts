@@ -231,8 +231,9 @@ export class Fixture {
     );
     writeFileSync(
       join(dir, '.npmrc'),
-      // A cache of its own, so pnpm reads the fixture's metadata rather than a stale copy.
-      `registry=${registry.origin}\ncacheDir=${join(dir, 'cache')}\n`,
+      // The fixture's own registry. pnpm 12 reads store and cache settings from
+      // pnpm-workspace.yaml and the global config, not from a project .npmrc.
+      `registry=${registry.origin}\n`,
     );
     const fixture = new Fixture(dir, registry);
     fixture.settings(options.settings ?? readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'));

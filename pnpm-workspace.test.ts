@@ -28,8 +28,8 @@ const downgradedTrust: Release[] = [
 /** The repo's settings plus one exception, so a case can write the lockfile it then rejects. */
 const withException = (settings: string, list: string, entry: string): string =>
   settings.includes(`${list}:`)
-    ? settings.replace(new RegExp(`^${list}:$`, 'm'), `${list}:\n  - ${entry}`)
-    : `${settings}\n${list}:\n  - ${entry}\n`;
+    ? settings.replace(new RegExp(`^${list}:$`, 'm'), `${list}:\n  - '${entry}'`)
+    : `${settings}\n${list}:\n  - '${entry}'\n`;
 
 type Play = {
   releases: Record<string, Release[]>;
@@ -56,8 +56,8 @@ const aDependencyWhoseNewestVersionInRangeIsLessThanThreeDaysOld = async (
   play: Play,
 ) => {
   s.Given('a dependency whose newest version in range is less than three days old');
-  play.releases.alpha = [recent('1.1.0')];
-  play.dependencies.alpha = '^1.0.0';
+  play.releases['working-title-fixture-alpha'] = [recent('1.1.0')];
+  play.dependencies['working-title-fixture-alpha'] = '^1.0.0';
   play.fixture = await Fixture.create({
     releases: play.releases,
     dependencies: play.dependencies,
@@ -66,14 +66,17 @@ const aDependencyWhoseNewestVersionInRangeIsLessThanThreeDaysOld = async (
 
 const anOlderVersionInRangeIsAtLeastThreeDaysOld = (s: Scenario, play: Play) => {
   s.And('an older version in range is at least three days old');
-  play.releases.alpha = [mature('1.0.0'), ...play.releases.alpha];
+  play.releases['working-title-fixture-alpha'] = [
+    mature('1.0.0'),
+    ...play.releases['working-title-fixture-alpha'],
+  ];
   play.fixture?.publishes(play.releases);
 };
 
 const aDependencyWithNoVersionInRangeAtLeastThreeDaysOld = async (s: Scenario, play: Play) => {
   s.Given('a dependency with no version in range at least three days old');
-  play.releases.alpha = [recent('1.1.0')];
-  play.dependencies.alpha = '^1.0.0';
+  play.releases['working-title-fixture-alpha'] = [recent('1.1.0')];
+  play.dependencies['working-title-fixture-alpha'] = '^1.0.0';
   play.fixture = await Fixture.create({
     releases: play.releases,
     dependencies: play.dependencies,
@@ -85,8 +88,8 @@ const aDependencyVersionWithWeakerTrustEvidenceThanAnEarlierRelease = async (
   play: Play,
 ) => {
   s.Given('a dependency version with weaker trust evidence than an earlier release');
-  play.releases.beta = downgradedTrust;
-  play.dependencies.beta = '^2.0.0';
+  play.releases['working-title-fixture-beta'] = downgradedTrust;
+  play.dependencies['working-title-fixture-beta'] = '^2.0.0';
   play.fixture = await Fixture.create({
     releases: play.releases,
     dependencies: play.dependencies,
@@ -111,34 +114,34 @@ const theBuilderInstallsFromATerminalAndApprovesIt = async (s: Scenario, play: P
 const theOlderVersionIsInstalled = (s: Scenario, play: Play) => {
   s.Then('the older version is installed');
   expect(play.install?.status, play.install?.output).toBe(0);
-  expect(play.fixture?.versionOf('alpha')).toBe('1.0.0');
+  expect(play.fixture?.versionOf('working-title-fixture-alpha')).toBe('1.0.0');
 };
 
 const theInstallFailsAndNamesTheDependency = (s: Scenario, play: Play) => {
   s.Then('the install fails and names the dependency');
   expect(play.install?.status, play.install?.output).not.toBe(0);
-  expect(play.install?.output).toContain('alpha@1.1.0');
-  expect(play.fixture?.versionOf('alpha')).toBeUndefined();
+  expect(play.install?.output).toContain('working-title-fixture-alpha@1.1.0');
+  expect(play.fixture?.versionOf('working-title-fixture-alpha')).toBeUndefined();
 };
 
 const theInstallFailsAndNamesTheDependencyAndVersion = (s: Scenario, play: Play) => {
   s.Then('the install fails and names the dependency and version');
   expect(play.install?.status, play.install?.output).not.toBe(0);
-  expect(play.install?.output).toContain('beta@2.0.0');
-  expect(play.fixture?.versionOf('beta')).toBeUndefined();
+  expect(play.install?.output).toContain('working-title-fixture-beta@2.0.0');
+  expect(play.fixture?.versionOf('working-title-fixture-beta')).toBeUndefined();
 };
 
 const itIsInstalled = (s: Scenario, play: Play) => {
   s.Then('it is installed');
   expect(play.install?.status, play.install?.output).toBe(0);
-  expect(play.fixture?.versionOf('alpha')).toBe('1.1.0');
+  expect(play.fixture?.versionOf('working-title-fixture-alpha')).toBe('1.1.0');
 };
 
 const theExceptionIsRecordedInACommittedFile = (s: Scenario, play: Play) => {
   s.And('the exception is recorded in a committed file');
   const settings = play.fixture?.read('pnpm-workspace.yaml') ?? '';
   expect(settings).toContain('minimumReleaseAgeExclude:');
-  expect(settings).toContain('- alpha@1.1.0');
+  expect(settings).toContain('- working-title-fixture-alpha@1.1.0');
 };
 
 describe('the install policy', { timeout: 300_000 }, () => {
@@ -197,15 +200,21 @@ describe('the install policy', { timeout: 300_000 }, () => {
   test('a transitive dependency is held to the age check', async () => {
     const fixture = await Fixture.create({
       releases: {
-        alpha: [mature('1.0.0'), recent('1.1.0')],
-        gamma: [{ version: '1.0.0', publishedMinutesAgo: days(5), requires: { alpha: '^1.0.0' } }],
+        'working-title-fixture-alpha': [mature('1.0.0'), recent('1.1.0')],
+        'working-title-fixture-gamma': [
+          {
+            version: '1.0.0',
+            publishedMinutesAgo: days(5),
+            requires: { 'working-title-fixture-alpha': '^1.0.0' },
+          },
+        ],
       },
-      dependencies: { gamma: '^1.0.0' },
+      dependencies: { 'working-title-fixture-gamma': '^1.0.0' },
     });
     try {
       const install = await fixture.install();
       expect(install.status, install.output).toBe(0);
-      expect(fixture.resolved('alpha')).toBe('1.0.0');
+      expect(fixture.resolved('working-title-fixture-alpha')).toBe('1.0.0');
     } finally {
       fixture.remove();
     }
@@ -214,15 +223,21 @@ describe('the install policy', { timeout: 300_000 }, () => {
   test('a transitive dependency is held to the trust check', async () => {
     const fixture = await Fixture.create({
       releases: {
-        beta: downgradedTrust,
-        delta: [{ version: '1.0.0', publishedMinutesAgo: days(5), requires: { beta: '^2.0.0' } }],
+        'working-title-fixture-beta': downgradedTrust,
+        'working-title-fixture-delta': [
+          {
+            version: '1.0.0',
+            publishedMinutesAgo: days(5),
+            requires: { 'working-title-fixture-beta': '^2.0.0' },
+          },
+        ],
       },
-      dependencies: { delta: '^1.0.0' },
+      dependencies: { 'working-title-fixture-delta': '^1.0.0' },
     });
     try {
       const install = await fixture.install();
       expect(install.status, install.output).not.toBe(0);
-      expect(install.output).toContain('beta@2.0.0');
+      expect(install.output).toContain('working-title-fixture-beta@2.0.0');
     } finally {
       fixture.remove();
     }
@@ -231,12 +246,18 @@ describe('the install policy', { timeout: 300_000 }, () => {
   test.each([
     [
       'age',
-      { alpha: [recent('1.1.0')] },
-      { alpha: '^1.0.0' },
+      { 'working-title-fixture-alpha': [recent('1.1.0')] },
+      { 'working-title-fixture-alpha': '^1.0.0' },
       'minimumReleaseAgeExclude',
-      'alpha@1.1.0',
+      'working-title-fixture-alpha@1.1.0',
     ],
-    ['trust', { beta: downgradedTrust }, { beta: '^2.0.0' }, 'trustPolicyExclude', 'beta@2.0.0'],
+    [
+      'trust',
+      { 'working-title-fixture-beta': downgradedTrust },
+      { 'working-title-fixture-beta': '^2.0.0' },
+      'trustPolicyExclude',
+      'working-title-fixture-beta@2.0.0',
+    ],
   ])(
     'a lockfile entry that fails the %s check fails the install',
     async (_, releases, dependencies, list, entry) => {
