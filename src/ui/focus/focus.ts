@@ -1,4 +1,4 @@
-import type { Focus } from '../application/project';
+import type { Focus } from '../../application/project';
 
 const field = ({ id, label, text }: Focus['facets'][number], elaborate: Focus['elaborate']) => {
   const wrapper = document.createElement('div');

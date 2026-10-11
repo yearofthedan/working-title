@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { playScenarios, type ScenarioSource } from './play';
+import { playScenarios, type Runner, type ScenarioSource } from './play';
 import type { StepAction } from './steps';
 
 const file = [
@@ -26,10 +26,18 @@ const file = [
   '',
 ].join('\n');
 
-// One observation per scenario, in the order the file holds them.
-const runnerSeeing = (...observations: readonly (readonly string[])[]) => {
+// One tree per scenario, in the order the file holds them, with a place to record a write.
+const runnerSeeing = (...trees: readonly (readonly string[])[]) => {
   let at = 0;
-  return { observe: async () => observations[at++] ?? [] };
+  const written: { path: string; text: string }[] = [];
+  const runner: Runner & { written: typeof written } = {
+    tree: async () => trees[at++] ?? [],
+    write: async (path, text) => {
+      written.push({ path, text });
+    },
+    written,
+  };
+  return runner;
 };
 
 const played: string[] = [];
@@ -48,11 +56,7 @@ const actions: Record<string, StepAction> = {
   },
 };
 
-const source = (overrides: Partial<ScenarioSource> = {}): ScenarioSource => ({
-  path: 'a/toy.approved.md',
-  text: file,
-  ...overrides,
-});
+const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
 
 describe('playing a scenario file', () => {
   it('plays each scenario to the world the runner made for it, in the order it is written', async () => {
@@ -71,6 +75,14 @@ describe('playing a scenario file', () => {
       runnerSeeing(['- main:', '  - text: A toy'], ['- main:']),
       actions,
     );
+  });
+
+  it('plays the one scenario it is asked for, and only that one', async () => {
+    played.length = 0;
+    await playScenarios(source(), runnerSeeing(['- main:']), actions, {
+      only: 'Another behaviour',
+    });
+    expect(played).toEqual(['a toy', 'sees']);
   });
 
   it('refuses a difference, showing it as lines and naming the file', async () => {
@@ -92,14 +104,10 @@ describe('playing a scenario file', () => {
     );
   });
 
-  it('writes what it saw where the source carries a writer, leaving every other line alone', async () => {
-    let written = '';
-    await playScenarios(
-      source({ write: (text) => (written = text) }),
-      runnerSeeing(['- main:', '  - text: A toy'], ['- main:']),
-      actions,
-    );
+  it('replaces what it saw where it is approving, and writes the file through the runner', async () => {
+    const runner = runnerSeeing(['- main:', '  - text: A toy'], ['- main:']);
+    await playScenarios(source('a/wanted.approved.md'), runner, actions, { approve: true });
 
-    expect(written).toBe(file);
+    expect(runner.written).toEqual([{ path: 'a/wanted.approved.md', text: file }]);
   });
 });

@@ -41,7 +41,7 @@ The pull request that finishes the last unticked line says `Closes #<issue numbe
 
 ## Confirm the line's calls
 
-Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
+Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. The calls go in a message of their own, and nothing is built while they are unanswered: work that assumes an answer is a guess, and a call left as a clause inside a status report is not asked. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
 
 1. **Tooling and dependencies**, including a choice not to use one.
 2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).

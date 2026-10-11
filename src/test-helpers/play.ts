@@ -2,17 +2,23 @@ import { readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type StepAction } from './steps';
 
 export interface ScenarioSource {
-  /** For a failure's message. */
+  /** For a failure's message, and where an approved file goes. */
   readonly path: string;
   /** What the entry read from `path`, so an entry in a browser can pass it in. */
   readonly text: string;
-  /** Where an approved file goes. Absent means the run compares and refuses a difference. */
-  readonly write?: (text: string) => void;
 }
 
+/**
+ * A runner sees what the writer sees. Both of ours hand the tree back — Playwright with
+ * `ariaSnapshot()`, Vitest browser mode with `renderAriaTree(generateAriaTree(element))` — so
+ * the harness compares it and shows a difference, and an approving run writes the file through
+ * the runner: the Node side writes it, a browser sends it to the server.
+ */
 export interface Runner {
-  /** What the writer sees on the page, as the runner prints it. */
-  observe(): Promise<readonly string[]>;
+  /** What the page shows, as the runner prints it. */
+  tree(): Promise<readonly string[]>;
+  /** Write an approved scenario file. */
+  write?(path: string, text: string): Promise<void>;
 }
 
 const difference = (recorded: readonly string[], observed: readonly string[]): string => {
@@ -44,28 +50,31 @@ const refuse = (scenario: Scenario, observed: readonly string[], path: string): 
 };
 
 /**
- * Play a file's scenarios against a runner, in the order they are written. Every scenario gets
- * the world the entry made for it, plays its steps, and is then compared with what the file
- * records — or, when the source carries a writer, has that recording replaced.
+ * Play a file's scenarios against a runner, in the order they are written. The entry gives each
+ * scenario its own world; each plays its steps and is then compared with what the file records
+ * — or, when approving, has that recording replaced and the file written.
  */
 export const playScenarios = async (
   source: ScenarioSource,
   runner: Runner,
   actions: Readonly<Record<string, StepAction>>,
+  options: { readonly only?: string; readonly approve?: boolean } = {},
 ): Promise<void> => {
   const file = readScenarioFile(source.text);
   const table = stepTable(actions);
   let approved = source.text;
 
   for (const scenario of file.scenarios) {
+    if (options.only !== undefined && scenario.behaviour !== options.only) continue;
     for (const step of scenario.steps) await table.play(step);
-    const observed = await runner.observe();
-    if (source.write) {
+    const observed = await runner.tree();
+
+    if (options.approve) {
       approved = withObserved(approved, scenario.behaviour, observed);
       continue;
     }
     refuse(scenario, observed, source.path);
   }
 
-  source.write?.(approved);
+  if (options.approve) await runner.write?.(source.path, approved);
 };

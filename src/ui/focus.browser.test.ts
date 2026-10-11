@@ -1,6 +1,6 @@
 import { expect, it } from 'vite-plus/test';
 import { page } from 'vite-plus/test/browser';
-import { renderFocus } from './focus';
+import { renderFocus } from './focus/focus';
 
 it('prints the tree of the real field', async () => {
   const main = document.createElement('main');
