@@ -1,17 +1,17 @@
 ---
 name: implement
-description: Use to implement a ready story or bug across the pull requests its issue plans, handing each one over reviewed. Also use when the builder says pick up, resume or carry on, or asks for a pull request's review findings to be fixed.
+description: Use to implement a ready story, task or bug across the pull requests its issue plans, handing each one over reviewed. Also use when the builder says pick up, resume or carry on, or asks for a pull request's review findings to be fixed.
 ---
 
 # Implementing a story
 
-Work comes from an issue that carries the `ready` label: a story, or a bug. The label is the builder's agreement, made after they read the issue. Implement it across as many pull requests as it needs, one plan line each, and hand each one over reviewed.
+Work comes from an issue that carries the `ready` label: a story, a task, or a bug. The label is the builder's agreement, made after they read the issue. Implement it across as many pull requests as it needs, one plan line each, and hand each one over reviewed.
 
 Run as `/skill:implement N`.
 
 ## Which issue
 
-With no issue number and no open pull request in the conversation, ask which story or bug before anything else. Do not infer one from the branch, the last commit, or the previous conversation.
+With no issue number and no open pull request in the conversation, ask which story, task or bug before anything else. Do not infer one from the branch, the last commit, or the previous conversation.
 
 ## Not without `ready`
 
@@ -34,7 +34,7 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
 - Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
-- Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and where it ran.
+- Keep the acceptance criteria table current: one row for each criterion and each edge, or each `Done when` line of a task, its test or docs link, and where it ran.
 
 The pull request that finishes the last unticked line says `Closes #<issue number>` where the others say `Part of`. The last line is known when the plan is made and again when the plan is updated, so a line that turns out to be last is opened, or edited, to close.
 
@@ -82,4 +82,5 @@ A pull request is done when all of these hold:
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
 - Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine.
+- In a task, the cases above are what this repo writes. A line about what a tool does has the tool's docs linked in its row and one run where it holds on this repo, and no test of the tool's own behaviour.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.

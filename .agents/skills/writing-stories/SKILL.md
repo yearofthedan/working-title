@@ -1,11 +1,17 @@
 ---
 name: writing-stories
-description: Use when drafting a story from an epic line: write it in the story template, check it holds up, and show it to the builder before filing it.
+description: Use when drafting a story or a task from an epic line: pick the template, check the draft holds up, and show it to the builder before filing it.
 ---
 
 # Writing stories
 
 A story is drafted in the [story template](../../../.github/ISSUE_TEMPLATE/story.md), and the builder agrees it by adding the `ready` label. Until then it is not built.
+
+## Story or task
+
+Ask whose behaviour the line is. When this repo writes it, the line is a story, and its scenarios are tested here. When a tool or library provides it and this repo only sets it up, such as a package manager setting, a CI workflow or a dependency, the line is a task, drafted in the [task template](../../../.github/ISSUE_TEMPLATE/task.md). A task's tests cover what this repo writes; what the tool does is shown by its docs and a run, as [What you assert](../../../AGENTS.md#what-you-assert) asks of any claim about a tool. Scenarios for a tool's behaviour would make the pull request build a harness around the tool to see each one fail.
+
+Everything below applies to both, with `Done when` in a task where a story has its acceptance criteria.
 
 ## Start from the epic line
 
@@ -27,7 +33,7 @@ Fill the rest of the template as its own comments say: they are the authority on
 
 Show the draft to the builder, in the conversation, before it exists as an issue. It is their story; the point of the draft is to be argued with.
 
-When they agree, file it with `gh issue create` from the template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
+When they agree, file it with `gh issue create` from its template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
 
 Agreement is theirs to give: add no `ready` label yourself, and start nothing until they do.
 

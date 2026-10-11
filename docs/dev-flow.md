@@ -1,11 +1,11 @@
 # Dev flow
 
 **Audience:** the builder.
-**Purpose:** how a story is written, agreed and implemented. The agent's side of each step is a skill in `.agents/skills/`.
+**Purpose:** how a story or task is written, agreed and implemented. The agent's side of each step is a skill in `.agents/skills/`.
 
 ## Write a story
 
-A story is one thin slice of an epic, landing as pull requests.
+A story is one thin slice of an epic, landing as pull requests. A line whose behaviour a tool or library provides, such as a setting or a CI workflow, is a task instead: the same flow, in the task template, with its tests on what this repo sets and the tool's docs for the rest.
 
 1. **Pick the line.** Take a line of an epic's `Is` list that no story delivers yet.
 2. **Ask for the story.** An agent drafts it in the story template and shows you the draft before filing anything: the [writing-stories skill](../.agents/skills/writing-stories/SKILL.md).
