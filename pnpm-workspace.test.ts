@@ -18,7 +18,7 @@ test('the install cutoff and the update schedule wait the same span', () => {
 
 // The values as the pinned pnpm reads them out of pnpm-workspace.yaml, rather than as
 // the file spells them, so a renamed or removed setting fails here as it would at an
-// install (docs/standards/dependencies.md).
+// install.
 test('pnpm reads the install policy this repository sets', () => {
   const read = (setting: string) => {
     const result = spawnSync('pnpm', ['config', 'get', setting], { encoding: 'utf8' });
@@ -30,8 +30,7 @@ test('pnpm reads the install policy this repository sets', () => {
 });
 
 // An exception without a reason above it is what pnpm's own approval prompt writes,
-// so this catches one added by hand or by an approval that skipped the reason
-// (docs/standards/dependencies.md).
+// so this catches one added by hand or by an approval that skipped the reason.
 test.each(['minimumReleaseAgeExclude', 'trustPolicyExclude'])(
   '%s names a reason for every entry',
   (list) => {

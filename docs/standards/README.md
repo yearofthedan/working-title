@@ -18,4 +18,3 @@ What belongs elsewhere:
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, and the body naming who wrote it.
 - [Coding](coding.md): when a comment has value, and what to do instead when it has none.
 - [Testing](testing.md): a test beside its code, browser specs in `e2e/`, what runs each, and approved scenarios.
-- [Dependencies](dependencies.md): the rules a dependency change has to satisfy, and what enforces each.
