@@ -8,7 +8,14 @@ const key = 'working-title:project';
 export const projectStore = (): ProjectStore => ({
   load: async () => {
     const saved = localStorage.getItem(key);
-    return saved === null ? undefined : (JSON.parse(saved) as Project);
+    if (saved === null) return undefined;
+    const project = JSON.parse(saved) as Project;
+    // `null` parses, and so would a value from another version of the stored shape: only a
+    // project is a project, and anything else is refused rather than read as nothing saved.
+    if (typeof project?.root?.facets !== 'object' || project.root.facets === null) {
+      throw new Error(`${key} holds something that is not a project`);
+    }
+    return project;
   },
   save: async (project) => {
     localStorage.setItem(key, JSON.stringify(project));
