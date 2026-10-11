@@ -10,11 +10,11 @@
       "groupName": "Vite+"
     },
     {
-      "description": "A pnpm bump can change what the install policy in pnpm-workspace.yaml means, so it never automerges and its body says to read the migration notes (docs/standards/dependencies.md)",
+      "description": "A pnpm bump is never routine: pnpm is what enforces the install policy in pnpm-workspace.yaml, so its release notes get read before merging (docs/standards/dependencies.md)",
       "matchPackageNames": ["pnpm"],
       "automerge": false,
       "prBodyNotes": [
-        "Read pnpm's migration notes for `minimumReleaseAge` and `trustPolicy` before merging: this bump can change what those settings mean."
+        "Read this release's notes and migration guide before merging: pnpm enforces the install policy in `pnpm-workspace.yaml`, and a bump to it can change what that policy means."
       ]
     }
   ]
