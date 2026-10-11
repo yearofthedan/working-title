@@ -1,12 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { expect, test } from 'vite-plus/test';
+import { expect, it } from 'vite-plus/test';
 
-// The install cutoff (pnpm-workspace.yaml, in minutes) and the span Renovate waits
-// before it offers an update (renovate.json, in days) are the same wait in two
-// places that cannot share a value, so a test holds them together, as
-// [the coding standard](docs/standards/coding.md) asks.
-test('the install cutoff and the update schedule wait the same span', () => {
+// One wait in two files that cannot share a value: minutes here, days there.
+it('the install cutoff and the update schedule wait the same span', () => {
   const renovate = JSON.parse(readFileSync('renovate.json', 'utf8')) as {
     minimumReleaseAge: string;
   };
@@ -16,10 +13,8 @@ test('the install cutoff and the update schedule wait the same span', () => {
   expect(Number(waited?.[1]) * 24 * 60).toBe(Number(cutoff?.[1]));
 });
 
-// The values as the pinned pnpm reads them out of pnpm-workspace.yaml, rather than as
-// the file spells them, so a renamed or removed setting fails here as it would at an
-// install.
-test('pnpm reads the install policy this repository sets', () => {
+// As pnpm reads them, not as the file spells them.
+it('pnpm reads the install policy this repository sets', () => {
   const read = (setting: string) => {
     const result = spawnSync('pnpm', ['config', 'get', setting], { encoding: 'utf8' });
     expect(result.status, result.stderr).toBe(0);
@@ -29,9 +24,8 @@ test('pnpm reads the install policy this repository sets', () => {
   expect(read('trustPolicy')).toBe('no-downgrade');
 });
 
-// An exception without a reason above it is what pnpm's own approval prompt writes,
-// so this catches one added by hand or by an approval that skipped the reason.
-test.each(['minimumReleaseAgeExclude', 'trustPolicyExclude'])(
+// pnpm's own approval prompt writes an exception without a reason above it.
+it.each(['minimumReleaseAgeExclude', 'trustPolicyExclude'])(
   'every entry in %s is named by a reason above it',
   (list) => {
     const lines = readFileSync('pnpm-workspace.yaml', 'utf8').split('\n');
