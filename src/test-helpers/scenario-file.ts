@@ -192,3 +192,23 @@ export const printScenarioFile = ({ rule, scenarios }: ScenarioFile): string =>
       '```',
     ]),
   ].join('\n') + '\n';
+
+/** Replace one scenario's observed block, leaving every other line as it was. */
+export const withObserved = (
+  text: string,
+  behaviour: string,
+  observed: readonly string[],
+): string => {
+  const file = readScenarioFile(text);
+  if (!file.scenarios.some((scenario) => scenario.behaviour === behaviour)) {
+    throw new Error(`The file holds no scenario named ${JSON.stringify(behaviour)}`);
+  }
+  return printScenarioFile({
+    ...file,
+    scenarios: file.scenarios.map((scenario) =>
+      scenario.behaviour === behaviour
+        ? { ...scenario, ...(observed.length > 0 ? { observed } : { observed: undefined }) }
+        : scenario,
+    ),
+  });
+};

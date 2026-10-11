@@ -1,5 +1,5 @@
 #!/bin/sh
-# Approve the scenarios printed by a test file, writing their .approved.md files.
+# Approve what a test run produced: vp test --update=all, which writes the snapshots a run refuses to write.
 
 set -eu
 

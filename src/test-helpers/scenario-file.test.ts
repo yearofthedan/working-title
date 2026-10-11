@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { printScenarioFile, readScenarioFile } from './scenario-file';
+import { printScenarioFile, readScenarioFile, withObserved } from './scenario-file';
 
 describe('a scenario file', () => {
   it('prints back exactly what it read, several scenarios and an observed block included', () => {
@@ -297,5 +297,46 @@ describe('a scenario file', () => {
     ],
   ])('refuses %s', (_, lines, message) => {
     expect(() => readScenarioFile(lines.join('\n'))).toThrow(message);
+  });
+});
+
+describe('replacing what one scenario observed', () => {
+  const two = [
+    'Rule: A toy rule.',
+    '',
+    '### Scenario: One',
+    '',
+    '```',
+    'Given a toy',
+    'Then the writer sees',
+    '- main:',
+    '```',
+    '',
+    '### Scenario: Two',
+    '',
+    '```',
+    'Given a toy',
+    'Then the writer sees',
+    '- main:',
+    '  - text: As it was',
+    '```',
+    '',
+  ].join('\n');
+
+  it('replaces one scenario, leaving the other and the steps as they were', () => {
+    expect(withObserved(two, 'Two', ['- main:', '  - text: As it is now'])).toBe(
+      two.replace('  - text: As it was', '  - text: As it is now'),
+    );
+  });
+
+  it('gives a scenario observed text where it had none', () => {
+    const withoutObserved = withObserved(two, 'One', ['- main:', '  - text: New']);
+    expect(withoutObserved).toContain('Then the writer sees\n- main:\n  - text: New');
+  });
+
+  it('refuses a scenario the file does not hold', () => {
+    expect(() => withObserved(two, 'Three', ['- main:'])).toThrow(
+      'holds no scenario named "Three"',
+    );
   });
 });

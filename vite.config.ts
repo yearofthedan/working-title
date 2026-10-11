@@ -130,25 +130,19 @@ export default defineConfig({
     ],
   },
   test: {
-    // Only ./do approve writes approved files, so a run never does (./do test refuses
-    // --update). `update` is one of the options Vitest reads from the root config only, not
-    // from a project (https://vitest.dev/config/: options "not supported inside a project
-    // config ... can only be set in the root Vitest config"). Observed: with it inside a
-    // project, a run wrote the approved file it was meant to compare with.
+    // A run never writes a scenario's observed block; only ./do approve does, and ./do test
+    // refuses --update. Left at `none` so no run writes a Vitest snapshot either. `update` is
+    // one of the options Vitest reads from the root config only, not from a project
+    // (https://vitest.dev/config/: options "not supported inside a project config ... can only
+    // be set in the root Vitest config"). Observed: with it inside a project, a run wrote the
+    // file it was meant to compare with.
     update: 'none',
     projects: [
       {
         test: {
           name: 'node',
           environment: 'node',
-          // The approved-file tests run sample tests in folders of their own, which a run
-          // of the whole suite, or one they left behind when stopped, must not collect.
-          exclude: [
-            ...configDefaults.exclude,
-            'e2e/**',
-            '**/*.browser.test.ts',
-            ...(process.env.APPROVED_SAMPLE ? [] : ['**/approved-sample-*/**']),
-          ],
+          exclude: [...configDefaults.exclude, 'e2e/**', '**/*.browser.test.ts'],
         },
       },
       {
