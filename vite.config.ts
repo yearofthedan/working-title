@@ -9,7 +9,7 @@ const themeColor = '#fbfaf7';
 // (https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-restricted-properties).
 // The selector actions are restricted on `page` alone because a locator's own `click()`
 // is how the driver acts.
-export const findsByRoleOrLabel = ['getByRole', 'getByLabel'];
+export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const findsAnyOtherWay = [
   'getByText',
   'getByPlaceholder',
@@ -109,7 +109,6 @@ export default defineConfig({
     overrides: [
       {
         files: ['e2e/**', 'src/**/*.browser.test.ts'],
-        excludeFiles: ['e2e/**/writer.ts', 'src/test-helpers/browser-scope.ts'],
         rules: {
           'no-restricted-properties': [
             'error',
@@ -121,7 +120,7 @@ export default defineConfig({
         },
       },
       {
-        files: ['e2e/**/writer.ts'],
+        files: ['e2e/**/writer.ts', 'src/test-helpers/browser-scope.ts'],
         rules: {
           'no-restricted-properties': [
             'error',

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
-import { page } from 'vite-plus/test/browser';
 import type { Focus } from '../../application/project';
+import { browserScope } from '../../test-helpers/browser-scope';
+import type { PageScope } from '../../test-helpers/scope';
 import { renderFocus } from './focus';
 
 const facet = { id: 'note', label: 'Note' };
@@ -14,19 +15,24 @@ const focusOn = (): Focus => ({
 });
 
 describe('the focus page', () => {
+  let scope: PageScope;
+
   beforeEach(() => {
     typed.length = 0;
-    document.body.replaceChildren();
-    const main = document.createElement('main');
-    document.body.append(main);
-    renderFocus(main, focusOn());
+    scope = browserScope(async () => {
+      document.body.replaceChildren();
+      const main = document.createElement('main');
+      document.body.append(main);
+      renderFocus(main, focusOn());
+    });
   });
 
   it('tells the application about every keystroke as it is typed', async () => {
-    const field = page.getByLabelText(facet.label);
+    await scope.fresh();
+    const field = scope.field(facet.label);
 
-    await field.fill('A wid');
-    await field.fill("A widow hunts the man's ship");
+    await field.enter('A wid');
+    await field.enter("A widow hunts the man's ship");
 
     expect(typed).toEqual(['A wid', "A widow hunts the man's ship"]);
   });

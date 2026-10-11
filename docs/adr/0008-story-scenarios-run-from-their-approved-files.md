@@ -21,7 +21,7 @@ How are the tests that show what the writer sees written, run and reviewed?
 
 ## Decision
 
-A story's scenarios live in a file, copied from the issue a `Rule:` line, per scenario a heading and one fenced block holding its steps and, after them, the tree the runner printed. The runner plays each step against a part of the writer driver over a narrow scope type of our own — so a part finds a field by the label a writer reads, never through `Page` — and compares the page with what the file records, refusing a difference as lines. Only `./do approve <file>` replaces a recorded block, choosing the runner by where the file is, and each runner writes through its own side: Playwright from Node, Vitest browser mode through the server's write.
+A story's scenarios live in a file, copied from the issue: a `Rule:` line, per scenario a heading and one fenced block holding its steps and, after them, the tree the runner printed. The runner plays each step against a part of the writer driver over a narrow scope type of our own — so a part finds a field by the label a writer reads, never through `Page` — and compares the page with what the file records, refusing a difference as lines. Only `./do approve <file>` replaces a recorded block, choosing the runner by where the file is, and each runner writes through its own side: Playwright from Node, Vitest browser mode through the server's write.
 
 A page's behaviour runs in Vitest browser mode; a journey through the built app runs in Playwright, because a browser-mode test cannot be the page that reloads; a logic contract is a `describe`/`it` test beside its code.
 
