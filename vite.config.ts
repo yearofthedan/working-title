@@ -1,3 +1,4 @@
+import { playwright } from '@vitest/browser-playwright';
 import { VitePWA } from 'vite-plugin-pwa';
 import { configDefaults, defineConfig } from 'vite-plus';
 
@@ -129,14 +130,36 @@ export default defineConfig({
     ],
   },
   test: {
-    // The approved-file tests run sample tests in folders of their own, which a run
-    // of the whole suite, or one they left behind when stopped, must not collect.
-    exclude: [
-      ...configDefaults.exclude,
-      'e2e/**',
-      ...(process.env.APPROVED_SAMPLE ? [] : ['**/approved-sample-*/**']),
-    ],
+    // Only ./do approve writes approved files, so a run never does (Vitest: update). It is
+    // read at the root, not per project: a project-level `update` let a run write snapshots.
     update: 'none',
+    projects: [
+      {
+        test: {
+          name: 'node',
+          environment: 'node',
+          // The approved-file tests run sample tests in folders of their own, which a run
+          // of the whole suite, or one they left behind when stopped, must not collect.
+          exclude: [
+            ...configDefaults.exclude,
+            'e2e/**',
+            '**/*.browser.test.ts',
+            ...(process.env.APPROVED_SAMPLE ? [] : ['**/approved-sample-*/**']),
+          ],
+        },
+      },
+      {
+        test: {
+          name: 'browser',
+          include: ['src/**/*.browser.test.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+    ],
   },
   staged: {
     '*': 'vp check --fix',
