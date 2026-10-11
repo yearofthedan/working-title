@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vite-plus/test';
 
@@ -13,6 +14,19 @@ test('the install cutoff and the update schedule wait the same span', () => {
   const waited = /^(\d+) days?$/.exec(renovate.minimumReleaseAge);
   expect(cutoff?.[1], 'pnpm-workspace.yaml has no minimumReleaseAge').toBeDefined();
   expect(Number(waited?.[1]) * 24 * 60).toBe(Number(cutoff?.[1]));
+});
+
+// The values as the pinned pnpm reads them out of pnpm-workspace.yaml, rather than as
+// the file spells them, so a renamed or removed setting fails here as it would at an
+// install (docs/standards/dependencies.md).
+test('pnpm reads the install policy this repository sets', () => {
+  const read = (setting: string) => {
+    const result = spawnSync('pnpm', ['config', 'get', setting], { encoding: 'utf8' });
+    expect(result.status, result.stderr).toBe(0);
+    return result.stdout.trim();
+  };
+  expect(read('minimumReleaseAge')).toBe(String(3 * 24 * 60));
+  expect(read('trustPolicy')).toBe('no-downgrade');
 });
 
 // An exception without a reason above it is what pnpm's own approval prompt writes,
