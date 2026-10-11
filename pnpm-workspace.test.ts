@@ -32,7 +32,7 @@ test('pnpm reads the install policy this repository sets', () => {
 // An exception without a reason above it is what pnpm's own approval prompt writes,
 // so this catches one added by hand or by an approval that skipped the reason.
 test.each(['minimumReleaseAgeExclude', 'trustPolicyExclude'])(
-  '%s names a reason for every entry',
+  'every entry in %s is named by a reason above it',
   (list) => {
     const lines = readFileSync('pnpm-workspace.yaml', 'utf8').split('\n');
     const key = lines.indexOf(`${list}:`);
