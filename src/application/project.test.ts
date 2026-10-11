@@ -1,4 +1,4 @@
-import { expect, test } from 'vite-plus/test';
+import { expect, it } from 'vite-plus/test';
 import type { Project as Saved } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -52,7 +52,7 @@ const theStorysOneSentenceSummaryReads = (s: Scenario, app: App, text: string) =
   expect(app.theStorysSummary().text).toBe(text);
 };
 
-test('keep the story sentence', async () => {
+it('keep the story sentence', async () => {
   const sentence = "A widow hunts the man who sank her husband's ship";
   const s = new Scenario('the story sentence survives a reload');
   const app = new App();

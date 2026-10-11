@@ -9,6 +9,13 @@
 - **The folder decides the runner**: Playwright runs only `e2e/` (`playwright.config.ts`), and Vitest runs every `*.test.*` and `*.spec.*` outside it, by [its default include](https://vitest.dev/config/include) with `e2e/` excluded in `vite.config.ts`, so a test named either way runs somewhere.
 - `./do test` runs the tests, `./do e2e` the browser specs, and `./do check` every local check, the tests and the specs among them. What the checks are is `scripts/check`, which is what `./do` lists.
 
+## Levels and names
+
+- **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, the writer driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
+- **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
+- **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
+- **An assertion that cannot fail is not a test.** Where nothing the code could do would make it fail, it goes: it reads as a guard while checking nothing.
+
 ## Approved scenarios
 
 The harness comes from the [Approved Scenarios](https://lexler.github.io/augmented-coding-patterns/patterns/approved-scenarios/) pattern, a special case of [Constrained Tests](https://lexler.github.io/augmented-coding-patterns/patterns/constrained-tests/): an approval file holds the input and the expected output, the runner regenerates it from what it observes, the execution logic is written and validated once, and the format is a data file a parser reads rather than an API a test calls.

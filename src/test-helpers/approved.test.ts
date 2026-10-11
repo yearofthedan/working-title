@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { expectApproved } from './approved';
 import { Scenario, printScenarios } from './scenario';
 
@@ -160,7 +160,7 @@ const play = (behaviour: string, steps: (s: Scenario, sample: Sample) => void): 
 };
 
 describe('approved files', { timeout: 120_000 }, () => {
-  test('the harness approves its own scenarios', async () => {
+  it('the harness approves its own scenarios', async () => {
     const scenarios = [
       play('A matching scenario passes', (s, sample) => {
         aScenarioTestWhosePrintedScenarioMatchesItsApprovedMd(s, sample);
@@ -192,7 +192,7 @@ describe('approved files', { timeout: 120_000 }, () => {
     );
   });
 
-  test('two scenario tests in one file each have their own approved file', () => {
+  it('two scenario tests in one file each have their own approved file', () => {
     const sample = new Sample();
     try {
       sample.run('approve');
