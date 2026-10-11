@@ -1,8 +1,5 @@
-import { readScenarioFile, withObserved, type Scenario } from './scenario-file';
+import { OBSERVED, readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type StepAction } from './steps';
-
-/** The step that ends a scenario: the runner prints the page after it, so nothing plays it. */
-export const OBSERVED = 'the writer sees';
 
 export interface ScenarioSource {
   /** For a failure's message, and where an approved file goes. */

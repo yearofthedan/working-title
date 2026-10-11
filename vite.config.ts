@@ -108,8 +108,8 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: ['e2e/**'],
-        excludeFiles: ['e2e/**/writer.ts'],
+        files: ['e2e/**', 'src/**/*.browser.test.ts'],
+        excludeFiles: ['e2e/**/writer.ts', 'src/test-helpers/browser-scope.ts'],
         rules: {
           'no-restricted-properties': [
             'error',
@@ -138,7 +138,9 @@ export default defineConfig({
     // A run never writes a scenario's observed block; only ./do approve does, and ./do test
     // refuses --update. A browser test may write a file only when that run says so
     // (https://vitest.dev/config/api#api-allowwrite).
-    api: { allowWrite: approving },
+    // Set only when approving: passing `api` starts Vitest's API server on every run
+    // (https://vitest.dev/config/api).
+    ...(approving ? { api: { allowWrite: true } } : {}),
     // `update` is set at the root because Vitest reads it there and not from a project
     // (https://vitest.dev/config/: options "not supported inside a project config ... can only
     // be set in the root Vitest config"). Observed: with it inside a project, a run wrote the
@@ -155,10 +157,17 @@ export default defineConfig({
       {
         test: {
           name: 'browser',
-          include: ['src/**/*.browser.test.ts'],
-          api: { allowWrite: approving },
+          // A test that needs a browser says so in its name, wherever it sits: a file the
+          // browser project does not match is matched by neither project.
+          include: ['**/*.browser.test.ts'],
+          // Set only when approving: passing `api` starts Vitest's API server on every run
+          // (https://vitest.dev/config/api), and only an approving run may write a file.
+          ...(approving ? { api: { allowWrite: true } } : {}),
           browser: {
             enabled: true,
+            // Headless whatever the machine: Vitest's default follows CI, which would open a
+            // window on a builder's machine.
+            headless: true,
             provider: playwright(),
             instances: [{ browser: 'chromium' }],
           },

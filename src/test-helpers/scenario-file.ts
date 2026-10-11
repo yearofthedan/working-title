@@ -12,6 +12,9 @@ export interface Scenario {
   readonly observed?: readonly string[];
 }
 
+/** The step a scenario ends with: the runner prints the page there, and the block under it. */
+export const OBSERVED = 'the writer sees';
+
 export interface ScenarioFile {
   readonly rule: string;
   readonly scenarios: readonly Scenario[];
@@ -91,6 +94,14 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     if (steps.length === 0) {
       throw new Error(`The scenario ${JSON.stringify(behaviour)} holds no step`);
     }
+    steps.forEach((step, at) => {
+      if (step.phrase !== OBSERVED) return;
+      if (step.keyword !== 'Then' || at !== steps.length - 1) {
+        throw new Error(
+          `"${OBSERVED}" is the last step of a scenario and follows a Then, and here it is a ${step.keyword} at ${at + 1} of ${steps.length}`,
+        );
+      }
+    });
     scenarios.push({ behaviour, steps, ...(observed ? { observed } : {}) });
     behaviour = undefined;
     steps = [];
