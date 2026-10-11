@@ -66,8 +66,9 @@ export default defineConfig({
       ],
     },
     VitePWA({
-      // shortcut: a new build takes over open tabs without asking and can lose unsaved input, prompt
-      // instead once the writer can type (https://vite-pwa-org.netlify.app/guide/auto-update).
+      // shortcut: assets are swapped without the tab asking, which is safe while every keystroke
+      // is saved and nothing here reloads the tab on its own; prompt instead once something in
+      // the app is transient (https://vite-pwa-org.netlify.app/guide/auto-update).
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {

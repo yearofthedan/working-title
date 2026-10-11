@@ -12,6 +12,22 @@ const writerOn = (page: Page) => ({
   },
 
   theAppsName: page.getByRole('heading', { name: 'working-title' }),
+
+  theField: (label: string) => page.getByLabel(label),
+
+  typesInto: async (label: string, text: string) => {
+    await page.getByLabel(label).fill(text);
+  },
+
+  // Key by key, rather than in one go, so a spec can reload with the typing barely
+  // stopped.
+  typesIntoLetterByLetter: async (label: string, text: string) => {
+    await page.getByLabel(label).pressSequentially(text);
+  },
+
+  empties: async (label: string) => {
+    await page.getByLabel(label).fill('');
+  },
 });
 
 export type Writer = ReturnType<typeof writerOn>;

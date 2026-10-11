@@ -12,4 +12,28 @@ main {
   font-family: var(--font-prose);
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
+  padding: 2rem;
+}
+
+.facet {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.facet label {
+  font-family: var(--font-interface);
+  font-size: var(--text-interface);
+  color: var(--color-text);
+}
+
+.facet textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  resize: vertical;
 }
