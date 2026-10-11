@@ -1,7 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`prints the tree of the real field 1`] = `
-- main:
-  - text: One-sentence summary
-  - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
-`;

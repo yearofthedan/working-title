@@ -12,6 +12,7 @@
 ## Levels and names
 
 - **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, the writer driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
+- **Where a test lives follows from what it is about**: a journey through the whole built app is a scenario file in `e2e/`, played by Playwright; behaviour within one page is a scenario file in the page's `scenarios/` folder, played in Vitest browser mode; a logic contract is a `describe`/`it` test beside the code.
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
 - **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
 - **An assertion that cannot fail is not a test.** Where nothing the code could do would make it fail, it goes: it reads as a guard while checking nothing.
@@ -23,5 +24,7 @@ The harness comes from the [Approved Scenarios](https://lexler.github.io/augment
 - **A scenario file is the story template's acceptance criteria**, copied as agreed: a `Rule:` line, then per scenario a `### Scenario:` heading and one fenced block holding its steps and, after them, what the runner observed. `src/test-helpers/scenario-file.ts` reads it and prints it back; a file that does not read as it prints is refused, so what was agreed is never silently rewritten.
 - **A step names what plays it.** `src/test-helpers/steps.ts` matches a step's phrase against the actions a page's driver offers, passes what the phrase captured, and refuses a phrase nothing plays or several play.
 - **What is observed is what the runner prints**: the accessibility tree of `main`, whose every line names a node. `src/test-helpers/play.ts` plays a file's scenarios in order and compares each with what the file records, showing a difference as lines. Given a writer, it replaces that recording instead — which is what approving a scenario means.
-- **A scenario file is named for its rule and ends `.approved.md`.** Only an approving run writes its observed block; `./do test` refuses `--update`, so a test run never does.
+- **A scenario file is named for its rule and ends `.approved.md`.** One entry file per runner reads every scenario file and generates a test per scenario, so a story adds no hand-written test code: `src/scenarios.browser.test.ts` for the page scenarios, `e2e/scenarios.spec.ts` for the journeys.
+- **Only `./do approve <scenario file>` writes an observed block.** It picks the runner by where the file is and runs that entry with the file named, so only that file records; `./do test` refuses `--update`, a browser run may write a file only when approving set API allowWrite for it, and a test run never does.
 - **A scenario file holds one rule**, and a case the format cannot express is a `describe`/`it` test against the same driver, with nothing built for it.
+- **The tree flattens whitespace**, so a facet's text as the writer typed it is carried by a unit test on the storage round trip, not by a scenario's recorded tree.

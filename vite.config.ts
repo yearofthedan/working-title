@@ -142,8 +142,7 @@ export default defineConfig({
     // `update` is set at the root because Vitest reads it there and not from a project
     // (https://vitest.dev/config/: options "not supported inside a project config ... can only
     // be set in the root Vitest config"). Observed: with it inside a project, a run wrote the
-    // file it was meant to compare with. Left at `none` so no run writes a Vitest snapshot
-    // either.
+    // file it was meant to compare with.
     update: 'none',
     projects: [
       {
