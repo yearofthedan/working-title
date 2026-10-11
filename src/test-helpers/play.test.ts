@@ -51,9 +51,6 @@ const actions: Record<string, StepAction> = {
   reloads: () => {
     played.push('reloads');
   },
-  'the writer sees': () => {
-    played.push('sees');
-  },
 };
 
 const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
@@ -66,7 +63,8 @@ describe('playing a scenario file', () => {
       runnerSeeing(['- main:', '  - text: A toy'], ['- main:']),
       actions,
     );
-    expect(played).toEqual(['a toy', 'types "the line"', 'reloads', 'sees', 'a toy', 'sees']);
+    // `the writer sees` is the runner's step, so nothing plays it.
+    expect(played).toEqual(['a toy', 'types "the line"', 'reloads', 'a toy']);
   });
 
   it('passes when every scenario sees what the file records', async () => {
@@ -82,7 +80,7 @@ describe('playing a scenario file', () => {
     await playScenarios(source(), runnerSeeing(['- main:']), actions, {
       only: 'Another behaviour',
     });
-    expect(played).toEqual(['a toy', 'sees']);
+    expect(played).toEqual(['a toy']);
   });
 
   it('refuses a difference, showing it as lines and naming the file', async () => {
