@@ -41,7 +41,7 @@ A call the builder has to answer goes to them alone, and the work waits for it. 
 
 ## What you assert
 
-Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs. Where the docs and the installed version can differ, ask the installed version: an export the docs name may be spelled differently in the version in hand, and claiming an API is absent is worth one run first.
+Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
 
 ## What the builder remembers
 
