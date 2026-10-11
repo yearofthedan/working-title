@@ -1,47 +1,47 @@
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
-import { projectStore } from '../../adapters/local-storage-project-store';
-import { openProject } from '../../application/project';
-import { snowflakeExtended } from '../../methods/snowflake-extended';
+import type { Focus } from '../../application/project';
 import { renderFocus } from './focus';
 
-const key = 'working-title:project';
-const facet = snowflakeExtended.rootKind.facets[0];
-const stored = (): string | undefined => {
-  const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as {
-    root?: { facets?: Record<string, string> };
-  };
-  return facet === undefined ? undefined : saved.root?.facets?.[facet.id];
+const facet = { id: 'note', label: 'Note' };
+const typed: string[] = [];
+
+const focusOn = (): Focus => ({
+  facets: [{ ...facet, text: '' }],
+  elaborate: async (_id, text) => {
+    typed.push(text);
+  },
+});
+
+const field = (): HTMLTextAreaElement => {
+  const found = document.querySelector(`textarea[id="facet-${facet.id}"]`);
+  if (!(found instanceof HTMLTextAreaElement)) throw new Error('the field is not on the page');
+  return found;
 };
 
-const fieldOf = (label: string): HTMLTextAreaElement => {
-  const field = document.querySelector(`textarea[id="facet-${facet?.id}"]`);
-  if (!(field instanceof HTMLTextAreaElement)) {
-    throw new Error(`no field labelled ${label}`);
-  }
-  return field;
+const type = (text: string) => {
+  const input = field();
+  input.value = text;
+  input.dispatchEvent(new Event('input'));
 };
 
 describe('the focus page', () => {
-  beforeEach(async () => {
-    localStorage.clear();
+  beforeEach(() => {
+    typed.length = 0;
     document.body.replaceChildren();
     const main = document.createElement('main');
     document.body.append(main);
-    renderFocus(main, await openProject(snowflakeExtended, projectStore()));
+    renderFocus(main, focusOn());
   });
 
-  it('saves each keystroke as it is typed, so a reload mid-typing loses nothing', () => {
-    const field = fieldOf(facet?.label ?? '');
+  it('tells the application about every keystroke as it is typed', () => {
+    type('A wid');
+    type("A widow hunts the man's ship");
 
-    for (const text of ['A wid', "A widow hunts the man's"]) {
-      field.value = text;
-      field.dispatchEvent(new Event('input'));
-      expect(stored()).toBe(text);
-    }
+    expect(typed).toEqual(['A wid', "A widow hunts the man's ship"]);
   });
 
-  it('holds a facet under the label the method gives it', () => {
-    expect(document.querySelector(`textarea[id="facet-${facet?.id}"]`)).not.toBeNull();
-    expect(document.body.textContent).toContain(facet?.label ?? '');
+  it('labels the field with the facet it holds', () => {
+    expect(document.querySelector(`textarea[id="facet-${facet.id}"]`)).not.toBeNull();
+    expect(document.body.textContent).toContain(facet.label);
   });
 });
