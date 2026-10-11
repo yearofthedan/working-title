@@ -1,34 +1,55 @@
 import { test as base, type Page } from '@playwright/test';
+import { linesOf, type AppScope } from '../src/test-helpers/scope';
 
 // A closure over `page`, not a class holding `this.page`: lint restricts Page's
 // selector actions by the name `page`, which `this.page` does not match.
-const writerOn = (page: Page) => ({
-  opensTheApp: async () => {
-    await page.goto('/');
-  },
+const writerOn = (page: Page) => {
+  // The parts a scenario plays reach the page through this and nothing wider: a field by the
+  // label a writer reads, and the page as Playwright prints it.
+  const scope: AppScope = {
+    fresh: async () => {
+      await page.goto('/');
+    },
+    reload: async () => {
+      await page.reload();
+    },
+    field: (label) => ({
+      enter: async (text) => {
+        await page.getByLabel(label).fill(text);
+      },
+    }),
+    tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
+  };
 
-  reloads: async () => {
-    await page.reload();
-  },
+  return {
+    scope,
+    opensTheApp: async () => {
+      await page.goto('/');
+    },
 
-  theAppsName: page.getByRole('heading', { name: 'working-title' }),
+    reloads: async () => {
+      await page.reload();
+    },
 
-  theField: (label: string) => page.getByLabel(label),
+    theAppsName: page.getByRole('heading', { name: 'working-title' }),
 
-  typesInto: async (label: string, text: string) => {
-    await page.getByLabel(label).fill(text);
-  },
+    theField: (label: string) => page.getByLabel(label),
 
-  // Key by key, rather than in one go, so a spec can reload with the typing barely
-  // stopped.
-  typesIntoLetterByLetter: async (label: string, text: string) => {
-    await page.getByLabel(label).pressSequentially(text);
-  },
+    typesInto: async (label: string, text: string) => {
+      await page.getByLabel(label).fill(text);
+    },
 
-  empties: async (label: string) => {
-    await page.getByLabel(label).fill('');
-  },
-});
+    // Key by key, rather than in one go, so a spec can reload with the typing barely
+    // stopped.
+    typesIntoLetterByLetter: async (label: string, text: string) => {
+      await page.getByLabel(label).pressSequentially(text);
+    },
+
+    empties: async (label: string) => {
+      await page.getByLabel(label).fill('');
+    },
+  };
+};
 
 export type Writer = ReturnType<typeof writerOn>;
 

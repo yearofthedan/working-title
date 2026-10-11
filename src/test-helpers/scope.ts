@@ -16,3 +16,12 @@ export interface PageScope {
   /** What the page shows, as the runner prints it. */
   tree(): Promise<readonly string[]>;
 }
+
+/** What a journey through the whole app needs on top of a page. */
+export interface AppScope extends PageScope {
+  reload(): Promise<void>;
+}
+
+/** A runner's tree, as the lines a scenario file records. */
+export const linesOf = (tree: string): readonly string[] =>
+  tree.replace(/^\n/, '').replace(/\n$/, '').split('\n');

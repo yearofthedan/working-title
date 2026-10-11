@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import type { PageScope } from './scope';
+import { linesOf, type PageScope } from './scope';
 
 interface Aria {
   generateAriaTree(element: Element): unknown;
@@ -11,11 +11,7 @@ interface Aria {
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
 const treeOf = (element: Element): readonly string[] =>
-  utils.aria
-    .renderAriaTree(utils.aria.generateAriaTree(element))
-    .replace(/^\n/, '')
-    .replace(/\n$/, '')
-    .split('\n');
+  linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(element)));
 
 /** A page scope over Vitest's browser mode, whose every test gets its own page. */
 export const browserScope = (render: () => Promise<void>): PageScope => ({
