@@ -15,7 +15,7 @@ How is the code split, and which way may its parts depend on each other?
 
 | Option | Agents copy | Storage may move | Editor format | Fast tests |
 | --- | --- | --- | --- | --- |
-| Hexagonal layers | Lint enforces direction | Swap behind a port | Converted in an adapter | Use cases on fakes |
+| Hexagonal layers | A check enforces direction | Swap behind a port | Converted in an adapter | Use cases on fakes |
 | Logic in UI components | Logic spreads across screens | Touches every screen | Leaks into logic | Browser only |
 | Plain layers without ports | Better | Core depends on the library | Core depends on the editor | Needs the real libraries |
 
@@ -25,4 +25,4 @@ Domain, application, ports and adapters. Dependencies point inward only, and the
 
 ## Consequences
 
-Dependency direction and domain purity are lint rules that fail as you type. Storage, mirror and editor can each be replaced behind their port.
+Dependency direction is checked by `./do check`, which CI runs on every pull request, so a wrong way round import fails before it merges. Domain purity has no check yet. Storage, mirror and editor can each be replaced behind their port.

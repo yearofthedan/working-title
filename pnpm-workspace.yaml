@@ -18,3 +18,11 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: '*'
+
+# dependency-cruiser reads TypeScript only through a `typescript` below 7, and the project's own
+# is 7, so the check carries one of its own rather than hold the toolchain back
+# (https://pnpm.io/settings/package-extensions).
+packageExtensions:
+  dependency-cruiser:
+    dependencies:
+      typescript: 6.0.3

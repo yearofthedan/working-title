@@ -6,11 +6,11 @@ Status: Accepted, 2026-10-10
 
 Which tools format, lint, type-check and test the code, and run the git hooks?
 
-- **Structural checks.** Dependency direction, domain purity and the ban on method words in the core are lint rules ([ADR 2](0002-hexagonal-layers.md), [ADR 5](0005-method-as-data.md)), so the linter must express restricted imports and globals per folder, and custom rules.
+- **Structural checks.** Dependency direction, domain purity and the ban on method words in the core are checks over the code ([ADR 2](0002-hexagonal-layers.md), [ADR 5](0005-method-as-data.md)), so the toolchain must express restricted imports and globals per folder, and custom rules.
 - **Agents copy.** Agents write most of the code: every extra config and command is another pattern to copy wrongly.
 - **Keeping in step.** Tools released separately are upgraded separately, and a version of one can break another.
 - **Maturity.** A young tool can change under the code.
-- **Lock-in.** Every test imports its runner, and every structural check is written for one linter, so leaving a toolchain costs more with each test and rule.
+- **Lock-in.** Every test imports its runner, and every structural check is written for the tools that run it, so leaving a toolchain costs more with each test and rule.
 
 ## Options considered
 
@@ -22,15 +22,15 @@ Which tools format, lint, type-check and test the code, and run the git hooks?
 
 ## Decision
 
-Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. The exception is the specs that need the built app in a browser, which run in the runner [ADR 7](0007-playwright-for-browser-specs.md) chose. Structural checks are written for Oxlint, the linter inside it; a check about the import graph as a whole may use a dedicated tool beside it.
+Vite+ formats, lints, type-checks and tests the code, and installs the git hooks, from one config. The exception is the specs that need the built app in a browser, which run in the runner [ADR 7](0007-playwright-for-browser-specs.md) chose. Structural checks are written for Oxlint, the linter inside it, where the linter can express them; one it cannot, or one about the import graph as a whole, may use a dedicated tool beside it.
 
 **Agents copy** and **Keeping in step** decided it: one config, one command and one version to move. The ESLint option leads on **Structural checks**, **Maturity** and **Lock-in**, and those weigh less now than they will: no custom rule is needed until the layers exist, and with few tests and no structural rules yet, leaving costs little. That is why the reversal point is named below, before the cost grows.
 
 - **ESLint, Prettier and a hook manager** lost on **Agents copy** and **Keeping in step**: four configs and four versions to keep together, for checks Vite+ can also express. Its lead on **Structural checks** is decisive only where Oxlint cannot express a check.
 - **Biome and a hook manager** lost on the same two columns. It leads Vite+ on **Maturity** but not ESLint, so if Vite+ is reversed, ESLint is the option to reverse to.
 
-If the ban on method words or the import rules cannot be written reliably for Oxlint, when the layers first need them, ESLint is the better choice and this record is superseded.
+If a structural check cannot be written reliably for Oxlint and no dedicated tool suits it either, ESLint is the better choice and this record is superseded.
 
 ## Consequences
 
-`./do check` is the one local check. Upgrades move the whole toolchain at once. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config, each structural rule and each test's imports, and that cost grows with every one written.
+`./do check` is the one local check. Upgrades move the whole toolchain at once. A check whose tool cannot read the TypeScript the toolchain uses may carry a second one beside it, to bring back in step. A custom lint rule depends on Oxlint's JS plugins until they leave alpha. Leaving Vite+ means rewriting the lint config, each structural rule and each test's imports, and that cost grows with every one written.
