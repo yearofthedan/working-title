@@ -25,16 +25,11 @@ const downgradedTrust: Release[] = [
   { version: '2.0.0', publishedMinutesAgo: days(5) },
 ];
 
-/** The repo's settings with both checks turned off, to write a lockfile a case rejects. */
-const unchecked = (settings: string): string => {
-  const off = settings
-    .replace(/^minimumReleaseAge: \d+$/m, 'minimumReleaseAge: 0')
-    .replace(/^trustPolicy: no-downgrade$/m, 'trustPolicy: off');
-  if (off === settings) {
-    throw new Error('the checks this case turns off are not in pnpm-workspace.yaml');
-  }
-  return off;
-};
+/** The repo's settings plus one exception, so a case can write the lockfile it then rejects. */
+const withException = (settings: string, list: string, entry: string): string =>
+  settings.includes(`${list}:`)
+    ? settings.replace(new RegExp(`^${list}:$`, 'm'), `${list}:\n  - ${entry}`)
+    : `${settings}\n${list}:\n  - ${entry}\n`;
 
 type Play = {
   releases: Record<string, Release[]>;
@@ -148,31 +143,55 @@ const theExceptionIsRecordedInACommittedFile = (s: Scenario, play: Play) => {
 
 describe('the install policy', { timeout: 300_000 }, () => {
   test('refuses risky releases', async () => {
-    const scenarios = [
-      await play('A newer version in range is passed over for an older one', [
-        aDependencyWhoseNewestVersionInRangeIsLessThanThreeDaysOld,
-        anOlderVersionInRangeIsAtLeastThreeDaysOld,
-        theBuilderInstalls,
-        theOlderVersionIsInstalled,
-      ]),
-      await play('No version in range is old enough', [
-        aDependencyWithNoVersionInRangeAtLeastThreeDaysOld,
-        theBuilderInstallsWithoutApprovingAnException,
-        theInstallFailsAndNamesTheDependency,
-      ]),
-      await play('A version under three days old is approved as an exception', [
-        aDependencyWithNoVersionInRangeAtLeastThreeDaysOld,
-        theBuilderInstallsFromATerminalAndApprovesIt,
-        itIsInstalled,
-        theExceptionIsRecordedInACommittedFile,
-      ]),
-      await play('A release with weaker trust is refused', [
-        aDependencyVersionWithWeakerTrustEvidenceThanAnEarlierRelease,
-        theBuilderInstalls,
-        theInstallFailsAndNamesTheDependencyAndVersion,
-      ]),
+    const cases: Array<[string, Step[]]> = [
+      [
+        'A newer version in range is passed over for an older one',
+        [
+          aDependencyWhoseNewestVersionInRangeIsLessThanThreeDaysOld,
+          anOlderVersionInRangeIsAtLeastThreeDaysOld,
+          theBuilderInstalls,
+          theOlderVersionIsInstalled,
+        ],
+      ],
+      [
+        'No version in range is old enough',
+        [
+          aDependencyWithNoVersionInRangeAtLeastThreeDaysOld,
+          theBuilderInstallsWithoutApprovingAnException,
+          theInstallFailsAndNamesTheDependency,
+        ],
+      ],
+      [
+        'A version under three days old is approved as an exception',
+        [
+          aDependencyWithNoVersionInRangeAtLeastThreeDaysOld,
+          theBuilderInstallsFromATerminalAndApprovesIt,
+          itIsInstalled,
+          theExceptionIsRecordedInACommittedFile,
+        ],
+      ],
+      [
+        'A release with weaker trust is refused',
+        [
+          aDependencyVersionWithWeakerTrustEvidenceThanAnEarlierRelease,
+          theBuilderInstalls,
+          theInstallFailsAndNamesTheDependencyAndVersion,
+        ],
+      ],
     ];
-    await expectApproved(printScenarios(RULE, scenarios));
+    const printed: Scenario[] = [];
+    const failed: string[] = [];
+    // Every case runs even when one fails, so the run names the cases a setting is
+    // for rather than stopping at the first.
+    for (const [behaviour, steps] of cases) {
+      try {
+        printed.push(await play(behaviour, steps));
+      } catch (error) {
+        failed.push(`${behaviour}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    expect(failed).toEqual([]);
+    await expectApproved(printScenarios(RULE, printed));
   });
 
   test('a transitive dependency is held to the age check', async () => {
@@ -187,9 +206,6 @@ describe('the install policy', { timeout: 300_000 }, () => {
       const install = await fixture.install();
       expect(install.status, install.output).toBe(0);
       expect(fixture.resolved('alpha')).toBe('1.0.0');
-      // Held back rather than admitted and recorded as an exception, which is what
-      // pnpm's built-in one-day cutoff does with a release this young.
-      expect(fixture.read('pnpm-workspace.yaml')).not.toContain('minimumReleaseAgeExclude');
     } finally {
       fixture.remove();
     }
@@ -213,28 +229,37 @@ describe('the install policy', { timeout: 300_000 }, () => {
   });
 
   test.each([
-    ['age', { alpha: [recent('1.1.0')] }, { alpha: '^1.0.0' }, 'alpha@1.1.0'],
-    ['trust', { beta: downgradedTrust }, { beta: '^2.0.0' }, 'beta@2.0.0'],
+    [
+      'age',
+      { alpha: [recent('1.1.0')] },
+      { alpha: '^1.0.0' },
+      'minimumReleaseAgeExclude',
+      'alpha@1.1.0',
+    ],
+    ['trust', { beta: downgradedTrust }, { beta: '^2.0.0' }, 'trustPolicyExclude', 'beta@2.0.0'],
   ])(
     'a lockfile entry that fails the %s check fails the install',
-    async (_, releases, dependencies, names) => {
+    async (_, releases, dependencies, list, entry) => {
+      const settings = readFileSync('pnpm-workspace.yaml', 'utf8');
       const fixture = await Fixture.create({
         releases,
         dependencies,
-        // A lockfile this case can only write by turning both checks off.
-        settings: unchecked(readFileSync('pnpm-workspace.yaml', 'utf8')),
+        // The exception, the story's own escape hatch, is what gets the entry past the
+        // checks and into a lockfile this case can then freeze.
+        settings: withException(settings, list, entry),
       });
       try {
         const written = await fixture.install();
         expect(written.status, written.output).toBe(0);
-        // The same frozen install passes while the checks are off, so what refuses it
-        // next is the checks and not the lockfile's shape.
+        expect(fixture.read('pnpm-workspace.yaml')).toContain(entry);
+        // The same frozen install passes while the entry is excepted, so what refuses
+        // it next is the check and not the lockfile's shape.
         const control = await fixture.install({ frozen: true });
         expect(control.status, control.output).toBe(0);
-        fixture.settings(readFileSync('pnpm-workspace.yaml', 'utf8'));
+        fixture.settings(settings);
         const install = await fixture.install({ frozen: true });
         expect(install.status, install.output).not.toBe(0);
-        expect(install.output).toContain(names);
+        expect(install.output).toContain(entry);
       } finally {
         fixture.remove();
       }

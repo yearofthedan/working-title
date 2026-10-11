@@ -139,6 +139,9 @@ export class FixtureRegistry {
   }
 
   close(): void {
+    // pnpm keeps its connections alive, and a server waiting on them keeps the test
+    // worker alive with it.
+    this.#server.closeAllConnections();
     this.#server.close();
   }
 }
@@ -181,6 +184,12 @@ const installArgs = (options: { frozen?: boolean } = {}): string[] => [
   '--reporter=append-only',
   ...(options.frozen ? ['--frozen-lockfile'] : []),
 ];
+
+/** A command under a terminal: script's flags differ between BSD and util-linux. */
+const underATerminal = (command: string[]): [string, string[]] =>
+  process.platform === 'darwin'
+    ? ['script', ['-q', '/dev/null', ...command]]
+    : ['script', ['-qec', command.join(' '), '/dev/null']];
 
 /** A scratch project whose installs resolve against a registry the case defines. */
 export class Fixture {
@@ -269,16 +278,13 @@ export class Fixture {
 
   /** Installs at a terminal and answers pnpm's own prompt, as a builder does. */
   approve(answer = 'y'): Promise<Install> {
-    const { CI: _, CONTINUOUS_INTEGRATION: __, ...env } = process.env;
     const command = ['pnpm', ...installArgs()];
-    // script gives the install a terminal; the flags differ between BSD and util-linux.
-    const [file, args] =
-      process.platform === 'darwin'
-        ? ['script', ['-q', '/dev/null', ...command]]
-        : ['script', ['-qec', command.join(' '), '/dev/null']];
-    return run(file as string, args as string[], {
+    const [file, args] = underATerminal(command);
+    return run(file, args, {
       cwd: this.dir,
-      env: { ...env, TERM: process.env.TERM ?? 'xterm-256color' },
+      // CI=false is the only thing that overrides pnpm's CI detection, which also reads
+      // GITHUB_ACTIONS: with that alone set, a runner is CI and pnpm never prompts.
+      env: { ...process.env, CI: 'false', TERM: process.env.TERM ?? 'xterm-256color' },
       answer: `${answer}\n`,
     });
   }

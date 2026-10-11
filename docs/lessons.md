@@ -23,6 +23,10 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A claim about a tool written in code — a comment, the reason for a config line — is checked against the tool's docs, as one in prose is; "What you assert" did not stop it here | [#31](https://github.com/yearofthedan/working-title/pull/31) | none |
 | A question about the target environment is answered by a run there, not left as a caveat in the pull request body | [#36](https://github.com/yearofthedan/working-title/pull/36) | none |
 | Breaking a whole check shows the check matters, not that each case it names is tested: break each case on its own | [#44](https://github.com/yearofthedan/working-title/pull/44), [#45](https://github.com/yearofthedan/working-title/pull/45), [#47](https://github.com/yearofthedan/working-title/pull/47) | [implement: Definition of done](../.agents/skills/implement/SKILL.md#definition-of-done) |
+| A case is shown only by a run where it fails alone: a case after a failing one never runs, so one failing run in a file answers for every case in it | [#52](https://github.com/yearofthedan/working-title/pull/52) | [pnpm-workspace.test.ts: every case runs past a failing one](../pnpm-workspace.test.ts) |
+| A fixture a tool's own default already satisfies is not a case: it passes before the setting under test exists | [#52](https://github.com/yearofthedan/working-title/pull/52) | none |
+| A comparison counts only once it is known what it compared: a file an earlier step restored compares the original with itself | [#52](https://github.com/yearofthedan/working-title/pull/52) | none |
+| A claim about a tool written in a reply, mid-build, is where checking the docs first gets missed, and a review catches it a round trip later | [#52](https://github.com/yearofthedan/working-title/pull/52) | none |
 
 ## The columns
 

@@ -30,8 +30,9 @@ minimumReleaseAge: 4320
 # (https://pnpm.io/settings/dependency-resolution#trustpolicy).
 trustPolicy: no-downgrade
 # The two releases the trust check refuses, and why each one stays: workbox-build@7.4.1
-# accepts no other release of that plugin, and semver's 6.x line carries no provenance
-# attestation while 7.5.x releases published before it do.
+# accepts no other release of that plugin, and Babel 7, reached through workbox-build,
+# requires semver@6.3.1. The check objects to both because a release of each published
+# earlier carries a provenance attestation and these two do not.
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
   - semver@6.3.1
