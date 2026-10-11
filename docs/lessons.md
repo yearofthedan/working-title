@@ -25,7 +25,9 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | Breaking a whole check shows the check matters, not that each case it names is tested: break each case on its own | [#44](https://github.com/yearofthedan/working-title/pull/44), [#45](https://github.com/yearofthedan/working-title/pull/45), [#47](https://github.com/yearofthedan/working-title/pull/47) | [implement: Definition of done](../.agents/skills/implement/SKILL.md#definition-of-done) |
 | A change with no obvious calls still makes them: readings of the issue, where a rule lives, how far a list reaches. Set them out and get a yes, rather than declaring none | [#55](https://github.com/yearofthedan/working-title/pull/55) | none |
 | A check can pass on nothing — a crawl that read no file, a case generated from the rules it tests — so it needs a case written apart from what it checks, saying what it saw | [#56](https://github.com/yearofthedan/working-title/pull/56) | none |
-| Seeing a case fail means first seeing that the change meant to break it landed: a mutation that changes nothing passes as a case that cannot fail. A restore put back the wrong version once already, so check the file after restoring it, not only the run | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| Seeing a case fail means first seeing that the change meant to break it landed: a mutation that changes nothing passes as a case that cannot fail | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A mutation run's restore is checked by reading the restored file, not only by the next run | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
+| A run's whole output is read, warnings included: reading only its pass and fail lines hides a warning the change added | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
 | A fact about who did the work comes from the session's own context: another agent's account of itself names that agent, not the writer | [#57](https://github.com/yearofthedan/working-title/pull/57) | none |
 
 ## The columns

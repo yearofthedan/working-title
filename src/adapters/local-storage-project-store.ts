@@ -1,4 +1,4 @@
-import type { Project } from '../domain/project';
+import { isProject } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 
 const key = 'working-title:project';
@@ -9,12 +9,10 @@ export const projectStore = (): ProjectStore => ({
   load: async () => {
     const saved = localStorage.getItem(key);
     if (saved === null) return undefined;
-    const project = JSON.parse(saved) as Project;
-    // `null` parses, and so would a value from another version of the stored shape: only a
-    // project is a project, and anything else is refused rather than read as nothing saved.
-    if (typeof project?.root?.facets !== 'object' || project.root.facets === null) {
-      throw new Error(`${key} holds something that is not a project`);
-    }
+    const project: unknown = JSON.parse(saved);
+    // `null` parses where unreadable text throws, so the shape decides: a value the app cannot
+    // render is refused rather than read as nothing saved and replaced on the first keystroke.
+    if (!isProject(project)) throw new Error(`${key} holds something that is not a project`);
     return project;
   },
   save: async (project) => {
