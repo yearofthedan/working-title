@@ -28,14 +28,13 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 });
 
 const theStoryOnScreen = async () => {
+  localStorage.clear();
   document.body.replaceChildren();
   const main = document.createElement('main');
   document.body.append(main);
   renderFocus(main, await openProject(snowflakeExtended, projectStore()));
 };
 
-// The page a scenario plays on is fresh for each test, and both scopes below read the tree
-// from the page the test is on.
 const runnerFor = (approving: boolean): Runner => {
   const scope = browserScope(theStoryOnScreen);
   return {
@@ -56,19 +55,18 @@ for (const [key, text] of Object.entries(files)) {
   if (__SCENARIO_APPROVE__ !== '' && !approving) continue;
 
   describe(path, () => {
-    const scope = browserScope(theStoryOnScreen);
-    const actions = focusPageActions(scope);
-
-    if (approving) {
-      it('records what the page shows', async () => {
-        await playScenarios({ path, text }, runnerFor(true), actions, { approve: true });
-      });
-      return;
-    }
-
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
-        await playScenarios({ path, text }, runnerFor(false), actions, { only: behaviour });
+        const scope = browserScope(theStoryOnScreen);
+        // Approving reads the file as it stands, so a file of several scenarios is rewritten
+        // a section at a time.
+        const current = approving ? await browser.server.commands.readFile(path) : text;
+        await playScenarios(
+          { path, text: current },
+          runnerFor(approving),
+          focusPageActions(scope),
+          { only: behaviour, ...(approving ? { approve: true } : {}) },
+        );
       });
     }
   });

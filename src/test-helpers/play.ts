@@ -1,6 +1,9 @@
 import { readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type StepAction } from './steps';
 
+/** The step that ends a scenario: the runner prints the page after it, so nothing plays it. */
+export const OBSERVED = 'the writer sees';
+
 export interface ScenarioSource {
   /** For a failure's message, and where an approved file goes. */
   readonly path: string;
@@ -64,9 +67,16 @@ export const playScenarios = async (
   const table = stepTable(actions);
   let approved = source.text;
 
+  if (options.approve && runner.write === undefined) {
+    throw new Error('Approving needs a runner that can write the file it read');
+  }
+
   for (const scenario of file.scenarios) {
     if (options.only !== undefined && scenario.behaviour !== options.only) continue;
-    for (const step of scenario.steps) await table.play(step);
+    for (const step of scenario.steps) {
+      if (step.phrase === OBSERVED) continue;
+      await table.play(step);
+    }
     const observed = await runner.tree();
 
     if (options.approve) {

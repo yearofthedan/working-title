@@ -1,9 +1,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { snowflakeExtended } from '../src/methods/snowflake-extended';
 import { readScenarioFile } from '../src/test-helpers/scenario-file';
-import { playScenarios } from '../src/test-helpers/play';
+import { playScenarios, type Runner } from '../src/test-helpers/play';
 import { journeyActions } from './journey';
 import { test } from './writer';
 
@@ -19,31 +18,26 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
   const text = readFileSync(join(root, path), 'utf8');
 
   test.describe(path, () => {
-    if (approving !== '') {
-      test('records what the page shows', async ({ writer }) => {
-        await playScenarios(
-          { path, text },
-          {
-            tree: async () => writer.scope.tree(),
-            write: async (where, what) => {
-              writeFileSync(join(root, where), what);
-            },
-          },
-          journeyActions(writer.scope, snowflakeExtended),
-          { approve: true },
-        );
-      });
-      return;
-    }
-
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       test(behaviour, async ({ writer }) => {
-        await playScenarios(
-          { path, text },
-          { tree: async () => writer.scope.tree() },
-          journeyActions(writer.scope, snowflakeExtended),
-          { only: behaviour },
-        );
+        const tree = async () => writer.scope.tree();
+        const runner: Runner =
+          approving === ''
+            ? { tree }
+            : {
+                tree,
+                write: async (where, what) => {
+                  writeFileSync(join(root, where), what);
+                },
+              };
+        // Approving reads the file as it stands, so a file of several scenarios is rewritten
+        // a section at a time.
+        const current = approving === '' ? text : readFileSync(join(root, path), 'utf8');
+
+        await playScenarios({ path, text: current }, runner, journeyActions(writer.scope), {
+          only: behaviour,
+          ...(approving === '' ? {} : { approve: true }),
+        });
       });
     }
   });

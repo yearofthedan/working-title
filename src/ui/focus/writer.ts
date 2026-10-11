@@ -9,7 +9,4 @@ export const focusPageActions = (scope: PageScope): Record<string, StepAction> =
   'the writer types "{text}" into {facet}': async ({ text, facet }) => {
     await scope.field(facet).enter(text);
   },
-  'the writer sees': () => {
-    // Nothing to do: the runner prints the page after the steps, and this phrase names it.
-  },
 });

@@ -1,9 +1,16 @@
-import { test as base, type Page } from '@playwright/test';
+import { test as base, type Locator, type Page } from '@playwright/test';
 import { linesOf, type AppScope } from '../src/test-helpers/scope';
 
 // A closure over `page`, not a class holding `this.page`: lint restricts Page's
 // selector actions by the name `page`, which `this.page` does not match.
-const writerOn = (page: Page) => {
+export interface Writer {
+  readonly scope: AppScope;
+  opensTheApp(): Promise<void>;
+  reloads(): Promise<void>;
+  readonly theAppsName: Locator;
+}
+
+const writerOn = (page: Page): Writer => {
   // The parts a scenario plays reach the page through this and nothing wider: a field by the
   // label a writer reads, and the page as Playwright prints it.
   const scope: AppScope = {
@@ -23,6 +30,7 @@ const writerOn = (page: Page) => {
 
   return {
     scope,
+
     opensTheApp: async () => {
       await page.goto('/');
     },
@@ -32,26 +40,8 @@ const writerOn = (page: Page) => {
     },
 
     theAppsName: page.getByRole('heading', { name: 'working-title' }),
-
-    theField: (label: string) => page.getByLabel(label),
-
-    typesInto: async (label: string, text: string) => {
-      await page.getByLabel(label).fill(text);
-    },
-
-    // Key by key, rather than in one go, so a spec can reload with the typing barely
-    // stopped.
-    typesIntoLetterByLetter: async (label: string, text: string) => {
-      await page.getByLabel(label).pressSequentially(text);
-    },
-
-    empties: async (label: string) => {
-      await page.getByLabel(label).fill('');
-    },
   };
 };
-
-export type Writer = ReturnType<typeof writerOn>;
 
 export const test = base.extend<{ writer: Writer }>({
   writer: async ({ page }, use) => {

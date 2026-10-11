@@ -10,7 +10,6 @@ How are the tests that show what the writer sees written, run and reviewed?
 - **Two runners.** A behaviour within one page runs in Vitest browser mode; a journey through the built app runs in Playwright ([ADR 7](0007-playwright-for-browser-specs.md)).
 - **The agreed text.** A story's acceptance criteria are agreed in its issue before any code, and the tests have to read as that text rather than drift from it.
 - **Review cost.** A change is reviewed by reading a diff, so what a test asserts should appear in a file the reviewer scans, not only in code.
-- **One author, no backend.** One writer on one device ([ADR 1](0001-no-backend-in-v1.md)), so nothing here may rely on a server.
 
 ## Options considered
 
@@ -35,4 +34,4 @@ The forces that decided it were the review cost and the agreed text: the pattern
 - The tree normalises whitespace, so a facet's text as typed needs a value-level test: the storage round trip carries that, not the scenario file.
 - A runner must be able to hand the tree back and to write the file it read; a runner that could only compare would force a second way to approve.
 - Vitest browser mode needs Chromium installed, so `./do check` runs the specs before the tests on a fresh machine.
-- The harness is checked by its own tests; the layer check keeps it from reaching into the domain.
+- The harness and the entries sit outside the five layers `./do layers` covers, so what they may import is a convention rather than a check: nothing stops `e2e/journey.ts` importing the domain.
