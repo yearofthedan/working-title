@@ -62,7 +62,7 @@ A pull request whose work is done is handed over, not left in draft:
 
 ## Work found outside the issue
 
-Work that belongs to a different issue — a bug in code this change does not touch, a missing check, a hole in a doc — is never built here. Draft the bug or story in its template, show the draft to the builder, and file it without `ready` once they confirm. Name the new issue in `Decisions`, and build none of it.
+Work that belongs to a different issue — a bug in code this change does not touch, a missing check, a hole in a doc — is never built here. Draft the bug, story or task in its template, show the draft to the builder, and file it without `ready` once they confirm. Name the new issue in `Decisions`, and build none of it.
 
 ## Build rules
 
