@@ -10,7 +10,7 @@
       "groupName": "Vite+"
     },
     {
-      "description": "A pnpm bump is never routine: pnpm is what enforces the install policy in pnpm-workspace.yaml, so its release notes get read before merging (docs/standards/dependencies.md)",
+      "description": "A pnpm bump is never routine: pnpm enforces the install policy, so its releases are read before merging",
       "matchPackageNames": ["pnpm"],
       "automerge": false,
       "prBodyNotes": [

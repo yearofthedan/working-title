@@ -14,3 +14,26 @@ test('the install cutoff and the update schedule wait the same span', () => {
   expect(cutoff?.[1], 'pnpm-workspace.yaml has no minimumReleaseAge').toBeDefined();
   expect(Number(waited?.[1]) * 24 * 60).toBe(Number(cutoff?.[1]));
 });
+
+// An exception without a reason above it is what pnpm's own approval prompt writes,
+// so this catches one added by hand or by an approval that skipped the reason
+// (docs/standards/dependencies.md).
+test.each(['minimumReleaseAgeExclude', 'trustPolicyExclude'])(
+  '%s names a reason for every entry',
+  (list) => {
+    const lines = readFileSync('pnpm-workspace.yaml', 'utf8').split('\n');
+    const key = lines.indexOf(`${list}:`);
+    if (key === -1) return;
+    const reasons: string[] = [];
+    for (let above = key - 1; above >= 0 && lines[above].startsWith('#'); above -= 1) {
+      reasons.push(lines[above]);
+    }
+    for (let entry = key + 1; lines[entry]?.startsWith('  - '); entry += 1) {
+      const named = lines[entry].replace(/^ {2}- '?|'$/g, '');
+      expect(
+        reasons.some((reason) => reason.includes(named)),
+        `${named} is in ${list} with no reason above it`,
+      ).toBe(true);
+    }
+  },
+);
