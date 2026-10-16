@@ -6,9 +6,9 @@
 # both catalog entries together (https://viteplus.dev/guide/upgrade-project).
 overrides:
   vite@*: 'catalog:'
-  # Stryker's typed-rest-client pins qs at 6.15.1, which carries three advisories; 6.16.0 is the
-  # first release clear of all three (https://github.com/advisories/GHSA-4mjr-xmp4-gh2g). The pin is
-  # exact, so nothing else moves it. Drop this when that package asks for ^6.16.0, as 3.1.1 does.
+  # shortcut: typed-rest-client pins qs at 6.15.1, which carries three advisories
+  # (https://github.com/advisories/GHSA-4mjr-xmp4-gh2g); drop the override when that package asks
+  # for ^6.16.0, as its 3.1.1 does.
   qs@*: 6.16.0
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
@@ -45,11 +45,10 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
   - semver@6.3.1
-# The patch joins a test's name chain with ' > ', which is what Vitest 5 matches a
-# per-test filter against; without it every mutant with per-test coverage runs no tests
-# and is reported survived (https://github.com/stryker-mutator/stryker-js/issues/6210).
-# Drop it when a release carries the fix: the pin below keeps the patch applied, and pnpm
-# refuses an unused one, so bumping the runner fails the install until they change together
+# shortcut: this build of the runner joins a test's name chain with a space, where Vitest 5 matches a
+# per-test filter on ' > ', so every mutant with per-test coverage runs no tests and is reported
+# survived (https://github.com/stryker-mutator/stryker-js/issues/6210); drop the patch when a release
+# carries the fix, since pnpm refuses an unused one and a bumped runner fails the install until then
 # (https://pnpm.io/cli/patch#allowunusedpatches).
 patchedDependencies:
   '@stryker-mutator/vitest-runner@10.0.0': patches/@stryker-mutator__vitest-runner@10.0.0.patch
