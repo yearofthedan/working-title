@@ -1,0 +1,13 @@
+#!/bin/sh
+# Write the mutants the tests over the domain and the application let through.
+
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+if ! command -v stryker >/dev/null 2>&1; then
+  echo "stryker is not installed. Run pnpm install, then try again." >&2
+  exit 1
+fi
+
+exec stryker run "$root/stryker.config.mjs" "$@"
