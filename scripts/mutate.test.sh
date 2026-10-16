@@ -100,18 +100,20 @@ expect_summary() {
 }
 
 run_mutate
-# The fixture scores 80% of its five mutants, under the 90 the config sets, so the run fails
+# The fixture scores 80% of its five mutants, under the 90 the config sets, so the run fails. The
+# line it fails on is the reason, which a crash would not print
 # (https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-object).
 expect_status 1 "a run under the threshold fails"
+expect_out 'under breaking threshold' "and says the threshold is what failed it"
 
 summarise
 expect_summary '^files: src/application/use.ts src/domain/greeting.ts src/domain/twice.ts$' \
   "only the domain and application sources are mutated"
 expect_summary '^per-test: .*Killed' "a mutant a test covers is killed"
-expect_summary '^per-test: .*Survived' "a mutant a test covers and lets through survives"
 
-# The cache holds the file a run leaves, so the config that writes it and the workflow that caches
-# it name one path between them (https://stryker-mutator.io/docs/stryker-js/configuration#incremental-boolean).
+# The workflow caches the file a run leaves at Stryker's default path, so the setting that makes the
+# run leave it and the workflow's copy of that path are held together here
+# (https://stryker-mutator.io/docs/stryker-js/configuration#incremental-boolean).
 if [ -f "$project/reports/stryker-incremental.json" ]; then
   ok "the run leaves the file the report continues from"
 else

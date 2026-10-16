@@ -22,18 +22,18 @@ jobs:
         with:
           node-version-file: .node-version
       - run: pnpm install --frozen-lockfile
-      # The lockfile and the configs a run reads are in the key: Stryker carries results forward
-      # whatever changes in them (https://stryker-mutator.io/docs/stryker-js/incremental). The most
-      # recent file written under the same ones is what a restore picks up, and this commit's own
-      # where it is a rerun
+      # The lockfile, the configs a run reads, the tsconfig Stryker rewrites and the Node version it
+      # runs on are in the key: Stryker carries results forward whatever changes in them
+      # (https://stryker-mutator.io/docs/stryker-js/incremental). The most recent file written under
+      # the same ones is what a restore picks up, and this commit's own where it is a rerun
       # (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
       # `hashFiles` works in a step, where a workflow-level `env` allows no function
       # (https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: reports/stryker-incremental.json
-          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-${{ github.sha }}
-          restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-
+          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version') }}-${{ github.sha }}
+          restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version') }}-
       # A run whose score falls under the threshold fails, and the ruleset on main does not require
       # this job, so it reports without blocking a merge.
       - run: ./do mutate

@@ -25,7 +25,7 @@ peerDependencyRules:
 
 # dependency-cruiser reads TypeScript through the compiler's JavaScript API, which needs a
 # `typescript` below 7, and Stryker's tsconfig rewrite does the same, while the project's own is 7;
-# each carries one of its own (https://pnpm.io/settings/package-extensions).
+# each carries one of its own (https://pnpm.io/settings#packageextensions).
 packageExtensions:
   dependency-cruiser:
     dependencies:

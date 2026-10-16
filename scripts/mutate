@@ -1,5 +1,5 @@
 #!/bin/sh
-# Write the mutants the tests over the domain and the application let through.
+# Report the mutants the tests over the domain and the application let through.
 
 set -eu
 
