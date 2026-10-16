@@ -39,6 +39,10 @@ How a story is planned, built and handed over is in the skills below, which is w
 
 A call the builder has to answer goes to them alone, and the work waits for it. State it in a message of its own, build nothing that assumes the answer, and never let it sit as a clause inside a status report — a question buried in a report is not a question. Ask before publishing anything to an issue or a pull request on their behalf: a question posted there answers it for them.
 
+A correction stops the action it names, not the work. Say in a line what was got wrong, then wait for the builder's word on what to do: repairing, reverting, re-running or tidying on your own initiative answers for them.
+
+A change in how you work lands as a line in a file, not as a promise. A session carries nothing to the next, so a promise is not a mechanism.
+
 ## What you assert
 
 Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
