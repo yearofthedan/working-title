@@ -12,12 +12,6 @@ on:
 permissions:
   contents: read
 
-env:
-  # Beyond the sources and the tests, a run's incremental file depends on the dependencies and the
-  # configs named here: Stryker detects a change to neither, and would reuse results the change
-  # invalidated (https://stryker-mutator.io/docs/stryker-js/incremental).
-  MUTATION_CACHE: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}
-
 jobs:
   mutate:
     runs-on: ubuntu-latest
@@ -30,11 +24,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # The most recent file written under these dependencies and configs, and this commit's own
       # where it is a rerun (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
+      # They are in the key because Stryker detects a change to neither, and would reuse results the
+      # change invalidated (https://stryker-mutator.io/docs/stryker-js/incremental). `hashFiles` is
+      # available here and not in a workflow-level `env`
+      # (https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: reports/stryker-incremental.json
-          key: ${{ env.MUTATION_CACHE }}-${{ github.sha }}
-          restore-keys: ${{ env.MUTATION_CACHE }}-
+          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-${{ github.sha }}
+          restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-
       # No score fails a run: which mutants survive is what the report is for, and the threshold
       # waits on a baseline of real numbers (https://github.com/yearofthedan/working-title/issues/21).
       - run: ./do mutate
