@@ -182,4 +182,13 @@ track
 expect_status 1 "an unreachable site fails in CI"
 expect_err 'could not be reached' "the CI failure says what could not be reached"
 
+# A tree this check reads nothing from is refused, so a pass cannot read as one over nothing.
+empty="$work/empty"
+mkdir -p "$empty"
+(cd "$empty" && git init -q -b main . && git config user.email t@example.com && git config user.name t && printf 'notes\n' > notes.txt && git add -A)
+status=0
+env -u CI node "$root/scripts/_links.mjs" "$empty" >"$work/out" 2>"$work/err" || status=$?
+expect_status 1 "a tree this check reads nothing from is refused"
+expect_err 'checked nothing' "the refusal says nothing was read"
+
 finish
