@@ -26,3 +26,15 @@ packageExtensions:
   dependency-cruiser:
     dependencies:
       typescript: 6.0.3
+
+# Three days, the span Renovate waits, so a release withdrawn as compromised does not
+# reach a machine (https://pnpm.io/settings/dependency-resolution#minimumreleaseage).
+minimumReleaseAge: 4320
+# Refuse a release weaker in publisher trust than an earlier release, which is what a
+# hijacked account publishing looks like (https://pnpm.io/settings/dependency-resolution#trustpolicy).
+trustPolicy: no-downgrade
+# Why each stays: no other release of @trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1
+# works for workbox-build@7.4.1, and Babel 7 requires semver@6.3.1.
+trustPolicyExclude:
+  - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
+  - semver@6.3.1

@@ -8,6 +8,14 @@
       "description": "The Vite+ toolchain moves as one (ADR 6), so both catalog entries go together",
       "matchPackageNames": ["vite-plus", "@voidzero-dev/vite-plus-core"],
       "groupName": "Vite+"
+    },
+    {
+      "description": "A pnpm bump is never routine: pnpm enforces the install policy, so its releases are read before merging",
+      "matchPackageNames": ["pnpm"],
+      "automerge": false,
+      "prBodyNotes": [
+        "Read this release's notes and migration guide before merging: pnpm enforces the install policy in `pnpm-workspace.yaml`, and a bump to it can change what that policy means."
+      ]
     }
   ]
 }
