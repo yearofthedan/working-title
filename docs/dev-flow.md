@@ -5,7 +5,7 @@
 
 ## Write a story
 
-A story is one thin slice of an epic, landing as pull requests. A line whose behaviour a tool or library provides, such as a setting or a CI workflow, is a task instead: the same flow, in the [task template](../.github/ISSUE_TEMPLATE/task.md).
+A story is one thin slice of an epic, landing as pull requests. Work the writer would see nothing of is a task instead, by the rule in the [writing-stories skill](../.agents/skills/writing-stories/SKILL.md#story-or-task): the same flow, in the [task template](../.github/ISSUE_TEMPLATE/task.md).
 
 1. **Pick the line.** Take a line of an epic's `Is` list that no story delivers yet.
 2. **Ask for the story.** An agent drafts it in the [story template](../.github/ISSUE_TEMPLATE/story.md) and shows you the draft before filing anything: the [writing-stories skill](../.agents/skills/writing-stories/SKILL.md).
