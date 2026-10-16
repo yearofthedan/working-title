@@ -1,19 +1,17 @@
-// Mutation testing writes small faults into the code and runs the tests over them, reporting
-// the ones the tests let through (docs/architecture.md#toolchain). The report is the point:
-// the break threshold is proposed from a baseline of real numbers, so nothing here fails a run.
+// Stryker runs the tests over the domain and the application with small faults written into them,
+// and reports the ones the tests let through (docs/architecture.md#toolchain).
 
 /** @type {import('@stryker-mutator/core').PartialStrykerOptions} */
 export default {
-  // The runner is named rather than searched for: under pnpm it sits beside this package in the
-  // store, not beside @stryker-mutator/core, which is where Stryker looks
-  // (https://stryker-mutator.io/docs/stryker-js/configuration#plugins-string).
+  // Named, because Stryker searches for plugins inside its own package and pnpm keeps this one
+  // beside it in the store (https://stryker-mutator.io/docs/stryker-js/configuration#plugins-string).
   plugins: ['@stryker-mutator/vitest-runner'],
   testRunner: 'vitest',
   vitest: { configFile: 'stryker.vitest.config.ts' },
-  // The domain and the application are where the tests are the only thing holding the behaviour
-  // up. The UI and the adapters are driven in a browser, which this runner cannot mutate.
+  // The domain and the application hold the behaviour the tests are written over. The UI and the
+  // adapters are driven in a browser, which this runner cannot mutate.
   mutate: ['src/domain/**/*.ts', 'src/application/**/*.ts', '!src/**/*.test.ts'],
-  // Reports carry a mutant's result forward, so a run reads only what changed since it was written
+  // Each mutant's result is stored, so the next run tests only what changed since
   // (https://stryker-mutator.io/docs/stryker-js/incremental).
   incremental: true,
   // Which mutants survive is what the report is for until a threshold is set from a baseline of

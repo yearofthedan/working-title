@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Tests for ./do mutate: which files it mutates, and what a surviving mutant does to the
-# run. The project is its own, holding the paths the config names, so no mutant reaches
-# this repository's files and no report is written beside them.
+# run. The project is its own, holding the paths the config names, so a run leaves this
+# repository alone.
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
@@ -26,8 +26,8 @@ write() {
 
 write src/domain/greeting.ts "export const greeting = (name: string): string => \`Hello, \${name}!\`;"
 # The suite a test sits in is part of the name a mutant's run filters by, which is what the
-# runner patch is about: unwrap this test and the case below passes on a run that tests
-# nothing (https://github.com/stryker-mutator/stryker-js/issues/6210).
+# runner patch is about: move this test out of its `describe` and the case below passes on a
+# run that tests nothing (https://github.com/stryker-mutator/stryker-js/issues/6210).
 write src/domain/greeting.test.ts "import { describe, expect, it } from 'vite-plus/test';
 import { greeting } from './greeting';
 

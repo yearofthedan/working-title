@@ -22,11 +22,12 @@ jobs:
         with:
           node-version-file: .node-version
       - run: pnpm install --frozen-lockfile
-      # The most recent file written under these dependencies and configs, and this commit's own
-      # where it is a rerun (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
-      # They are in the key because Stryker detects a change to neither, and would reuse results the
-      # change invalidated (https://stryker-mutator.io/docs/stryker-js/incremental). `hashFiles` is
-      # available here and not in a workflow-level `env`
+      # The lockfile and the configs a run reads are in the key: Stryker carries results forward
+      # whatever changes in them (https://stryker-mutator.io/docs/stryker-js/incremental). The most
+      # recent file written under the same ones is what a restore picks up, and this commit's own
+      # where it is a rerun
+      # (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
+      # `hashFiles` works in a step, where a workflow-level `env` allows no function
       # (https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
