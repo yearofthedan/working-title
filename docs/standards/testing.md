@@ -16,7 +16,7 @@
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
 - **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
 - **An assertion that cannot fail is not a test.** Where nothing the code could do would make it fail, it goes: it reads as a guard while checking nothing.
-- **A case over a setting is written only for a setting this repository writes.** A case over a setting a tool already holds by default passes before anything here exists: write the setting out, with its why, or write no case.
+- **A case over a setting fails when the line this repository writes for it goes.** A setting a tool already holds by default passes before anything here exists, so the line is written at a value this repository chooses, with its why, or no case is written for it.
 
 ## Approved scenarios
 
