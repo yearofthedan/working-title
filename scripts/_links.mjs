@@ -83,6 +83,22 @@ for (const file of files) {
   }
 }
 
+const ask = (page, saved) => {
+  try {
+    const code = Number(
+      execFileSync('curl', ['-sSL', '--max-time', '20', '-o', saved, '-w', '%{http_code}', page], {
+        encoding: 'utf8',
+      }).trim(),
+    );
+    return { status: code, answered: Number.isInteger(code) && code >= 100 };
+  } catch (error) {
+    // A site that answers with an error still answered; one that answers nothing says nothing.
+    const code = Number(String(error.stdout ?? '').trim());
+    const answered = Number.isInteger(code) && code >= 100;
+    return { status: answered ? code : 0, answered };
+  }
+};
+
 if (external) {
   const work = mkdtempSync(join(tmpdir(), 'links-'));
   try {
@@ -91,31 +107,29 @@ if (external) {
       asked += 1;
       const [page, anchor] = url.split('#');
       const saved = join(work, `${asked}.html`);
-      let status = 0;
-      let answered = true;
-      try {
-        status =
-          Number(
-            execFileSync(
-              'curl',
-              ['-sSL', '--max-time', '20', '-o', saved, '-w', '%{http_code}', page],
-              { encoding: 'utf8' },
-            ).trim(),
-          ) || 0;
-      } catch (error) {
-        const code = Number(String(error.stdout ?? '').trim());
-        // A site that answers with an error still answered; one that answers nothing says nothing.
-        answered = Number.isInteger(code) && code >= 100;
-        status = answered ? code : 0;
+      let answer = ask(page, saved);
+      // A site that fails to answer is asked once more: a 5xx is that site's moment rather than the
+      // link's health
+      // (https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api).
+      if (answer.status >= 500 || answer.status === 429) {
+        execFileSync('sleep', ['3']);
+        answer = ask(page, saved);
       }
-      if (!answered) {
+      if (!answer.answered) {
         const line = `${file}: ${url} could not be reached, so nothing was checked`;
         if (inCi) refusals.push(line);
         else warnings.push(line);
         continue;
       }
-      if (status >= 400) {
-        refusals.push(`${file}: ${url} answers ${status}`);
+      // A 404 is the site's answer about the link; a 5xx is the site failing to answer at all.
+      if (answer.status >= 500 || answer.status === 429) {
+        warnings.push(
+          `${file}: ${url} answered ${answer.status}, which is the site rather than the link`,
+        );
+        continue;
+      }
+      if (answer.status >= 400) {
+        refusals.push(`${file}: ${url} answers ${answer.status}`);
         continue;
       }
       let pageText = '';
@@ -124,8 +138,8 @@ if (external) {
       } catch {
         pageText = '';
       }
-      // A heading can be on a page without being in the HTML the server sends — this repository
-      // links to two such pages — so a missing one is a hint to look, not a refusal.
+      // A heading can be on a page without being in the HTML the server sends, so a missing one is a
+      // hint to look rather than a refusal.
       if (anchor && !pageText.includes(`id="${anchor}"`)) {
         warnings.push(
           `${file}: ${url} names a heading that is not in the page as it was sent, so it is worth a look`,

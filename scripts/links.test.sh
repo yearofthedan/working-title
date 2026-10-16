@@ -32,6 +32,7 @@ case "$*" in
 *example.com/docs*) page='<h2 id="the-rule">The rule</h2>' ;;
 *example.com/other*) page='<p>No heading here</p>' ;;
 *example.com/gone*) status=404 ;;
+*example.com/busy*) status=503 ;;
 esac
 out=''
 previous=''
@@ -150,6 +151,16 @@ See [the site](https://example.com/docs#no-such-rule).
 links --external
 expect_status 0 "a heading a page does not hold as it was sent is warned about"
 expect_err '#no-such-rule' "a heading a page does not hold as it was sent is named"
+
+# A site failing to answer is the site's moment, not the link's health, so it warns rather than
+# refusing, after one more ask.
+write docs/guide.md '# Guide
+
+See [the site](https://example.com/busy).
+'
+links --external
+expect_status 0 "a site answering 503 warns rather than refusing"
+expect_err 'which is the site rather than the link' "the warning says it is the site"
 
 # An address that does not answer.
 write docs/guide.md '# Guide
