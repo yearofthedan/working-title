@@ -1,0 +1,25 @@
+name: Links
+
+on:
+  pull_request:
+    branches: [main]
+  # A link dies with no commit to this repository, so this asks the sites it names whether or not
+  # anything changed (https://docs.github.com/en/actions/reference/events-that-trigger-workflows#schedule).
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      # No install: the task reads the tree and asks the sites, and needs neither the toolchain nor
+      # the dependencies. `./do check` runs the half that stays in the repository.
+      - run: ./do links --external

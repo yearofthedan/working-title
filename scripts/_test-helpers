@@ -46,6 +46,10 @@ make_copy() {
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
     chmod +x "$copy/node_modules/.bin/$tool"
   done
+  # node is recorded and then run for real: the audit comparison is itself node, and a stub that
+  # answered instead of running it would leave that suite seeing nothing.
+  printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec %s "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
+  chmod +x "$copy/node_modules/.bin/node"
   printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\ncase "$*" in "audit --json") if [ -z "${PNPM_AUDIT_SILENT:-}" ]; then if grep -q vulnerable-fixture pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %%s "{\\"advisories\\":{}}"; fi; fi;; esac\n' >"$copy/node_modules/.bin/pnpm"
   chmod +x "$copy/node_modules/.bin/pnpm"
   (
