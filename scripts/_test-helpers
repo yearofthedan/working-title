@@ -30,17 +30,17 @@ expect_out() { if grep -q "$1" "$work/out"; then ok "$2"; else no "$2"; fi; }
 expect_err() { if grep -q "$1" "$work/err"; then ok "$2"; else no "$2"; fi; }
 expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $status)"; fi; }
 
-# A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint
-# and pnpm that record their calls in $VP_LOG, so nothing is written into the
-# repo and no real check runs. The copy is a git repo whose origin/main holds the
+# A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint,
+# depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
+# the repo and no real check runs. The copy is a git repo whose origin/main holds the
 # lockfile, as the audit needs.
 make_copy() {
   copy="$work/copy"
   mkdir -p "$copy/node_modules/.bin"
   cp "$root/do" "$copy/do"
   cp -R "$root/scripts" "$copy/scripts"
-  cp "$root/.secretlintrc.json" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
-  for tool in vp playwright secretlint; do
+  cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.mjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
+  for tool in vp playwright secretlint depcruise; do
     prefix="$tool "
     [ "$tool" = vp ] && prefix=''
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"

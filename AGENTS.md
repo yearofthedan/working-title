@@ -35,9 +35,13 @@ Once `pnpm install` has installed the dependencies, every task runs through `./d
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
 
+## Working with the builder
+
+A call the builder has to answer goes to them alone, and the work waits for it. State it in a message of its own, build nothing that assumes the answer, and never let it sit as a clause inside a status report — a question buried in a report is not a question. Ask before publishing anything to an issue or a pull request on their behalf: a question posted there answers it for them.
+
 ## What you assert
 
-Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs.
+Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
 
 ## What the builder remembers
 

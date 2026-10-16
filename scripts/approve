@@ -1,13 +1,55 @@
 #!/bin/sh
-# Approve the scenarios printed by a test file, writing their .approved.md files.
+# Write what a scenario's runner observed into the file, choosing the runner by where
+# the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
 
-if [ "$#" -eq 0 ] || [ ! -f "$1" ]; then
-  echo "Name the test file to approve first: ./do approve <test file> [-t <test name>]" >&2
+if [ "$#" -eq 0 ]; then
+  echo "Name the scenario file to approve first: ./do approve <scenario file>" >&2
   exit 2
 fi
 
-exec vp test --update=all "$@"
+if [ ! -f "$1" ]; then
+  echo "$1 is not a file, so there is nothing to approve." >&2
+  exit 2
+fi
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+resolved=$(CDPATH= cd -- "$(dirname -- "$1")" && pwd)/$(basename -- "$1")
+case "$resolved" in
+"$root"/*) path=${resolved#"$root"/} ;;
+*)
+  echo "$resolved is outside the project, and holds no scenario to approve." >&2
+  exit 2
+  ;;
+esac
+
+case "$path" in
+e2e/*.approved.md)
+  entry=e2e/scenarios.spec.ts
+  runner=playwright
+  filter=--grep
+  ;;
+src/*)
+  case "$path" in
+  */scenarios/*.approved.md)
+    entry=src/scenarios.browser.test.ts
+    runner=vp
+    filter=-t
+    ;;
+  *)
+    echo "$path is not a scenario file: a page scenario sits in a scenarios/ folder." >&2
+    exit 2
+    ;;
+  esac
+  ;;
+*)
+  echo "$path is not a scenario file: a journey sits in e2e/, in one of its .approved.md files." >&2
+  exit 2
+  ;;
+esac
+
+# The entry matches the file it read, and only that one records.
+SCENARIO_APPROVE=$path exec "$runner" test "$entry" "$filter" "$path"

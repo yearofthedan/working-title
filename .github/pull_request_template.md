@@ -12,7 +12,7 @@ After:
 
 ## Acceptance criteria
 
-<!-- Each acceptance criterion and edge from the story, the test that checks it, and where it was seen to fail and pass: a CI link, or the local run described. -->
+<!-- Each acceptance criterion and edge from the story, or each Done when line from the task, the test or docs link that checks it, and where it was seen to fail and pass: a CI link, or the local run described. -->
 
 | Acceptance criterion | Test | Run |
 | --- | --- | --- |

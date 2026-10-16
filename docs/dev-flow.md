@@ -1,14 +1,14 @@
 # Dev flow
 
 **Audience:** the builder.
-**Purpose:** how a story is written, agreed and implemented. The agent's side of each step is a skill in `.agents/skills/`.
+**Purpose:** how a story or task is written, agreed and implemented. The agent's side of each step is a skill in `.agents/skills/`.
 
 ## Write a story
 
-A story is one thin slice of an epic, landing as pull requests.
+A story is one thin slice of an epic, landing as pull requests. A line whose behaviour a tool or library provides, such as a setting or a CI workflow, is a task instead: the same flow, in the [task template](../.github/ISSUE_TEMPLATE/task.md).
 
 1. **Pick the line.** Take a line of an epic's `Is` list that no story delivers yet.
-2. **Ask for the story.** An agent drafts it in the story template and shows you the draft before filing anything: the [writing-stories skill](../.agents/skills/writing-stories/SKILL.md).
+2. **Ask for the story.** An agent drafts it in the [story template](../.github/ISSUE_TEMPLATE/story.md) and shows you the draft before filing anything: the [writing-stories skill](../.agents/skills/writing-stories/SKILL.md).
 3. **Argue with it.** The draft is yours. It is the acceptance criteria you will be held to later, and it is cheapest to change now.
 4. **File it** under its epic, in the epic's milestone.
 
@@ -21,6 +21,7 @@ Adding the `ready` label is the agreement. Until you add it, nothing is built: a
 In a fresh session, run `/skill:implement <issue number>`, or ask the agent to pick up, resume or carry on with it. The [implement skill](../.agents/skills/implement/SKILL.md) is what the agent works to. From there it:
 
 - proposes the story's pull requests, and posts them on the issue as a checklist once you confirm;
+- sets out each line's calls when the line starts, such as tooling, architecture, scope and test strategy, and builds nothing until you say yes;
 - works one line at a time, each in its own draft pull request, `Part of #<issue number>` for the earlier ones and `Closes #<issue number>` for the one that finishes;
 - resumes from an open pull request in a new session, so a lost context does not lose the work;
 - hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it;

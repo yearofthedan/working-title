@@ -1,17 +1,17 @@
 ---
 name: implement
-description: Use to implement a ready story or bug across the pull requests its issue plans, handing each one over reviewed. Also use when the builder says pick up, resume or carry on, or asks for a pull request's review findings to be fixed.
+description: Use to implement a ready story, task or bug across the pull requests its issue plans, handing each one over reviewed. Also use when the builder says pick up, resume or carry on, or asks for a pull request's review findings to be fixed.
 ---
 
 # Implementing a story
 
-Work comes from an issue that carries the `ready` label: a story, or a bug. The label is the builder's agreement, made after they read the issue. Implement it across as many pull requests as it needs, one plan line each, and hand each one over reviewed.
+Work comes from an issue that carries the `ready` label: a story, a task, or a bug. The label is the builder's agreement, made after they read the issue. Implement it across as many pull requests as it needs, one plan line each, and hand each one over reviewed.
 
 Run as `/skill:implement N`.
 
 ## Which issue
 
-With no issue number and no open pull request in the conversation, ask which story or bug before anything else. Do not infer one from the branch, the last commit, or the previous conversation.
+With no issue number and no open pull request in the conversation, ask which story, task or bug before anything else. Do not infer one from the branch, the last commit, or the previous conversation.
 
 ## Not without `ready`
 
@@ -31,12 +31,29 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 ## Start a line
 
 - Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
+- Confirm the line's calls with the builder, as the next section says. Nothing is committed before they say yes.
 - Make the first commit: the first piece of the line that stands on its own. Push the branch.
 - Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
-- Keep the acceptance criteria table current: one row for each criterion and each edge, its test, and where it ran.
+- Keep the acceptance criteria table current: one row for each criterion and each edge, or each `Done when` line of a task, its test or docs link, and where it ran.
 
 The pull request that finishes the last unticked line says `Closes #<issue number>` where the others say `Part of`. The last line is known when the plan is made and again when the plan is updated, so a line that turns out to be last is opened, or edited, to close.
+
+## Confirm the line's calls
+
+Before a line's first commit, set out every call the line needs, grouped by the classes below, each with what you propose, and wait for the builder's yes. The calls go in a message of their own, and nothing is built while they are unanswered: work that assumes an answer is a guess, and a call left as a clause inside a status report is not asked. A line that needs no call in any class says so, and still waits. The plan's lines stay titles: the calls are set out one line at a time, when that line starts.
+
+1. **Tooling and dependencies**, including a choice not to use one.
+2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).
+3. **Decision records the line touches**: how the line follows each one, and any you think is wrong for this case. A challenge names the record, what this line shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](../writing-adrs/SKILL.md), ahead of the line that depends on it.
+4. **Reading the issue**: how you read an acceptance criterion or a `Done when` line that allows more than one reading.
+5. **Scope** beyond the plan line, including changing or removing existing behaviour.
+6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
+7. **What the writer sees**: copy, interaction and layout.
+8. **The shape of stored data**, and what happens to data already saved.
+9. **Test strategy**: the level each case is tested at, and what is faked.
+
+A call in any class that comes up once the line is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
 ## Resume
 
@@ -62,12 +79,12 @@ A pull request whose work is done is handed over, not left in draft:
 
 ## Work found outside the issue
 
-Work that belongs to a different issue — a bug in code this change does not touch, a missing check, a hole in a doc — is never built here. Draft the bug or story in its template, show the draft to the builder, and file it without `ready` once they confirm. Name the new issue in `Decisions`, and build none of it.
+Work that belongs to a different issue — a bug in code this change does not touch, a missing check, a hole in a doc — is never built here. Draft the bug, story or task in its template, show the draft to the builder, and file it without `ready` once they confirm. Name the new issue in `Decisions`, and build none of it.
 
 ## Build rules
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
-- Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, record the call in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
+- Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the line's calls](#confirm-the-lines-calls) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - A question or aside from the builder is not agreement to a change. Answer it, and when it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
@@ -81,5 +98,6 @@ A pull request is done when all of these hold:
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
-- Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine.
+- Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine. A case is shown failing by breaking the code that should catch it, on committed work, and the file is read after the break is undone: a restore that quietly puts back the wrong version reads as a passing case, and as a flaky one later.
+- In a task, each `Done when` line has the evidence the [task template](../../../.github/ISSUE_TEMPLATE/task.md) asks for, and the cases above are only the lines it says are tested here.
 - The pull request has been handed over: reviewed, findings fixed or answered, and marked ready.
