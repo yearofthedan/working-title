@@ -1,6 +1,6 @@
 ---
 name: Task
-about: A change whose behaviour a tool or library provides, such as a setting, a workflow or a dependency, landing as one pull request
+about: A change the writer would see nothing of, such as a script, a check, a setting, a workflow or a dependency, landing as one pull request
 title: ""
 labels: task
 ---
@@ -32,4 +32,4 @@ One line per fact the pull request shows, each in one of two kinds:
 
 ## Pointers
 
-<!-- The docs of the tool or library, and the Architecture sections this task touches, one line each. -->
+<!-- The docs of any tool or library it relies on, and the Architecture sections this task touches, one line each. -->

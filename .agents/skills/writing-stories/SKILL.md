@@ -9,7 +9,7 @@ A story is drafted in the [story template](../../../.github/ISSUE_TEMPLATE/story
 
 ## Story or task
 
-Ask whose behaviour the line is. When this repo writes it, the line is a story, and its scenarios are tested here. When a tool or library provides it and this repo only sets it up, such as a package manager setting, a CI workflow or a dependency, the line is a task, drafted in the [task template](../../../.github/ISSUE_TEMPLATE/task.md). Scenarios for a tool's behaviour would make the pull request build a harness around the tool to see each one fail.
+A story delivers observable value to the writer; a task does not. Ask what the writer would see change. When something would, the line is a story, and its scenarios are tested here. When nothing would, the line is a task, drafted in the [task template](../../../.github/ISSUE_TEMPLATE/task.md), even when this repo writes the code: a `./do` script, a check, a CI workflow, a package manager setting or a dependency.
 
 Everything below applies to both, with `Done when` in a task where a story has its acceptance criteria.
 
