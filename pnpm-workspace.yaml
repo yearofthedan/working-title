@@ -6,6 +6,11 @@
 # both catalog entries together (https://viteplus.dev/guide/upgrade-project).
 overrides:
   vite@*: 'catalog:'
+  # The qs that Stryker's typed-rest-client pins, 6.15.1, carries three advisories, and the
+  # override is what moves it: 6.16.0 is the first release clear of all three
+  # (https://github.com/advisories/GHSA-4mjr-xmp4-gh2g). The package pins that version exactly,
+  # so it changes nothing on its own. Drop this when it asks for ^6.16.0, as its 3.x line does.
+  qs@*: 6.16.0
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
