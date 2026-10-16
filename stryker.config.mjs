@@ -14,8 +14,8 @@ export default {
   // Each mutant's result is stored, so the next run tests only what changed since
   // (https://stryker-mutator.io/docs/stryker-js/incremental).
   incremental: true,
-  // Just under the first baseline over this repository: 92.45% overall, 93.02% in the domain and
-  // 90.00% in the application.
+  // Set from the baseline of the first run over this repository, recorded in the pull request that
+  // added it (https://github.com/yearofthedan/working-title/pull/63).
   thresholds: { break: 90 },
   reporters: ['clear-text', 'html', 'json'],
 };

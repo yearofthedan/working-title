@@ -34,8 +34,8 @@ jobs:
           path: reports/stryker-incremental.json
           key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-${{ github.sha }}
           restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}-
-      # No score fails a run: which mutants survive is what the report is for, and the threshold
-      # waits on a baseline of real numbers (https://github.com/yearofthedan/working-title/issues/21).
+      # A run whose score falls under the threshold fails, and the ruleset on main does not require
+      # this job, so it reports without blocking a merge.
       - run: ./do mutate
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         id: report
