@@ -12,6 +12,12 @@ on:
 permissions:
   contents: read
 
+env:
+  # Beyond the sources and the tests, a run's incremental file depends on the dependencies and the
+  # configs named here: Stryker detects a change to neither, and would reuse results the change
+  # invalidated (https://stryker-mutator.io/docs/stryker-js/incremental).
+  MUTATION_CACHE: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts') }}
+
 jobs:
   mutate:
     runs-on: ubuntu-latest
@@ -22,14 +28,13 @@ jobs:
         with:
           node-version-file: .node-version
       - run: pnpm install --frozen-lockfile
-      # A run reads a mutant's result from the file where it is, so only what changed since is
-      # written again, and the most recent run's file is the one to read
-      # (https://stryker-mutator.io/docs/stryker-js/incremental).
+      # The most recent file written under these dependencies and configs, and this commit's own
+      # where it is a rerun (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: reports/stryker-incremental.json
-          key: mutation-${{ github.sha }}
-          restore-keys: mutation-
+          key: ${{ env.MUTATION_CACHE }}-${{ github.sha }}
+          restore-keys: ${{ env.MUTATION_CACHE }}-
       # No score fails a run: which mutants survive is what the report is for, and the threshold
       # waits on a baseline of real numbers (https://github.com/yearofthedan/working-title/issues/21).
       - run: ./do mutate
@@ -40,6 +45,6 @@ jobs:
         with:
           name: mutation-report
           path: reports/mutation
-      - if: always()
+      - if: always() && steps.report.outputs.artifact-url != ''
         run: |
           echo "Mutation report: ${{ steps.report.outputs.artifact-url }}" >> "$GITHUB_STEP_SUMMARY"

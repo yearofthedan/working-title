@@ -83,7 +83,6 @@ summarise() {
     const mutants = (file) => file[1].mutants;
     const statuses = (mutants) => mutants.map((mutant) => mutant.status).sort().join(" ");
     console.log(`files: ${files.map((file) => file[0]).sort().join(" ")}`);
-    console.log(`statuses: ${statuses(files.flatMap(mutants))}`);
     console.log(`per-test: ${statuses(files.flatMap(mutants).filter((mutant) => !mutant.static))}`);
   ' "$report" >"$work/summary" 2>"$work/summary-err" || {
     echo "reading $report failed:" >&2
@@ -102,7 +101,7 @@ expect_summary() {
 
 run_mutate
 # A survivor is what the report is for, not a reason to fail the build
-# (https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-break).
+# (https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-object).
 expect_status 0 "a surviving mutant does not fail the run"
 
 summarise
@@ -110,5 +109,18 @@ expect_summary '^files: src/application/use.ts src/domain/greeting.ts src/domain
   "only the domain and application sources are mutated"
 expect_summary '^per-test: .*Killed' "a mutant a test covers is killed"
 expect_summary '^per-test: .*Survived' "a mutant a test covers and lets through survives"
+
+# The cache holds the file a run leaves, so the config that writes it and the workflow that caches
+# it name one path between them (https://stryker-mutator.io/docs/stryker-js/configuration#incremental-boolean).
+if [ -f "$project/reports/stryker-incremental.json" ]; then
+  ok "the run leaves the file the report continues from"
+else
+  no "the run leaves the file the report continues from"
+fi
+if grep -qF 'reports/stryker-incremental.json' "$root/.github/workflows/mutate.yml"; then
+  ok "the workflow caches that file"
+else
+  no "the workflow caches that file"
+fi
 
 finish

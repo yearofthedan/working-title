@@ -9,7 +9,7 @@ overrides:
   # The qs that Stryker's typed-rest-client pins, 6.15.1, carries three advisories, and the
   # override is what moves it: 6.16.0 is the first release clear of all three
   # (https://github.com/advisories/GHSA-4mjr-xmp4-gh2g). The package pins that version exactly,
-  # so it changes nothing on its own. Drop this when it asks for ^6.16.0, as its 3.x line does.
+  # so it changes nothing on its own. Drop this when it asks for ^6.16.0, as its 3.1.1 and later do.
   qs@*: 6.16.0
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
@@ -24,11 +24,14 @@ peerDependencyRules:
   allowedVersions:
     vite: '*'
 
-# dependency-cruiser reads TypeScript only through a `typescript` below 7, and the project's own
-# is 7, so the check carries one of its own rather than hold the toolchain back
-# (https://pnpm.io/settings/package-extensions).
+# dependency-cruiser reads TypeScript only through a `typescript` below 7, and so does Stryker's
+# tsconfig rewrite, while the project's own is 7, so each carries one of its own rather than hold
+# the toolchain back (https://pnpm.io/settings/package-extensions).
 packageExtensions:
   dependency-cruiser:
+    dependencies:
+      typescript: 6.0.3
+  '@stryker-mutator/core':
     dependencies:
       typescript: 6.0.3
 

@@ -13,11 +13,6 @@ export default {
   // The domain and the application are where the tests are the only thing holding the behaviour
   // up. The UI and the adapters are driven in a browser, which this runner cannot mutate.
   mutate: ['src/domain/**/*.ts', 'src/application/**/*.ts', '!src/**/*.test.ts'],
-  // Before each run Stryker rewrites the tsconfig's `extends` and `references` paths, through the
-  // TypeScript compiler API, which the TypeScript 7 this repo is on does not have
-  // (https://stryker-mutator.io/docs/stryker-js/configuration#tsconfigfile). Ours has neither, so
-  // the rewrite has nothing to do and this names a file no sandbox holds, which skips it.
-  tsconfigFile: 'no-tsconfig-rewrite.json',
   // Reports carry a mutant's result forward, so a run reads only what changed since it was written
   // (https://stryker-mutator.io/docs/stryker-js/incremental).
   incremental: true,
