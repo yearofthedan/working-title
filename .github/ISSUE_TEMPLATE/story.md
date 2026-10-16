@@ -13,7 +13,7 @@ As a ___, I want ___, so that ___.
 
 ## Delivers
 
-<!-- The line of the epic's Is list this story makes true, quoted. When the story makes only part of a line true, quote that part. -->
+<!-- The line of the epic's Is list this story makes true, quoted. When the story makes only part of a line true, quote that part; where no words in the line name that part, quote the whole line and say beneath it which part this story delivers. Several stories and tasks can quote one line. -->
 
 ## Acceptance criteria
 

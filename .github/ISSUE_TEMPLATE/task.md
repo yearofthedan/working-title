@@ -13,7 +13,7 @@ labels: task
 
 ## Delivers
 
-<!-- The line of the epic's Is list this task makes true, quoted. When the task makes only part of a line true, quote that part. -->
+<!-- The line of the epic's Is list this task makes true, quoted. When the task makes only part of a line true, quote that part; where no words in the line name that part, quote the whole line and say beneath it which part this task delivers. Several stories and tasks can quote one line. -->
 
 ## Done when
 

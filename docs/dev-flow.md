@@ -12,6 +12,8 @@ A story is one thin slice of an epic, landing as pull requests. A line whose beh
 3. **Argue with it.** The draft is yours. It is the acceptance criteria you will be held to later, and it is cheapest to change now.
 4. **File it** under its epic, in the epic's milestone.
 
+A draft that is filed but not yet agreed gets the same checks. An agent shows you each proposed change, and edits the issue once you agree.
+
 ## Agree it
 
 Adding the `ready` label is the agreement. Until you add it, nothing is built: an agent asked to implement the story says so and stops.
