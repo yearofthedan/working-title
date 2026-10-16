@@ -17,7 +17,7 @@ Everything below applies to both, with `Done when` in a task where a story has i
 
 A story exists to make one line of its epic's `Is` list true. Take the line, or the part of a line, that no story delivers yet, and quote it under `Delivers`. If you cannot name the line, there is nothing to write yet: ask which epic the story belongs to.
 
-A story that makes a line true only in part quotes that part, and the rest of the line stays open for a later story.
+How to quote the line, or the part of it this story makes true, is in the template's `Delivers` comment.
 
 Fill the rest of the template as its own comments say: they are the authority on each section. What this skill decides is which line the story carries, and that the draft passes the checks below.
 
@@ -27,13 +27,13 @@ Fill the rest of the template as its own comments say: they are the authority on
 
 **A named tool or place has a decision behind it.** A criterion that names a tool or a place — a test runner, a library, a folder — rests on a decision record or a standard that already says so. Where none does, the criterion states the need without the name, such as "runs as one browser spec".
 
-**A call the build can make is left to it.** A choice the outcome does not depend on, such as an unnamed tool, a threshold or a fallback, is not asked of the builder while drafting: the draft says it is chosen while building, and the builder confirms it when the line starts.
+**A call the build can make is left to it.** A choice every criterion holds under, whichever way it goes, such as an unnamed tool, is not asked of the builder while drafting: the draft says it is chosen while building, and the builder confirms it when the line starts.
 
 **One rule per story.** Count rules, not sentences: a `Rule:` that joins behaviours the writer would see separately — an `and` between things that could ship on their own — is two rules written as one sentence. Two rules mean two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, or when both halves change the same files and reviewing them apart would cost more than it saves. Say which in the draft.
 
 ## Check a draft already filed
 
-A filed draft without the `ready` label gets the same checks, against the template's own comments and the checks above. Before calling something a gap, read how the agreed stories and tasks handle it: what they share is the convention, and a draft that follows it passes. Show each proposed change to the builder, and edit the issue once they agree.
+A filed draft without the `ready` label gets the same checks, against the template's own comments and the checks above. Before calling something a gap, read how the agreed stories and tasks handle it: what they share is the convention, and a draft that follows it passes, unless a template comment says otherwise. Show each proposed change to the builder, and edit the issue once they agree.
 
 ## Show it, then file it
 
