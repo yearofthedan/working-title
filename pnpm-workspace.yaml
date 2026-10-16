@@ -38,3 +38,11 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
   - semver@6.3.1
+# The patch joins a test's name chain with ' > ', which is what Vitest 5 matches a
+# per-test filter against; without it every mutant with per-test coverage runs no tests
+# and is reported survived (https://github.com/stryker-mutator/stryker-js/issues/6210).
+# Drop it when a release carries the fix: the pin below keeps the patch applied, and pnpm
+# refuses an unused one, so bumping the runner fails the install until they change together
+# (https://pnpm.io/cli/patch#allowunusedpatches).
+patchedDependencies:
+  '@stryker-mutator/vitest-runner@10.0.0': patches/@stryker-mutator__vitest-runner@10.0.0.patch
