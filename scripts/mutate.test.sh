@@ -72,15 +72,19 @@ run_mutate() {
   (cd "$project" && "$project/do" mutate) >"$work/out" 2>"$work/err" || status=$?
 }
 
-# The report, as one line per fact the cases below read. Its own failure prints why, so a
-# run that wrote no report fails each case with a reason rather than passing quietly.
+# The report, as one line per fact the cases below read. A mutant a module's load alone runs is
+# killed without the tests' names being matched at all, so `per-test` holds the ones a test
+# covers, which is where the runner patch shows (https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants).
+# A report that cannot be read fails each case with a reason rather than passing quietly.
 summarise() {
   node -e '
     const { readFileSync } = require("node:fs");
     const files = Object.entries(JSON.parse(readFileSync(process.argv[1], "utf8")).files);
-    const statuses = (file) => file[1].mutants.map((mutant) => mutant.status);
+    const mutants = (file) => file[1].mutants;
+    const statuses = (mutants) => mutants.map((mutant) => mutant.status).sort().join(" ");
     console.log(`files: ${files.map((file) => file[0]).sort().join(" ")}`);
-    console.log(`statuses: ${files.flatMap(statuses).sort().join(" ")}`);
+    console.log(`statuses: ${statuses(files.flatMap(mutants))}`);
+    console.log(`per-test: ${statuses(files.flatMap(mutants).filter((mutant) => !mutant.static))}`);
   ' "$report" >"$work/summary" 2>"$work/summary-err" || {
     echo "reading $report failed:" >&2
     sed 's/^/     /' "$work/summary-err" >&2
@@ -104,7 +108,7 @@ expect_status 0 "a surviving mutant does not fail the run"
 summarise
 expect_summary '^files: src/application/use.ts src/domain/greeting.ts src/domain/twice.ts$' \
   "only the domain and application sources are mutated"
-expect_summary '^statuses: .*Killed' "a mutant the test catches is killed"
-expect_summary '^statuses: .*Survived' "a mutant the test lets through survives"
+expect_summary '^per-test: .*Killed' "a mutant a test covers is killed"
+expect_summary '^per-test: .*Survived' "a mutant a test covers and lets through survives"
 
 finish
