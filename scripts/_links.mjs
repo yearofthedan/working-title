@@ -1,8 +1,9 @@
-// Every link this repository writes, read the way its reader would: a markdown link's path has to be
+// The links this repository writes, read the way a reader would: a markdown link's path has to be
 // there, the heading its anchor names has to be in the file it names, and every address has to
-// answer. An address is read wherever it is written, in prose or in a comment; a path written bare
-// in a comment is not read, since only the writer knows what it is relative to. The sites are asked
-// only under --external, so ./do check can run the half that reads the repository alone.
+// answer. What is read is a markdown file as prose, code blocks and spans aside, and every other
+// file as its comment lines — an address written bare in prose or a comment is read, while a path
+// written bare in a comment is not, since only the writer knows what it is relative to. The sites
+// are asked only under --external, so ./do check runs the half that reads the repository alone.
 // Usage: _links.mjs <root> [--external]
 
 import { execFileSync } from 'node:child_process';
@@ -37,21 +38,19 @@ const read = (file) => {
 const slug = (heading) =>
   heading
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/[^\p{L}\p{N}\s_-]/gu, '')
     .trim()
     .replace(/\s/g, '-');
 
 // A heading written twice answers to its slug and then to that slug numbered, as GitHub resolves it.
 const headings = (file) => {
   const counted = new Map();
-  return [...readFileSync(join(root, file), 'utf8').matchAll(/^#+ +(.+?)\s*$/gm)].map(
-    ([, text]) => {
-      const base = slug(text);
-      const times = counted.get(base) ?? 0;
-      counted.set(base, times + 1);
-      return times === 0 ? base : `${base}-${times}`;
-    },
-  );
+  return [...read(file).matchAll(/^#+ +(.+?)\s*$/gm)].map(([, text]) => {
+    const base = slug(text);
+    const times = counted.get(base) ?? 0;
+    counted.set(base, times + 1);
+    return times === 0 ? base : `${base}-${times}`;
+  });
 };
 
 const files = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
@@ -140,10 +139,17 @@ if (external) {
       }
       // A heading can be on a page without being in the HTML the server sends, so a missing one is a
       // hint to look rather than a refusal.
-      if (anchor && !pageText.includes(`id="${anchor}"`)) {
-        warnings.push(
-          `${file}: ${url} names a heading that is not in the page as it was sent, so it is worth a look`,
+      if (anchor) {
+        // The id a page gives a heading is written with any quoting, and GitHub prefixes the ids it
+        // adds itself (https://github.com/github/markup#markups).
+        const named = new RegExp(
+          `id=["']?(?:user-content-)?${anchor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'\\s>]`,
         );
+        if (!named.test(pageText)) {
+          warnings.push(
+            `${file}: ${url} names a heading that is not in the page as it was sent, so it is worth a look`,
+          );
+        }
       }
     }
   } finally {

@@ -29,7 +29,8 @@ echo "$*" >>"$STUB_CALLS"
 status=200
 page=''
 case "$*" in
-*example.com/docs*) page='<h2 id="the-rule">The rule</h2>' ;;
+*example.com/docs*) page='<h2 id=the-rule>The rule</h2>' ;;
+*example.com/github*) page='<h2 id="user-content-the-rule">The rule</h2>' ;;
 *example.com/other*) page='<p>No heading here</p>' ;;
 *example.com/gone*) status=404 ;;
 *example.com/busy*) status=503 ;;
@@ -95,6 +96,41 @@ links --external
 expect_status 0 "an address on a line of code is not a link"
 if grep -q 'warning' "$work/err"; then no "an address on a line of code is not a link, silently"; else ok "an address on a line of code is not a link, silently"; fi
 write src/code.ts 'export const one = 1;'
+
+# The id a page gives a heading is written with any quoting, and GitHub prefixes its own.
+write docs/guide.md '# Guide
+
+See [the site](https://example.com/docs#the-rule) and [the file](https://example.com/github#the-rule).
+'
+links --external
+expect_status 0 "an id written without quotes is the heading it names"
+if grep -q 'warning' "$work/err"; then no "an id written without quotes says nothing"; else ok "an id written without quotes says nothing"; fi
+
+# A heading a file holds is where GitHub gives it an anchor: one inside a code block is text.
+write docs/fence.md '# Fence
+
+```
+## Not a heading
+```
+'
+write docs/guide.md '# Guide
+
+See [the fence](fence.md#not-a-heading).
+'
+links
+expect_status 1 "a heading inside a code block is not a heading"
+expect_err '#not-a-heading' "a heading inside a code block is named"
+
+write docs/underscore.md '# The node_modules directory
+
+Text.
+'
+write docs/guide.md '# Guide
+
+See [the directory](underscore.md#the-node_modules-directory).
+'
+links
+expect_status 0 "an underscore stays in the anchor, as GitHub keeps it"
 
 # A page that holds the heading it is asked for says nothing.
 write docs/guide.md '# Guide
