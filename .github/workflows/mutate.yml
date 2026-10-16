@@ -22,21 +22,31 @@ jobs:
         with:
           node-version-file: .node-version
       - run: pnpm install --frozen-lockfile
-      # The lockfile, the configs a run reads, the tsconfig Stryker rewrites and the Node version it
-      # runs on are in the key: Stryker carries results forward whatever changes in them
-      # (https://stryker-mutator.io/docs/stryker-js/incremental). The most recent file written under
-      # the same ones is what a restore picks up, and this commit's own where it is a rerun
+      # The lockfile, the configs a run reads, the tsconfig Stryker rewrites, the Node version it
+      # runs on and the sources outside the mutated ones are in the key: Stryker carries results
+      # forward whatever changes in them (https://stryker-mutator.io/docs/stryker-js/incremental).
+      # The most recent file written under the same ones is what a restore picks up, and this
+      # commit's own where it is a rerun
       # (https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#cache-key-matching).
       # `hashFiles` works in a step, where a workflow-level `env` allows no function
       # (https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability).
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: incremental
         with:
           path: reports/stryker-incremental.json
-          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version') }}-${{ github.sha }}
-          restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version') }}-
+          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version', 'src/**', '!src/domain/**', '!src/application/**', '!src/**/*.test.ts') }}-${{ github.sha }}
+          restore-keys: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version', 'src/**', '!src/domain/**', '!src/application/**', '!src/**/*.test.ts') }}-
       # A run whose score falls under the threshold fails, and the ruleset on main does not require
       # this job, so it reports without blocking a merge.
       - run: ./do mutate
+      # Saved separately from the restore, because the cache action saves in a step that runs only on
+      # success, and a run under the threshold is a failing one whose results are still worth keeping
+      # (https://github.com/actions/cache/blob/main/action.yml).
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always() && steps.incremental.outputs.cache-hit != 'true'
+        with:
+          path: reports/stryker-incremental.json
+          key: mutation-${{ hashFiles('pnpm-lock.yaml', 'stryker.config.mjs', 'stryker.vitest.config.ts', 'vite.config.ts', 'tsconfig.json', '.node-version', 'src/**', '!src/domain/**', '!src/application/**', '!src/**/*.test.ts') }}-${{ github.sha }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         id: report
         # The report is what says which mutants survived, so a run that failed still hands it over.
