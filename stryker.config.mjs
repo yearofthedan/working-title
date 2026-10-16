@@ -14,8 +14,8 @@ export default {
   // Each mutant's result is stored, so the next run tests only what changed since
   // (https://stryker-mutator.io/docs/stryker-js/incremental).
   incremental: true,
-  // Which mutants survive is what the report is for until a threshold is set from a baseline of
-  // real runs, so no score fails a run yet (https://github.com/yearofthedan/working-title/issues/21).
-  thresholds: { break: null },
+  // Just under the first baseline over this repository: 92.45% overall, 93.02% in the domain and
+  // 90.00% in the application.
+  thresholds: { break: 90 },
   reporters: ['clear-text', 'html', 'json'],
 };

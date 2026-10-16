@@ -100,9 +100,9 @@ expect_summary() {
 }
 
 run_mutate
-# A survivor is what the report is for, not a reason to fail the build
+# The fixture scores 80% of its five mutants, under the 90 the config sets, so the run fails
 # (https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-object).
-expect_status 0 "a surviving mutant does not fail the run"
+expect_status 1 "a run under the threshold fails"
 
 summarise
 expect_summary '^files: src/application/use.ts src/domain/greeting.ts src/domain/twice.ts$' \

@@ -45,10 +45,9 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
   - semver@6.3.1
-# shortcut: this build of the runner joins a test's name chain with a space, where Vitest 5 matches a
-# per-test filter on ' > ', so every mutant with per-test coverage runs no tests and is reported
-# survived (https://github.com/stryker-mutator/stryker-js/issues/6210); drop the patch when a release
-# carries the fix, since pnpm refuses an unused one and a bumped runner fails the install until then
-# (https://pnpm.io/cli/patch#allowunusedpatches).
+# shortcut: this runner joins a test's name chain with a space, where Vitest 5 matches a per-test
+# filter on ' > ', so a covered mutant runs no tests and is reported survived
+# (https://github.com/stryker-mutator/stryker-js/issues/6210); drop the patch when a release carries
+# the fix, since pnpm fails the install on an unused one (https://pnpm.io/cli/patch#allowunusedpatches).
 patchedDependencies:
   '@stryker-mutator/vitest-runner@10.0.0': patches/@stryker-mutator__vitest-runner@10.0.0.patch
