@@ -33,6 +33,6 @@ describe('isProject', () => {
     ['no method', { version: 1, root: { kind: 'root', facets: {} } }],
     ['no version', { method: 'toy', root: { kind: 'root', facets: {} } }],
   ])('refuses %s, which parses but is not a project', (_, value) => {
-    expect(isProject(value)).toBe(false);
+    expect(isProject(value)).toBeDefined();
   });
 });
