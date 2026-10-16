@@ -21,5 +21,8 @@ export default {
   // Reports carry a mutant's result forward, so a run reads only what changed since it was written
   // (https://stryker-mutator.io/docs/stryker-js/incremental).
   incremental: true,
+  // Which mutants survive is what the report is for until a threshold is set from a baseline of
+  // real runs, so no score fails a run yet (https://github.com/yearofthedan/working-title/issues/21).
+  thresholds: { break: null },
   reporters: ['clear-text', 'html', 'json'],
 };
