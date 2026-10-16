@@ -21,7 +21,7 @@ write() {
 }
 
 # The curl the module asks: it prints the status, writes the page it was given to the file after -o,
-# exits as curl does on an error, and says so in a file the cases read. Three addresses answer:
+# exits as curl does, and says so in a file the cases read. Three addresses answer:
 # example.com/docs holds the heading, example.com/other does not, and example.com/gone is a 404.
 cat >"$work/bin/curl" <<'STUB'
 #!/bin/sh
@@ -40,12 +40,7 @@ for argument in "$@"; do
   previous=$argument
 done
 [ -n "$out" ] && printf '%s' "$page" >"$out"
-if [ "$status" = 200 ]; then
-  printf '%s' "$status"
-else
-  printf '%s' "$status"
-  exit 22
-fi
+printf '%s' "$status"
 STUB
 chmod +x "$work/bin/curl"
 STUB_CALLS="$work/curl-calls"
@@ -91,6 +86,43 @@ expect_status 0 "a project whose links resolve passes"
 expect_out 'every link' "a project whose links resolve says so"
 # A pass says how much it read, so a run over nothing cannot read as a pass.
 expect_out 'the 4 files' "a pass says how many files it read"
+
+# An address on a line of code is not a link: only what a file says in prose or in a comment is.
+write src/code.ts "export const elsewhere = 'https://example.com/gone';
+"
+links --external
+expect_status 0 "an address on a line of code is not a link"
+if grep -q 'warning' "$work/err"; then no "an address on a line of code is not a link, silently"; else ok "an address on a line of code is not a link, silently"; fi
+write src/code.ts 'export const one = 1;'
+
+# A page that holds the heading it is asked for says nothing.
+write docs/guide.md '# Guide
+
+See [the site](https://example.com/docs#the-rule).
+'
+links --external
+expect_status 0 "a page that holds the heading is not warned about"
+if grep -q 'warning' "$work/err"; then no "a page that holds the heading says nothing"; else ok "a page that holds the heading says nothing"; fi
+
+# A heading of two words around punctuation answers to a dash for each space, as GitHub resolves it.
+write docs/template.md '# Before / After
+
+Text.
+'
+write docs/guide.md '# Guide
+
+See [the template](template.md#before--after).
+'
+links
+expect_status 0 "a heading with punctuation in it answers to its own anchor"
+
+write docs/guide.md '# Guide
+
+See [the template](template.md#before-after).
+'
+links
+expect_status 1 "the anchor GitHub does not give it is refused"
+expect_err '#before-after' "the anchor GitHub does not give it is named"
 
 # A path that is not there.
 write docs/guide.md '# Guide

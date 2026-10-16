@@ -1,6 +1,8 @@
-// Every link this repository writes, read the way its reader would: a path has to be there, the
-// heading an anchor names has to be in the file it names, and a site has to answer. The sites are
-// asked only under --external, so ./do check can run the half that reads the repository alone.
+// Every link this repository writes, read the way its reader would: a markdown link's path has to be
+// there, the heading its anchor names has to be in the file it names, and every address has to
+// answer. An address is read wherever it is written, in prose or in a comment; a path written bare
+// in a comment is not read, since only the writer knows what it is relative to. The sites are asked
+// only under --external, so ./do check can run the half that reads the repository alone.
 // Usage: _links.mjs <root> [--external]
 
 import { execFileSync } from 'node:child_process';
@@ -29,17 +31,28 @@ const read = (file) => {
     .join('\n');
 };
 
+// GitHub lowercases a heading, drops its punctuation and turns each space into a dash without
+// collapsing them, so `Before / After` answers to `before--after`
+// (https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links).
 const slug = (heading) =>
   heading
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .trim()
-    .replace(/\s+/g, '-');
+    .replace(/\s/g, '-');
 
-const headings = (file) =>
-  [...readFileSync(join(root, file), 'utf8').matchAll(/^#+ +(.+?)\s*$/gm)].map(([, text]) =>
-    slug(text),
+// A heading written twice answers to its slug and then to that slug numbered, as GitHub resolves it.
+const headings = (file) => {
+  const counted = new Map();
+  return [...readFileSync(join(root, file), 'utf8').matchAll(/^#+ +(.+?)\s*$/gm)].map(
+    ([, text]) => {
+      const base = slug(text);
+      const times = counted.get(base) ?? 0;
+      counted.set(base, times + 1);
+      return times === 0 ? base : `${base}-${times}`;
+    },
   );
+};
 
 const files = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
   .trim()
@@ -47,12 +60,19 @@ const files = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
   .filter((file) => /\.(md|ts|mjs|sh|ya?ml|json)$/.test(file));
 
 for (const file of files) {
-  for (const [, target] of read(file).matchAll(/\]\(([^)\s]+)\)/g)) {
-    if (target.startsWith('#')) continue;
-    if (/^[a-z]+:/i.test(target)) {
-      if (target.startsWith('https://')) seen.set(target, seen.get(target) ?? file);
+  const text = read(file);
+  for (const [url] of text.matchAll(/https?:\/\/[^\s)"'<>`\]]+/g)) {
+    seen.set(url.replace(/[.,;:]+$/, ''), seen.get(url.replace(/[.,;:]+$/, '')) ?? file);
+  }
+  for (const [, target] of text.matchAll(/\]\(([^)\s]+)/g)) {
+    if (target.startsWith('#')) {
+      const anchor = target.slice(1);
+      if (!headings(file).includes(anchor)) {
+        refusals.push(`${file}: ${target} names a heading this file does not hold`);
+      }
       continue;
     }
+    if (/^[a-z]+:/i.test(target)) continue;
     const [path, anchor] = target.split('#');
     const held = resolve(root, dirname(file), path);
     if (!existsSync(held)) {
@@ -117,10 +137,14 @@ if (external) {
   }
 }
 
+if (files.length === 0) {
+  refusals.push(`${root} holds no file this check reads, so it checked nothing`);
+}
+
 for (const line of warnings) console.error(`warning: ${line}`);
 for (const line of refusals) console.error(`error: ${line}`);
 
 if (refusals.length > 0) process.exit(1);
 console.log(
-  `every link the ${files.length} files of ${root} name resolves${external ? '' : ' in the repository'}`,
+  `every link the ${files.length} files of ${root} name resolves${external ? `, across the ${seen.size} addresses they name` : ', and none of them leaves the repository'}`,
 );
