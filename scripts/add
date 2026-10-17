@@ -1,0 +1,57 @@
+#!/bin/sh
+# Add a dependency: resolve and audit it in a scratch copy first, so a release with
+# a known advisory is refused before any of its code reaches this machine.
+
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ $# -eq 0 ]; then
+  echo 'usage: ./do add <what pnpm add would take>' >&2
+  exit 2
+fi
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$work/scratch" "$work/backup"
+
+# Everything pnpm add can write, so what is installed is what was audited.
+files='package.json pnpm-lock.yaml pnpm-workspace.yaml'
+for file in $files; do cp "$root/$file" "$work/scratch/$file"; done
+
+refuse() {
+  echo "error: $1" >&2
+  exit 1
+}
+
+is_json() {
+  node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
+}
+
+# A gate that cannot answer refuses: what it guards against is a dependency
+# reaching this machine, so an unreachable service is not a reason to carry on.
+audit() {
+  (cd "$work/scratch" && pnpm audit --json >"$1") || true
+  is_json "$1" || refuse 'the advisory service could not be reached, so nothing was audited'
+}
+
+audit "$work/before.json"
+(cd "$work/scratch" && pnpm add "$@" --lockfile-only) || refuse "pnpm could not resolve $*"
+audit "$work/after.json"
+
+node "$root/scripts/_audit.mjs" "$work/before.json" "$work/after.json" 'the lockfile before the add' || {
+  echo 'Nothing was changed.' >&2
+  exit 1
+}
+
+for file in $files; do cp "$root/$file" "$work/backup/$file"; done
+for file in $files; do cp "$work/scratch/$file" "$root/$file"; done
+
+if ! (cd "$root" && pnpm install --frozen-lockfile); then
+  for file in $files; do cp "$work/backup/$file" "$root/$file"; done
+  # The failed install may have changed node_modules, so the files that were put
+  # back are installed again to leave it matching them.
+  (cd "$root" && pnpm install --frozen-lockfile) || true
+  refuse "the audited packages could not be installed, so the add was undone"
+fi
+
+echo "$* added, with no advisory this add brings in."

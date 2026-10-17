@@ -33,7 +33,9 @@ expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $st
 # A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint,
 # depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
 # the repo and no real check runs. The copy is a git repo whose origin/main holds the
-# lockfile, as the audit needs.
+# lockfile, as the audit needs. The pnpm stub's add marks each file pnpm add can
+# write with its arguments, and brings in an advisory unless PNPM_ADD_CLEAN is
+# set. Its install fails on a marked lockfile when PNPM_INSTALL_FAIL is set.
 make_copy() {
   copy="$work/copy"
   mkdir -p "$copy/node_modules/.bin"
@@ -46,7 +48,23 @@ make_copy() {
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
     chmod +x "$copy/node_modules/.bin/$tool"
   done
-  printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\ncase "$*" in "audit --json") if [ -z "${PNPM_AUDIT_SILENT:-}" ]; then if grep -q vulnerable-fixture pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %%s "{\\"advisories\\":{}}"; fi; fi;; esac\n' >"$copy/node_modules/.bin/pnpm"
+  cat >"$copy/node_modules/.bin/pnpm" <<'STUB'
+#!/bin/sh
+echo "pnpm $*" >>"$VP_LOG"
+case "$*" in
+'audit --json')
+  [ -n "${PNPM_AUDIT_SILENT:-}" ] && exit 0
+  if grep -q 'vulnerable-fixture@' pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %s '{"advisories":{}}'; fi
+  ;;
+'add '*' --lockfile-only')
+  for file in package.json pnpm-lock.yaml pnpm-workspace.yaml; do echo '# added' >>"$file"; done
+  if [ -z "${PNPM_ADD_CLEAN:-}" ]; then echo 'vulnerable-fixture@1.0.0' >>pnpm-lock.yaml; fi
+  ;;
+'install --frozen-lockfile')
+  if [ -n "${PNPM_INSTALL_FAIL:-}" ] && grep -q '^# added' pnpm-lock.yaml; then exit 1; fi
+  ;;
+esac
+STUB
   chmod +x "$copy/node_modules/.bin/pnpm"
   (
     cd "$copy" || exit 1
