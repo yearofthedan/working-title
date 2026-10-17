@@ -1,8 +1,7 @@
 #!/bin/sh
 
-# Tests for ./do mutate: which files it mutates, and what a surviving mutant does to the
-# run. The project is its own, holding the paths the config names, so a run leaves this
-# repository alone.
+# Tests for ./do mutate: which files it mutates, and what a failing score does to the run. The
+# project is its own, holding the paths the config names, so a run leaves this repository alone.
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
@@ -73,9 +72,8 @@ run_mutate() {
 }
 
 # The report, as one line per fact the cases below read. A mutant a module's load alone runs is
-# killed without the tests' names being matched at all, so `per-test` holds the ones a test
-# covers, which is where the runner patch shows (https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants).
-# A report that cannot be read fails each case with a reason rather than passing quietly.
+# killed without the tests' names being matched, so `per-test` holds the ones a test covers, which
+# is where the runner patch shows (https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants).
 summarise() {
   node -e '
     const { readFileSync } = require("node:fs");
@@ -100,8 +98,8 @@ expect_summary() {
 }
 
 run_mutate
-# The fixture scores 80% of its five mutants, under the 90 the config sets, so the run fails. The
-# line it fails on is the reason, which a crash would not print
+# The fixture scores 80% of its five mutants, under the 90 the config sets, so the run fails; the
+# line it prints is what tells that from a crash
 # (https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-object).
 expect_status 1 "a run under the threshold fails"
 expect_out 'under breaking threshold' "and says the threshold is what failed it"
@@ -111,8 +109,8 @@ expect_summary '^files: src/application/use.ts src/domain/greeting.ts src/domain
   "only the domain and application sources are mutated"
 expect_summary '^per-test: .*Killed' "a mutant a test covers is killed"
 
-# The workflow caches the file a run leaves at Stryker's default path, so the setting that makes the
-# run leave it and the workflow's copy of that path are held together here
+# The workflow caches the file a run leaves at Stryker's default path, so the setting and the
+# workflow's copy of that path are held together here
 # (https://stryker-mutator.io/docs/stryker-js/configuration#incremental-boolean).
 if [ -f "$project/reports/stryker-incremental.json" ]; then
   ok "the run leaves the file the report continues from"
