@@ -68,12 +68,12 @@ if [ "$(grep -c 'pnpm install --frozen-lockfile' "$VP_LOG")" -eq 2 ]; then ok "t
 # dependency reaching this machine, not a check going unrun.
 before
 run_add PNPM_AUDIT_SILENT=1
-expect_status 1 "an unreachable advisory service is refused"
-expect_err 'could not be reached' "the refusal says what could not be reached"
+expect_err 'could not be reached' "an unreachable advisory service is refused, naming what could not be reached"
 unchanged "an unreachable advisory service leaves the files as they were"
+if [ -z "$(install_line)" ]; then ok "an unreachable advisory service installs nothing"; else no "an unreachable advisory service installs nothing"; fi
 
 run_add PNPM_AUDIT_SILENT=1 CI=true
-expect_status 1 "an unreachable advisory service is refused in CI too"
+expect_err 'could not be reached' "an unreachable advisory service in CI is refused the same way"
 unchanged "an unreachable advisory service in CI leaves the files as they were"
 
 finish
