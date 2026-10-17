@@ -34,13 +34,18 @@ expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $st
 # depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
 # the repo and no real check runs. node is recorded and then run for real, since a
 # task's own work is node. The copy is a git repo whose origin/main holds the
-# lockfile, as the audit needs.
+# lockfile, as the audit needs. The pnpm stub's add marks each file pnpm add can
+# write, and brings in an advisory unless PNPM_ADD_CLEAN is set. Its install fails
+# on a marked lockfile when PNPM_INSTALL_FAIL is set, and every time when
+# PNPM_INSTALL_FAIL_ALWAYS is, logging which of them failed.
 make_copy() {
   copy="$work/copy"
   mkdir -p "$copy/node_modules/.bin"
   cp "$root/do" "$copy/do"
   cp -R "$root/scripts" "$copy/scripts"
   cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.mjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
+  # The workspace file names patches, which the resolution reads.
+  if [ -d "$root/patches" ]; then cp -R "$root/patches" "$copy/patches"; fi
   for tool in vp playwright secretlint depcruise; do
     prefix="$tool "
     [ "$tool" = vp ] && prefix=''
@@ -51,7 +56,32 @@ make_copy() {
   # answered instead of running it would leave that suite seeing nothing.
   printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
   chmod +x "$copy/node_modules/.bin/node"
-  printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\ncase "$*" in "audit --json") if [ -z "${PNPM_AUDIT_SILENT:-}" ]; then if grep -q vulnerable-fixture pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %%s "{\\"advisories\\":{}}"; fi; fi;; esac\n' >"$copy/node_modules/.bin/pnpm"
+  cat >"$copy/node_modules/.bin/pnpm" <<'STUB'
+#!/bin/sh
+echo "pnpm $*" >>"$VP_LOG"
+case "$*" in
+'audit --json')
+  [ -n "${PNPM_AUDIT_SILENT:-}" ] && exit 0
+  if grep -q 'vulnerable-fixture@' pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %s '{"advisories":{}}'; fi
+  ;;
+'add '*' --lockfile-only')
+  # A resolve reads the patch files the workspace file names, as pnpm does.
+  if grep -q patchedDependencies pnpm-workspace.yaml 2>/dev/null && [ ! -d patches ]; then
+    echo 'ERR_PNPM_PATCH_NOT_FOUND' >&2
+    exit 1
+  fi
+  for file in package.json pnpm-lock.yaml pnpm-workspace.yaml; do echo '# added' >>"$file"; done
+  if [ -z "${PNPM_ADD_CLEAN:-}" ]; then echo 'vulnerable-fixture@1.0.0' >>pnpm-lock.yaml; fi
+  ;;
+'install --frozen-lockfile')
+  if [ -n "${PNPM_INSTALL_FAIL_ALWAYS:-}" ] ||
+    { [ -n "${PNPM_INSTALL_FAIL:-}" ] && grep -q '^# added' pnpm-lock.yaml; }; then
+    echo 'install failed' >>"$VP_LOG"
+    exit 1
+  fi
+  ;;
+esac
+STUB
   chmod +x "$copy/node_modules/.bin/pnpm"
   (
     cd "$copy" || exit 1

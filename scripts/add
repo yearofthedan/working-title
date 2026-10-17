@@ -1,0 +1,97 @@
+#!/bin/sh
+# Add a dependency: resolve and audit it in a scratch copy first, so a release with
+# a known advisory is refused before any of it is installed.
+
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ $# -eq 0 ]; then
+  echo 'usage: ./do add <what pnpm add would take>' >&2
+  exit 2
+fi
+
+work=$(mktemp -d)
+mkdir -p "$work/scratch" "$work/backup"
+
+# Everything pnpm add can write, so what is installed is what was audited.
+files='package.json pnpm-lock.yaml pnpm-workspace.yaml'
+for file in $files; do cp "$root/$file" "$work/scratch/$file"; done
+
+# And what the resolution reads besides those, when the manifest or the workspace
+# file names it: a patch file, a pnpmfile, the registry settings. A missing one
+# fails the resolve, and a resolve that cannot run refuses the add.
+for named in patches .pnpmfile.mjs .pnpmfile.cjs .npmrc; do
+  if [ -e "$root/$named" ]; then cp -R "$root/$named" "$work/scratch/$named"; fi
+done
+
+refuse() {
+  echo "error: $1" >&2
+  exit 1
+}
+
+restore() { # puts the files that were there back, and says which would not go
+  failed=
+  for file in $files; do
+    cp "$work/backup/$file" "$root/$file" 2>/dev/null ||
+      {
+        echo "error: $file could not be written, so it may not hold what was there" >&2
+        failed=1
+      }
+  done
+  [ -z "$failed" ]
+}
+
+# The repo holds the audited files from the copy-back until the install succeeds, so
+# anything that ends the task in between — a refusal, an interrupt — undoes the add
+# here, rather than leaving a manifest that names what the lockfile does not carry.
+state=untouched
+cleanup() {
+  if [ "$state" = copied ]; then
+    if restore; then
+      # The failed install may have changed node_modules, so the files that were
+      # put back are installed again; when that fails too, node_modules is not
+      # known to match them, and the line says so rather than claim it does.
+      if (cd "$root" && pnpm install --frozen-lockfile); then
+        echo 'Nothing was changed.' >&2
+      else
+        echo 'error: the packages that were there could not be installed either, so node_modules may not match them' >&2
+      fi
+    else
+      echo "error: what was there is kept in $work/backup" >&2
+      return
+    fi
+  fi
+  rm -rf "$work"
+}
+trap cleanup EXIT
+trap 'echo "error: the add was interrupted" >&2; exit 1' INT TERM
+
+is_json() {
+  node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
+}
+
+# A gate that cannot answer refuses: what it guards against is a dependency
+# reaching this machine, so an unreachable service is not a reason to carry on.
+audit() {
+  (cd "$work/scratch" && pnpm audit --json >"$1") || true
+  is_json "$1" || refuse 'the advisory service could not be reached, so nothing was audited'
+}
+
+audit "$work/before.json"
+(cd "$work/scratch" && pnpm add "$@" --lockfile-only) || refuse "pnpm could not resolve $*"
+audit "$work/after.json"
+
+node "$root/scripts/_audit.mjs" "$work/before.json" "$work/after.json" 'the lockfile before the add' || {
+  echo 'Nothing was changed.' >&2
+  exit 1
+}
+
+for file in $files; do cp "$root/$file" "$work/backup/$file"; done
+state=copied
+for file in $files; do
+  cp "$work/scratch/$file" "$root/$file" || refuse 'the audited files could not be written'
+done
+(cd "$root" && pnpm install --frozen-lockfile) || refuse 'the audited packages could not be installed'
+state=installed
+
+echo "$* added, with no advisory this add brings in."
