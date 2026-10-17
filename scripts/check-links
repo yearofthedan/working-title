@@ -1,0 +1,8 @@
+#!/bin/sh
+# Refuse a link this repository writes that does not resolve.
+
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+exec node "$root/scripts/_check-links.mjs" "$root" "$@"

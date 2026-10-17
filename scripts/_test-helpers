@@ -32,7 +32,8 @@ expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $st
 
 # A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint,
 # depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
-# the repo and no real check runs. The copy is a git repo whose origin/main holds the
+# the repo and no real check runs. node is recorded and then run for real, since a
+# task's own work is node. The copy is a git repo whose origin/main holds the
 # lockfile, as the audit needs.
 make_copy() {
   copy="$work/copy"
@@ -46,6 +47,10 @@ make_copy() {
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
     chmod +x "$copy/node_modules/.bin/$tool"
   done
+  # node is recorded and then run for real: the audit comparison is itself node, and a stub that
+  # answered instead of running it would leave that suite seeing nothing.
+  printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
+  chmod +x "$copy/node_modules/.bin/node"
   printf '#!/bin/sh\necho "pnpm $*" >> "$VP_LOG"\ncase "$*" in "audit --json") if [ -z "${PNPM_AUDIT_SILENT:-}" ]; then if grep -q vulnerable-fixture pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %%s "{\\"advisories\\":{}}"; fi; fi;; esac\n' >"$copy/node_modules/.bin/pnpm"
   chmod +x "$copy/node_modules/.bin/pnpm"
   (
