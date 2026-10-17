@@ -39,6 +39,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A claim about what this repo's own rules say — a skill, a lessons column, the definition of done — is read from that file before it is stated, as a claim about a platform is checked against the platform; "What you assert" did not stop it here | [#62](https://github.com/yearofthedan/working-title/pull/62) | none |
 | A change in how the agent works is written into a file, not promised in a reply: a promise reaches the next session as nothing | [#62](https://github.com/yearofthedan/working-title/pull/62) | [AGENTS.md: Working with the builder](../AGENTS.md#working-with-the-builder) |
 | A claim that a tool offers no such setting is checked against the reference page that would list it: the page that discusses the topic is not that page, and a search that finds nothing is not the docs | [#70](https://github.com/yearofthedan/working-title/pull/70) | none |
+| A step that writes several files needs a case for it failing partway: the paths that succeed and the paths that fail cleanly both leave the files consistent, and the window between them does not | [#70](https://github.com/yearofthedan/working-title/pull/70) | none |
 
 ## The columns
 
