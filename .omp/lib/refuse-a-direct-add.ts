@@ -1,12 +1,4 @@
-// This repository is a pnpm shop, and a dependency is added with `./do add`, which
-// resolves the candidate in a scratch copy and audits what it brings in before
-// anything is installed. This refuses the commands that would resolve a package
-// without that audit, so its code never runs here.
-//
-// The command is read the way a shell reads it, near enough: quoted text stays one
-// word, and a separator inside it does not start a new command. Substitution and
-// escapes are not read, so `sh -c 'pnpm add x'` is not caught. It is a default, not
-// a boundary.
+// Refuse a shell command that would resolve a package without the audit ./do add runs.
 
 import { spawnSync } from 'node:child_process';
 
@@ -27,8 +19,7 @@ const notAudited =
   'Running a package for one go is not audited. A tool worth having is a dependency added with `./do add`.';
 const notPnpm = 'This repository is a pnpm shop: a dependency is added with `./do add`.';
 
-// The pnpm subcommands that resolve something the lockfile does not hold.
-const RESOLVING: Record<string, true> = {
+const RESOLVES_SOMETHING_NEW: Record<string, true> = {
   add: true,
   i: true,
   install: true,
@@ -36,20 +27,20 @@ const RESOLVING: Record<string, true> = {
   up: true,
   dlx: true,
 };
-const ONE_OFF: Record<string, true> = { npx: true, pnpx: true };
-const OTHER_MANAGERS: Record<string, true> = { npm: true, yarn: true, bun: true };
-// The options whose next word is a value rather than a package. One that is not
-// listed here reads as a package, which refuses an install that would have passed:
-// the safe direction for a default.
-const TAKES_A_VALUE: Record<string, true> = {
+const ONE_OFF_RUNNERS: Record<string, true> = { npx: true, pnpx: true };
+const OTHER_PACKAGE_MANAGERS: Record<string, true> = { npm: true, yarn: true, bun: true };
+// An option that takes a value and is not listed here reads as a package, which
+// refuses an install that would have passed.
+const OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '-C': true,
   '--dir': true,
   '-F': true,
   '--filter': true,
 };
 
-const segments = (command: string): string[][] => {
-  const found: string[][] = [];
+// Substitution and escapes are not read, so a command another shell builds is not caught.
+const wordsPerCommand = (line: string): string[][] => {
+  const commands: string[][] = [];
   let words: string[] = [];
   let word = '';
   let quote = '';
@@ -57,33 +48,30 @@ const segments = (command: string): string[][] => {
     if (word !== '') words.push(word);
     word = '';
   };
-  const endSegment = () => {
+  const endCommand = () => {
     endWord();
-    if (words.length > 0) found.push(words);
+    if (words.length > 0) commands.push(words);
     words = [];
   };
-  for (const character of command) {
+  for (const character of line) {
     if (quote !== '') {
       if (character === quote) quote = '';
       else word += character;
     } else if (character === '"' || character === "'") {
       quote = character;
     } else if (character === '&' || character === '|' || character === ';') {
-      endSegment();
+      endCommand();
     } else if (/\s/.test(character)) {
       endWord();
     } else {
       word += character;
     }
   }
-  endSegment();
-  return found;
+  endCommand();
+  return commands;
 };
 
-// A manifest the last commit does not hold — edited, added, or in a directory of its
-// own — is one an install of it resolves. A change already committed is not visible
-// here, and the pull request's `./do audit` is what catches that. A tree git cannot
-// be asked about is treated as differing.
+// A tree git cannot be asked about is treated as differing.
 const manifestMatchesHead = (cwd: string): boolean => {
   const status = spawnSync('git', ['-C', cwd, 'status', '--porcelain', '--', '*package.json'], {
     encoding: 'utf8',
@@ -95,7 +83,7 @@ const namesAPackage = (rest: string[], subcommand: string): boolean => {
   for (let index = 0; index < rest.length; index += 1) {
     const word = rest[index] ?? '';
     if (word === subcommand) continue;
-    if (Object.hasOwn(TAKES_A_VALUE, word)) {
+    if (Object.hasOwn(OPTIONS_THAT_TAKE_A_VALUE, word)) {
       index += 1;
       continue;
     }
@@ -106,14 +94,12 @@ const namesAPackage = (rest: string[], subcommand: string): boolean => {
 
 const refusal = (words: string[], cwd: string): string | undefined => {
   const program = words[0]?.split('/').pop() ?? '';
-  if (Object.hasOwn(ONE_OFF, program)) return notAudited;
-  if (Object.hasOwn(OTHER_MANAGERS, program)) return notPnpm;
+  if (Object.hasOwn(ONE_OFF_RUNNERS, program)) return notAudited;
+  if (Object.hasOwn(OTHER_PACKAGE_MANAGERS, program)) return notPnpm;
   if (program !== 'pnpm') return undefined;
 
-  // The subcommand is looked for rather than read off the front, since an option
-  // and its value may stand in front of it: `pnpm -C packages/x add lodash`.
   const rest = words.slice(1);
-  const subcommand = rest.find((word) => Object.hasOwn(RESOLVING, word));
+  const subcommand = rest.find((word) => Object.hasOwn(RESOLVES_SOMETHING_NEW, word));
   if (subcommand === undefined) return undefined;
   if (subcommand === 'dlx') return notAudited;
 
@@ -130,7 +116,7 @@ export default function refuseADirectAdd(pi: Extension): void {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
-    for (const words of segments(command)) {
+    for (const words of wordsPerCommand(command)) {
       const reason = refusal(words, context.cwd);
       if (reason !== undefined) return { block: true, reason };
     }
