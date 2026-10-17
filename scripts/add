@@ -17,6 +17,13 @@ mkdir -p "$work/scratch" "$work/backup"
 files='package.json pnpm-lock.yaml pnpm-workspace.yaml'
 for file in $files; do cp "$root/$file" "$work/scratch/$file"; done
 
+# And what the resolution reads besides those, when the manifest or the workspace
+# file names it: a patch file, a pnpmfile, the registry settings. A missing one
+# fails the resolve, and a resolve that cannot run refuses the add.
+for named in patches .pnpmfile.mjs .pnpmfile.cjs .npmrc; do
+  if [ -e "$root/$named" ]; then cp -R "$root/$named" "$work/scratch/$named"; fi
+done
+
 refuse() {
   echo "error: $1" >&2
   exit 1

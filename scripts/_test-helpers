@@ -44,6 +44,8 @@ make_copy() {
   cp "$root/do" "$copy/do"
   cp -R "$root/scripts" "$copy/scripts"
   cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.mjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
+  # The workspace file names patches, which the resolution reads.
+  if [ -d "$root/patches" ]; then cp -R "$root/patches" "$copy/patches"; fi
   for tool in vp playwright secretlint depcruise; do
     prefix="$tool "
     [ "$tool" = vp ] && prefix=''
@@ -63,6 +65,11 @@ case "$*" in
   if grep -q 'vulnerable-fixture@' pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %s '{"advisories":{}}'; fi
   ;;
 'add '*' --lockfile-only')
+  # A resolve reads the patch files the workspace file names, as pnpm does.
+  if grep -q patchedDependencies pnpm-workspace.yaml 2>/dev/null && [ ! -d patches ]; then
+    echo 'ERR_PNPM_PATCH_NOT_FOUND' >&2
+    exit 1
+  fi
   for file in package.json pnpm-lock.yaml pnpm-workspace.yaml; do echo '# added' >>"$file"; done
   if [ -z "${PNPM_ADD_CLEAN:-}" ]; then echo 'vulnerable-fixture@1.0.0' >>pnpm-lock.yaml; fi
   ;;
