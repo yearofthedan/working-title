@@ -30,15 +30,17 @@ unchanged() {
 }
 install_line() { grep -n 'pnpm install --frozen-lockfile' "$VP_LOG" | head -n 1 | cut -d: -f 1; }
 
-# A copy-back that fails partway is undone: the file written before the failure is
-# put back rather than left naming a dependency the lockfile does not carry, and
-# the file that cannot be put back says so.
+# A copy-back that fails partway is undone. The file that cannot be written is last
+# in the task's list, so the two before it are written and have to be put back, and
+# the originals are kept where the refusal says they are.
+before
 chmod 444 "$copy/pnpm-workspace.yaml"
 run_add PNPM_ADD_CLEAN=1
 expect_status 1 "a copy-back that fails partway is refused"
 expect_err 'could not be written' "the refusal says the audited files could not be written"
-expect_err 'could not be put back' "the file that could not be put back says so"
-if grep -q '^# added' "$copy/package.json"; then no "the file written before the failure is put back"; else ok "the file written before the failure is put back"; fi
+expect_err 'may not hold what was there' "the file that would not go back says so"
+expect_err 'what was there is kept in' "the refusal says where the originals are kept"
+unchanged "a copy-back that fails partway leaves the files as they were"
 chmod 644 "$copy/pnpm-workspace.yaml"
 
 # An advisory the add brings in stops it, and the refusal names the advisory. The
@@ -58,12 +60,13 @@ before
 run_add PNPM_ADD_CLEAN=1 PNPM_INSTALL_FAIL=1
 expect_status 1 "an install that fails after a clean audit is refused"
 expect_err 'could not be installed' "the refusal says what could not be installed"
+expect_err 'Nothing was changed' "the refusal says the add was undone"
 unchanged "a failed install leaves the files as they were"
 if [ "$(grep -c 'pnpm install --frozen-lockfile' "$VP_LOG")" -eq 2 ]; then ok "the restored lockfile is installed again"; else no "the restored lockfile is installed again"; fi
 if [ "$(grep -c 'install failed' "$VP_LOG")" -eq 1 ]; then ok "the restored lockfile installs, rather than failing as the first one did"; else no "the restored lockfile installs, rather than failing as the first one did"; fi
 
-# When the packages that were there before cannot be installed either, the refusal
-# says node_modules is not known to match them, rather than claiming it does.
+# When the packages that were there cannot be installed either, the refusal says
+# node_modules is not known to match them, rather than claiming it does.
 before
 run_add PNPM_ADD_CLEAN=1 PNPM_INSTALL_FAIL_ALWAYS=1
 expect_status 1 "an install that fails both times is refused"
@@ -72,10 +75,15 @@ unchanged "an install that fails both times leaves the files as they were"
 
 # With no advisory, what was audited is what is installed, and the install comes
 # after the audit: the check is not told about a lockfile already in place.
+if grep -q '^# added' "$copy/package.json" "$copy/pnpm-lock.yaml" "$copy/pnpm-workspace.yaml"; then
+  no "the copy holds nothing the cases before left behind"
+else
+  ok "the copy holds nothing the cases before left behind"
+fi
 run_add PNPM_ADD_CLEAN=1
 expect_status 0 "an add with no advisory is allowed"
 for file in $files; do
-  if grep -q '^# added' "$copy/$file"; then ok "$file is the one that was audited"; else no "$file is the one that was audited"; fi
+  if [ "$(tail -n 1 "$copy/$file")" = '# added' ]; then ok "$file is the one that was audited"; else no "$file is the one that was audited"; fi
 done
 expect_vp_literal 'pnpm install --frozen-lockfile' "the audited lockfile is installed"
 if [ -n "$(install_line)" ] && [ "$(install_line)" -gt "$(grep -n 'pnpm audit --json' "$VP_LOG" | tail -n 1 | cut -d: -f 1)" ]; then
