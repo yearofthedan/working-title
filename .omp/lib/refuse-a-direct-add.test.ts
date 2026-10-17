@@ -104,7 +104,7 @@ describe('refuseADirectAdd', () => {
     expect(refused('./do add -D lodash', clean)).toBe(false);
   });
 
-  it('passes a command that names no package manager', () => {
-    expect(refused('git status', clean)).toBe(false);
+  it('passes git add', () => {
+    expect(refused('git add .', clean)).toBe(false);
   });
 });
