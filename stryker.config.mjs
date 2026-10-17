@@ -8,6 +8,7 @@ export default {
   mutate: ['src/domain/**/*.ts', 'src/application/**/*.ts', '!src/**/*.test.ts'],
   // Results carry over between runs, so a run mutates only what changed.
   incremental: true,
+  // One number for the whole run, so the domain and the application are gated together.
   thresholds: { break: 90 },
   reporters: ['clear-text', 'html', 'json'],
 };
