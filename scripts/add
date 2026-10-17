@@ -1,6 +1,6 @@
 #!/bin/sh
 # Add a dependency: resolve and audit it in a scratch copy first, so a release with
-# a known advisory is refused before any of its code reaches this machine.
+# a known advisory is refused before any of it is installed.
 
 set -eu
 
@@ -11,7 +11,6 @@ if [ $# -eq 0 ]; then
 fi
 
 work=$(mktemp -d)
-trap 'rm -rf "$work"' EXIT
 mkdir -p "$work/scratch" "$work/backup"
 
 # Everything pnpm add can write, so what is installed is what was audited.
@@ -22,6 +21,25 @@ refuse() {
   echo "error: $1" >&2
   exit 1
 }
+
+restore() {
+  for file in $files; do
+    cp "$work/backup/$file" "$root/$file" ||
+      echo "error: $file could not be put back, so it may hold what the audit allowed" >&2
+  done
+}
+
+# Between the copy-back and the install the repo holds the audited files, so
+# anything that ends the task in that window — a failure, an interrupt — puts back
+# the ones that were there.
+backed_up=
+installed=
+cleanup() {
+  if [ -n "$backed_up" ] && [ -z "$installed" ]; then restore; fi
+  rm -rf "$work"
+}
+trap cleanup EXIT
+trap 'exit 1' INT TERM
 
 is_json() {
   node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
@@ -44,14 +62,22 @@ node "$root/scripts/_audit.mjs" "$work/before.json" "$work/after.json" 'the lock
 }
 
 for file in $files; do cp "$root/$file" "$work/backup/$file"; done
-for file in $files; do cp "$work/scratch/$file" "$root/$file"; done
+backed_up=1
+for file in $files; do
+  cp "$work/scratch/$file" "$root/$file" ||
+    refuse "the audited files could not be written, so the add was undone"
+done
 
 if ! (cd "$root" && pnpm install --frozen-lockfile); then
-  for file in $files; do cp "$work/backup/$file" "$root/$file"; done
+  restore
   # The failed install may have changed node_modules, so the files that were put
-  # back are installed again to leave it matching them.
-  (cd "$root" && pnpm install --frozen-lockfile) || true
-  refuse "the audited packages could not be installed, so the add was undone"
+  # back are installed again. When that fails too, node_modules is not known to
+  # match them, and the refusal says so rather than claim it does.
+  (cd "$root" && pnpm install --frozen-lockfile) ||
+    refuse 'the audited packages could not be installed, and neither could the packages that were there before, so node_modules may not match them'
+  installed=1
+  refuse 'the audited packages could not be installed, so the add was undone'
 fi
+installed=1
 
 echo "$* added, with no advisory this add brings in."

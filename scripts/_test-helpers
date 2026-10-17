@@ -34,8 +34,9 @@ expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $st
 # depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
 # the repo and no real check runs. The copy is a git repo whose origin/main holds the
 # lockfile, as the audit needs. The pnpm stub's add marks each file pnpm add can
-# write with its arguments, and brings in an advisory unless PNPM_ADD_CLEAN is
-# set. Its install fails on a marked lockfile when PNPM_INSTALL_FAIL is set.
+# write, and brings in an advisory unless PNPM_ADD_CLEAN is set. Its install fails
+# on a marked lockfile when PNPM_INSTALL_FAIL is set, and every time when
+# PNPM_INSTALL_FAIL_ALWAYS is, logging which of them failed.
 make_copy() {
   copy="$work/copy"
   mkdir -p "$copy/node_modules/.bin"
@@ -61,7 +62,11 @@ case "$*" in
   if [ -z "${PNPM_ADD_CLEAN:-}" ]; then echo 'vulnerable-fixture@1.0.0' >>pnpm-lock.yaml; fi
   ;;
 'install --frozen-lockfile')
-  if [ -n "${PNPM_INSTALL_FAIL:-}" ] && grep -q '^# added' pnpm-lock.yaml; then exit 1; fi
+  if [ -n "${PNPM_INSTALL_FAIL_ALWAYS:-}" ] ||
+    { [ -n "${PNPM_INSTALL_FAIL:-}" ] && grep -q '^# added' pnpm-lock.yaml; }; then
+    echo 'install failed' >>"$VP_LOG"
+    exit 1
+  fi
   ;;
 esac
 STUB
