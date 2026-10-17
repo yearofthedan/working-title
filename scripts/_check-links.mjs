@@ -4,7 +4,7 @@
 // file as its comment lines — an address written bare in prose or a comment is read, while a path
 // written bare in a comment is not, since only the writer knows what it is relative to. The sites
 // are asked only under --external, so ./do check runs the half that reads the repository alone.
-// Usage: _links.mjs <root> [--external]
+// Usage: _check-links.mjs <root> [--external]
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';

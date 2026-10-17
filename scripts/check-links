@@ -5,4 +5,4 @@ set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 
-exec node "$root/scripts/_links.mjs" "$root" "$@"
+exec node "$root/scripts/_check-links.mjs" "$root" "$@"

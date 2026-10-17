@@ -55,7 +55,7 @@ links() { # $1 the flags, if any; CI unset, so the machine is a builder's
   status=0
   : >"$STUB_CALLS"
   track
-  (cd "$project" && env -u CI node "$root/scripts/_links.mjs" "$project" ${1:-}) >"$work/out" 2>"$work/err" || status=$?
+  (cd "$project" && env -u CI node "$root/scripts/_check-links.mjs" "$project" ${1:-}) >"$work/out" 2>"$work/err" || status=$?
 }
 
 good='# Guide
@@ -225,7 +225,7 @@ expect_err 'could not be reached' "the warning says what could not be reached"
 
 status=0
 track
-(cd "$project" && env CI=true node "$root/scripts/_links.mjs" "$project" --external) >"$work/out" 2>"$work/err" || status=$?
+(cd "$project" && env CI=true node "$root/scripts/_check-links.mjs" "$project" --external) >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "an unreachable site fails in CI"
 expect_err 'could not be reached' "the CI failure says what could not be reached"
 
@@ -234,7 +234,7 @@ empty="$work/empty"
 mkdir -p "$empty"
 (cd "$empty" && git init -q -b main . && git config user.email t@example.com && git config user.name t && printf 'notes\n' > notes.txt && git add -A)
 status=0
-env -u CI node "$root/scripts/_links.mjs" "$empty" >"$work/out" 2>"$work/err" || status=$?
+env -u CI node "$root/scripts/_check-links.mjs" "$empty" >"$work/out" 2>"$work/err" || status=$?
 expect_status 1 "a tree this check reads nothing from is refused"
 expect_err 'checked nothing' "the refusal says nothing was read"
 
