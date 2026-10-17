@@ -6,6 +6,10 @@
 # both catalog entries together (https://viteplus.dev/guide/upgrade-project).
 overrides:
   vite@*: 'catalog:'
+  # shortcut: Stryker's core asks for typed-rest-client ~2.3.0, which pins qs at 6.15.1, and that
+  # version carries three advisories (https://github.com/advisories/GHSA-4mjr-xmp4-gh2g); drop the
+  # override when the core takes a typed-rest-client that allows 6.16.0, as 3.1.1 does.
+  qs@*: 6.16.0
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
@@ -19,11 +23,14 @@ peerDependencyRules:
   allowedVersions:
     vite: '*'
 
-# dependency-cruiser reads TypeScript only through a `typescript` below 7, and the project's own
-# is 7, so the check carries one of its own rather than hold the toolchain back
-# (https://pnpm.io/settings/package-extensions).
+# dependency-cruiser reads TypeScript through the compiler's JavaScript API, which needs a
+# `typescript` below 7, and Stryker's tsconfig rewrite does the same, while the project's own is 7;
+# each carries one of its own (https://pnpm.io/settings#packageextensions).
 packageExtensions:
   dependency-cruiser:
+    dependencies:
+      typescript: 6.0.3
+  '@stryker-mutator/core':
     dependencies:
       typescript: 6.0.3
 
@@ -38,3 +45,9 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1'
   - semver@6.3.1
+# shortcut: this runner joins a test's name chain with a space, where Vitest 5 matches a per-test
+# filter on ' > ', so a covered mutant runs no tests and is reported survived
+# (https://github.com/stryker-mutator/stryker-js/issues/6210); drop the patch when a release carries
+# the fix, since pnpm fails the install on an unused one (https://pnpm.io/cli/patch#allowunusedpatches).
+patchedDependencies:
+  '@stryker-mutator/vitest-runner@10.0.0': patches/@stryker-mutator__vitest-runner@10.0.0.patch
