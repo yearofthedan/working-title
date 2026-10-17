@@ -3,9 +3,10 @@
 // anything is installed. This refuses the commands that would resolve a package
 // without that audit, so its code never runs here.
 //
-// The command is read as text, split on the separators a shell acts on and on the
-// assignments before the program. Quoting and substitution are not read, so
-// `sh -c 'pnpm add x'` is not caught: this is a default, not a boundary.
+// The command is read the way a shell reads it, near enough: quoted text stays one
+// word, and a separator inside it does not start a new command. Substitution and
+// escapes are not read, so `sh -c 'pnpm add x'` is not caught. It is a default, not
+// a boundary.
 
 import { spawnSync } from 'node:child_process';
 
@@ -37,25 +38,71 @@ const RESOLVING: Record<string, true> = {
 };
 const ONE_OFF: Record<string, true> = { npx: true, pnpx: true };
 const OTHER_MANAGERS: Record<string, true> = { npm: true, yarn: true, bun: true };
+// The options whose next word is a value rather than a package. One that is not
+// listed here reads as a package, which refuses an install that would have passed:
+// the safe direction for a default.
+const TAKES_A_VALUE: Record<string, true> = {
+  '-C': true,
+  '--dir': true,
+  '-F': true,
+  '--filter': true,
+};
 
-const segments = (command: string): string[][] =>
-  command
-    .split(/(?:&&|\|\||[;&|])/)
-    .map((segment) =>
-      segment
-        .trim()
-        .split(/\s+/)
-        .filter((word) => word !== '' && !/^[A-Za-z_][A-Za-z0-9_]*=/.test(word)),
-    )
-    .filter((words) => words.length > 0);
+const segments = (command: string): string[][] => {
+  const found: string[][] = [];
+  let words: string[] = [];
+  let word = '';
+  let quote = '';
+  const endWord = () => {
+    if (word !== '') words.push(word);
+    word = '';
+  };
+  const endSegment = () => {
+    endWord();
+    if (words.length > 0) found.push(words);
+    words = [];
+  };
+  for (const character of command) {
+    if (quote !== '') {
+      if (character === quote) quote = '';
+      else word += character;
+    } else if (character === '"' || character === "'") {
+      quote = character;
+    } else if (character === '&' || character === '|' || character === ';') {
+      endSegment();
+    } else if (/\s/.test(character)) {
+      endWord();
+    } else {
+      word += character;
+    }
+  }
+  endSegment();
+  return found;
+};
 
-// A manifest that differs from HEAD is one something was changed in by hand, so an
-// install of it resolves whatever that names. A tree that is not a repository, or a
-// git that is not there, cannot be asked, and is treated as differing.
-const manifestMatchesHead = (cwd: string): boolean =>
-  spawnSync('git', ['-C', cwd, 'diff', '--quiet', 'HEAD', '--', 'package.json'], {
-    stdio: 'ignore',
-  }).status === 0;
+// A manifest the last commit does not hold — edited, added, or in a directory of its
+// own — is one an install of it resolves. A change already committed is not visible
+// here, and the pull request's `./do audit` is what catches that. A tree git cannot
+// be asked about is treated as differing.
+const manifestMatchesHead = (cwd: string): boolean => {
+  const status = spawnSync('git', ['-C', cwd, 'status', '--porcelain', '--', '*package.json'], {
+    encoding: 'utf8',
+  });
+  return status.status === 0 && status.stdout.trim() === '';
+};
+
+const namesAPackage = (rest: string[], subcommand: string): boolean => {
+  for (let index = 0; index < rest.length; index += 1) {
+    const word = rest[index] ?? '';
+    if (word === subcommand) continue;
+    if (Object.hasOwn(TAKES_A_VALUE, word)) {
+      index += 1;
+      continue;
+    }
+    if (!word.startsWith('-')) return true;
+  }
+  return false;
+};
 
 const refusal = (words: string[], cwd: string): string | undefined => {
   const program = words[0]?.split('/').pop() ?? '';
@@ -63,15 +110,16 @@ const refusal = (words: string[], cwd: string): string | undefined => {
   if (Object.hasOwn(OTHER_MANAGERS, program)) return notPnpm;
   if (program !== 'pnpm') return undefined;
 
+  // The subcommand is looked for rather than read off the front, since an option
+  // and its value may stand in front of it: `pnpm -C packages/x add lodash`.
   const rest = words.slice(1);
-  const subcommand = rest.find((word) => !word.startsWith('-')) ?? '';
-  if (!Object.hasOwn(RESOLVING, subcommand)) return undefined;
+  const subcommand = rest.find((word) => Object.hasOwn(RESOLVING, word));
+  if (subcommand === undefined) return undefined;
   if (subcommand === 'dlx') return notAudited;
 
   if (subcommand === 'install' || subcommand === 'i') {
-    const namesAPackage = rest.some((word) => !word.startsWith('-') && word !== subcommand);
-    const frozen = rest.includes('--frozen-lockfile');
-    if (!namesAPackage && (frozen || manifestMatchesHead(cwd))) return undefined;
+    if (rest.includes('--frozen-lockfile')) return undefined;
+    if (!namesAPackage(rest, subcommand) && manifestMatchesHead(cwd)) return undefined;
   }
 
   return addThroughTheTask;

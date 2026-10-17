@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
@@ -45,6 +45,17 @@ const repository = (dirty = false): string => {
 const refused = (command: string, cwd: string): boolean =>
   handler()({ toolName: 'bash', input: { command } }, { cwd }) !== undefined;
 
+const reasonFor = (command: string, cwd: string): string =>
+  (handler()({ toolName: 'bash', input: { command } }, { cwd }) as { reason?: string } | undefined)
+    ?.reason ?? '';
+
+const repositoryWithAnUntrackedManifest = (): string => {
+  const dir = repository();
+  mkdirSync(join(dir, 'packages/x'), { recursive: true });
+  writeFileSync(join(dir, 'packages/x/package.json'), '{}\n');
+  return dir;
+};
+
 describe('refuseADirectAdd', () => {
   const clean = repository();
 
@@ -54,6 +65,14 @@ describe('refuseADirectAdd', () => {
 
   it('refuses pnpm add whatever flags it carries', () => {
     expect(refused('pnpm add -D lodash --ignore-scripts', clean)).toBe(true);
+  });
+
+  it('refuses pnpm add behind an option that takes a value', () => {
+    expect(refused('pnpm -C packages/x add lodash', clean)).toBe(true);
+  });
+
+  it('refuses pnpm add behind a filter', () => {
+    expect(refused('pnpm --filter web add lodash', clean)).toBe(true);
   });
 
   it('refuses pnpm i naming a package', () => {
@@ -88,6 +107,18 @@ describe('refuseADirectAdd', () => {
     expect(refused('pnpm install', repository(true))).toBe(true);
   });
 
+  it('refuses pnpm install where a nested manifest is untracked', () => {
+    expect(refused('pnpm install', repositoryWithAnUntrackedManifest())).toBe(true);
+  });
+
+  it('passes pnpm install behind a filter with --frozen-lockfile', () => {
+    expect(refused('pnpm install --filter web --frozen-lockfile', clean)).toBe(false);
+  });
+
+  it('says a one-off run is not audited', () => {
+    expect(reasonFor('npx cowsay', clean)).toContain('not audited');
+  });
+
   it('passes pnpm install where the manifest matches HEAD', () => {
     expect(refused('pnpm install', clean)).toBe(false);
   });
@@ -106,5 +137,9 @@ describe('refuseADirectAdd', () => {
 
   it('passes git add', () => {
     expect(refused('git add .', clean)).toBe(false);
+  });
+
+  it('passes a command whose quoted argument mentions a pnpm add', () => {
+    expect(refused('git commit -m "stop: pnpm add blocked && npx blocked"', clean)).toBe(false);
   });
 });
