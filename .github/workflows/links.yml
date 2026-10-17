@@ -22,4 +22,4 @@ jobs:
           node-version-file: .node-version
       # No install: the task reads the tree and asks the sites, and needs neither the toolchain nor
       # the dependencies. `./do check` runs the half that stays in the repository.
-      - run: ./do links --external
+      - run: ./do check-links --external

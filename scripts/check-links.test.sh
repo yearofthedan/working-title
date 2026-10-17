@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Tests for ./do links: a link this repository writes that does not resolve, and the two halves it
+# Tests for ./do check-links: a link this repository writes that does not resolve, and the two halves it
 # is made of — the one that reads the repository and the one that asks the sites it names.
 
 root=$(cd "$(dirname "$0")/.." && pwd)
