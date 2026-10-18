@@ -168,6 +168,7 @@ describe('a git push', () => {
     'git push -u origin HEAD 2>&1',
     'git push -u origin HEAD 2>&1 | tail -3',
     `git -C ${clean} push -u origin HEAD 2>&1 | tail -3`,
+    'git push -u origin HEAD > "a log file"',
   ])('passes %s', (command) => {
     expect(refused(command, clean)).toBe(false);
   });
