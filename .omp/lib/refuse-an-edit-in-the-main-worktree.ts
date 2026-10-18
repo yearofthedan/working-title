@@ -21,8 +21,9 @@ export type Extension = {
   ): void;
 };
 
-// A path that names an internal URL, such as `local://notes.md`, is not one on disk.
-const URL_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i;
+// An internal URL other than a `file://` one, such as `local://notes.md`, is not a
+// path on disk; `resolveCallCwd` reads a `file://` one as the path it names.
+const URL_SCHEME = /^(?!file:\/\/)[a-z][a-z0-9+.-]*:\/\//i;
 
 const git = (cwd: string, args: string[]): { failed: boolean; out: string } => {
   const result = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8' });

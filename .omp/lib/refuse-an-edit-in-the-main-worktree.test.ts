@@ -137,6 +137,12 @@ describe('an edit or a write in a subagent', () => {
     expect(refused(event, { cwd: main, sessionManager: subagent })).toBe(false);
   });
 
+  it('refuses a file:// path in the main worktree', () => {
+    expect(
+      refused(aWrite(`file://${join(main, 'notes.txt')}`), { cwd: main, sessionManager: subagent }),
+    ).toBe(true);
+  });
+
   it.each(mainCases)('passes %s from the main session', (_what, event, cwd) => {
     expect(refused(event, { cwd, sessionManager: mainSession })).toBe(false);
   });
