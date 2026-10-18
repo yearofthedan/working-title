@@ -64,8 +64,9 @@ const landsInTheMainWorktree = (path: string): boolean => {
 
 // An `edit` event carries derived `path`/`paths` fields for policy inspection
 // ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md), "Event surfaces"):
-// `paths` in hashline mode, `path` alone in a mode with one target. A `write` names
-// its target as `path`.
+// `paths` for every hashline header, and `path` too when there is one
+// ([tool-event-input.ts](https://github.com/can1357/oh-my-pi/blob/main/packages/coding-agent/src/extensibility/tool-event-input.ts)).
+// A `write` names its target as `path`.
 const pathsOf = (input: Record<string, unknown>): string[] => {
   const { path, paths } = input;
   if (Array.isArray(paths) && paths.every((it) => typeof it === 'string')) return paths;
