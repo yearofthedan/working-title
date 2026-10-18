@@ -19,22 +19,15 @@ export const wordsPerCommand = (line: string): string[][] => {
     words = [];
     droppingTarget = false;
   };
-  // A redirection is the shell's, not the command's, so the operator and its target
-  // are dropped: `git push … 2>&1` reaches the command as `git push …`. A file
-  // descriptor counts only where it touches the operator, and `>&-` takes no target
+  // A redirection is the shell's, not the command's: its operator and the word that is
+  // its target are dropped, so `git push … 2>&1` reaches the command as `git push …`
   // ([redirections](https://www.gnu.org/software/bash/manual/bash.html#Redirections)).
-  const operatorEnd = (index: number): { at: number; takesTarget: boolean } => {
-    let at = index;
-    while (/[0-9]/.test(line[at] ?? '')) at += 1;
+  const operatorEnd = (index: number): number => {
+    const start = line[index] === '&' ? index + 1 : index;
+    let at = start + 1;
+    if (line[at] === line[start]) at += 1;
     if (line[at] === '&') at += 1;
-    const operator = line[at] ?? '';
-    at += 1;
-    if (line[at] === operator) at += 1;
-    if (line[at] === '&') {
-      at += 1;
-      if (line[at] === '-') return { at: at + 1, takesTarget: false };
-    }
-    return { at, takesTarget: true };
+    return at;
   };
   for (let index = 0; index < line.length; index += 1) {
     const character = line[index] as string;
@@ -50,9 +43,8 @@ export const wordsPerCommand = (line: string): string[][] => {
     ) {
       if (/^[0-9]+$/.test(word)) word = '';
       else endWord();
-      const { at, takesTarget } = operatorEnd(index);
-      index = at - 1;
-      droppingTarget = takesTarget;
+      index = operatorEnd(index) - 1;
+      droppingTarget = true;
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
     } else if (/\s/.test(character)) {

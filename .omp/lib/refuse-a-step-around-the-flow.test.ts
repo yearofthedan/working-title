@@ -1,9 +1,12 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
-import refuseAStepAroundTheFlow, { type Extension } from './refuse-a-step-around-the-flow';
+import refuseAStepAroundTheFlow, {
+  type Extension,
+  resolveCallCwd,
+} from './refuse-a-step-around-the-flow';
 
 type Handler = (
   event: { toolName: string; input: Record<string, unknown> },
@@ -147,6 +150,8 @@ describe('a git push', () => {
     // The empty target of the first command leaves no word to drop, so the push
     // after the `;` is still read as the command it is.
     ['echo hi > "" ; git push --force origin main', clean],
+    // The drop stops at the redirection's own target, so the push's arguments are read.
+    ['git push 2>/dev/null --force origin main', clean],
   ])('refuses %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(true);
   });
@@ -189,6 +194,17 @@ describe('the directory the call runs in', () => {
 
   it('refuses a push on the branch of the worktree the call names', () => {
     expect(refused('git push -u origin HEAD', linked, main)).toBe(true);
+  });
+
+  it.each([
+    ['~/notes', join(homedir(), 'notes')],
+    ['~', homedir()],
+    ['~someone', join(homedir(), 'someone')],
+    ['/tmp/elsewhere', '/tmp/elsewhere'],
+    ['plan', '/session/plan'],
+    ['/', '/session'],
+  ])('reads a call naming %s as %s', (named, wanted) => {
+    expect(resolveCallCwd(named, '/session')).toBe(wanted);
   });
 });
 
