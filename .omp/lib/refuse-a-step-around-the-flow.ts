@@ -35,10 +35,11 @@ const PUSH_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--receive-pack': true,
   '--exec': true,
 };
+// `--force-if-includes` is not here: it is ancillary to `--force-with-lease`, which is,
+// and alone it is a no-op ([git-push](https://git-scm.com/docs/git-push)).
 const FORCE_FLAGS: Record<string, true> = {
   '--force': true,
   '--force-with-lease': true,
-  '--force-if-includes': true,
 };
 // What lets a push move or rewrite what the remote carries, each with the note
 // that a refspec's `+` forces the update too

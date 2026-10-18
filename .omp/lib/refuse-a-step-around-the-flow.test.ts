@@ -138,7 +138,6 @@ describe('a git push', () => {
     ['git push --force', clean],
     ['git push -f origin 73-fix-a-dodgy-restore', clean],
     ['git push --force-with-lease', clean],
-    ['git push --force-if-includes', clean],
     ['git push origin +73-fix-a-dodgy-restore', clean],
     ['git push --delete origin 73-fix-a-dodgy-restore', clean],
     ['git push --all', clean],
@@ -175,6 +174,9 @@ describe('a git push', () => {
     'git push -u origin HEAD 2>&1 | tail -3',
     `git -C ${clean} push -u origin HEAD 2>&1 | tail -3`,
     'git push -u origin HEAD > "a log file"',
+    // Ancillary to `--force-with-lease`, which is refused: alone it is a no-op
+    // ([git-push](https://git-scm.com/docs/git-push)).
+    'git push --force-if-includes',
   ])('passes %s', (command) => {
     expect(refused(command, clean)).toBe(false);
   });
