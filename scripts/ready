@@ -155,8 +155,6 @@ head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
   exit 1
 }
 short_head=$(short "$head")
-# A body edited on GitHub comes back with CRLF line ends; every match below allows
-# trailing whitespace, which takes the CR.
 gh pr view "$pr" --json body -q .body >"$work/body"
 : >"$work/runs"
 

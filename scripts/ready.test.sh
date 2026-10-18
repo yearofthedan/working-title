@@ -62,9 +62,8 @@ chmod +x "$work/bin/gh"
 run="https://github.com/yearofthedan/working-title/actions/runs/101/job/202"
 run_path="repos/yearofthedan/working-title/actions/jobs/202"
 
-# Every fixture body is written with LF line ends, the form every body in this
-# repository has; one case rewrites its body with CRLF, since a body that arrives
-# with them reads the same.
+# Fixtures are LF; the case below rewrites its body with CRLF, which is what pins
+# the trailing-whitespace allowance ./do ready matches on.
 crlf() { awk '{ printf "%s\r\n", $0 }' "$GH_BODY" >"$GH_BODY.crlf" && mv "$GH_BODY.crlf" "$GH_BODY"; }
 
 body() { # $1 the For review lines, $2 the table rows
