@@ -11,6 +11,7 @@ vp check
 "$(dirname "$0")/../do" layers
 "$(dirname "$0")/../do" audit
 "$(dirname "$0")/../do" check-links
+"$(dirname "$0")/../do" check-names
 # The specs run first because `./do e2e` is what installs Chromium, and the tests'
 # browser project needs a browser: on a fresh CI runner, tests first would find none.
 "$(dirname "$0")/../do" e2e

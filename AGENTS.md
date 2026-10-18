@@ -56,6 +56,6 @@ A session can lose part of its conversation, to a restart or a summary, and keep
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
 
-File names are lowercase kebab-case. The exceptions are names a tool looks for: `AGENTS.md`, `README.md`, `SKILL.md` and `RULES.md`.
+Every tracked file's name is lowercase kebab-case, checked by `./do check-names`, whose message and `scripts/check-names` header state the rule and each exception.
 
 Every file in `docs/` opens with its audience and purpose. The exceptions are the records in `docs/adr/`, which follow [the writing-adrs skill](.agents/skills/writing-adrs/SKILL.md)'s shape.

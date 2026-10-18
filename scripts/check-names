@@ -1,0 +1,72 @@
+#!/bin/sh
+# Refuse a file whose name breaks the convention.
+#
+# The rule: a file's name is lowercase kebab-case in every dot-separated part,
+# after any leading dot. The exceptions, each narrow on purpose, since a wide one
+# lets a real break through: the names a tool looks for — AGENTS.md, README.md,
+# SKILL.md, RULES.md anywhere, and .github/pull_request_template.md; a leading _
+# on a file directly in scripts/, which marks it as not a task; and the one patch
+# pnpm-workspace.yaml names, patches/@stryker-mutator__vitest-runner@10.0.0.patch,
+# whose name is the package's.
+
+set -eu
+# A byte locale, so a part's [a-z0-9-] is those bytes and not a range a UTF-8
+# collation reads differently.
+LC_ALL=C
+export LC_ALL
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+# A part breaks the rule when it holds a character outside a to z, 0 to 9 and the
+# hyphen, or starts or ends with one, or doubles it.
+part_ok() {
+  case "$1" in
+  '' | *[!a-z0-9-]* | -* | *- | *--*) return 1 ;;
+  esac
+}
+
+# The name breaks the rule when any part does; every name has at least one part.
+name_ok() {
+  rest=$1
+  while :; do
+    case "$rest" in
+    *.*) part=${rest%%.*} rest=${rest#*.} ;;
+    *) part=$rest rest='' ;;
+    esac
+    part_ok "$part" || return 1
+    [ -n "$rest" ] || return 0
+  done
+}
+
+# -z, so a name with a newline stays one name. Only the last part of the path is
+# the name, so a directory such as .github/ISSUE_TEMPLATE is not judged.
+: >"$work/bad"
+printf 0 >"$work/count"
+# The files are read from the caller's repository, as the rest of the checks read
+# the tree git is in.
+git ls-files -z | while IFS= read -r -d '' file; do
+  printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
+  base=${file##*/}
+  case "$base" in
+  AGENTS.md | README.md | SKILL.md | RULES.md) continue ;;
+  esac
+  [ "$file" = .github/pull_request_template.md ] && continue
+  [ "$file" = 'patches/@stryker-mutator__vitest-runner@10.0.0.patch' ] && continue
+  case "$file" in
+  scripts/_*) base=${base#_} ;;
+  esac
+  # A leading dot is ignored; every part after it is judged.
+  case "$base" in
+  .*) base=${base#.} ;;
+  esac
+  name_ok "$base" || echo "$file" >>"$work/bad"
+done
+
+if [ -s "$work/bad" ]; then
+  cat "$work/bad"
+  echo "A file's name is lowercase kebab-case in every dot-separated part, after any leading dot. The exceptions: names a tool looks for (AGENTS.md, README.md, SKILL.md, RULES.md, .github/pull_request_template.md); a leading _ on a file in scripts/, which marks it as not a task; and the patch pnpm-workspace.yaml names." >&2
+  exit 1
+fi
+
+echo "every name of the $(cat "$work/count") tracked files follows the convention"
