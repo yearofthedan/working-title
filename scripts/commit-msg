@@ -6,7 +6,7 @@ set -eu
 message=$1
 
 # The builder's own commits skip this check alone, keeping the pre-commit scan.
-[ "${AGENT_MODEL_CHECK:-}" = off ] && exit 0
+[ -n "${DISABLE_MODEL_CHECK:-}" ] && exit 0
 
 # A story branch starts with its issue number; a detached HEAD, as in a rebase, is none.
 branch=$(git symbolic-ref --short -q HEAD || true)

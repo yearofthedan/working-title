@@ -47,8 +47,8 @@ commit -m 'Merge the lists'
 expect_status 1 "a commit titled Merge that is not a merge is refused"
 
 status=0
-AGENT_MODEL_CHECK=off git -C "$repo" commit --allow-empty -m '76: By hand' >"$work/out" 2>"$work/err" || status=$?
-expect_status 0 "AGENT_MODEL_CHECK=off lets a commit through without the trailer"
+DISABLE_MODEL_CHECK=1 git -C "$repo" commit --allow-empty -m '76: By hand' >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "DISABLE_MODEL_CHECK=1 lets a commit through without the trailer"
 
 git -C "$repo" switch -q main
 commit -m 'Change'
