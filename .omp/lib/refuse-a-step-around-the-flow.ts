@@ -2,8 +2,8 @@
 // and a pull request marked ready without the checks ./do ready runs.
 
 import { spawnSync } from 'node:child_process';
-import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
+import { callDirectory } from './call-cwd';
 import { wordsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
@@ -59,20 +59,6 @@ const currentBranch = (cwd: string): string | undefined => {
   const branch = git(cwd, ['rev-parse', '--abbrev-ref', 'HEAD']);
   const name = branch.out.trim();
   return branch.failed || name === '' || name === 'HEAD' ? undefined : name;
-};
-
-// The directory a call names, read as the bash tool reads it: a leading `~` is
-// expanded, a bare root is the session's, and the rest is resolved against it
-// ([bash-tool-runtime](https://github.com/can1357/oh-my-pi/blob/main/docs/bash-tool-runtime.md)).
-export const resolveCallCwd = (named: string, sessionCwd: string): string => {
-  const home = homedir();
-  const expanded =
-    named === '~' || named.startsWith('~/') || named.startsWith('~\\')
-      ? home + named.slice(1)
-      : named.startsWith('~')
-        ? join(home, named.slice(1))
-        : named;
-  return /^\/+$/.test(expanded) ? sessionCwd : resolve(sessionCwd, expanded);
 };
 
 const gitInvocation = (
@@ -258,12 +244,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
-    // The directory the call runs in: the tool input names one, which a hook is not
-    // handed without
-    // ([bash-tool-runtime](https://github.com/can1357/oh-my-pi/blob/main/docs/bash-tool-runtime.md), [hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md)).
-    const named = event.input.cwd;
-    const callCwd =
-      typeof named === 'string' && named !== '' ? resolveCallCwd(named, context.cwd) : context.cwd;
+    const callCwd = callDirectory(event.input, context.cwd);
     for (const words of wordsPerCommand(command)) {
       const program = words[0]?.split('/').pop() ?? '';
       if (program === 'gh') {

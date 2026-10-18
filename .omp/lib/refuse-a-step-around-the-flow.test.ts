@@ -3,10 +3,8 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
-import refuseAStepAroundTheFlow, {
-  type Extension,
-  resolveCallCwd,
-} from './refuse-a-step-around-the-flow';
+import { resolveCallCwd } from './call-cwd';
+import refuseAStepAroundTheFlow, { type Extension } from './refuse-a-step-around-the-flow';
 
 type Handler = (
   event: { toolName: string; input: Record<string, unknown> },
