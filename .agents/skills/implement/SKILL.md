@@ -69,6 +69,8 @@ A pull request whose work is done is handed over, not left in draft:
 
    > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself? Start from [the standards index](../../../docs/standards/README.md), which says where the rest of the rules are. Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
    >
+   > Check every claim the change rests on about how a tool, library or platform behaves — a default, a flag, an exit code, an output's shape — against the link or run beside it, and read that source yourself: a claim with neither is a finding. A stub in a test is such a claim: compare what it does with what the tool does, not with what the code under test expects.
+   >
    > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
