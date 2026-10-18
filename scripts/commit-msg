@@ -1,0 +1,22 @@
+#!/bin/sh
+# Refuse a commit on a story branch whose message has no Agent-Model: trailer.
+
+set -eu
+
+message=$1
+
+# A story branch starts with its issue number; a detached HEAD, as in a rebase, is none.
+branch=$(git symbolic-ref --short -q HEAD || true)
+printf '%s\n' "$branch" | grep -Eq '^[0-9]+-' || exit 0
+
+# A merge has its own message shape (docs/standards/commits.md).
+case "$(head -n 1 "$message")" in
+Merge\ *) exit 0 ;;
+esac
+
+if git interpret-trailers --parse "$message" | grep -q '^Agent-Model: *[^ ]'; then
+  exit 0
+fi
+
+echo 'commit refused: a commit on a story branch needs an Agent-Model: trailer naming the model that wrote it. Add --trailer "Agent-Model: <model>"; see docs/standards/commits.md' >&2
+exit 1
