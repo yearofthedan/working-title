@@ -146,6 +146,14 @@ describe('an edit or a write in a subagent', () => {
     );
   });
 
+  it.each(['MV:notes.txt', 'MV: notes.txt'])('refuses a move written %s', (line) => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\n${line}`, file);
+    expect(reasonFor(event, { cwd: main, sessionManager: subagent })).toContain(
+      join(main, 'notes.txt'),
+    );
+  });
+
   it('reads a single-quoted move destination', () => {
     const file = join(linked, 'notes.txt');
     const event = anEditOf(`[${file}#ABCD]\nMV '${join(linked, 'notes.txt')}'`, file);

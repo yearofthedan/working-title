@@ -74,12 +74,14 @@ const pathsOf = (input: Record<string, unknown>): string[] => {
 };
 
 // An `edit` can move the file it edits: a `MV DEST` line of the hashline text names a
-// destination that is not among the paths, and a destination with spaces is quoted
-// ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language").
+// destination that is not among the paths. OMP trims the line, takes `MV` before a
+// space or a colon, and a quoted destination in either quote
+// ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language";
+// [tokenizer.rs](https://github.com/can1357/oh-my-pi/blob/main/crates/pi-edit/src/modes/hashline/tokenizer.rs), `keyword_tail`).
 const moveDestinations = (input: Record<string, unknown>): string[] =>
   typeof input.input === 'string'
-    ? [...input.input.matchAll(/^[ \t]*MV[ \t]+(.+?)[ \t]*$/gm)].map(([, destination]) =>
-        destination.replace(/^(["'])(.*)\1$/, '$2'),
+    ? [...input.input.matchAll(/^[ \t]*MV(?:[ \t]*:[ \t]*|[ \t]+)(\S.*?)[ \t]*$/gm)].map(
+        ([, destination]) => destination.replace(/^(["'])(.*)\1$/, '$2'),
       )
     : [];
 
