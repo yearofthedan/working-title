@@ -58,17 +58,15 @@ const repository = (): { main: string; linked: string } => {
 
 const aWrite = (path: string): Call => ({ toolName: 'write', input: { path, content: 'hi' } });
 
-const anEdit = (...paths: string[]): Call => ({
-  toolName: 'edit',
-  input: { input: paths[0] ?? '', path: paths[0] ?? '', paths },
-});
-
-// The hashline text an `edit` carries in `input`, which names a move's destination
-// ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language").
+// What a logging hook saw in OMP 18.11.3: a one-target hashline `edit` arrives as
+// `{ input, path, paths }`, `input` being the hashline text and the paths the
+// `[PATH#TAG]` headers ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md), "Event surfaces").
 const anEditOf = (input: string, ...paths: string[]): Call => ({
   toolName: 'edit',
-  input: { input, path: paths[0] ?? '', paths },
+  input: paths.length === 1 ? { input, path: paths[0], paths } : { input, paths },
 });
+
+const anEdit = (...paths: string[]): Call => anEditOf('', ...paths);
 
 const refused = (event: Call, session: Session): boolean => handler()(event, session) !== undefined;
 
