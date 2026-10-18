@@ -74,7 +74,7 @@ With no open pull request and earlier ones merged, tick them off in the plan com
 
 ## Hand over
 
-A pull request whose work is done is handed over, not left in draft:
+A pull request whose work is done is handed over, not left in draft. The main session runs every step below, and the execution agent none of them:
 
 1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. Run it yourself, as the `reviewer` agent, and hand it this brief, adding whatever this change makes particular:
 
