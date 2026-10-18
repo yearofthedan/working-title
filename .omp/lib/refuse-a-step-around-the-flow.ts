@@ -243,6 +243,11 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
+    // The directory the call runs in: the tool input names one, resolved against the
+    // session's, which is what a hook is handed by default (OMP: bash-tool-runtime).
+    const named = event.input.cwd;
+    const callCwd =
+      typeof named === 'string' && named !== '' ? resolve(context.cwd, named) : context.cwd;
     for (const words of wordsPerCommand(command)) {
       const program = words[0]?.split('/').pop() ?? '';
       if (program === 'gh') {
@@ -251,7 +256,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
         continue;
       }
       if (program !== 'git') continue;
-      const invocation = gitInvocation(words, context.cwd);
+      const invocation = gitInvocation(words, callCwd);
       if (invocation === undefined) continue;
       const { subcommand, args, cwd } = invocation;
       const reason = gitReason(subcommand, args, cwd);

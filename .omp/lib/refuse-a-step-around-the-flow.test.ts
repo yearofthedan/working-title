@@ -64,8 +64,13 @@ const repositoryToSwitchIn = (): { main: string; linked: string } => {
   return { main, linked };
 };
 
-const refused = (command: string, cwd: string): boolean =>
-  handler()({ toolName: 'bash', input: { command } }, { cwd }) !== undefined;
+// `cwd` is the session's; `callCwd` is the directory the call itself names, which
+// the harness hands the hook in the tool input.
+const refused = (command: string, cwd: string, callCwd?: string): boolean =>
+  handler()(
+    { toolName: 'bash', input: callCwd === undefined ? { command } : { command, cwd: callCwd } },
+    { cwd },
+  ) !== undefined;
 
 const reasonFor = (command: string, cwd: string): string =>
   (handler()({ toolName: 'bash', input: { command } }, { cwd }) as { reason?: string } | undefined)
@@ -156,6 +161,29 @@ describe('a git push', () => {
     ['git commit -m "stop: git push --force blocked"', clean],
   ])('passes %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(false);
+  });
+
+  // A redirection belongs to the shell, so what follows the push is not a refspec.
+  it.each([
+    'git push -u origin HEAD 2>&1',
+    'git push -u origin HEAD 2>&1 | tail -3',
+    `git -C ${clean} push -u origin HEAD 2>&1 | tail -3`,
+  ])('passes %s', (command) => {
+    expect(refused(command, clean)).toBe(false);
+  });
+});
+
+describe('the directory the call runs in', () => {
+  const main = repository({ branch: 'main' });
+  const linked = `${main}-linked`;
+  execFileSync('git', ['-C', main, 'worktree', 'add', '-q', linked, '-b', '73-a-linked-line']);
+
+  it('passes a push from the worktree the call names, not the session', () => {
+    expect(refused('git push -u origin HEAD', main, linked)).toBe(false);
+  });
+
+  it('refuses a push on the branch of the worktree the call names', () => {
+    expect(refused('git push -u origin HEAD', linked, main)).toBe(true);
   });
 });
 

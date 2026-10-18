@@ -15,12 +15,42 @@ export const wordsPerCommand = (line: string): string[][] => {
     if (words.length > 0) commands.push(words);
     words = [];
   };
-  for (const character of line) {
+  // A redirection is the shell's, not the command's, so the operator and its target
+  // are dropped: `git push … 2>&1` reaches the command as `git push …`. The file
+  // descriptor counts only where it touches the operator, as bash reads it
+  // ([redirections](https://www.gnu.org/software/bash/manual/bash.html#Redirections)).
+  const pastRedirection = (index: number): number => {
+    let at = index;
+    while (/[0-9]/.test(line[at] ?? '')) at += 1;
+    const operator = line[at] === '&' ? at + 1 : at;
+    at = operator + 1;
+    if (line[at] === line[operator]) at += 1;
+    if (line[at] === '&') {
+      at += 1;
+      while (/[0-9]/.test(line[at] ?? '')) at += 1;
+      if (line[at] === '-') at += 1;
+      return at;
+    }
+    while (/[^\s&|;]/.test(line[at] ?? '')) at += 1;
+    while (/\s/.test(line[at] ?? '')) at += 1;
+    while (/[^\s&|;]/.test(line[at] ?? '')) at += 1;
+    return at;
+  };
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index] as string;
     if (quote !== '') {
       if (character === quote) quote = '';
       else word += character;
     } else if (character === '"' || character === "'") {
       quote = character;
+    } else if (
+      character === '>' ||
+      character === '<' ||
+      (character === '&' && line[index + 1] === '>')
+    ) {
+      if (/^[0-9]+$/.test(word)) word = '';
+      else endWord();
+      index = pastRedirection(index) - 1;
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
     } else if (/\s/.test(character)) {
