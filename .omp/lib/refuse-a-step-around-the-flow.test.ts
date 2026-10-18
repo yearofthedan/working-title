@@ -71,162 +71,115 @@ const reasonFor = (command: string, cwd: string): string =>
   (handler()({ toolName: 'bash', input: { command } }, { cwd }) as { reason?: string } | undefined)
     ?.reason ?? '';
 
-describe('refuseAStepAroundTheFlow', () => {
+describe('a git restore or checkout', () => {
   const dirty = repository({ dirty: ['notes.txt', 'plan/beats.md'] });
   const clean = repository();
+  const untracked = repository({ untracked: ['fresh.txt'] });
+  const twoC = repository();
+  const throughTwoC = `git -C ${dirname(twoC)} -C ${basename(twoC)} restore notes.txt`;
 
-  it('refuses git restore of a path with uncommitted changes', () => {
-    expect(refused('git restore notes.txt', dirty)).toBe(true);
+  it.each([
+    'git restore notes.txt',
+    'git checkout notes.txt',
+    'git restore plan',
+    'git restore .',
+    'git restore --worktree notes.txt',
+    'git restore --staged --worktree notes.txt',
+    'git restore -SW notes.txt',
+    'git restore -- notes.txt',
+    "git restore '*.txt'",
+    'git restore :/',
+  ])('refuses %s, which would overwrite a change', (command) => {
+    expect(refused(command, dirty)).toBe(true);
   });
 
-  it('names the path it would overwrite', () => {
-    expect(reasonFor('git restore notes.txt', dirty)).toContain('notes.txt');
-  });
-
-  it('names every path it would overwrite', () => {
-    expect(reasonFor('git restore notes.txt plan/beats.md', dirty)).toContain('plan/beats.md');
-  });
-
-  it('refuses git checkout of a path with uncommitted changes', () => {
-    expect(refused('git checkout notes.txt', dirty)).toBe(true);
-  });
-
-  it('refuses git restore of a directory holding a change', () => {
-    expect(refused('git restore plan', dirty)).toBe(true);
-  });
-
-  it('refuses git restore of the whole tree', () => {
-    expect(refused('git restore .', dirty)).toBe(true);
-  });
-
-  it('refuses git restore --worktree', () => {
-    expect(refused('git restore --worktree notes.txt', dirty)).toBe(true);
-  });
-
-  it('refuses git restore --staged --worktree', () => {
-    expect(refused('git restore --staged --worktree notes.txt', dirty)).toBe(true);
-  });
-
-  it('refuses git restore with the short flags combined', () => {
-    expect(refused('git restore -SW notes.txt', dirty)).toBe(true);
-  });
-
-  it('refuses git restore behind a path to the repository', () => {
+  it('refuses git restore behind -C into the repository holding the change', () => {
     expect(refused(`git -C ${dirty} restore notes.txt`, clean)).toBe(true);
   });
 
-  it('refuses git restore of a path named after --', () => {
-    expect(refused('git restore -- notes.txt', dirty)).toBe(true);
+  it.each([
+    ['git restore notes.txt', 'notes.txt'],
+    ['git restore notes.txt plan/beats.md', 'plan/beats.md'],
+  ])('names %s in the reason it gives', (command, path) => {
+    expect(reasonFor(command, dirty)).toContain(path);
   });
 
-  it('passes git restore --staged, which leaves the worktree alone', () => {
-    expect(refused('git restore --staged notes.txt', dirty)).toBe(false);
-  });
-
-  it('passes git restore where the path matches HEAD', () => {
-    expect(refused('git restore notes.txt', clean)).toBe(false);
-  });
-
-  it('passes git restore of an untracked file, which holds no committed work', () => {
-    expect(refused('git restore fresh.txt', repository({ untracked: ['fresh.txt'] }))).toBe(false);
-  });
-
-  it('refuses git restore of a glob the shell would leave to git', () => {
-    expect(refused("git restore '*.txt'", dirty)).toBe(true);
-  });
-
-  it('refuses git restore of the whole tree by pathspec magic', () => {
-    expect(refused('git restore :/', dirty)).toBe(true);
+  it.each([
+    ['git restore --staged notes.txt', dirty],
+    ['git status', dirty],
+    ['git restore notes.txt', clean],
+    ['git restore fresh.txt', untracked],
+  ])('passes %s where the tree holds nothing for it', (command, cwd) => {
+    expect(refused(command, cwd)).toBe(false);
   });
 
   it('passes git restore where two -C options lead to the repository', () => {
-    const repo = repository();
-    const elsewhere = `git -C ${dirname(repo)} -C ${basename(repo)} restore notes.txt`;
-    expect(refused(elsewhere, clean)).toBe(false);
+    expect(refused(throughTwoC, clean)).toBe(false);
+  });
+});
+
+describe('a git push', () => {
+  const clean = repository();
+  const onMain = repository({ branch: 'main' });
+  const onASpike = repository({ branch: 'spike' });
+  const detached = repository();
+  execFileSync('git', ['-C', detached, 'checkout', '-q', '--detach']);
+
+  it.each([
+    ['git push', onMain],
+    ['git push', onASpike],
+    ['git push origin main', clean],
+    ['git push origin 74-another-line', clean],
+    ['git push --force', clean],
+    ['git push -f origin 73-fix-a-dodgy-restore', clean],
+    ['git push --force-with-lease', clean],
+    ['git push origin +73-fix-a-dodgy-restore', clean],
+    ['git push --delete origin 73-fix-a-dodgy-restore', clean],
+    ['git push --all', clean],
+    ['git push --mirror', clean],
+    ['git push', detached],
+  ])('refuses %s', (command, cwd) => {
+    expect(refused(command, cwd)).toBe(true);
   });
 
-  it('passes git status', () => {
-    expect(refused('git status', dirty)).toBe(false);
+  it.each([
+    ['git push origin main', 'main'],
+    ['git push --delete origin 73-fix-a-dodgy-restore', 'removal is the builder'],
+  ])('says why, for %s', (command, wanted) => {
+    expect(reasonFor(command, clean)).toContain(wanted);
   });
 
-  it('passes git push on the story branch', () => {
-    expect(refused('git push', clean)).toBe(false);
+  it.each([
+    ['git push', clean],
+    ['git push -u origin HEAD', clean],
+    ['git push origin 73-fix-a-dodgy-restore', clean],
+    ['git commit -m "stop: git push --force blocked"', clean],
+  ])('passes %s', (command, cwd) => {
+    expect(refused(command, cwd)).toBe(false);
+  });
+});
+
+describe('gh pr ready', () => {
+  const clean = repository();
+
+  it.each(['gh pr ready 77', 'gh pr ready', 'git push && gh pr ready 77'])(
+    'refuses %s',
+    (command) => {
+      expect(refused(command, clean)).toBe(true);
+    },
+  );
+
+  it('names ./do ready', () => {
+    expect(reasonFor('gh pr ready 77', clean)).toContain('./do ready');
   });
 
-  it('passes git push -u origin HEAD on the story branch', () => {
-    expect(refused('git push -u origin HEAD', clean)).toBe(false);
-  });
-
-  it('passes git push naming the story branch', () => {
-    expect(refused('git push origin 73-fix-a-dodgy-restore', clean)).toBe(false);
-  });
-
-  it('refuses git push on main', () => {
-    expect(refused('git push', repository({ branch: 'main' }))).toBe(true);
-  });
-
-  it('refuses git push on a branch named for no issue', () => {
-    expect(refused('git push', repository({ branch: 'spike' }))).toBe(true);
-  });
-
-  it('refuses git push naming main', () => {
-    expect(refused('git push origin main', clean)).toBe(true);
-  });
-
-  it('says which branch it would push', () => {
-    expect(reasonFor('git push origin main', clean)).toContain('main');
-  });
-
-  it('refuses git push naming another branch', () => {
-    expect(refused('git push origin 74-another-line', clean)).toBe(true);
-  });
-
-  it('refuses git push --force', () => {
-    expect(refused('git push --force', clean)).toBe(true);
-  });
-
-  it('refuses git push -f', () => {
-    expect(refused('git push -f origin 73-fix-a-dodgy-restore', clean)).toBe(true);
-  });
-
-  it('refuses git push --force-with-lease', () => {
-    expect(refused('git push --force-with-lease', clean)).toBe(true);
-  });
-
-  it('refuses git push with a forced refspec', () => {
-    expect(refused('git push origin +73-fix-a-dodgy-restore', clean)).toBe(true);
-  });
-
-  it('refuses git push --delete', () => {
-    expect(refused('git push --delete origin 73-fix-a-dodgy-restore', clean)).toBe(true);
-  });
-
-  it("says a removal is the builder's call, since a push adds to its branch", () => {
-    expect(reasonFor('git push --delete origin 73-fix-a-dodgy-restore', clean)).toContain(
-      'removal is the builder',
-    );
-  });
-
-  it('refuses git push --all', () => {
-    expect(refused('git push --all', clean)).toBe(true);
-  });
-
-  it('refuses git push --mirror', () => {
-    expect(refused('git push --mirror', clean)).toBe(true);
-  });
-
-  it('refuses git push on a detached head', () => {
-    const detached = repository();
-    execFileSync('git', ['-C', detached, 'checkout', '-q', '--detach']);
-    expect(refused('git push', detached)).toBe(true);
-  });
-
-  it('passes a command whose quoted argument mentions a refused push', () => {
-    expect(refused('git commit -m "stop: git push --force blocked"', clean)).toBe(false);
-  });
-
-  it('passes a tool call that is not bash', () => {
-    expect(handler()({ toolName: 'read', input: {} }, { cwd: clean })).toBeUndefined();
+  it.each([
+    'gh pr ready 77 --undo',
+    './do ready 77',
+    'gh pr view 77 --json body',
+    'gh pr checks 77',
+  ])('passes %s', (command) => {
+    expect(refused(command, clean)).toBe(false);
   });
 });
 
@@ -276,5 +229,11 @@ describe('a branch switch', () => {
 
   it('passes behind -C, read against the worktree it names', () => {
     expect(refused(`git -C ${linked} switch 73-another-line`, main)).toBe(false);
+  });
+});
+
+describe('a tool call', () => {
+  it('passes when it is not bash', () => {
+    expect(handler()({ toolName: 'read', input: {} }, { cwd: repository() })).toBeUndefined();
   });
 });

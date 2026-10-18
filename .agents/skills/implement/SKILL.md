@@ -70,13 +70,15 @@ A pull request whose work is done is handed over, not left in draft:
 
    > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself? Start from [the standards index](../../../docs/standards/README.md), which says where the rest of the rules are. Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
    >
+   > Check every claim the change rests on about how a tool, library or platform behaves — a default, a flag, an exit code, an output's shape — against the link or run beside it, and read that source yourself: a claim with neither is a finding. A stub in a test is such a claim: compare what it does with what the tool does, not with what the code under test expects.
+   >
    > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
 2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
-5. **Mark the pull request ready for review.**
+5. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
 
 ## Work found outside the issue
 
@@ -86,7 +88,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the line's calls](#confirm-the-lines-calls) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
-- A question or aside from the builder is not agreement to a change. Answer it, and when it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
+- A question or aside from the builder is [answered, not immediately acted on](../../../.omp/RULES.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
 - One plan line per pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
