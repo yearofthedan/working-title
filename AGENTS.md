@@ -56,4 +56,4 @@ A session can lose part of its conversation, to a restart or a summary, and keep
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
 
-Every file in `docs/` opens with its audience and purpose. The exceptions are the records in `docs/adr/`, which follow [the writing-adrs skill](.agents/skills/writing-adrs/SKILL.md)'s shape.
+Every file in `docs/` opens with its audience and purpose, as [`./do check-docs`](scripts/check-docs) says.
