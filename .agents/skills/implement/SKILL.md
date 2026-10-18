@@ -35,7 +35,7 @@ Tick one off in that comment as its pull request merges. The last unticked one i
 - Confirm the approach with the builder, as the next section says. Nothing is committed before they say yes.
 - Make the first commit empty, its subject the pull request's title: `git commit --allow-empty -m '<issue number>: <title>' --trailer 'Agent-Model: <model>'`. Push the branch. Every commit names its model in an `Agent-Model:` trailer, as [commits and merges](../../../docs/standards/commits.md) says.
 - Open the pull request as a draft, titled `<issue number>: <the planned pull request, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top. Fill its `Brief` section: the acceptance criteria or `Done when` lines the change covers, the approach the builder confirmed, the files it touches, the interface it changes, and where each test lands, each written so the execution agent, which saw none of the conversation, can build from it alone.
-- Dispatch the execution agent with the `task` tool: agent `execution-agent`, not isolated, its task naming the pull request's number, its branch, the worktree's absolute path, and the model it runs as, which `task.agentModelOverrides.execution-agent` sets on this machine ([the task tool](omp://tools/task.md), "Flow", steps 7 and 11). The worktree path is named because a spawn that is not isolated runs in the main session's directory, and an isolated one hands its changes back as patches instead of pushing.
+- Dispatch the execution agent with the `task` tool: agent `execution-agent`, not isolated, its task naming the pull request's number, its branch, the worktree's absolute path, and the model it runs as, which `task.agentModelOverrides.execution-agent` sets on this machine ([the task tool](omp://tools/task.md), "Flow", steps 7 and 11). The worktree path is named because a spawn that is not isolated runs in the main session's directory, and an isolated one hands its changes back as patches instead of pushing. For the same reason the agent gives its file tools absolute paths under the worktree: a relative one resolves against the main checkout.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
 - Keep the acceptance criteria table current: one row for each criterion and each edge, or each `Done when` line of a task, its test or docs link, and where it ran.
 
@@ -68,7 +68,7 @@ The execution agent keeps its notes at `.omp/agent-notes/<branch>.md` in its wor
 
 ## Resume
 
-In a fresh session with an open pull request for the issue — still a draft, or already handed over — carry on from that pull request's body: the plan, the progress, the calls already made, and the acceptance criteria table are there. Do not re-plan, and do not open a second pull request for one already started. When the pull request has been handed over and carries review findings, fix them the way Hand over says.
+In a fresh session with an open pull request for the issue — still a draft, or already handed over — carry on from that pull request's body: the plan, the progress, the approach already confirmed, and the acceptance criteria table are there. Do not re-plan, and do not open a second pull request for one already started. When the pull request has been handed over and carries review findings, fix them the way Hand over says.
 
 With no open pull request and earlier ones merged, tick them off in the plan comment and start the next unticked one. With no open pull request and nothing left to tick, the issue is finished: say so, and start nothing.
 
@@ -83,7 +83,7 @@ A pull request whose work is done is handed over, not left in draft. The main se
    > Check every claim the change rests on about how a tool, library or platform behaves — a default, a flag, an exit code, an output's shape — against the link or run beside it, and read that source yourself: a claim with neither is a finding. A stub in a test is such a claim: compare what it does with what the tool does, not with what the code under test expects.
    >
    > Where the pull request says `Closes #<issue number>`, audit the story too: every acceptance criterion and edge the issue lists against the evidence across the plan's pull requests, the plan comment against what merged, and every call the story left open. That is the only pull request where those questions have an answer, and the only one where they block.
-2. **Fix each finding**, or record in the pull request's `Decisions` why it stays.
+2. **Fix each finding**, or record in the pull request's `Decisions` why it stays. The main session fixes a finding in prose, a link or a single line itself. One that needs new code, a test or a change across files goes back to the execution agent: add it to the `Brief` under a heading of its own, and dispatch again as [Start a planned pull request](#start-a-planned-pull-request) says.
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, ahead of the one that closes the issue, once the builder confirms.
@@ -100,7 +100,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the approach](#confirm-the-approach) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
 - A question or aside from the builder is [answered, not immediately acted on](../../../.omp/RULES.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
-- One pull request per planned pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
+- Each planned pull request lands as one pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
 - Re-read the definition of done below before handing over.
 

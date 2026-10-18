@@ -17,7 +17,7 @@ export type Extension = {
   ): void;
 };
 
-// A line's branch names its issue, as the implement skill names it.
+// A planned pull request's branch names its issue, as the implement skill names it.
 const STORY_BRANCH = /^[0-9]+-/;
 
 const GIT_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
@@ -170,7 +170,7 @@ const switchRefusal = (subcommand: string, args: string[], cwd: string): string 
     words.some((word) => !word.startsWith('-') && namesABranch(cwd, word));
   if (!switches) return undefined;
   if (!isMainWorktree(cwd)) return undefined;
-  return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the line in a worktree of its own: `git worktree add ../<branch> -b <branch> origin/main`.';
+  return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the planned pull request in a worktree of its own: `git worktree add ../<branch> -b <branch> origin/main`.';
 };
 
 const gitReason = (subcommand: string, args: string[], cwd: string): string | undefined => {
