@@ -16,7 +16,7 @@ trap 'rm -rf "$work"' EXIT
 # The exception is a numbered record sitting directly in docs/adr, four digits
 # and a hyphen. Read from the path's two ends, since a case pattern's * matches a
 # slash too, and only a filename expansion is kept from matching one ([POSIX:
-# pattern matching notation](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html#tag_19_13_01)):
+# patterns used for filename expansion](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html#tag_19_14_03)):
 # a page below such a record is not the record.
 record_ok() {
   [ "${1%/*}" = docs/adr ] || return 1
@@ -63,7 +63,7 @@ if [ -s "$work/bad" ]; then
   exit 1
 fi
 
-# A run that read nothing is not a pass: no repository, or nothing tracked.
+# A run that read nothing is not a pass: nothing tracked means no page.
 count=$(cat "$work/count")
 [ "$count" -gt 0 ] || {
   echo "no docs page was read" >&2
