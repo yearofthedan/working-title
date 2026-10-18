@@ -92,12 +92,14 @@ STUB
     git commit -qm base
     git update-ref refs/remotes/origin/main HEAD
   )
+  # A copy is a subject, not a place to run the suites: the suite that made it is
+  # running them, and a copy's `check` would reach that one again. Like the tools
+  # above, they are stubbed for the copy, which runs a stand-in that does nothing.
+  rm -f "$copy"/scripts/*.test.sh
+  printf '#!/bin/sh\n# Stands in for the real suites, which a copy does not run.\nexit 0\n' >"$copy/scripts/_fixture.test.sh"
+  chmod +x "$copy/scripts/_fixture.test.sh"
   VP_LOG="$work/vp-calls"
   export VP_LOG
-  # A copy shows what a task calls, and the suites are the outer run's work: a copy's
-  # `check` would otherwise reach the suite that made the copy, and log its calls here.
-  SHELL_SUITES_OFF=1
-  export SHELL_SUITES_OFF
 }
 run_copy() {
   status=0
