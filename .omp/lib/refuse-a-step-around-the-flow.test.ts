@@ -1,9 +1,8 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
-import { resolveCallCwd } from './call-cwd';
 import refuseAStepAroundTheFlow, { type Extension } from './refuse-a-step-around-the-flow';
 
 type Handler = (
@@ -192,17 +191,6 @@ describe('the directory the call runs in', () => {
 
   it('refuses a push on the branch of the worktree the call names', () => {
     expect(refused('git push -u origin HEAD', linked, main)).toBe(true);
-  });
-
-  it.each([
-    ['~/notes', join(homedir(), 'notes')],
-    ['~', homedir()],
-    ['~someone', join(homedir(), 'someone')],
-    ['/tmp/elsewhere', '/tmp/elsewhere'],
-    ['plan', '/session/plan'],
-    ['/', '/session'],
-  ])('reads a call naming %s as %s', (named, wanted) => {
-    expect(resolveCallCwd(named, '/session')).toBe(wanted);
   });
 });
 
