@@ -91,6 +91,22 @@ if [ "$(grep -c '^docs/neither\.md$' "$work/out")" = 1 ]; then ok "a page missin
 rm "$project/docs/neither.md"
 stage
 
+# The pages are the repository's, so the check reads docs/ from a directory inside
+# the repository too, and names a page from the top of the tree.
+docs_in "$project/docs"
+expect_status 0 "the pages are read from a directory inside the repository"
+expect_out '^every one of the 2 docs pages opens with its audience and purpose$' "the run from below reads them all"
+raw docs/from-below.md '# A page
+
+Nothing here.
+'
+stage
+docs_in "$project/docs"
+expect_status 1 "a page is judged when the check runs from below docs/"
+expect_out '^docs/from-below\.md$' "a page judged from below is still named from the top of the tree"
+rm "$project/docs/from-below.md"
+stage
+
 # The record the exception names is left alone even though it opens with neither
 # line, and a near miss of its name is not the exception.
 raw docs/adr/0001-a-decision.md '# A decision
@@ -153,6 +169,20 @@ expect_out '^docs/late\.md$' "the page stating both lines late is named"
 rm "$project/docs/late.md"
 stage
 
+# A page whose first line is the heading itself opens with that line alone, so the
+# lines below it are not the opening either.
+raw docs/heads.md '## Who it is for
+
+**Audience:** anyone.
+**Purpose:** why it exists.
+'
+stage
+docs
+expect_status 1 "a page opening with a heading breaks the rule"
+expect_out '^docs/heads\.md$' "the page whose first line is a heading is named"
+rm "$project/docs/heads.md"
+stage
+
 # A heading deeper than "## " does not end the opening, since the title is what
 # the page opens with and a subheading still belongs to it.
 raw docs/deep.md '# A page
@@ -179,6 +209,16 @@ stage
 docs
 expect_status 0 "a markdown file outside docs/ and a file that is not markdown are not read"
 
+# A page whose name holds a byte above 0x80 is read: git quotes such a name by
+# default, and quotes are not a path.
+page docs/café.md
+stage
+docs
+expect_status 0 "a page whose name is not ASCII is read"
+expect_out '^every one of the 3 docs pages opens with its audience and purpose$' "that page is counted"
+rm "$project/docs/café.md"
+stage
+
 # A page git does not track is not read.
 raw docs/untracked.md '# A page
 
@@ -195,6 +235,13 @@ mkdir -p "$empty"
 docs_in "$empty"
 expect_status 1 "a repository with no docs page is not a pass"
 expect_err 'no docs page was read' "the failure says nothing was read"
+
+# A directory that is not a working tree is not read either, and says so.
+nowhere="$work/nowhere"
+mkdir -p "$nowhere"
+docs_in "$nowhere"
+expect_status 1 "a directory outside a working tree is refused"
+expect_err 'not in a git working tree' "the refusal says the tree is what is missing"
 
 # The rule this repository keeps: every page it holds passes.
 docs_in "$root"
