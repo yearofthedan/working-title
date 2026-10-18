@@ -24,6 +24,7 @@ In a fresh session, run `/skill:implement <issue number>`, or ask the agent to p
 
 - probes the open questions the plan depends on, outside the working tree, then proposes the story's pull requests with what it found and what is still open, and posts them on the issue as a checklist once you confirm;
 - sets out each planned pull request's approach when it starts, such as tooling, architecture, scope and test strategy, and builds nothing until you say yes;
+- opens each planned pull request with a brief in its body and has an execution agent on a cheaper model build it, then reads that agent's notes, reviews the change and hands it over;
 - works one planned pull request at a time, each in its own draft pull request, `Part of #<issue number>` for the earlier ones and `Closes #<issue number>` for the one that finishes;
 - resumes from an open pull request in a new session, so a lost context does not lose the work;
 - hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it;

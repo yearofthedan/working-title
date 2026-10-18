@@ -4,6 +4,10 @@ Part of #
 
 Written with: main session — <!-- tool, model -->; execution agent — <!-- model, or none -->; pull request review — <!-- model -->; live reviewers — <!-- models, or none -->. <!-- see docs/standards/commits.md -->
 
+## Brief
+
+<!-- What the execution agent builds from, each part written for an agent that saw none of the conversation: the acceptance criteria or Done when lines this pull request covers, the approach the builder confirmed, the files it touches, the interface it changes, and where each test lands. -->
+
 ## Before / After
 
 Before:
