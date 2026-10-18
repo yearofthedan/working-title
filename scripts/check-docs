@@ -1,23 +1,13 @@
 #!/bin/sh
 # Refuse a docs page that does not open with its audience and purpose.
-#
-# The rule: a page under docs/ states **Audience:** and **Purpose:** before its
-# first "## " heading, so a reader learns who it is for and what it covers
-# without reading on. The opening ends at the first "## " heading and not at a
-# deeper one, since a subheading still belongs to what the page opens with. The
-# exception: a numbered record docs/adr/NNNN-*.md, whose shape is the
-# writing-adrs skill's and not this one's.
 
 set -eu
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# The exception is a numbered record sitting directly in docs/adr, four digits
-# and a hyphen. Read from the path's two ends, since a case pattern's * matches a
-# slash too, and only a filename expansion is kept from matching one ([POSIX:
-# patterns used for filename expansion](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html#tag_19_14_03)):
-# a page below such a record is not the record.
+# A case pattern's * matches a slash, so the name alone does not say the record sits
+# in docs/adr ([POSIX: patterns used for filename expansion](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html#tag_19_14_03)).
 record_ok() {
   [ "${1%/*}" = docs/adr ] || return 1
   case "${1##*/}" in
@@ -26,9 +16,8 @@ record_ok() {
   return 1
 }
 
-# The opening is the lines before the first "## " heading, and a page with no such
-# heading opens with the whole file. sed's q stops at that heading wherever it is,
-# including on the first line, where a range would read past it.
+# sed's q stops at the first "## " heading wherever it is, where a range reads past
+# one on the file's first line.
 opening_ok() {
   opening=$(sed '/^## /q' "$1")
   printf '%s\n' "$opening" | grep -q '^\*\*Audience:\*\*' || return 1
@@ -37,9 +26,8 @@ opening_ok() {
 
 : >"$work/bad"
 printf 0 >"$work/count"
-# The pages are the repository's, so the check runs at the top of the working tree
-# however it is called: a pathspec and a page named from it are read against the
-# working directory's prefix otherwise
+# The pages are the repository's, so the check runs at the top of the working tree: a
+# pathspec is read against the working directory otherwise
 # ([gitglossary: pathspec](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec)).
 top=$(git rev-parse --show-toplevel 2>/dev/null) || {
   echo "not in a git working tree, so the docs pages cannot be read" >&2
@@ -47,10 +35,8 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) || {
 }
 cd "$top"
 
-# Only what git tracks is read, and only a markdown file under docs/ is a page.
-# The pathspec's * crosses a slash, so this is the whole of docs/ at any depth. A
-# name holding a byte above 0x80 comes back quoted, and the quotes are a path that
-# is not there ([git-config: core.quotePath](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corequotePath)).
+# The pathspec's * crosses a slash, so this reads docs/ at any depth, and a name above
+# 0x80 comes back quoted, which is not a path ([git-config: core.quotePath](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corequotePath)).
 git -c core.quotePath=false ls-files 'docs/*.md' | while IFS= read -r file; do
   record_ok "$file" && continue
   printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
