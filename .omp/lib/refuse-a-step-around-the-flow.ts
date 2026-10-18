@@ -1,7 +1,6 @@
 // Refuse a git step that would discard uncommitted work, or push off the story branch.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { wordsPerCommand } from './shell-words';
 
@@ -42,12 +41,12 @@ const FORCE_FLAGS: Record<string, true> = {
 // What lets a push move or rewrite what the remote carries, each with the note
 // that a refspec's `+` forces the update too
 // ([git-push](https://git-scm.com/docs/git-push)).
-const PUSHES_MORE_THAN_ONE_BRANCH: Record<string, true> = {
+const PUSHES_OTHER_REFS: Record<string, true> = {
   '--all': true,
   '--mirror': true,
   '--tags': true,
-  '--delete': true,
 };
+const REMOVES_A_REF: Record<string, true> = { '--delete': true, '-d': true };
 
 const git = (cwd: string, args: string[]): { failed: boolean; out: string } => {
   const result = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8' });
@@ -71,7 +70,7 @@ const gitInvocation = (
     if (word === '-C') {
       const next = words[index + 1];
       if (next === undefined) return undefined;
-      dir = resolve(cwd, next);
+      dir = resolve(dir, next);
       index += 2;
       continue;
     }
@@ -121,11 +120,9 @@ const overwriteRefusal = (subcommand: string, args: string[], cwd: string): stri
   // With neither -W nor -S the working tree is restored; -S alone leaves it
   // ([git-restore](https://git-scm.com/docs/git-restore)).
   if (!worktree && staged) return undefined;
-  // Only a word that is there is a path: `git checkout <branch>` names a branch,
-  // and git refuses a switch that would overwrite a change on its own
-  // ([git-checkout](https://git-scm.com/docs/git-checkout)).
-  const paths = named.filter((word) => existsSync(resolve(cwd, word)));
-  const dirty = paths.filter((path) => holdsUncommittedWork(cwd, path));
+  // A word that names no path reports nothing, so a branch name among the words
+  // is left alone; a glob or `:/` is matched by git, as the shell or git would.
+  const dirty = named.filter((path) => holdsUncommittedWork(cwd, path));
   if (dirty.length === 0) return undefined;
   const names = dirty.map((path) => `\`${path}\``).join(', ');
   return `${names} ${dirty.length === 1 ? 'has' : 'have'} uncommitted changes that \`git ${subcommand}\` would overwrite. Commit them first, or ask the builder.`;
@@ -141,7 +138,8 @@ const targetOf = (refspec: string, current: string | undefined): string | undefi
 const pushRefusal = (args: string[], cwd: string): string | undefined => {
   const positionals: string[] = [];
   let forced = false;
-  let movesMoreThanOneBranch = '';
+  let otherRefs = '';
+  let removal = '';
   for (let index = 0; index < args.length; index += 1) {
     const word = args[index] ?? '';
     if (word === '--') {
@@ -154,18 +152,22 @@ const pushRefusal = (args: string[], cwd: string): string | undefined => {
     }
     const flag = word.split('=')[0] ?? '';
     if (Object.hasOwn(FORCE_FLAGS, flag)) forced = true;
-    if (Object.hasOwn(PUSHES_MORE_THAN_ONE_BRANCH, flag)) movesMoreThanOneBranch = flag;
-    const short = word.startsWith('--') ? '' : word.slice(1);
+    if (Object.hasOwn(PUSHES_OTHER_REFS, flag)) otherRefs = flag;
+    if (Object.hasOwn(REMOVES_A_REF, flag)) removal = flag;
+    const short = word.startsWith('-') && !word.startsWith('--') ? word.slice(1) : '';
     if (short !== '') {
       if (short.includes('f')) forced = true;
-      if (short.includes('d')) movesMoreThanOneBranch = '--delete';
+      if (short.includes('d')) removal = '-d';
     }
-    if (word.startsWith(':')) movesMoreThanOneBranch = '--delete';
+    if (word.startsWith(':')) removal = '--delete';
     if (word.startsWith('+')) forced = true;
     if (!word.startsWith('-')) positionals.push(word);
   }
-  if (movesMoreThanOneBranch !== '') {
-    return `\`${movesMoreThanOneBranch}\` moves or removes more than the story branch. A push carries the current branch alone.`;
+  if (removal !== '') {
+    return `\`${removal}\` removes a ref on the remote. A push adds to the story branch; a removal is the builder's call.`;
+  }
+  if (otherRefs !== '') {
+    return `\`${otherRefs}\` moves refs beyond the story branch. A push carries the current branch alone.`;
   }
   if (forced) {
     return "A push goes without force: rewriting what the remote carries is the builder's call, not a step to slip in.";

@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
 import refuseAStepAroundTheFlow, { type Extension } from './refuse-a-step-around-the-flow';
 
@@ -24,7 +24,11 @@ const handler = (): Handler => {
 
 type Tree = { branch?: string; dirty?: string[]; untracked?: string[] };
 
-const repository = ({ branch = '73-a-story', dirty = [], untracked = [] }: Tree = {}): string => {
+const repository = ({
+  branch = '73-fix-a-dodgy-restore',
+  dirty = [],
+  untracked = [],
+}: Tree = {}): string => {
   const dir = mkdtempSync(join(tmpdir(), 'refuse-a-step-around-the-flow-'));
   execFileSync('git', ['init', '-q', '-b', branch, dir]);
   writeFileSync(join(dir, 'notes.txt'), 'as committed\n');
@@ -122,6 +126,20 @@ describe('refuseAStepAroundTheFlow', () => {
     expect(refused('git restore fresh.txt', repository({ untracked: ['fresh.txt'] }))).toBe(false);
   });
 
+  it('refuses git restore of a glob the shell would leave to git', () => {
+    expect(refused("git restore '*.txt'", dirty)).toBe(true);
+  });
+
+  it('refuses git restore of the whole tree by pathspec magic', () => {
+    expect(refused('git restore :/', dirty)).toBe(true);
+  });
+
+  it('passes git restore where two -C options lead to the repository', () => {
+    const repo = repository();
+    const elsewhere = `git -C ${dirname(repo)} -C ${basename(repo)} restore notes.txt`;
+    expect(refused(elsewhere, clean)).toBe(false);
+  });
+
   it('passes git status', () => {
     expect(refused('git status', dirty)).toBe(false);
   });
@@ -135,7 +153,7 @@ describe('refuseAStepAroundTheFlow', () => {
   });
 
   it('passes git push naming the story branch', () => {
-    expect(refused('git push origin 73-a-story', clean)).toBe(false);
+    expect(refused('git push origin 73-fix-a-dodgy-restore', clean)).toBe(false);
   });
 
   it('refuses git push on main', () => {
@@ -163,7 +181,7 @@ describe('refuseAStepAroundTheFlow', () => {
   });
 
   it('refuses git push -f', () => {
-    expect(refused('git push -f origin 73-a-story', clean)).toBe(true);
+    expect(refused('git push -f origin 73-fix-a-dodgy-restore', clean)).toBe(true);
   });
 
   it('refuses git push --force-with-lease', () => {
@@ -171,11 +189,17 @@ describe('refuseAStepAroundTheFlow', () => {
   });
 
   it('refuses git push with a forced refspec', () => {
-    expect(refused('git push origin +73-a-story', clean)).toBe(true);
+    expect(refused('git push origin +73-fix-a-dodgy-restore', clean)).toBe(true);
   });
 
   it('refuses git push --delete', () => {
-    expect(refused('git push --delete origin 73-a-story', clean)).toBe(true);
+    expect(refused('git push --delete origin 73-fix-a-dodgy-restore', clean)).toBe(true);
+  });
+
+  it("says a removal is the builder's call, since a push adds to its branch", () => {
+    expect(reasonFor('git push --delete origin 73-fix-a-dodgy-restore', clean)).toContain(
+      'removal is the builder',
+    );
   });
 
   it('refuses git push --all', () => {
