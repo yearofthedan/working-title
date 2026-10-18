@@ -55,6 +55,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A case over a word the code scans proves nothing unless the word carries what the scan looks for: the branch name in a push case held no `f` and no `d`, so a branch read as a force flag went unnoticed until the review | [#77](https://github.com/yearofthedan/working-title/pull/77) | none |
 | A rule that says name who wrote it does not say where the name comes from: the model is read from the session's own context, never from another pull request's body, which names its writer | [#83](https://github.com/yearofthedan/working-title/pull/83) | none |
 | A note in an earlier pull request's body holds what was true when it was written: who owns a piece of work is read from the issue, not from the note | [#83](https://github.com/yearofthedan/working-title/pull/83) | none |
+| A break made to see a case fail comes back out by editing it: `git restore` is refused over uncommitted work, and committing first would commit the break | [#82](https://github.com/yearofthedan/working-title/pull/82) | none |
 
 ## The columns
 
