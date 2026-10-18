@@ -37,7 +37,7 @@ How a story is planned, built and handed over is in the skills below, which is w
 
 ## What you assert
 
-Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked. A claim about this repository's own files — which change last touched one, what a file holds — is read from the repo, with the file or the command beside it.
+Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
 
 ## What the builder remembers
 

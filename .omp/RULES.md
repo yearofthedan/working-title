@@ -5,3 +5,7 @@ A call the builder has to answer goes to them alone, and the work waits for it. 
 A question or an aside is answered, not immediately acted on. A correction — the builder saying something was got wrong — stops the action it names, not the work. Say in a line what was got wrong, then wait for the builder's word on what to do: repairing, reverting, re-running or tidying on your own initiative answers for them.
 
 A change in how you work lands as a line in a file, not as a promise.
+
+# What you assert
+
+A claim about this repository's own files — which change last touched one, what a file holds — is read from the repo, with the file or the command beside it.
