@@ -43,15 +43,29 @@ expect_status 0 "a story-branch commit with the trailer is accepted"
 commit -m '76: Change' -m "$(printf 'Above\n---\nBelow')" --trailer 'Agent-Model: anthropic/claude-opus-5-5'
 expect_status 0 "a trailer below a --- line in the body is accepted"
 
+commit -m 'Merge the lists'
+expect_status 1 "a commit titled Merge that is not a merge is refused"
+
+status=0
+AGENT_MODEL_CHECK=off git -C "$repo" commit --allow-empty -m '76: By hand' >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "AGENT_MODEL_CHECK=off lets a commit through without the trailer"
+
 git -C "$repo" switch -q main
 commit -m 'Change'
 expect_status 0 "a commit off a story branch passes without the trailer"
 
-# A merge has its own message shape, and git runs commit-msg for it too.
+# A merge brings in commits already written, and git runs commit-msg for it too.
 git -C "$repo" commit -q --allow-empty -m 'On main' --no-verify
 git -C "$repo" switch -q 76-a-story
 status=0
 git -C "$repo" merge --no-ff -q main >"$work/out" 2>"$work/err" || status=$?
 expect_status 0 "a merge into a story branch passes without the trailer"
+
+git -C "$repo" switch -q main
+git -C "$repo" commit -q --allow-empty -m 'Again on main' --no-verify
+git -C "$repo" switch -q 76-a-story
+status=0
+git -C "$repo" merge --no-ff -q -m '76: Bring in main' main >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "a merge with its own message passes without the trailer"
 
 finish

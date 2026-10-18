@@ -32,7 +32,7 @@ Tick a line off in that comment as its pull request merges. The last unticked li
 
 - Branch from an up-to-date `main`, named `<issue number>-<line, kebab-case>`. A line that needs work still unmerged in another line branches from that line's branch, points its pull request at it, and retargets to `main` once that line merges — but that is the exception: lines that stand on `main` alone are preferred, so blocking on review stays rare.
 - Confirm the line's calls with the builder, as the next section says. Nothing is committed before they say yes.
-- Make the first commit: the first piece of the line that stands on its own. Push the branch.
+- Make the first commit: the first piece of the line that stands on its own. Push the branch. Every commit names its model in an `Agent-Model:` trailer, as [commits and merges](../../../docs/standards/commits.md) says.
 - Open the pull request as a draft, titled `<issue number>: <the line, as an imperative phrase>` — the title is the message the merge lands as, per [commits and merges](../../../docs/standards/commits.md) — with the [pull request template](../../../.github/pull_request_template.md) as its body and `Part of #<issue number>` at the top.
 - From that commit on, the body carries the progress and every call the issue left open, so the work reads itself out without being asked.
 - Keep the acceptance criteria table current: one row for each criterion and each edge, or each `Done when` line of a task, its test or docs link, and where it ran.
