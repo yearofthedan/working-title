@@ -62,9 +62,10 @@ chmod +x "$work/bin/gh"
 run="https://github.com/yearofthedan/working-title/actions/runs/101/job/202"
 run_path="repos/yearofthedan/working-title/actions/jobs/202"
 
-# GitHub hands back a body edited there with CRLF line ends, so every fixture body
-# is written with them.
-crlf() { awk '{ printf "%s\r\n", $0 }' >"$GH_BODY"; }
+# Every fixture body is written with LF line ends, the form every body in this
+# repository has; one case rewrites its body with CRLF, since a body that arrives
+# with them reads the same.
+crlf() { awk '{ printf "%s\r\n", $0 }' "$GH_BODY" >"$GH_BODY.crlf" && mv "$GH_BODY.crlf" "$GH_BODY"; }
 
 body() { # $1 the For review lines, $2 the table rows
   {
@@ -73,7 +74,7 @@ body() { # $1 the For review lines, $2 the table rows
     printf '%s' "$2"
     printf '\n| Break | Cases that failed |\n| --- | --- |\n| a break | a case |\n'
     printf '\n## Decisions\n\n- [ ] a box outside For review\n\n## For review\n\n%s' "$1"
-  } | crlf
+  } >"$GH_BODY"
 }
 
 ticked='- [x] Approved files listed
@@ -189,7 +190,7 @@ expect_status 1 "refuses a table with no rows"
 expect_err 'no rows' "says the table has no rows"
 
 passing
-printf 'Part of #73\n\n## Acceptance criteria\n\n| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n%s' "$rows" | crlf
+printf 'Part of #73\n\n## Acceptance criteria\n\n| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n%s' "$rows" >"$GH_BODY"
 ready
 expect_status 1 "refuses a body with no For review section"
 expect_err 'For review' "says the For review section is missing"
@@ -219,7 +220,7 @@ expect_status 1 "reads an escaped pipe as part of its cell"
 expect_err 'Reads a | pipe' "names the row whole across an escaped pipe"
 
 passing
-printf 'Part of #73\n\n## For review\n\n%s' "$ticked" | crlf
+printf 'Part of #73\n\n## For review\n\n%s' "$ticked" >"$GH_BODY"
 ready
 expect_status 1 "refuses a body with no Acceptance criteria section"
 expect_err 'Acceptance criteria' "says the Acceptance criteria section is missing"
@@ -263,6 +264,12 @@ body "$ticked" "| Refuses a thing | \`a test\` | local run on defaced, then 1a2b
 "
 ready
 expect_status 0 "leaves a cell with no run link alone"
+
+passing
+body "$ticked" "$rows"
+crlf
+ready
+expect_status 0 "reads a body with CRLF line ends"
 
 passing
 printf 'two\n' >"$repo/notes.txt"
