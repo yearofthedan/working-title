@@ -42,8 +42,13 @@ const repository = (dirty = false): string => {
   return dir;
 };
 
-const refused = (command: string, cwd: string): boolean =>
-  handler()({ toolName: 'bash', input: { command } }, { cwd }) !== undefined;
+// `cwd` is the session's; `callCwd` is the directory the call itself names, which
+// the harness hands the hook in the tool input.
+const refused = (command: string, cwd: string, callCwd?: string): boolean =>
+  handler()(
+    { toolName: 'bash', input: callCwd === undefined ? { command } : { command, cwd: callCwd } },
+    { cwd },
+  ) !== undefined;
 
 const reasonFor = (command: string, cwd: string): string =>
   (handler()({ toolName: 'bash', input: { command } }, { cwd }) as { reason?: string } | undefined)
@@ -109,6 +114,14 @@ describe('refuseADirectAdd', () => {
 
   it('refuses pnpm install where a nested manifest is untracked', () => {
     expect(refused('pnpm install', repositoryWithAnUntrackedManifest())).toBe(true);
+  });
+
+  it('refuses pnpm install where the directory the call names holds a change', () => {
+    expect(refused('pnpm install', clean, repository(true))).toBe(true);
+  });
+
+  it('passes pnpm install where the directory the call names matches HEAD', () => {
+    expect(refused('pnpm install', repository(true), clean)).toBe(false);
   });
 
   it('passes pnpm install behind a filter with --frozen-lockfile', () => {

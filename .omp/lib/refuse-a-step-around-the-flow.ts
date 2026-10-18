@@ -3,6 +3,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { callDirectory } from './call-cwd';
 import { wordsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
@@ -34,10 +35,11 @@ const PUSH_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--receive-pack': true,
   '--exec': true,
 };
+// `--force-if-includes` is not here: it is ancillary to `--force-with-lease`, which is,
+// and alone it is a no-op ([git-push](https://git-scm.com/docs/git-push)).
 const FORCE_FLAGS: Record<string, true> = {
   '--force': true,
   '--force-with-lease': true,
-  '--force-if-includes': true,
 };
 // What lets a push move or rewrite what the remote carries, each with the note
 // that a refspec's `+` forces the update too
@@ -243,6 +245,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
+    const callCwd = callDirectory(event.input, context.cwd);
     for (const words of wordsPerCommand(command)) {
       const program = words[0]?.split('/').pop() ?? '';
       if (program === 'gh') {
@@ -251,7 +254,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
         continue;
       }
       if (program !== 'git') continue;
-      const invocation = gitInvocation(words, context.cwd);
+      const invocation = gitInvocation(words, callCwd);
       if (invocation === undefined) continue;
       const { subcommand, args, cwd } = invocation;
       const reason = gitReason(subcommand, args, cwd);

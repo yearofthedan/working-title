@@ -1,6 +1,7 @@
 // Refuse a shell command that would resolve a package without the audit ./do add runs.
 
 import { spawnSync } from 'node:child_process';
+import { callDirectory } from './call-cwd';
 import { wordsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
@@ -84,8 +85,9 @@ export default function refuseADirectAdd(pi: Extension): void {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
+    const callCwd = callDirectory(event.input, context.cwd);
     for (const words of wordsPerCommand(command)) {
-      const reason = refusal(words, context.cwd);
+      const reason = refusal(words, callCwd);
       if (reason !== undefined) return { block: true, reason };
     }
     return undefined;

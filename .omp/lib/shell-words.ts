@@ -6,21 +6,45 @@ export const wordsPerCommand = (line: string): string[][] => {
   let words: string[] = [];
   let word = '';
   let quote = '';
+  let droppingTarget = false;
   const endWord = () => {
-    if (word !== '') words.push(word);
+    if (word === '') return;
+    if (!droppingTarget) words.push(word);
     word = '';
+    droppingTarget = false;
   };
   const endCommand = () => {
     endWord();
     if (words.length > 0) commands.push(words);
     words = [];
+    droppingTarget = false;
   };
-  for (const character of line) {
+  // A redirection is the shell's, not the command's: its operator and the word that is
+  // its target are dropped, so `git push … 2>&1` reaches the command as `git push …`
+  // ([bash: redirection](https://manpages.ubuntu.com/manpages/noble/man1/bash.1.html#redirection)).
+  const operatorEnd = (index: number): number => {
+    const start = line[index] === '&' ? index + 1 : index;
+    let at = start + 1;
+    if (line[at] === line[start]) at += 1;
+    if (line[at] === '&') at += 1;
+    return at;
+  };
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index] as string;
     if (quote !== '') {
       if (character === quote) quote = '';
       else word += character;
     } else if (character === '"' || character === "'") {
       quote = character;
+    } else if (
+      character === '>' ||
+      character === '<' ||
+      (character === '&' && line[index + 1] === '>')
+    ) {
+      if (/^[0-9]+$/.test(word)) word = '';
+      else endWord();
+      index = operatorEnd(index) - 1;
+      droppingTarget = true;
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
     } else if (/\s/.test(character)) {
