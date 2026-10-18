@@ -27,10 +27,10 @@ In a fresh session, run `/skill:implement <issue number>`, or ask the agent to p
 - works one line at a time, each in its own draft pull request, `Part of #<issue number>` for the earlier ones and `Closes #<issue number>` for the one that finishes;
 - resumes from an open pull request in a new session, so a lost context does not lose the work;
 - hands each pull request over reviewed before you read it, and tickets work it finds outside the story instead of building it;
-- lands each change with the issue number on the title and on the commits, squash-merged, naming in the body who wrote it: [commits and merges](standards/commits.md).
+- lands each change with the issue number on the title and on the commits, squash-merged, with the model on each agent commit and, in the body, who wrote it in which role: [commits and merges](standards/commits.md).
 
 ## Set up a machine
 
-Run `pnpm install` in a fresh clone; it also installs the pre-commit hook. Run `./do setup` once per machine. It installs Ponytail, the skill the build work runs under, into your OMP.
+Run `pnpm install` in a fresh clone; it also installs the git hooks. Run `./do setup` once per machine. It installs Ponytail, the skill the build work runs under, into your OMP.
 
 `/skill:implement <issue number>` needs OMP's `skills.enableSkillCommands` setting on, which is its default. With it off, ask the agent to pick up, resume or carry on with the story instead: the skill is model-invocable either way, so the wording reaches it.
