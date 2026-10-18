@@ -30,7 +30,7 @@ For each acceptance criterion or `Done when` line in the brief, in order:
 
 ## Notes
 
-Keep notes at `.omp/agent-notes/<branch>.md` in the worktree, which git ignores. Create the file before reading the brief, and append to it as things happen, not at the end. Write down:
+Keep notes at `.omp/agent-notes/<branch>.md` in the worktree, which git ignores. Create the file first, before reading anything. Then append the moment something below happens, before your next command, and check the file at each of these points: after reading the brief and its files, after each test run, after each `./do check`, and before each commit. An entry saved for the end is lost if the run stops. Write down:
 
 - each assumption you made where the brief was silent;
 - each surprise: the code or the docs not matching the brief;
