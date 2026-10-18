@@ -167,6 +167,12 @@ refused "an unticked box"
 expect_one_failure "an unticked box"
 
 passing
+body "$ticked" ''
+ready
+expect_status 1 "refuses a table with no rows"
+expect_err 'no rows' "says the table has no rows"
+
+passing
 printf 'Part of #73\n\n## Acceptance criteria\n\n| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n%s' "$rows" >"$GH_BODY"
 ready
 expect_status 1 "refuses a body with no For review section"
