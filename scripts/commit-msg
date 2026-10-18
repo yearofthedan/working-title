@@ -14,7 +14,8 @@ case "$(head -n 1 "$message")" in
 Merge\ *) exit 0 ;;
 esac
 
-if git interpret-trailers --parse "$message" | grep -q '^Agent-Model: *[^ ]'; then
+# A commit message has no patch part, so a --- line is not where the message ends.
+if git interpret-trailers --parse --no-divider "$message" | grep -q '^Agent-Model: *[^ ]'; then
   exit 0
 fi
 

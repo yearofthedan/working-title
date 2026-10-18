@@ -39,6 +39,10 @@ expect_status 1 "a story-branch commit with an empty trailer is refused"
 commit -m '76: Change' --trailer 'Agent-Model: anthropic/claude-opus-5-5'
 expect_status 0 "a story-branch commit with the trailer is accepted"
 
+# A Markdown rule in the body is a line git can read as the start of a patch.
+commit -m '76: Change' -m "$(printf 'Above\n---\nBelow')" --trailer 'Agent-Model: anthropic/claude-opus-5-5'
+expect_status 0 "a trailer below a --- line in the body is accepted"
+
 git -C "$repo" switch -q main
 commit -m 'Change'
 expect_status 0 "a commit off a story branch passes without the trailer"
