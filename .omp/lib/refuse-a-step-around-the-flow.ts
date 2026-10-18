@@ -1,4 +1,5 @@
-// Refuse a git step that would discard uncommitted work, or push off the story branch.
+// Refuse a git step that would discard uncommitted work or push off the story branch,
+// and a pull request marked ready without the checks ./do ready runs.
 
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -234,13 +235,22 @@ const pushRefusal = (args: string[], cwd: string): string | undefined => {
   return `A push goes only to the story branch, named \`<issue number>-…\`, without force. This one would push ${would}.`;
 };
 
+const notReadyYet =
+  'A pull request is marked ready with `./do ready <pr>`, which checks the tree, CI on the head commit and the body first.';
+
 export default function refuseAStepAroundTheFlow(pi: Extension): void {
   pi.on('tool_call', (event, context) => {
     if (event.toolName !== 'bash') return undefined;
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
     for (const words of wordsPerCommand(command)) {
-      if ((words[0]?.split('/').pop() ?? '') !== 'git') continue;
+      const program = words[0]?.split('/').pop() ?? '';
+      if (program === 'gh') {
+        const ready = words.indexOf('pr') >= 0 && words[words.indexOf('pr') + 1] === 'ready';
+        if (ready && !words.includes('--undo')) return { block: true, reason: notReadyYet };
+        continue;
+      }
+      if (program !== 'git') continue;
       const invocation = gitInvocation(words, context.cwd);
       if (invocation === undefined) continue;
       const { subcommand, args, cwd } = invocation;

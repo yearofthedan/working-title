@@ -228,6 +228,38 @@ describe('refuseAStepAroundTheFlow', () => {
   it('passes a tool call that is not bash', () => {
     expect(handler()({ toolName: 'read', input: {} }, { cwd: clean })).toBeUndefined();
   });
+
+  it('refuses gh pr ready', () => {
+    expect(refused('gh pr ready 77', clean)).toBe(true);
+  });
+
+  it('refuses gh pr ready with no pull request named', () => {
+    expect(refused('gh pr ready', clean)).toBe(true);
+  });
+
+  it('refuses gh pr ready behind another command', () => {
+    expect(refused('git push && gh pr ready 77', clean)).toBe(true);
+  });
+
+  it('names ./do ready', () => {
+    expect(reasonFor('gh pr ready 77', clean)).toContain('./do ready');
+  });
+
+  it('passes gh pr ready --undo, which marks nothing ready', () => {
+    expect(refused('gh pr ready 77 --undo', clean)).toBe(false);
+  });
+
+  it('passes ./do ready', () => {
+    expect(refused('./do ready 77', clean)).toBe(false);
+  });
+
+  it('passes gh pr view', () => {
+    expect(refused('gh pr view 77 --json body', clean)).toBe(false);
+  });
+
+  it('passes gh pr checks', () => {
+    expect(refused('gh pr checks 77', clean)).toBe(false);
+  });
 });
 
 describe('a branch switch', () => {

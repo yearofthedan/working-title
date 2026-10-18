@@ -1,0 +1,130 @@
+#!/bin/sh
+# Mark a pull request ready for review, once the working tree, CI on its head
+# commit and its own body back it.
+
+set -eu
+
+pr=${1:-}
+if [ -z "$pr" ]; then
+  echo 'usage: ./do ready <pull request>' >&2
+  exit 2
+fi
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+: >"$work/failures"
+fail() { printf -- '- %s\n' "$1" >>"$work/failures"; }
+
+head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
+  echo "error: gh could not read pull request $pr" >&2
+  exit 1
+}
+short=$(printf '%s' "$head" | cut -c1-7)
+# A body edited on GitHub comes back with CRLF line ends.
+gh pr view "$pr" --json body -q .body | tr -d '\r' >"$work/body"
+
+dirty=$(git status --porcelain)
+if [ -n "$dirty" ]; then
+  fail "the working tree has uncommitted changes: $(printf '%s\n' "$dirty" | cut -c4- | paste -sd ' ' -)"
+fi
+local_head=$(git rev-parse HEAD)
+if [ "$local_head" != "$head" ]; then
+  fail "the local head is $(printf '%s' "$local_head" | cut -c1-7), which is not the pull request's head $short: push it, or check out the pull request's branch"
+fi
+
+# gh exits 8 while a check is pending and 1 once one fails, with the list printed
+# either way (gh pr checks --help), so the list is read and the exit is not.
+gh pr checks "$pr" --json name,bucket -q '.[] | "\(.bucket) \(.name)"' >"$work/checks" 2>/dev/null || true
+if [ ! -s "$work/checks" ]; then
+  fail "no check is reported on $short"
+fi
+while read -r bucket name; do
+  case "$bucket" in
+  pass | skipping) ;;
+  *) fail "\`$name\` is $bucket on $short" ;;
+  esac
+done <"$work/checks"
+
+# The lines of one `## ` section, up to the next.
+section() {
+  awk -v want="## $1" '
+    /^## / { inside = ($0 ~ "^" want "[[:space:]]*$"); if (inside) found = 1; next }
+    inside { print }
+    END { exit found ? 0 : 1 }
+  ' "$work/body"
+}
+
+if section 'For review' >"$work/for-review"; then
+  grep '^[[:space:]]*- \[ \]' "$work/for-review" | while IFS= read -r box; do
+    printf -- '- `For review` has an unticked box: %s\n' "$(printf '%s' "$box" | sed 's/^[[:space:]]*- \[ \] *//')"
+  done >>"$work/failures"
+else
+  fail 'the body has no `## For review` section'
+fi
+
+# The rows of the section's first table, one per line: the row number, the
+# criterion and the Run cell, tab-separated. An escaped pipe is part of its cell.
+if section 'Acceptance criteria' >"$work/acceptance"; then
+  awk -F'|' '
+    /^[[:space:]]*\|/ { table = 1 } table && !/^[[:space:]]*\|/ { exit }
+    !table { next }
+    { gsub(/\\\|/, "\001") }
+    ++line <= 2 { next }
+    {
+      criterion = $2; run = (NF >= 5) ? $4 : ""
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", criterion)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", run)
+      gsub(/\001/, "|", criterion); gsub(/\001/, "|", run)
+      printf "%d\t%s\t%s\n", line - 2, criterion, run
+    }
+  ' "$work/acceptance" >"$work/rows"
+  [ -s "$work/rows" ] || fail 'the acceptance criteria table has no rows'
+else
+  fail 'the body has no `## Acceptance criteria` section'
+  : >"$work/rows"
+fi
+
+# A run or a job, read once however many rows cite it.
+: >"$work/runs"
+run_answer() { # $1 the API path; prints the head commit and the conclusion
+  if ! grep -q "^$1 " "$work/runs"; then
+    answer=$(gh api "$1" --jq '"\(.head_sha) \(.conclusion)"' 2>/dev/null) || answer=unreadable
+    printf '%s %s\n' "$1" "$answer" >>"$work/runs"
+  fi
+  grep "^$1 " "$work/runs" | head -n 1 | cut -d' ' -f2-
+}
+
+tab=$(printf '\t')
+while IFS="$tab" read -r number criterion run; do
+  if [ -z "$run" ]; then
+    fail "row $number (\`$criterion\`) has no Run cell"
+    continue
+  fi
+  for link in $(printf '%s' "$run" | grep -oE 'https://github\.com/[^/ )]+/[^/ )]+/actions/runs/[0-9]+(/job/[0-9]+)?' || true); do
+    repo=$(printf '%s' "$link" | cut -d/ -f4-5)
+    case "$link" in
+    */job/*) path="repos/$repo/actions/jobs/${link##*/}" ;;
+    *) path="repos/$repo/actions/runs/${link##*/}" ;;
+    esac
+    answer=$(run_answer "$path")
+    if [ "$answer" = unreadable ]; then
+      fail "row $number (\`$criterion\`) cites $link, which gh could not read"
+      continue
+    fi
+    sha=${answer%% *}
+    conclusion=${answer#* }
+    if [ "$sha" != "$head" ]; then
+      fail "row $number (\`$criterion\`) cites a run on $(printf '%s' "$sha" | cut -c1-7), not the head $short"
+    elif [ "$conclusion" != success ]; then
+      fail "row $number (\`$criterion\`) cites a run that ended $conclusion"
+    fi
+  done
+done <"$work/rows"
+
+if [ -s "$work/failures" ]; then
+  echo "Pull request $pr stays in draft:" >&2
+  cat "$work/failures" >&2
+  exit 1
+fi
+
+gh pr ready "$pr"
