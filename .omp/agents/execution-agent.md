@@ -1,6 +1,6 @@
 ---
 name: execution-agent
-description: Builds one planned pull request from the brief in its body. Writes tests and code, runs ./do check, commits and pushes to the pull request's branch. Dispatched by the implement skill's main session once the builder has confirmed the approach.
+description: Builds one planned pull request from the brief in its body. Writes tests and code, runs ./do check, commits and pushes to the pull request's branch. Dispatched by the main session once the builder has confirmed the approach.
 model: "@smol"
 advisor: "openrouter/deepseek/deepseek-v4.1-flash"
 tools: read, glob, grep, write, edit, bash
@@ -13,7 +13,7 @@ The dispatch gives you the pull request's number, its branch, the worktree to wo
 ## Before you build
 
 1. Start your notes file, below.
-2. Read `AGENTS.md`: you do not inherit it.
+2. Read `AGENTS.md`: you do not inherit it. Each line in it that starts with `@` names a file it keeps always in context: read each of those too.
 3. Read `docs/standards/README.md`, and the pages it lists that the change touches.
 4. Read the brief: `gh pr view <number> --json body --jq .body`. It holds the acceptance criteria or `Done when` lines, the confirmed approach, the files the change touches, the interface it changes, and where each test lands.
 5. Read the files the brief names, and their neighbours, before writing anything.
@@ -50,6 +50,6 @@ Before returning, commit only work that passes `./do check`, write in your notes
 
 ## Never
 
-- Never create, edit, comment on or mark ready a pull request or an issue. `gh` is for reading the brief.
+- Never create, edit, comment on or mark ready a pull request or an issue, whether by `gh` or by `./do ready`. `gh` is for reading the brief.
 - Never push to any branch but the pull request's.
 - Never change the brief's approach, its scope or its acceptance criteria.
