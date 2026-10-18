@@ -244,7 +244,8 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
     // The directory the call runs in: the tool input names one, resolved against the
-    // session's, which is what a hook is handed by default (OMP: bash-tool-runtime).
+    // session's, which is what a hook is handed without one
+    // ([bash-tool-runtime](https://github.com/can1357/oh-my-pi/blob/main/docs/bash-tool-runtime.md), [hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md)).
     const named = event.input.cwd;
     const callCwd =
       typeof named === 'string' && named !== '' ? resolve(context.cwd, named) : context.cwd;

@@ -138,11 +138,15 @@ describe('a git push', () => {
     ['git push --force', clean],
     ['git push -f origin 73-fix-a-dodgy-restore', clean],
     ['git push --force-with-lease', clean],
+    ['git push --force-if-includes', clean],
     ['git push origin +73-fix-a-dodgy-restore', clean],
     ['git push --delete origin 73-fix-a-dodgy-restore', clean],
     ['git push --all', clean],
     ['git push --mirror', clean],
     ['git push', detached],
+    // The empty target of the first command leaves no word to drop, so the push
+    // after the `;` is still read as the command it is.
+    ['echo hi > "" ; git push --force origin main', clean],
   ])('refuses %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(true);
   });

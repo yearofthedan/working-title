@@ -17,6 +17,7 @@ export const wordsPerCommand = (line: string): string[][] => {
     endWord();
     if (words.length > 0) commands.push(words);
     words = [];
+    droppingTarget = false;
   };
   // A redirection is the shell's, not the command's, so the operator and its target
   // are dropped: `git push … 2>&1` reaches the command as `git push …`. A file
