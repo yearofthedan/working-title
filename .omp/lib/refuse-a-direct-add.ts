@@ -1,6 +1,7 @@
 // Refuse a shell command that would resolve a package without the audit ./do add runs.
 
 import { spawnSync } from 'node:child_process';
+import { wordsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
 type Context = { cwd: string };
@@ -36,39 +37,6 @@ const OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--dir': true,
   '-F': true,
   '--filter': true,
-};
-
-// Substitution and escapes are not read, so a command another shell builds is not caught.
-const wordsPerCommand = (line: string): string[][] => {
-  const commands: string[][] = [];
-  let words: string[] = [];
-  let word = '';
-  let quote = '';
-  const endWord = () => {
-    if (word !== '') words.push(word);
-    word = '';
-  };
-  const endCommand = () => {
-    endWord();
-    if (words.length > 0) commands.push(words);
-    words = [];
-  };
-  for (const character of line) {
-    if (quote !== '') {
-      if (character === quote) quote = '';
-      else word += character;
-    } else if (character === '"' || character === "'") {
-      quote = character;
-    } else if (character === '&' || character === '|' || character === ';') {
-      endCommand();
-    } else if (/\s/.test(character)) {
-      endWord();
-    } else {
-      word += character;
-    }
-  }
-  endCommand();
-  return commands;
 };
 
 // A tree git cannot be asked about is treated as differing.

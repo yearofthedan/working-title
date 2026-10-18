@@ -50,6 +50,8 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A change in how the agent works is written into a file, not promised in a reply: a promise reaches the next session as nothing | [#62](https://github.com/yearofthedan/working-title/pull/62) | [AGENTS.md: Working with the builder](../AGENTS.md#working-with-the-builder) |
 | A claim that a tool offers no such setting is checked against the reference page that would list it: the page that discusses the topic is not that page, and a search that finds nothing is not the docs | [#70](https://github.com/yearofthedan/working-title/pull/70) | none |
 | A step that changes several things needs a case for it failing partway, and an undo that covers only some of them leaves the rest disagreeing: putting the files back without installing them again leaves `node_modules` naming what they no longer do | [#70](https://github.com/yearofthedan/working-title/pull/70) | none |
+| A tool's behaviour that code rests on — a default, a flag's meaning, the reach of a word — is read from the tool's docs or a run before the rule is written: neither "What you assert" nor the coding standard's link beside the claim stopped a `git restore` default written from memory here | [#77](https://github.com/yearofthedan/working-title/pull/77) | none |
+| A case over a word the code scans proves nothing unless the word carries what the scan looks for: the branch name in a push case held no `f` and no `d`, so a branch read as a force flag went unnoticed until the review | [#77](https://github.com/yearofthedan/working-title/pull/77) | none |
 
 ## The columns
 
