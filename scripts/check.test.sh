@@ -6,6 +6,12 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
 make_copy
+# The copy holds a stand-in suite, not the real ones: one real suite in it puts the
+# run back on the suite that made the copy, which hangs rather than failing here.
+expected="$copy/scripts/_fixture.test.sh"
+found=$(ls "$copy"/scripts/*.test.sh 2>/dev/null || true)
+if [ "$found" = "$expected" ]; then ok "a copy holds the stand-in suite alone"; else no "a copy holds the stand-in suite alone"; fi
+
 run_copy check
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
