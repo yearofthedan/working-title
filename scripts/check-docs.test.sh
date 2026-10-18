@@ -64,6 +64,7 @@ docs
 expect_status 1 "a page with no audience line breaks the rule"
 expect_out '^docs/no-audience\.md$' "the page with no audience line is named"
 expect_err 'states \*\*Audience:\*\* and \*\*Purpose:\*\*' "the failure states the rule"
+expect_err 'The exception: a numbered record docs/adr/NNNN-\*\.md' "the failure states the exception"
 rm "$project/docs/no-audience.md"
 stage
 
