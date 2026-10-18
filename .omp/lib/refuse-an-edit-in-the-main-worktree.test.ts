@@ -143,6 +143,24 @@ describe('an edit or a write in a subagent', () => {
     ).toBe(true);
   });
 
+  it('unwraps a path pasted as a read header before checking it', () => {
+    const reason = reasonFor(aWrite(`[${join(main, 'notes.txt')}#AB12]`), {
+      cwd: main,
+      sessionManager: subagent,
+    });
+    expect(reason).toContain(join(main, 'notes.txt'));
+    expect(reason).not.toContain('#AB12');
+  });
+
+  it('passes a read header for the linked worktree', () => {
+    expect(
+      refused(aWrite(`[${join(linked, 'notes.txt')}#AB12]`), {
+        cwd: main,
+        sessionManager: subagent,
+      }),
+    ).toBe(false);
+  });
+
   it.each(mainCases)('passes %s from the main session', (_what, event, cwd) => {
     expect(refused(event, { cwd, sessionManager: mainSession })).toBe(false);
   });

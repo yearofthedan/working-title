@@ -82,6 +82,11 @@ const moveDestinations = (input: Record<string, unknown>): string[] =>
       )
     : [];
 
+// A path can be pasted from a read header, `[path#TAG]`, which the tools unwrap before
+// use, so the hook reads the same path
+// ([write](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/write.md), "Inputs").
+const unwrapped = (path: string): string => /^\[(.+?)(#[0-9A-Fa-f]{4})?\]$/.exec(path)?.[1] ?? path;
+
 export default function refuseAnEditInTheMainWorktree(pi: Extension): void {
   pi.on('tool_call', (event, context) => {
     if (event.toolName !== 'edit' && event.toolName !== 'write') return undefined;
@@ -89,6 +94,7 @@ export default function refuseAnEditInTheMainWorktree(pi: Extension): void {
     const parentSession = context.sessionManager?.getHeader?.()?.parentSession;
     if (typeof parentSession !== 'string' || parentSession === '') return undefined;
     const refused = [...pathsOf(event.input), ...moveDestinations(event.input)]
+      .map(unwrapped)
       .filter((path) => !URL_SCHEME.test(path))
       .map((path) => resolveCallCwd(path, context.cwd))
       .filter(landsInTheMainWorktree);
