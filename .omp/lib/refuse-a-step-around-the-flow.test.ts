@@ -237,6 +237,10 @@ describe('a branch switch', () => {
     expect(refused('git switch -c 73-new', main)).toBe(true);
   });
 
+  it('is refused as git switch -, which names the branch before this one', () => {
+    expect(refused('git switch -', main)).toBe(true);
+  });
+
   it('is refused as git checkout of a branch in the main worktree', () => {
     expect(refused('git checkout 73-another-line', main)).toBe(true);
   });
