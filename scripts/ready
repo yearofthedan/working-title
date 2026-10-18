@@ -1,6 +1,5 @@
 #!/bin/sh
-# Mark a pull request ready for review, once the working tree, CI on its head
-# commit and its own body back it.
+# Mark a pull request ready for review when the tree, CI and the body back it.
 
 set -eu
 
@@ -64,6 +63,23 @@ check_the_tree() {
   if [ "$here" != "$head" ]; then
     fail "the local head is $(short "$here"), which is not the pull request's head $short_head: push it, or check out the pull request's branch"
   fi
+}
+
+# The names are read from the rules on `main`, the branch a pull request lands on
+# here, rather than listed again in this file where they would drift from them
+# (https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch).
+check_the_required() {
+  if ! gh api "repos/{owner}/{repo}/rules/branches/main" \
+    --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
+    >"$work/required" 2>"$work/required-error"; then
+    fail "gh could not read the checks the branch rules require: $(paste -sd ' ' - <"$work/required-error")"
+    return
+  fi
+  while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    if grep -qF -x -e "pass $name" -e "skipping $name" "$work/checks"; then continue; fi
+    fail "the branch rules require \`$name\`, which has not run on $short_head"
+  done <"$work/required"
 }
 
 # Every check gh reports on the head commit passed. With --json, gh writes the list
@@ -160,6 +176,7 @@ gh pr view "$pr" --json body -q .body >"$work/body"
 
 check_the_tree
 check_the_checks
+check_the_required
 check_the_boxes
 check_the_rows
 
