@@ -20,8 +20,9 @@ head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
   exit 1
 }
 short=$(printf '%s' "$head" | cut -c1-7)
-# A body edited on GitHub comes back with CRLF line ends.
-gh pr view "$pr" --json body -q .body | tr -d '\r' >"$work/body"
+# A body edited on GitHub comes back with CRLF line ends; every match below allows
+# trailing whitespace, which takes the CR.
+gh pr view "$pr" --json body -q .body >"$work/body"
 
 dirty=$(git status --porcelain)
 if [ -n "$dirty" ]; then
@@ -71,7 +72,7 @@ if section 'Acceptance criteria' >"$work/acceptance"; then
     { gsub(/\\\|/, "\001") }
     ++line <= 2 { next }
     {
-      criterion = $2; run = (NF >= 5) ? $4 : ""
+      criterion = $2; run = $4
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", criterion)
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", run)
       gsub(/\001/, "|", criterion); gsub(/\001/, "|", run)

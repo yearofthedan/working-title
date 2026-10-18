@@ -196,6 +196,13 @@ ready
 expect_status 1 "refuses a row missing its Run column"
 
 passing
+body "$ticked" '| Reads a \| pipe | `a test` |  |
+'
+ready
+expect_status 1 "reads an escaped pipe as part of its cell"
+expect_err 'Reads a | pipe' "names the row whole across an escaped pipe"
+
+passing
 printf 'Part of #73\n\n## For review\n\n%s' "$ticked" >"$GH_BODY"
 ready
 expect_status 1 "refuses a body with no Acceptance criteria section"
