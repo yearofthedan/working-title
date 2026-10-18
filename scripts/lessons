@@ -24,6 +24,12 @@ lessons() {
   fi
 
   rows=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | wc -l | tr -d ' ')
+  # One listing answers for every entry, where a lookup per entry is a round trip each.
+  # shortcut: --limit 1000 reads the newest 1000 pull requests; page through them once the repository has more.
+  if ! pulled=$(gh pr list --state all --limit 1000 --json number,state,mergeCommit -q '.[] | "\(.number) \(.state) \(.mergeCommit.oid // "")"'); then
+    printf 'gh pr list could not read the pull requests\n' >&2
+    return 1
+  fi
   report=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | while IFS= read -r row; do
     lesson=$(printf '%s' "$row" | cut -d'|' -f2 | sed 's/^ *//; s/ *$//')
     entries=$(printf '%s' "$row" | cut -d'|' -f3)
@@ -34,7 +40,8 @@ lessons() {
       continue
     fi
     for pr in $numbers; do
-      if ! answer=$(gh pr view "$pr" --json state,mergeCommit -q '"\(.state) \(.mergeCommit.oid // "")"' 2>/dev/null); then
+      answer=$(printf '%s\n' "$pulled" | sed -n "s/^$pr //p")
+      if [ -z "$answer" ]; then
         printf 'error: "%s" — gh could not read #%s\n' "$lesson" "$pr" >&2
         printf 'error\n'
         continue
