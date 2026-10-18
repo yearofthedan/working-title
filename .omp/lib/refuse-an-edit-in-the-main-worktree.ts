@@ -62,7 +62,9 @@ const landsInTheMainWorktree = (path: string): boolean => {
 };
 
 // `edit` carries the paths it reads and writes as `paths`, a `write` the one it
-// writes as `path` ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md)).
+// writes as `path`. The hooks doc says only that `input` is the normalized arguments
+// ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md)); these two
+// shapes are what a logging hook saw in OMP 18.11.3.
 const pathsOf = (input: Record<string, unknown>): string[] => {
   const { path, paths } = input;
   if (Array.isArray(paths) && paths.every((it) => typeof it === 'string')) return paths;
