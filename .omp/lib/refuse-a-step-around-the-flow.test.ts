@@ -51,12 +51,16 @@ const repository = ({
   return dir;
 };
 
-// A branch that is there to switch to, and a linked worktree to switch in.
+// A branch that is there to switch to, one only on the remote, and a linked
+// worktree to switch in, holding a change so a branch name is still left alone
+// there while the tree is dirty.
 const repositoryToSwitchIn = (): { main: string; linked: string } => {
   const main = repository();
   execFileSync('git', ['-C', main, 'branch', '73-another-line']);
+  execFileSync('git', ['-C', main, 'update-ref', 'refs/remotes/origin/73-a-remote-line', 'HEAD']);
   const linked = `${main}-linked`;
   execFileSync('git', ['-C', main, 'worktree', 'add', '-q', linked, '-b', '73-a-linked-line']);
+  writeFileSync(join(linked, 'notes.txt'), 'a change not committed\n');
   return { main, linked };
 };
 
@@ -245,6 +249,14 @@ describe('a branch switch', () => {
     expect(refused('git checkout 73-another-line', main)).toBe(true);
   });
 
+  it('is refused as git checkout - in the main worktree', () => {
+    expect(refused('git checkout -', main)).toBe(true);
+  });
+
+  it('is refused as git checkout of a branch only on the remote', () => {
+    expect(refused('git checkout 73-a-remote-line', main)).toBe(true);
+  });
+
   it('is refused as git checkout -b in the main worktree', () => {
     expect(refused('git checkout -b 73-new', main)).toBe(true);
   });
@@ -283,6 +295,14 @@ describe('a branch switch', () => {
 
   it('passes as git checkout -- of a path', () => {
     expect(refused('git checkout -- notes.txt', main)).toBe(false);
+  });
+
+  it('passes as git checkout of a path from a version, which restores it', () => {
+    expect(refused('git checkout HEAD -- notes.txt', main)).toBe(false);
+  });
+
+  it('passes as git checkout of a branch only on the remote in a linked worktree', () => {
+    expect(refused('git checkout 73-a-remote-line', linked)).toBe(false);
   });
 
   it('passes as git switch --help', () => {

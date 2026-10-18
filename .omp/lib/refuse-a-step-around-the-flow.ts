@@ -149,19 +149,25 @@ const isMainWorktree = (cwd: string): boolean => {
   return !paths.failed && directory !== undefined && directory === common;
 };
 
+// A word names a branch when it resolves as a commit, or when a remote branch of
+// that name is the only one, which git switches to by making a local branch of it
+// ([git-checkout](https://git-scm.com/docs/git-checkout)).
+const namesABranch = (cwd: string, word: string): boolean =>
+  !git(cwd, ['rev-parse', '--verify', '-q', `${word}^{commit}`]).failed ||
+  git(cwd, ['for-each-ref', '--count=1', `refs/remotes/*/${word}`]).out.trim() !== '';
+
 const switchRefusal = (subcommand: string, args: string[], cwd: string): string | undefined => {
   if (args.includes('--help') || args.includes('-h')) return undefined;
+  // A `--` says the words after it are paths, which restores files from a version
+  // and leaves HEAD where it is, so no word there is read for a branch.
+  const words = args.includes('--') ? [] : args;
   const switches =
     subcommand === 'switch' ||
-    args.some((word) => Object.hasOwn(SWITCH_FLAGS, word)) ||
-    args.some(
-      (word) =>
-        !word.startsWith('-') &&
-        !git(cwd, ['rev-parse', '--verify', '-q', `${word}^{commit}`]).failed,
-    );
+    words.some((word) => word === '-' || Object.hasOwn(SWITCH_FLAGS, word)) ||
+    words.some((word) => !word.startsWith('-') && namesABranch(cwd, word));
   if (!switches) return undefined;
   if (!isMainWorktree(cwd)) return undefined;
-  return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the line in a worktree of its own: `git worktree add ../working-title-<issue number> -b <branch> origin/main`.';
+  return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the line in a worktree of its own: `git worktree add ../<branch> -b <branch> origin/main`.';
 };
 
 const gitReason = (subcommand: string, args: string[], cwd: string): string | undefined => {
