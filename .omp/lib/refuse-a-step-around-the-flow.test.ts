@@ -51,6 +51,15 @@ const repository = ({
   return dir;
 };
 
+// A branch that is there to switch to, and a linked worktree to switch in.
+const repositoryToSwitchIn = (): { main: string; linked: string } => {
+  const main = repository();
+  execFileSync('git', ['-C', main, 'branch', '73-another-line']);
+  const linked = `${main}-linked`;
+  execFileSync('git', ['-C', main, 'worktree', 'add', '-q', linked, '-b', '73-a-linked-line']);
+  return { main, linked };
+};
+
 const refused = (command: string, cwd: string): boolean =>
   handler()({ toolName: 'bash', input: { command } }, { cwd }) !== undefined;
 
@@ -112,14 +121,6 @@ describe('refuseAStepAroundTheFlow', () => {
 
   it('passes git restore where the path matches HEAD', () => {
     expect(refused('git restore notes.txt', clean)).toBe(false);
-  });
-
-  it('passes git checkout of a branch', () => {
-    expect(refused('git checkout 73-another-line', clean)).toBe(false);
-  });
-
-  it('passes git checkout -b', () => {
-    expect(refused('git checkout -b 73-another-line', dirty)).toBe(false);
   });
 
   it('passes git restore of an untracked file, which holds no committed work', () => {
@@ -222,5 +223,65 @@ describe('refuseAStepAroundTheFlow', () => {
 
   it('passes a tool call that is not bash', () => {
     expect(handler()({ toolName: 'read', input: {} }, { cwd: clean })).toBeUndefined();
+  });
+});
+
+describe('a branch switch', () => {
+  const { main, linked } = repositoryToSwitchIn();
+
+  it('is refused as git switch in the main worktree', () => {
+    expect(refused('git switch 73-another-line', main)).toBe(true);
+  });
+
+  it('is refused as git switch -c in the main worktree', () => {
+    expect(refused('git switch -c 73-new', main)).toBe(true);
+  });
+
+  it('is refused as git checkout of a branch in the main worktree', () => {
+    expect(refused('git checkout 73-another-line', main)).toBe(true);
+  });
+
+  it('is refused as git checkout -b in the main worktree', () => {
+    expect(refused('git checkout -b 73-new', main)).toBe(true);
+  });
+
+  it('is refused as git checkout --detach in the main worktree', () => {
+    expect(refused('git checkout --detach 73-another-line', main)).toBe(true);
+  });
+
+  it('names the worktree the line starts in', () => {
+    expect(reasonFor('git switch 73-another-line', main)).toContain('git worktree add');
+  });
+
+  it('passes as git switch in a linked worktree', () => {
+    expect(refused('git switch 73-another-line', linked)).toBe(false);
+  });
+
+  it('passes as git checkout of a branch in a linked worktree', () => {
+    expect(refused('git checkout 73-another-line', linked)).toBe(false);
+  });
+
+  it('passes as git checkout -b in a linked worktree', () => {
+    expect(refused('git checkout -b 73-new', linked)).toBe(false);
+  });
+
+  it('passes behind -C, read against the worktree it names', () => {
+    expect(refused(`git -C ${linked} switch 73-another-line`, main)).toBe(false);
+  });
+
+  it('passes as git worktree add, which is the way in', () => {
+    expect(refused('git worktree add ../working-title-73 -b 73-new origin/main', main)).toBe(false);
+  });
+
+  it('passes as git checkout of a path', () => {
+    expect(refused('git checkout notes.txt', main)).toBe(false);
+  });
+
+  it('passes as git checkout -- of a path', () => {
+    expect(refused('git checkout -- notes.txt', main)).toBe(false);
+  });
+
+  it('passes as git switch --help', () => {
+    expect(refused('git switch --help', main)).toBe(false);
   });
 });

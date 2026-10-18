@@ -128,6 +128,52 @@ const overwriteRefusal = (subcommand: string, args: string[], cwd: string): stri
   return `${names} ${dirty.length === 1 ? 'has' : 'have'} uncommitted changes that \`git ${subcommand}\` would overwrite. Commit them first, or ask the builder.`;
 };
 
+// What moves HEAD: switch itself, and the flags that name a branch to create or
+// detach onto ([git-switch](https://git-scm.com/docs/git-switch),
+// [git-checkout](https://git-scm.com/docs/git-checkout)).
+const SWITCH_FLAGS: Record<string, true> = {
+  '-b': true,
+  '-B': true,
+  '-c': true,
+  '-C': true,
+  '--orphan': true,
+  '--detach': true,
+};
+
+// A linked worktree keeps its git directory apart from the common one, so the two
+// paths matching is what says this is the one the builder shares
+// ([git-worktree](https://git-scm.com/docs/git-worktree)).
+const isMainWorktree = (cwd: string): boolean => {
+  const paths = git(cwd, ['rev-parse', '--path-format=absolute', '--git-dir', '--git-common-dir']);
+  const [directory, common] = paths.out.trim().split('\n');
+  return !paths.failed && directory !== undefined && directory === common;
+};
+
+const switchRefusal = (subcommand: string, args: string[], cwd: string): string | undefined => {
+  if (args.includes('--help') || args.includes('-h')) return undefined;
+  const switches =
+    subcommand === 'switch' ||
+    args.some((word) => Object.hasOwn(SWITCH_FLAGS, word)) ||
+    args.some(
+      (word) =>
+        !word.startsWith('-') &&
+        !git(cwd, ['rev-parse', '--verify', '-q', `${word}^{commit}`]).failed,
+    );
+  if (!switches) return undefined;
+  if (!isMainWorktree(cwd)) return undefined;
+  return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the line in a worktree of its own: `git worktree add ../working-title-<issue number> -b <branch> origin/main`.';
+};
+
+const gitReason = (subcommand: string, args: string[], cwd: string): string | undefined => {
+  if (subcommand === 'switch') return switchRefusal(subcommand, args, cwd);
+  if (subcommand === 'checkout') {
+    return switchRefusal(subcommand, args, cwd) ?? overwriteRefusal(subcommand, args, cwd);
+  }
+  if (subcommand === 'restore') return overwriteRefusal(subcommand, args, cwd);
+  if (subcommand === 'push') return pushRefusal(args, cwd);
+  return undefined;
+};
+
 const targetOf = (refspec: string, current: string | undefined): string | undefined => {
   const [source = '', destination] = refspec.replace(/^\+/, '').split(':');
   const branch = (destination === undefined ? source : destination).replace(/^refs\/heads\//, '');
@@ -192,12 +238,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
       const invocation = gitInvocation(words, context.cwd);
       if (invocation === undefined) continue;
       const { subcommand, args, cwd } = invocation;
-      const reason =
-        subcommand === 'push'
-          ? pushRefusal(args, cwd)
-          : subcommand === 'restore' || subcommand === 'checkout'
-            ? overwriteRefusal(subcommand, args, cwd)
-            : undefined;
+      const reason = gitReason(subcommand, args, cwd);
       if (reason !== undefined) return { block: true, reason };
     }
     return undefined;
