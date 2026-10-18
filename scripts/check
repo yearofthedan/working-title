@@ -1,6 +1,7 @@
 #!/bin/sh
 # Run every local check: secrets, format, lint and types, the direction of the
-# layers, the dependency audit, the link check, the browser specs, then the tests.
+# layers, the dependency audit, the link check, the names and docs checks, the
+# browser specs, then the tests.
 
 set -eu
 
