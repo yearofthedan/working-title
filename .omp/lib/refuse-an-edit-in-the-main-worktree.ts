@@ -71,13 +71,23 @@ const pathsOf = (input: Record<string, unknown>): string[] => {
   return typeof path === 'string' ? [path] : [];
 };
 
+// An `edit` can move the file it edits: a `MV DEST` line of the hashline text names a
+// destination that is not among the paths, and a destination with spaces is quoted
+// ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language").
+const moveDestinations = (input: Record<string, unknown>): string[] =>
+  typeof input.input === 'string'
+    ? [...input.input.matchAll(/^MV\s+(.+)$/gm)].map(([, destination]) =>
+        destination.replace(/^"(.*)"$/, '$1'),
+      )
+    : [];
+
 export default function refuseAnEditInTheMainWorktree(pi: Extension): void {
   pi.on('tool_call', (event, context) => {
     if (event.toolName !== 'edit' && event.toolName !== 'write') return undefined;
     // shortcut: parentSession is not documented as a subagent flag (omp://session.md, "parentSession is an opaque lineage string"). A forked, branched or lease-moved main session carries it too, so it is refused; a subagent run in memory, with no session file, does not, so it passes. Read a documented subagent flag if OMP adds one.
     const parentSession = context.sessionManager?.getHeader?.()?.parentSession;
     if (typeof parentSession !== 'string' || parentSession === '') return undefined;
-    const refused = pathsOf(event.input)
+    const refused = [...pathsOf(event.input), ...moveDestinations(event.input)]
       .filter((path) => !URL_SCHEME.test(path))
       .map((path) => resolveCallCwd(path, context.cwd))
       .filter(landsInTheMainWorktree);

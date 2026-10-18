@@ -63,6 +63,13 @@ const anEdit = (...paths: string[]): Call => ({
   input: { input: paths[0] ?? '', path: paths[0] ?? '', paths },
 });
 
+// The hashline text an `edit` carries in `input`, which names a move's destination
+// ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language").
+const anEditOf = (input: string, ...paths: string[]): Call => ({
+  toolName: 'edit',
+  input: { input, path: paths[0] ?? '', paths },
+});
+
 const refused = (event: Call, session: Session): boolean => handler()(event, session) !== undefined;
 
 const reasonFor = (event: Call, session: Session): string =>
@@ -106,6 +113,28 @@ describe('an edit or a write in a subagent', () => {
     });
     expect(reason).toContain(join(main, 'notes.txt'));
     expect(reason).not.toContain(join(main, 'ignored/notes.md'));
+  });
+
+  it('refuses an edit whose move destination lands in the main worktree', () => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\nMV notes.txt`, file);
+    expect(reasonFor(event, { cwd: main, sessionManager: subagent })).toContain(
+      join(main, 'notes.txt'),
+    );
+  });
+
+  it('reads a quoted move destination', () => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\nMV "plan/beats.md"`, file);
+    expect(reasonFor(event, { cwd: main, sessionManager: subagent })).toContain(
+      join(main, 'plan/beats.md'),
+    );
+  });
+
+  it('passes an edit whose move destination is in the linked worktree', () => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\nMV ${join(linked, 'moved.txt')}`, file);
+    expect(refused(event, { cwd: main, sessionManager: subagent })).toBe(false);
   });
 
   it.each(mainCases)('passes %s from the main session', (_what, event, cwd) => {
