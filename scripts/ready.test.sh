@@ -22,8 +22,9 @@ GH_LOG="$work/gh-calls"
 GH_HEAD_FILE="$work/gh-head"
 GH_BODY="$work/gh-body"
 GH_CHECKS="$work/gh-checks"
+GH_REQUIRED="$work/gh-required"
 GH_RUNS="$work/gh-runs"
-export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_RUNS
+export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS
 
 cat >"$work/bin/gh" <<'STUB'
 #!/bin/sh
@@ -50,6 +51,9 @@ case "$1 $2" in
   ;;
 'pr ready')
   echo "marked ready"
+  ;;
+'api '*rules/branches/*)
+  cat "$GH_REQUIRED"
   ;;
 'api '*)
   line=$(grep "^$2 " "$GH_RUNS") || exit 1
@@ -87,6 +91,7 @@ passing() {
   printf '%s\n' "$head" >"$GH_HEAD_FILE"
   body "$ticked" "$rows"
   printf 'pass check\npass mutate\nskipping deploy\n' >"$GH_CHECKS"
+  printf 'check\n' >"$GH_REQUIRED"
   printf '%s %s success\n' "$run_path" "$head" >"$GH_RUNS"
   : >"$GH_LOG"
   unset GH_CHECKS_ERROR
@@ -163,6 +168,14 @@ ready
 expect_status 1 "refuses when no check is reported"
 expect_err 'no check' "says no check was reported"
 refused "no check"
+
+passing
+printf 'pass CodeQL\npass Analyze (actions)\n' >"$GH_CHECKS"
+ready
+expect_status 1 "refuses when a check the branch rules require has not run"
+expect_err 'check' "names the required check that has not run"
+refused "a required check with no run"
+expect_one_failure "a required check with no run"
 
 passing
 GH_CHECKS_ERROR='HTTP 401: Bad credentials'
