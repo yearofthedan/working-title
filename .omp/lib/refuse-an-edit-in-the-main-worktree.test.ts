@@ -27,8 +27,8 @@ const handler = (): Handler => {
   return registered;
 };
 
-// A subagent's header names the session it came from; the main session's does not
-// (omp://session.md, "parentSession is an opaque lineage string").
+// What a logging hook saw in OMP 18.11.3: a subagent's header names the session it
+// came from as `parentSession`, and the main session's has none.
 const subagent = { getHeader: () => ({ parentSession: '/some/parent.jsonl' }) };
 const mainSession = { getHeader: () => ({}) };
 

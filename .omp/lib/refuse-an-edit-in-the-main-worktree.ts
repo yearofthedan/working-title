@@ -61,10 +61,10 @@ const landsInTheMainWorktree = (path: string): boolean => {
   return isMainWorktree(directory) && !ignoredByGit(directory, path);
 };
 
-// `edit` carries the paths it reads and writes as `paths`, a `write` the one it
-// writes as `path`. The hooks doc says only that `input` is the normalized arguments
-// ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md)); these two
-// shapes are what a logging hook saw in OMP 18.11.3.
+// An `edit` event carries derived `path`/`paths` fields for policy inspection
+// ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md), "Event surfaces"):
+// `paths` in hashline mode, `path` alone in a mode with one target. A `write` names
+// its target as `path`.
 const pathsOf = (input: Record<string, unknown>): string[] => {
   const { path, paths } = input;
   if (Array.isArray(paths) && paths.every((it) => typeof it === 'string')) return paths;
@@ -74,7 +74,7 @@ const pathsOf = (input: Record<string, unknown>): string[] => {
 export default function refuseAnEditInTheMainWorktree(pi: Extension): void {
   pi.on('tool_call', (event, context) => {
     if (event.toolName !== 'edit' && event.toolName !== 'write') return undefined;
-    // shortcut: a forked, branched or lease-moved main session also carries parentSession (omp://session.md, "parentSession is an opaque lineage string"), so it is refused too; read a documented subagent flag if OMP adds one.
+    // shortcut: parentSession is not documented as a subagent flag (omp://session.md, "parentSession is an opaque lineage string"). A forked, branched or lease-moved main session carries it too, so it is refused; a subagent run in memory, with no session file, does not, so it passes. Read a documented subagent flag if OMP adds one.
     const parentSession = context.sessionManager?.getHeader?.()?.parentSession;
     if (typeof parentSession !== 'string' || parentSession === '') return undefined;
     const refused = pathsOf(event.input)
