@@ -9,7 +9,7 @@ What belongs elsewhere:
 
 | It is | It goes in |
 | --- | --- |
-| How a session behaves — check a claim before asserting it, never edit an agreed issue | `AGENTS.md` and the skills, where it binds without being looked up |
+| How a session behaves — check a claim before asserting it, never edit an agreed issue | `.omp/RULES.md`, `AGENTS.md` and the skills, where it binds without being looked up |
 | What a machine enforces — a ruleset, a check | a pointer to it, and the check's own message |
 
 ## Pages
