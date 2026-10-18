@@ -75,7 +75,7 @@ A pull request whose work is done is handed over, not left in draft:
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, before the closing line, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
-5. **Mark the pull request ready for review with `./do ready <pr>`.** It marks it ready only when the working tree is clean and pushed, CI passed on the head commit, every `For review` box is ticked, and every acceptance-criteria row has a Run cell whose cited CI runs are on the head commit and passed; otherwise it names each condition that fails. A direct `gh pr ready` is refused.
+5. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
 
 ## Work found outside the issue
 

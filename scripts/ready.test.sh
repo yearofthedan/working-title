@@ -36,14 +36,17 @@ case "$1 $2" in
   esac
   ;;
 'pr checks')
+  # As gh does with --json: the list and exit 0 whatever the checks' state, and an
+  # error only when it cannot answer.
+  if [ -n "${GH_CHECKS_ERROR:-}" ]; then
+    echo "$GH_CHECKS_ERROR" >&2
+    exit 1
+  fi
   if [ ! -s "$GH_CHECKS" ]; then
-    echo 'no checks reported' >&2
+    echo "no checks reported on the '73-a-line' branch" >&2
     exit 1
   fi
   cat "$GH_CHECKS"
-  # As gh does: 8 while a check is pending, 1 once one fails.
-  if grep -q '^pending' "$GH_CHECKS"; then exit 8; fi
-  if grep -q '^fail' "$GH_CHECKS"; then exit 1; fi
   ;;
 'pr ready')
   echo "marked ready"
@@ -59,14 +62,18 @@ chmod +x "$work/bin/gh"
 run="https://github.com/yearofthedan/working-title/actions/runs/101/job/202"
 run_path="repos/yearofthedan/working-title/actions/jobs/202"
 
+# GitHub hands back a body edited there with CRLF line ends, so every fixture body
+# is written with them.
+crlf() { awk '{ printf "%s\r\n", $0 }' >"$GH_BODY"; }
+
 body() { # $1 the For review lines, $2 the table rows
   {
-    printf 'Part of #73\r\n\r\n## Acceptance criteria\r\n\r\n'
-    printf '| Acceptance criterion | Test | Run |\r\n| --- | --- | --- |\r\n'
+    printf 'Part of #73\n\n## Acceptance criteria\n\n'
+    printf '| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n'
     printf '%s' "$2"
-    printf '\r\n| Break | Cases that failed |\r\n| --- | --- |\r\n| a break | a case |\r\n'
-    printf '\r\n## Decisions\r\n\r\n- [ ] a box outside For review\r\n\r\n## For review\r\n\r\n%s' "$1"
-  } >"$GH_BODY"
+    printf '\n| Break | Cases that failed |\n| --- | --- |\n| a break | a case |\n'
+    printf '\n## Decisions\n\n- [ ] a box outside For review\n\n## For review\n\n%s' "$1"
+  } | crlf
 }
 
 ticked='- [x] Approved files listed
@@ -82,6 +89,7 @@ passing() {
   printf 'pass check\npass mutate\nskipping deploy\n' >"$GH_CHECKS"
   printf '%s %s success\n' "$run_path" "$head" >"$GH_RUNS"
   : >"$GH_LOG"
+  unset GH_CHECKS_ERROR
 }
 
 ready() {
@@ -157,6 +165,14 @@ expect_err 'no check' "says no check was reported"
 refused "no check"
 
 passing
+GH_CHECKS_ERROR='HTTP 401: Bad credentials'
+export GH_CHECKS_ERROR
+ready
+expect_status 1 "refuses when gh cannot read the checks"
+expect_err 'Bad credentials' "names gh's own error, not a missing check"
+refused "an unreadable check list"
+
+passing
 body '- [x] Approved files listed
 - [ ] docs/architecture.md unchanged
 ' "$rows"
@@ -173,7 +189,7 @@ expect_status 1 "refuses a table with no rows"
 expect_err 'no rows' "says the table has no rows"
 
 passing
-printf 'Part of #73\n\n## Acceptance criteria\n\n| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n%s' "$rows" >"$GH_BODY"
+printf 'Part of #73\n\n## Acceptance criteria\n\n| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n%s' "$rows" | crlf
 ready
 expect_status 1 "refuses a body with no For review section"
 expect_err 'For review' "says the For review section is missing"
@@ -203,7 +219,7 @@ expect_status 1 "reads an escaped pipe as part of its cell"
 expect_err 'Reads a | pipe' "names the row whole across an escaped pipe"
 
 passing
-printf 'Part of #73\n\n## For review\n\n%s' "$ticked" >"$GH_BODY"
+printf 'Part of #73\n\n## For review\n\n%s' "$ticked" | crlf
 ready
 expect_status 1 "refuses a body with no Acceptance criteria section"
 expect_err 'Acceptance criteria' "says the Acceptance criteria section is missing"

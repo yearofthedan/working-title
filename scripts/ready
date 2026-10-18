@@ -33,11 +33,12 @@ if [ "$local_head" != "$head" ]; then
   fail "the local head is $(printf '%s' "$local_head" | cut -c1-7), which is not the pull request's head $short: push it, or check out the pull request's branch"
 fi
 
-# gh exits 8 while a check is pending and 1 once one fails, with the list printed
-# either way (gh pr checks --help), so the list is read and the exit is not.
-gh pr checks "$pr" --json name,bucket -q '.[] | "\(.bucket) \(.name)"' >"$work/checks" 2>/dev/null || true
-if [ ! -s "$work/checks" ]; then
-  fail "no check is reported on $short"
+# With --json, gh writes the list and exits 0 whatever state the checks are in; it
+# exits non-zero only on an error, "no checks reported" among them
+# (https://github.com/cli/cli/blob/v2.91.0/pkg/cmd/pr/checks/checks.go#L189-L191).
+if ! gh pr checks "$pr" --json name,bucket -q '.[] | "\(.bucket) \(.name)"' >"$work/checks" 2>"$work/checks-error"; then
+  fail "gh could not read the checks on $short: $(paste -sd ' ' - <"$work/checks-error")"
+  : >"$work/checks"
 fi
 while read -r bucket name; do
   case "$bucket" in
