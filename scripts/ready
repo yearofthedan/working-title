@@ -1,0 +1,174 @@
+#!/bin/sh
+# Mark a pull request ready for review, once the working tree, CI on its head
+# commit and its own body back it.
+
+set -eu
+
+pr=${1:-}
+if [ -z "$pr" ]; then
+  echo 'usage: ./do ready <pull request>' >&2
+  exit 2
+fi
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+: >"$work/failures"
+
+fail() { printf -- '- %s\n' "$1" >>"$work/failures"; }
+short() { printf '%s' "$1" | cut -c1-7; }
+
+# The lines of one `## ` section of the body, up to the next.
+section() {
+  awk -v want="## $1" '
+    /^## / { inside = ($0 ~ "^" want "[[:space:]]*$"); if (inside) found = 1; next }
+    inside { print }
+    END { exit found ? 0 : 1 }
+  ' "$work/body"
+}
+
+# The rows of the section's first table, one per line: the row number, the
+# criterion and the Run cell, tab-separated. An escaped pipe is part of its cell.
+rows() {
+  awk -F'|' '
+    /^[[:space:]]*\|/ { table = 1 } table && !/^[[:space:]]*\|/ { exit }
+    !table { next }
+    { gsub(/\\\|/, "\001") }
+    ++line <= 2 { next }
+    {
+      criterion = $2; run = $4
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", criterion)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", run)
+      gsub(/\001/, "|", criterion); gsub(/\001/, "|", run)
+      printf "%d\t%s\t%s\n", line - 2, criterion, run
+    }
+  ' "$work/acceptance"
+}
+
+# A run or a job the API knows, read once however many rows cite it: the head
+# commit and the conclusion it ended with, or `unreadable`.
+run_answer() { # $1 the API path
+  if ! grep -q "^$1 " "$work/runs"; then
+    answer=$(gh api "$1" --jq '"\(.head_sha) \(.conclusion)"' 2>/dev/null) || answer=unreadable
+    printf '%s %s\n' "$1" "$answer" >>"$work/runs"
+  fi
+  grep "^$1 " "$work/runs" | head -n 1 | cut -d' ' -f2-
+}
+
+# The working tree is clean, and the branch's head is the pull request's.
+check_the_tree() {
+  changes=$(git status --porcelain)
+  if [ -n "$changes" ]; then
+    fail "the working tree has uncommitted changes: $(printf '%s\n' "$changes" | cut -c4- | paste -sd ' ' -)"
+  fi
+  here=$(git rev-parse HEAD)
+  if [ "$here" != "$head" ]; then
+    fail "the local head is $(short "$here"), which is not the pull request's head $short_head: push it, or check out the pull request's branch"
+  fi
+}
+
+# Every check gh reports on the head commit passed. With --json, gh writes the list
+# and exits 0 whatever the checks' state; it exits non-zero only on an error, "no
+# checks reported" among them
+# (https://github.com/cli/cli/blob/v2.91.0/pkg/cmd/pr/checks/checks.go#L189-L191).
+check_the_checks() {
+  if ! gh pr checks "$pr" --json name,bucket -q '.[] | "\(.bucket) \(.name)"' >"$work/checks" 2>"$work/checks-error"; then
+    fail "gh could not read the checks on $short_head: $(paste -sd ' ' - <"$work/checks-error")"
+    return
+  fi
+  while read -r bucket name; do
+    case "$bucket" in
+    pass | skipping) ;;
+    *) fail "\`$name\` is $bucket on $short_head" ;;
+    esac
+  done <"$work/checks"
+}
+
+# Every box under `For review` is ticked.
+check_the_boxes() {
+  if ! section 'For review' >"$work/for-review"; then
+    fail 'the body has no `## For review` section'
+    return
+  fi
+  grep '^[[:space:]]*- \[ \]' "$work/for-review" | while IFS= read -r box; do
+    fail "\`For review\` has an unticked box: $(printf '%s' "$box" | sed 's/^[[:space:]]*- \[ \] *//')"
+  done
+}
+
+# One cited run or job: on the head commit, and ended `success`.
+check_a_run() { # $1 the row number, $2 the criterion, $3 the link
+  number=$1
+  criterion=$2
+  link=$3
+  repo=$(printf '%s' "$link" | cut -d/ -f4-5)
+  case "$link" in
+  */job/*) path="repos/$repo/actions/jobs/${link##*/}" ;;
+  *) path="repos/$repo/actions/runs/${link##*/}" ;;
+  esac
+  answer=$(run_answer "$path")
+  if [ "$answer" = unreadable ]; then
+    fail "row $number (\`$criterion\`) cites $link, which gh could not read"
+    return
+  fi
+  sha=${answer%% *}
+  conclusion=${answer#* }
+  if [ "$sha" != "$head" ]; then
+    fail "row $number (\`$criterion\`) cites a run on $(short "$sha"), not the head $short_head"
+  elif [ "$conclusion" != success ]; then
+    fail "row $number (\`$criterion\`) cites a run that ended $conclusion"
+  fi
+}
+
+# One row of the acceptance criteria table: a Run cell, and every run it cites.
+check_a_row() { # $1 the row number, $2 the criterion, $3 the Run cell
+  number=$1
+  criterion=$2
+  run=$3
+  if [ -z "$run" ]; then
+    fail "row $number (\`$criterion\`) has no Run cell"
+    return
+  fi
+  for link in $(printf '%s' "$run" | grep -oE 'https://github\.com/[^/ )]+/[^/ )]+/actions/runs/[0-9]+(/job/[0-9]+)?' || true); do
+    check_a_run "$number" "$criterion" "$link"
+  done
+}
+
+# Every acceptance-criteria row has a Run cell whose cited runs are on the head
+# commit and passed.
+check_the_rows() {
+  if ! section 'Acceptance criteria' >"$work/acceptance"; then
+    fail 'the body has no `## Acceptance criteria` section'
+    return
+  fi
+  rows >"$work/rows"
+  if [ ! -s "$work/rows" ]; then
+    fail 'the acceptance criteria table has no rows'
+    return
+  fi
+  tab=$(printf '\t')
+  while IFS="$tab" read -r number criterion run; do
+    check_a_row "$number" "$criterion" "$run"
+  done <"$work/rows"
+}
+
+head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
+  echo "error: gh could not read pull request $pr" >&2
+  exit 1
+}
+short_head=$(short "$head")
+# A body edited on GitHub comes back with CRLF line ends; every match below allows
+# trailing whitespace, which takes the CR.
+gh pr view "$pr" --json body -q .body >"$work/body"
+: >"$work/runs"
+
+check_the_tree
+check_the_checks
+check_the_boxes
+check_the_rows
+
+if [ -s "$work/failures" ]; then
+  echo "Pull request $pr stays in draft:" >&2
+  cat "$work/failures" >&2
+  exit 1
+fi
+
+gh pr ready "$pr"
