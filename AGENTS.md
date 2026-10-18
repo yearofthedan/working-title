@@ -45,7 +45,7 @@ A session can lose part of its conversation, to a restart or a summary, and keep
 
 ## Where docs go
 
-- `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request, and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here.
+- `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here (OMP's `context-files.md`, "Sticky rules vs normal context"; `system-prompt-customization.md`, "Inputs by session type").
 - `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
@@ -56,6 +56,6 @@ A session can lose part of its conversation, to a restart or a summary, and keep
 - `docs/explainers/<topic>.md`: how something tricky works, linked from the doc or code it explains. Written when a PR's Learned section calls for one.
 - Code comments: anything local to one function.
 
-File names are lowercase kebab-case. The exceptions are names a tool looks for: `AGENTS.md`, `README.md` and `SKILL.md`.
+File names are lowercase kebab-case. The exceptions are names a tool looks for: `AGENTS.md`, `README.md`, `SKILL.md` and `RULES.md`.
 
 Every file in `docs/` opens with its audience and purpose. The exceptions are the records in `docs/adr/`, which follow [the writing-adrs skill](.agents/skills/writing-adrs/SKILL.md)'s shape.

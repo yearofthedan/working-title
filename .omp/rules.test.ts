@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vite-plus/test';
 
-// OMP omits an always-apply rule whose paragraph a context file already contains
-// (context-files.md, "Sticky rules vs normal context"), so a rule left in AGENTS.md
-// as well would stop being sent with every request.
+// One rule, one home: a copy left in AGENTS.md is a second place to edit, and OMP
+// carries the always-apply rule from whichever source already holds its content
+// (rulebook-matching-pipeline.md, "System prompt inclusion path").
 const [rules, agents] = ['./RULES.md', '../AGENTS.md'].map((path) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
     .split(/\n{2,}/)
