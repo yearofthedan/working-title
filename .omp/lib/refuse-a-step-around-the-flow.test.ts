@@ -51,6 +51,19 @@ const repository = ({
   return dir;
 };
 
+// A branch that is there to switch to, one only on the remote, and a linked
+// worktree to switch in, holding a change so a branch name is still left alone
+// there while the tree is dirty.
+const repositoryToSwitchIn = (): { main: string; linked: string } => {
+  const main = repository();
+  execFileSync('git', ['-C', main, 'branch', '73-another-line']);
+  execFileSync('git', ['-C', main, 'update-ref', 'refs/remotes/origin/73-a-remote-line', 'HEAD']);
+  const linked = `${main}-linked`;
+  execFileSync('git', ['-C', main, 'worktree', 'add', '-q', linked, '-b', '73-a-linked-line']);
+  writeFileSync(join(linked, 'notes.txt'), 'a change not committed\n');
+  return { main, linked };
+};
+
 const refused = (command: string, cwd: string): boolean =>
   handler()({ toolName: 'bash', input: { command } }, { cwd }) !== undefined;
 
@@ -112,14 +125,6 @@ describe('refuseAStepAroundTheFlow', () => {
 
   it('passes git restore where the path matches HEAD', () => {
     expect(refused('git restore notes.txt', clean)).toBe(false);
-  });
-
-  it('passes git checkout of a branch', () => {
-    expect(refused('git checkout 73-another-line', clean)).toBe(false);
-  });
-
-  it('passes git checkout -b', () => {
-    expect(refused('git checkout -b 73-another-line', dirty)).toBe(false);
   });
 
   it('passes git restore of an untracked file, which holds no committed work', () => {
@@ -222,5 +227,54 @@ describe('refuseAStepAroundTheFlow', () => {
 
   it('passes a tool call that is not bash', () => {
     expect(handler()({ toolName: 'read', input: {} }, { cwd: clean })).toBeUndefined();
+  });
+});
+
+describe('a branch switch', () => {
+  const { main, linked } = repositoryToSwitchIn();
+
+  it.each([
+    'git switch 73-another-line',
+    'git switch -c 73-new',
+    // `-` names the branch before this one.
+    'git switch -',
+    'git checkout 73-another-line',
+    'git checkout -',
+    // A branch only on the remote, which git makes a local branch of and switches to.
+    'git checkout 73-a-remote-line',
+    'git checkout -b 73-new',
+    'git checkout --detach 73-another-line',
+  ])('refuses %s in the main worktree', (command) => {
+    expect(refused(command, main)).toBe(true);
+  });
+
+  it('names the worktree the line starts in', () => {
+    expect(reasonFor('git switch 73-another-line', main)).toContain('git worktree add');
+  });
+
+  it.each([
+    'git switch 73-another-line',
+    'git checkout 73-another-line',
+    'git checkout -b 73-new',
+    'git checkout 73-a-remote-line',
+  ])('passes %s in a linked worktree', (command) => {
+    expect(refused(command, linked)).toBe(false);
+  });
+
+  it.each([
+    // The way in.
+    'git worktree add ../73-new -b 73-new origin/main',
+    // A restore, which line 1's rule reads and leaves alone on a clean tree.
+    'git checkout notes.txt',
+    'git checkout -- notes.txt',
+    'git checkout HEAD -- notes.txt',
+    // Neither switches.
+    'git switch --help',
+  ])('passes %s in the main worktree', (command) => {
+    expect(refused(command, main)).toBe(false);
+  });
+
+  it('passes behind -C, read against the worktree it names', () => {
+    expect(refused(`git -C ${linked} switch 73-another-line`, main)).toBe(false);
   });
 });
