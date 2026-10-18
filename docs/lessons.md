@@ -64,6 +64,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A model a hand-written command names is a typo away from a wrong one, and the rule that says where the name comes from reads nothing back: the trailer and the body are written from the session's own context and compared with it before the commit | [#84](https://github.com/yearofthedan/working-title/pull/84) | none |
 | An instruction to do something as a run goes is followed once it names the steps it happens at: the execution agent kept its notes to the end until its definition named the checkpoints | [#91](https://github.com/yearofthedan/working-title/pull/91) | none |
 | A session told to read `AGENTS.md` reads its `@` import lines as text, not the files they name: what `AGENTS.md` keeps always in context is read only when the instruction names the imports | [#91](https://github.com/yearofthedan/working-title/pull/91) | none |
+| A tripwire is written from every entry in its row's **Found in** list, not from the meeting that proposed it: a rule drawn from the latest one alone missed the two before it | [#92](https://github.com/yearofthedan/working-title/pull/92) | none |
 
 ## The columns
 
