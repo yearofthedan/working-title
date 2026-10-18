@@ -2,7 +2,7 @@ Part of #
 
 <!-- `Part of #<issue number>` for a pull request that is not the last line of the story's plan; on the one that finishes the last line, write `Closes #<issue number>` instead. -->
 
-Written with <!-- the tool and model that did the work, and the models that reviewed it; see docs/standards/commits.md -->.
+Written with: main session — <!-- tool, model -->; execution agent — <!-- model, or none -->; pull request review — <!-- model -->; live reviewers — <!-- models, or none -->. <!-- see docs/standards/commits.md -->
 
 ## Before / After
 

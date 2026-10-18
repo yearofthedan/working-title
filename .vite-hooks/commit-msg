@@ -1,0 +1,1 @@
+./do commit-msg "$1"
