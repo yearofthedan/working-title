@@ -26,9 +26,13 @@ stage() {
 }
 
 names() {
+  names_in "$project"
+}
+
+names_in() {
   status=0
   (
-    cd "$project" || exit 1
+    cd "$1" || exit 1
     "$root/scripts/check-names"
   ) >"$work/out" 2>"$work/err" || status=$?
 }
@@ -63,6 +67,11 @@ names
 expect_status 1 "a name under an uppercase directory is judged"
 expect_out '^\.github/ISSUE_TEMPLATE/badName\.md$' "that name is named"
 rm "$project/.github/ISSUE_TEMPLATE/badName.md"
+write .github/ISSUE_TEMPLATE/good-name.md
+stage
+names
+expect_status 0 "a name under the uppercase directory passes, so the directory is not judged"
+rm -r "$project/.github/ISSUE_TEMPLATE"
 stage
 
 # A leading dot is ignored, and the rest of the name still has to follow.
@@ -72,6 +81,7 @@ stage
 names
 expect_status 1 "the rest of a leading-dot name still follows the rule"
 expect_out '^\.Bad$' "the dotfile that breaks the rule is named"
+if grep -q '^\.gitignore$' "$work/out"; then no "the dotfile that follows the rule is not named"; else ok "the dotfile that follows the rule is not named"; fi
 rm "$project/.Bad"
 stage
 
@@ -88,18 +98,24 @@ expect_status 0 "the names a tool looks for pass"
 # A leading _ marks a file as not a task, only directly in scripts/.
 write scripts/_helper
 write scripts/_helper.sh
+write docs/_x.md
 write scripts/a/b_thing.ts
 stage
 names
 expect_status 1 "a leading _ outside scripts/ is not the exception"
-expect_out '^scripts/a/b_thing.ts$' "the file in a subdirectory is named"
-rm "$project/scripts/a/b_thing.ts"
+expect_out '^docs/_x\.md$' "the file with a leading _ outside scripts/ is named"
+expect_out '^scripts/a/b_thing\.ts$' "the file in a subdirectory is named"
+if grep -q '^scripts/_helper' "$work/out"; then no "a leading _ on a file in scripts/ is not named"; else ok "a leading _ on a file in scripts/ is not named"; fi
+rm "$project/docs/_x.md" "$project/scripts/a/b_thing.ts"
+stage
 write scripts/a/_helper.sh
 stage
 names
 expect_status 1 "a leading _ on a file below scripts/ is not the exception either"
 expect_out '^scripts/a/_helper\.sh$' "that file is named"
+if grep -q '^scripts/_helper' "$work/out"; then no "a leading _ on a file in scripts/ is not named below scripts/ either"; else ok "a leading _ on a file in scripts/ is not named below scripts/ either"; fi
 rm -r "$project/scripts/a"
+stage
 write scripts/_Bad
 stage
 names
@@ -130,5 +146,20 @@ write docs/Untracked.md
 write mx/Untracked.ts
 names
 expect_status 0 "a name git does not track is not read"
+
+# A name git quotes — one holding a newline — is still one name, and still read.
+mkdir -p "$project/odd"
+printf 'x\n' >"$project/odd/$(printf 'a\nb').md"
+stage
+names
+expect_status 1 "a name holding a newline is read, and breaks the rule"
+
+# A run that read nothing is not a pass.
+empty="$work/empty"
+mkdir -p "$empty"
+(cd "$empty" || exit 1; git init -q -b main .)
+names_in "$empty"
+expect_status 1 "a repository with nothing tracked is not a pass"
+expect_err 'no tracked file was read' "the failure says nothing was read"
 
 finish

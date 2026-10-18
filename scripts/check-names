@@ -44,8 +44,11 @@ name_ok() {
 : >"$work/bad"
 printf 0 >"$work/count"
 # The files are read from the caller's repository, as the rest of the checks read
-# the tree git is in.
-git ls-files -z | while IFS= read -r -d '' file; do
+# the tree git is in. git quotes a name holding a newline or a byte outside ASCII,
+# so each line is the whole name; the `"` and `\` git adds break the rule anyway,
+# and the file is still named. Only the last part of the path is the name, so a
+# directory such as .github/ISSUE_TEMPLATE is not judged.
+git ls-files | while IFS= read -r file; do
   printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
   base=${file##*/}
   case "$base" in
@@ -69,4 +72,11 @@ if [ -s "$work/bad" ]; then
   exit 1
 fi
 
-echo "every name of the $(cat "$work/count") tracked files follows the convention"
+# A run that read nothing is not a pass: no repository, or nothing tracked.
+count=$(cat "$work/count")
+[ "$count" -gt 0 ] || {
+  echo "no tracked file was read" >&2
+  exit 1
+}
+
+echo "every name of the $count tracked files follows the convention"
