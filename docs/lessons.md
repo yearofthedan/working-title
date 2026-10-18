@@ -57,6 +57,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A note in an earlier pull request's body holds what was true when it was written: who owns a piece of work is read from the issue, not from the note | [#83](https://github.com/yearofthedan/working-title/pull/83) | none |
 | A break made to see a case fail comes back out by editing it: `git restore` is refused over uncommitted work, and committing first would commit the break | [#82](https://github.com/yearofthedan/working-title/pull/82) | none |
 | A guard merged while a session is running is not in force in it: the switch guard and the worktree rule arrived with #80 minutes after this session started, and a branch switch in the main worktree went through | [#82](https://github.com/yearofthedan/working-title/pull/82) | none |
+| A guard over two files' prose is only as strong as exact matching: a reworded copy passes it, so it reads as protection while the copy it was written to catch stays | [#82](https://github.com/yearofthedan/working-title/pull/82) | none |
 
 ## The columns
 
