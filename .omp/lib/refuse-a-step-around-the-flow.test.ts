@@ -233,79 +233,48 @@ describe('refuseAStepAroundTheFlow', () => {
 describe('a branch switch', () => {
   const { main, linked } = repositoryToSwitchIn();
 
-  it('is refused as git switch in the main worktree', () => {
-    expect(refused('git switch 73-another-line', main)).toBe(true);
-  });
-
-  it('is refused as git switch -c in the main worktree', () => {
-    expect(refused('git switch -c 73-new', main)).toBe(true);
-  });
-
-  it('is refused as git switch -, which names the branch before this one', () => {
-    expect(refused('git switch -', main)).toBe(true);
-  });
-
-  it('is refused as git checkout of a branch in the main worktree', () => {
-    expect(refused('git checkout 73-another-line', main)).toBe(true);
-  });
-
-  it('is refused as git checkout - in the main worktree', () => {
-    expect(refused('git checkout -', main)).toBe(true);
-  });
-
-  it('is refused as git checkout of a branch only on the remote', () => {
-    expect(refused('git checkout 73-a-remote-line', main)).toBe(true);
-  });
-
-  it('is refused as git checkout -b in the main worktree', () => {
-    expect(refused('git checkout -b 73-new', main)).toBe(true);
-  });
-
-  it('is refused as git checkout --detach in the main worktree', () => {
-    expect(refused('git checkout --detach 73-another-line', main)).toBe(true);
+  it.each([
+    'git switch 73-another-line',
+    'git switch -c 73-new',
+    // `-` names the branch before this one.
+    'git switch -',
+    'git checkout 73-another-line',
+    'git checkout -',
+    // A branch only on the remote, which git makes a local branch of and switches to.
+    'git checkout 73-a-remote-line',
+    'git checkout -b 73-new',
+    'git checkout --detach 73-another-line',
+  ])('refuses %s in the main worktree', (command) => {
+    expect(refused(command, main)).toBe(true);
   });
 
   it('names the worktree the line starts in', () => {
     expect(reasonFor('git switch 73-another-line', main)).toContain('git worktree add');
   });
 
-  it('passes as git switch in a linked worktree', () => {
-    expect(refused('git switch 73-another-line', linked)).toBe(false);
+  it.each([
+    'git switch 73-another-line',
+    'git checkout 73-another-line',
+    'git checkout -b 73-new',
+    'git checkout 73-a-remote-line',
+  ])('passes %s in a linked worktree', (command) => {
+    expect(refused(command, linked)).toBe(false);
   });
 
-  it('passes as git checkout of a branch in a linked worktree', () => {
-    expect(refused('git checkout 73-another-line', linked)).toBe(false);
-  });
-
-  it('passes as git checkout -b in a linked worktree', () => {
-    expect(refused('git checkout -b 73-new', linked)).toBe(false);
+  it.each([
+    // The way in.
+    'git worktree add ../73-new -b 73-new origin/main',
+    // A restore, which line 1's rule reads and leaves alone on a clean tree.
+    'git checkout notes.txt',
+    'git checkout -- notes.txt',
+    'git checkout HEAD -- notes.txt',
+    // Neither switches.
+    'git switch --help',
+  ])('passes %s in the main worktree', (command) => {
+    expect(refused(command, main)).toBe(false);
   });
 
   it('passes behind -C, read against the worktree it names', () => {
     expect(refused(`git -C ${linked} switch 73-another-line`, main)).toBe(false);
-  });
-
-  it('passes as git worktree add, which is the way in', () => {
-    expect(refused('git worktree add ../working-title-73 -b 73-new origin/main', main)).toBe(false);
-  });
-
-  it('passes as git checkout of a path', () => {
-    expect(refused('git checkout notes.txt', main)).toBe(false);
-  });
-
-  it('passes as git checkout -- of a path', () => {
-    expect(refused('git checkout -- notes.txt', main)).toBe(false);
-  });
-
-  it('passes as git checkout of a path from a version, which restores it', () => {
-    expect(refused('git checkout HEAD -- notes.txt', main)).toBe(false);
-  });
-
-  it('passes as git checkout of a branch only on the remote in a linked worktree', () => {
-    expect(refused('git checkout 73-a-remote-line', linked)).toBe(false);
-  });
-
-  it('passes as git switch --help', () => {
-    expect(refused('git switch --help', main)).toBe(false);
   });
 });
