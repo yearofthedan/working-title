@@ -94,6 +94,10 @@ STUB
   )
   VP_LOG="$work/vp-calls"
   export VP_LOG
+  # A copy shows what a task calls, and the suites are the outer run's work: a copy's
+  # `check` would otherwise reach the suite that made the copy, and log its calls here.
+  SHELL_SUITES_OFF=1
+  export SHELL_SUITES_OFF
 }
 run_copy() {
   status=0
