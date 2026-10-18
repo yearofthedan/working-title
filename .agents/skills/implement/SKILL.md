@@ -57,6 +57,15 @@ Before a planned pull request's first commit, set out its approach, grouped by t
 
 A part of the approach that comes up once the planned pull request is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
+## When the execution agent returns
+
+The execution agent keeps its notes at `.omp/agent-notes/<branch>.md` in its worktree. Read them and its answer, then:
+
+- put each assumption it made and each change to the approach in the pull request's `Decisions`. One the builder has not confirmed goes to them first, through [Confirm the approach](#confirm-the-approach), before anything is built on it;
+- put what would have saved time in `Learned`;
+- draft each find outside the brief's scope as an issue, as [Work found outside the issue](#work-found-outside-the-issue) says, and file it on the builder's go;
+- take a stop to the builder, in a message of its own, before anything is dispatched again.
+
 ## Resume
 
 In a fresh session with an open pull request for the issue — still a draft, or already handed over — carry on from that pull request's body: the plan, the progress, the calls already made, and the acceptance criteria table are there. Do not re-plan, and do not open a second pull request for one already started. When the pull request has been handed over and carries review findings, fix them the way Hand over says.
