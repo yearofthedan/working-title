@@ -78,8 +78,8 @@ const pathsOf = (input: Record<string, unknown>): string[] => {
 // ([edit](https://github.com/can1357/oh-my-pi/blob/main/docs/tools/edit.md), "Canonical patch language").
 const moveDestinations = (input: Record<string, unknown>): string[] =>
   typeof input.input === 'string'
-    ? [...input.input.matchAll(/^MV\s+(.+)$/gm)].map(([, destination]) =>
-        destination.replace(/^"(.*)"$/, '$1'),
+    ? [...input.input.matchAll(/^[ \t]*MV[ \t]+(.+?)[ \t]*$/gm)].map(([, destination]) =>
+        destination.replace(/^(["'])(.*)\1$/, '$2'),
       )
     : [];
 

@@ -135,6 +135,23 @@ describe('an edit or a write in a subagent', () => {
     expect(refused(event, { cwd: main, sessionManager: subagent })).toBe(false);
   });
 
+  it.each([
+    ['a space', ' '],
+    ['a tab', '\t'],
+  ])('refuses a move destination led by %s', (_what, indent) => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\n${indent}MV notes.txt`, file);
+    expect(reasonFor(event, { cwd: main, sessionManager: subagent })).toContain(
+      join(main, 'notes.txt'),
+    );
+  });
+
+  it('reads a single-quoted move destination', () => {
+    const file = join(linked, 'notes.txt');
+    const event = anEditOf(`[${file}#ABCD]\nMV '${join(linked, 'notes.txt')}'`, file);
+    expect(refused(event, { cwd: main, sessionManager: subagent })).toBe(false);
+  });
+
   it('refuses a file:// path in the main worktree', () => {
     expect(
       refused(aWrite(`file://${join(main, 'notes.txt')}`), { cwd: main, sessionManager: subagent }),
