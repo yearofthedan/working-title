@@ -21,7 +21,7 @@ export const wordsPerCommand = (line: string): string[][] => {
   };
   // A redirection is the shell's, not the command's: its operator and the word that is
   // its target are dropped, so `git push … 2>&1` reaches the command as `git push …`
-  // ([redirections](https://www.gnu.org/software/bash/manual/bash.html#Redirections)).
+  // ([bash: redirection](https://manpages.ubuntu.com/manpages/noble/man1/bash.1.html#redirection)).
   const operatorEnd = (index: number): number => {
     const start = line[index] === '&' ? index + 1 : index;
     let at = start + 1;
