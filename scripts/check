@@ -1,6 +1,7 @@
 #!/bin/sh
 # Run every local check: secrets, format, lint and types, the direction of the
-# layers, the dependency audit, the link check, the browser specs, then the tests.
+# layers, the dependency audit, the link check, the names and docs checks, the
+# browser specs, then the tests.
 
 set -eu
 
@@ -12,6 +13,7 @@ vp check
 "$(dirname "$0")/../do" audit
 "$(dirname "$0")/../do" check-links
 "$(dirname "$0")/../do" check-names
+"$(dirname "$0")/../do" check-docs
 # The specs run first because `./do e2e` is what installs Chromium, and the tests'
 # browser project needs a browser: on a fresh CI runner, tests first would find none.
 "$(dirname "$0")/../do" e2e
