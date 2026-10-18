@@ -1,0 +1,33 @@
+#!/bin/sh
+# Run every shell suite: one beside each task it covers, and ./do's own.
+
+set -eu
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+# A suite is named after the task it covers, so a task with no suite is a gap and a
+# rename that leaves a suite behind is one too ([Testing](docs/standards/testing.md)).
+suites=$(ls "$root"/*.test.sh "$root"/scripts/*.test.sh 2>/dev/null || true)
+if [ -z "$suites" ]; then
+  echo 'found no shell suite: one sits beside each task as <task>.test.sh' >&2
+  exit 1
+fi
+
+failed=''
+for suite in $suites; do
+  name=$(basename "$suite")
+  if sh "$suite" >"$work/$name" 2>&1; then
+    printf 'pass: %s\n' "$name"
+  else
+    printf 'fail: %s\n' "$name"
+    cat "$work/$name"
+    failed="$failed $name"
+  fi
+done
+
+if [ -n "$failed" ]; then
+  printf 'failed:%s\n' "$failed" >&2
+  exit 1
+fi
