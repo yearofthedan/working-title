@@ -8,7 +8,7 @@ A change in how you work lands as a line in a file, not as a promise.
 
 # The standards are followed
 
-Every change follows the standards in `docs/standards/`, [indexed here](../docs/standards/README.md): the one that governs a file is read before the file is written, not after a review cites it.
+Every change follows the standards in `docs/standards/`, [indexed here](../docs/standards/README.md): the one that governs a file is read before the file is written.
 
 # What you assert
 

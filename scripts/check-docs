@@ -16,8 +16,8 @@ record_ok() {
   return 1
 }
 
-# sed's q stops at the first "## " heading wherever it is, where a range reads past
-# one on the file's first line.
+# sed's q stops at the first "## " heading wherever it is, where a range reads past one
+# on the file's first line ([POSIX: sed](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sed.html)).
 opening_ok() {
   opening=$(sed '/^## /q' "$1")
   printf '%s\n' "$opening" | grep -q '^\*\*Audience:\*\*' || return 1
@@ -26,8 +26,8 @@ opening_ok() {
 
 : >"$work/bad"
 printf 0 >"$work/count"
-# The pages are the repository's, so the check runs at the top of the working tree: a
-# pathspec is read against the working directory otherwise
+# A pathspec is read against the working directory, and its * crosses a slash: running at
+# the top of the working tree is what reads docs/ at any depth
 # ([gitglossary: pathspec](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec)).
 top=$(git rev-parse --show-toplevel 2>/dev/null) || {
   echo "not in a git working tree, so the docs pages cannot be read" >&2
@@ -35,8 +35,8 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) || {
 }
 cd "$top"
 
-# The pathspec's * crosses a slash, so this reads docs/ at any depth, and a name above
-# 0x80 comes back quoted, which is not a path ([git-config: core.quotePath](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corequotePath)).
+# A name holding a byte above 0x80 comes back quoted, which is not a path
+# ([git-config: core.quotePath](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corequotePath)).
 git -c core.quotePath=false ls-files 'docs/*.md' | while IFS= read -r file; do
   record_ok "$file" && continue
   printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
@@ -49,7 +49,6 @@ if [ -s "$work/bad" ]; then
   exit 1
 fi
 
-# A run that read nothing is not a pass: nothing tracked means no page.
 count=$(cat "$work/count")
 [ "$count" -gt 0 ] || {
   echo "no docs page was read" >&2
