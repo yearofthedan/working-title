@@ -35,14 +35,6 @@ Once `pnpm install` has installed the dependencies, every task runs through `./d
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
 
-## Working with the builder
-
-A call the builder has to answer goes to them alone, and the work waits for it. State it in a message of its own, build nothing that assumes the answer, and never let it sit as a clause inside a status report — a question buried in a report is not a question. Ask before posting to an issue or creating a pull request on their behalf: a question posted there answers it for them.
-
-A question or an aside is answered, not acted on: the [implement Build rules](.agents/skills/implement/SKILL.md#build-rules) say a direct yes comes before a change. A correction — the builder saying something was got wrong — stops the action it names, not the work. Say in a line what was got wrong, then wait for the builder's word on what to do: repairing, reverting, re-running or tidying on your own initiative answers for them.
-
-A change in how you work lands as a line in a file, not as a promise.
-
 ## What you assert
 
 Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
@@ -53,6 +45,7 @@ A session can lose part of its conversation, to a restart or a summary, and keep
 
 ## Where docs go
 
+- `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request, and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here.
 - `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
