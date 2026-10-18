@@ -66,13 +66,9 @@ check_the_tree() {
   fi
 }
 
-# Every check the branch's own rules require has reported, and passed, on the head
-# commit. The names come from the repository rather than a second list here: a
-# branch a pull request lands on is `main`, and the ruleset on it is what requires
-# them (https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch). A
-# check with no run of its own is absent from the list gh returns, so a conflicted
-# pull request, which GitHub runs no `pull_request` workflow on, is refused here
-# rather than passing on the checks only CodeQL reports.
+# The names are read from the rules on `main`, the branch a pull request lands on
+# here, rather than listed again in this file where they would drift from them
+# (https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch).
 check_the_required() {
   if ! gh api "repos/{owner}/{repo}/rules/branches/main" \
     --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
