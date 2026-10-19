@@ -24,17 +24,27 @@ tip=$(git -C "$lesson_repo" rev-parse main)
 printf 'merged:%s\nmerged:%s\nopen:\nfail:\nclosed:\n' "$first" "$tip" >"$work/gh-answers"
 cat >"$work/bin/gh" <<'STUB'
 #!/bin/sh
-if [ "$1 $2" = "pr view" ]; then
-  line=$(sed -n "${3}p" "$GH_ANSWERS")
-  case "$line" in
-  merged:*) printf 'MERGED %s\n' "${line#merged:}" ;;
-  open:*) printf 'OPEN \n' ;;
-  closed:*) printf 'CLOSED \n' ;;
-  esac
-  case "$line" in
-  fail:* | '') exit 1 ;;
-  esac
-fi
+# Answers the one call ./do lessons makes: a single `pr list`, one line per number,
+# `N STATE SHA`, as the `-q` filter prints it. Line N of GH_ANSWERS is pull request N,
+# and a `fail:` line is left out of the list.
+case "$1 $2" in
+'pr list')
+  [ -n "${GH_LIST_FAIL:-}" ] && exit 1
+  n=0
+  while IFS= read -r line; do
+    n=$((n + 1))
+    case "$line" in
+    merged:*) printf '%s MERGED %s\n' "$n" "${line#merged:}" ;;
+    open:*) printf '%s OPEN \n' "$n" ;;
+    closed:*) printf '%s CLOSED \n' "$n" ;;
+    esac
+  done <"$GH_ANSWERS"
+  ;;
+*)
+  printf 'gh %s is not the call this stub stands for\n' "$*" >&2
+  exit 1
+  ;;
+esac
 STUB
 chmod +x "$work/bin/gh"
 GH_ANSWERS="$work/gh-answers"
@@ -94,5 +104,12 @@ lessons_run abc docs/clean.md
 expect_status 1 "a window that is not a number exits non-zero"
 if grep -q 'must be a number' "$work/err"; then ok "a window that is not a number says what it wants"; else no "a window that is not a number says what it wants"; fi
 if grep -q 'nothing past the window' "$work/out"; then no "a broken window does not read as a clean index"; else ok "a broken window does not read as a clean index"; fi
+
+export GH_LIST_FAIL=1
+lessons_run 50 docs/clean.md
+unset GH_LIST_FAIL
+expect_status 1 "a gh pr list that fails exits non-zero"
+if grep -q 'gh pr list' "$work/err"; then ok "a failed gh pr list is named"; else no "a failed gh pr list is named"; fi
+if grep -q 'nothing past the window' "$work/out"; then no "a failed list does not read as a clean index"; else ok "a failed list does not read as a clean index"; fi
 
 finish
