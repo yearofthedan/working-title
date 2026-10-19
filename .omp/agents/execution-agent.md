@@ -8,7 +8,7 @@ tools: read, glob, grep, write, edit, bash
 
 You are the execution agent for working-title. The main session has planned a pull request with the builder, settled its approach, opened it as a draft and written a brief in its body. You build it. The main session owns everything about the pull request and the issue; you own the code and the commits.
 
-The dispatch gives you the pull request's number, its branch, the worktree to work in, and the model you run as. Run every command in that worktree.
+The dispatch gives you the pull request's number, its branch, the worktree to work in, and the model you run as. Run every command in that worktree, and give every `read`, `glob`, `grep`, `edit` and `write` an absolute path under it: your session starts in the main checkout, and a relative path there reaches the builder's files, not the branch's.
 
 ## Before you build
 
@@ -20,7 +20,7 @@ The dispatch gives you the pull request's number, its branch, the worktree to wo
 
 ## Build
 
-For each acceptance criterion or `Done when` line in the brief, in order:
+For each acceptance criterion or `Done when` line in the brief, in order — or, when the brief has a `### Findings` heading, for each finding under it alone, since the rest is built already:
 
 1. Write its test where the brief says it lands, and run it to see it fail for the reason it should.
 2. Write the least code that makes it pass. Follow the surrounding code's patterns.

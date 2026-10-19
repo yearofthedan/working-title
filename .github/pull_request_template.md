@@ -1,8 +1,12 @@
 Part of #
 
-<!-- `Part of #<issue number>` for a pull request that is not the last line of the story's plan; on the one that finishes the last line, write `Closes #<issue number>` instead. -->
+<!-- `Part of #<issue number>` for a pull request that is not the last planned pull request of the story's plan; on the one that finishes it, write `Closes #<issue number>` instead. -->
 
 Written with: main session — <!-- tool, model -->; execution agent — <!-- model, or none -->; pull request review — <!-- model -->; live reviewers — <!-- models, or none -->. <!-- see docs/standards/commits.md -->
+
+## Brief
+
+<!-- What the execution agent builds from, each part written for an agent that saw none of the conversation: the acceptance criteria or Done when lines this pull request covers, the approach the builder confirmed, the files it touches, the interface it changes, and where each test lands. -->
 
 ## Before / After
 

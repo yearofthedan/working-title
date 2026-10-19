@@ -238,7 +238,7 @@ describe('a branch switch', () => {
     expect(refused(command, main)).toBe(true);
   });
 
-  it('names the worktree the line starts in', () => {
+  it('names the worktree the planned pull request starts in', () => {
     expect(reasonFor('git switch 73-another-line', main)).toContain('git worktree add');
   });
 
