@@ -16,10 +16,14 @@ const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus
   return wrapper;
 };
 
-const pieceGroup = (piece: PieceView, elaborate: Focus['elaborate']) => {
+const pieceGroup = (piece: PieceView, headingTag: 'h2' | 'h3', elaborate: Focus['elaborate']) => {
   const group = document.createElement('fieldset');
   const name = document.createElement('legend');
-  name.textContent = piece.name;
+  // The heading is what lets a writer jump from piece to piece; the legend carries it so the
+  // group's accessible name stays the piece's.
+  const heading = document.createElement(headingTag);
+  heading.textContent = piece.name;
+  name.append(heading);
   group.append(name, ...piece.facets.map((facet) => field(piece.id, facet, elaborate)));
   return group;
 };
@@ -31,8 +35,8 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
   const list = document.createElement('ol');
   for (const piece of rest) {
     const item = document.createElement('li');
-    item.append(pieceGroup(piece, focus.elaborate));
+    item.append(pieceGroup(piece, 'h3', focus.elaborate));
     list.append(item);
   }
-  main.replaceChildren(pieceGroup(story, focus.elaborate), list);
+  main.replaceChildren(pieceGroup(story, 'h2', focus.elaborate), list);
 };

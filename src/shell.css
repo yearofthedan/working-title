@@ -29,6 +29,12 @@ main {
   color: var(--color-text);
 }
 
+/* The heading gives a screen reader user a level to move by; the legend's type stays. */
+legend :is(h2, h3) {
+  margin: 0;
+  font: inherit;
+}
+
 .facet textarea {
   font: inherit;
   color: inherit;

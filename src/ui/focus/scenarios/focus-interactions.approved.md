@@ -8,28 +8,34 @@ When the writer types "A widow hunts the man who sank her husband's ship" into t
 Then the writer sees
 - main:
   - group "The story":
-    - text: The story One-sentence summary
+    - heading "The story" [level=2]
+    - text: One-sentence summary
     - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
   - list:
     - listitem:
       - group "Beat 1":
-        - text: Beat 1 One-sentence summary
+        - heading "Beat 1" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 2":
-        - text: Beat 2 One-sentence summary
+        - heading "Beat 2" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 3":
-        - text: Beat 3 One-sentence summary
+        - heading "Beat 3" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 4":
-        - text: Beat 4 One-sentence summary
+        - heading "Beat 4" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 5":
-        - text: Beat 5 One-sentence summary
+        - heading "Beat 5" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
 ```
 
@@ -41,27 +47,33 @@ When the writer types "Maren finds the ship's log and learns the sinking was no 
 Then the writer sees
 - main:
   - group "The story":
-    - text: The story One-sentence summary
+    - heading "The story" [level=2]
+    - text: One-sentence summary
     - textbox "One-sentence summary"
   - list:
     - listitem:
       - group "Beat 1":
-        - text: Beat 1 One-sentence summary
+        - heading "Beat 1" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 2":
-        - text: Beat 2 One-sentence summary
+        - heading "Beat 2" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
     - listitem:
       - group "Beat 3":
-        - text: Beat 3 One-sentence summary
+        - heading "Beat 3" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 4":
-        - text: Beat 4 One-sentence summary
+        - heading "Beat 4" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
     - listitem:
       - group "Beat 5":
-        - text: Beat 5 One-sentence summary
+        - heading "Beat 5" [level=3]
+        - text: One-sentence summary
         - textbox "One-sentence summary"
 ```
