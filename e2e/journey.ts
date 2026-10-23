@@ -12,6 +12,9 @@ export const journeyActions = (scope: AppScope): Record<string, StepAction> => (
   'a new project': async () => {
     await scope.fresh();
   },
+  'the writer opens the app': async () => {
+    await scope.fresh();
+  },
   'reloads the app': async () => {
     await scope.reload();
   },
