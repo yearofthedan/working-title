@@ -10,7 +10,7 @@ interface Aria {
 // runtime: `renderAriaTree(generateAriaTree(element))` prints the tree its own matcher compares.
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
-/** What this scope reaches fields and groups through: the page itself, or a locator inside it. */
+/** What a field is found within: the page itself, or a group's locator. */
 interface Finds {
   getByLabelText(text: string | RegExp): { fill(text: string): Promise<void> };
 }

@@ -33,8 +33,9 @@ export interface AppScope extends PageScope {
 /**
  * A name as a scenario writes it: the whole string, whatever its case. One pattern serves both
  * runners because a plain string does not: Playwright reads it as part of a name
- * (https://playwright.dev/docs/api/class-page#page-get-by-label-option-exact), and Vitest reads it
- * as the whole name, so the same scenario would find a different element in each.
+ * (https://playwright.dev/docs/api/class-page#page-get-by-label-option-exact), and Vitest 5.0.3
+ * as the whole name (`browser.locators.exact`, `@default true` in its installed types), so the
+ * same scenario would find a different element in each.
  */
 export const exactName = (name: string): RegExp =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
