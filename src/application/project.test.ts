@@ -1,29 +1,53 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { newProject, type Project } from '../domain/project';
+import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { openProject } from './project';
+
+/** Ids a test can read. The domain mints them, and nothing here depends on their shape. */
+const ids = (): (() => string) => {
+  let made = 0;
+  return () => `id-${(made += 1)}`;
+};
+
+const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
+const names = ['The story', 'Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'];
+const typed = "Maren finds the ship's log and learns the sinking was no accident";
 
 const storeOf = (project?: Project): ProjectStore => ({
   load: async () => project,
   save: async () => undefined,
 });
 
-const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
+/** A store that keeps the project it is given, as the browser's does. */
+const keepingStore = (): ProjectStore & { saved: () => Project | undefined } => {
+  let kept: Project | undefined;
+  return {
+    saved: () => kept,
+    load: async () => kept,
+    save: async (project) => {
+      kept = project;
+    },
+  };
+};
+
+const beat2Of = (pieces: readonly { readonly id: string }[]): { readonly id: string } => {
+  const beat = pieces[2];
+  if (beat === undefined) throw new Error('the project has no beat 2');
+  return beat;
+};
 
 describe('opening a project', () => {
-  it('makes a new one where nothing is saved', async () => {
-    const focus = await openProject(snowflakeExtended, storeOf());
-    expect(focus.facets.map(({ text }) => text)).toEqual(['']);
+  it('lists the story and its beats in order, named for what they are, each with an empty sentence', async () => {
+    const focus = await openProject(snowflakeExtended, storeOf(), ids());
+    expect(focus.pieces.map(({ name }) => name)).toEqual(names);
+    expect(focus.pieces.map(({ facets }) => facets[0]?.text)).toEqual(names.map(() => ''));
   });
 
-  it('reads the facets of the story it finds', async () => {
-    const project = newProject(snowflakeExtended);
-    const focus = await openProject(
-      snowflakeExtended,
-      storeOf({ ...project, root: { ...project.root, facets: { [summary]: 'a sentence' } } }),
-    );
-    expect(focus.facets.map(({ text }) => text)).toEqual(['a sentence']);
+  it('reads the sentence the story holds', async () => {
+    const started = elaborate(newProject(snowflakeExtended, ids()), 'id-1', summary, 'a sentence');
+    const focus = await openProject(snowflakeExtended, storeOf(started), ids());
+    expect(focus.pieces[0]?.facets[0]?.text).toBe('a sentence');
   });
 
   it('refuses to open where the store cannot read what it holds', async () => {
@@ -33,25 +57,30 @@ describe('opening a project', () => {
       },
       save: async () => undefined,
     };
-    await expect(openProject(snowflakeExtended, store)).rejects.toThrow('is not a project');
+    await expect(openProject(snowflakeExtended, store, ids())).rejects.toThrow('is not a project');
   });
 
-  it('saves what the writer types, and reads it back on the next open', async () => {
-    let kept: Project = newProject(snowflakeExtended);
-    const store: ProjectStore = {
-      load: async () => kept,
-      save: async (project) => {
-        kept = project;
-      },
-    };
+  it('saves the sentence typed into a beat, leaving the story and the other beats alone', async () => {
+    const store = keepingStore();
+    const focus = await openProject(snowflakeExtended, store, ids());
+    await focus.elaborate(beat2Of(focus.pieces).id, summary, typed);
+    expect(store.saved()?.pieces.map(({ facets }) => facets[summary] ?? '')).toEqual([
+      '',
+      '',
+      typed,
+      '',
+      '',
+      '',
+    ]);
+  });
 
-    const focus = await openProject(snowflakeExtended, store);
-    const facet = focus.facets[0];
-    if (facet === undefined) throw new Error('the story has no facet');
-    await focus.elaborate(facet.id, 'a sentence');
+  it('reads the sentence back on the next open, with the beats in order', async () => {
+    const store = keepingStore();
+    const first = await openProject(snowflakeExtended, store, ids());
+    await first.elaborate(beat2Of(first.pieces).id, summary, typed);
 
-    // The facets a reader holds are what the project looked like when it opened; the typing
-    // is in the store, and the next open reads it back.
-    expect((await openProject(snowflakeExtended, store)).facets[0]?.text).toBe('a sentence');
+    const reopened = await openProject(snowflakeExtended, store, ids());
+    expect(reopened.pieces.map(({ name }) => name)).toEqual(names);
+    expect(reopened.pieces[2]?.facets[0]?.text).toBe(typed);
   });
 });
