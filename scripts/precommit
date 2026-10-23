@@ -14,15 +14,15 @@ vp staged "$@"
 
 # shortcut: the checks read the working tree, so unstaged changes count; check the
 # index alone when a partial commit needs it.
-staged=$(git diff --cached --name-only)
-outside_docs=$(printf '%s\n' "$staged" | grep -vE '^docs/' | grep -vE '\.md$' || true)
+staged=$(git diff --cached --name-only --no-renames)
+not_markdown=$(printf '%s\n' "$staged" | grep -vE '\.md$' || true)
 in_scenarios=$(printf '%s\n' "$staged" | grep -E '^(src|e2e)/' || true)
 
-# git exports what locates this repository to a hook, so a check's own scratch repo
-# would read this commit's index (https://git-scm.com/docs/githooks#_description).
-unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
+# git exports what locates this repository to a hook, and says to clear it before running
+# git elsewhere (https://git-scm.com/docs/githooks#_description).
+unset $(git rev-parse --local-env-vars)
 
-if [ -n "$staged" ] && [ -z "$outside_docs" ] && [ -z "$in_scenarios" ]; then
+if [ -n "$staged" ] && [ -z "$not_markdown" ] && [ -z "$in_scenarios" ]; then
   "$do" check-docs
   "$do" check-links
   "$do" check-names

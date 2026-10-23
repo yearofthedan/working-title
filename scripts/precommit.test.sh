@@ -71,6 +71,26 @@ ran check "a commit with nothing staged runs ./do check"
 precommit
 ran check "a deleted file runs ./do check"
 
+(
+  cd "$copy" || exit 1
+  git reset -q --hard
+  mkdir -p src docs
+  echo code >src/thing.ts
+  git add src/thing.ts
+  git commit -qm 'a code file'
+  git mv src/thing.ts docs/thing.md
+)
+precommit
+ran check "a code file renamed to Markdown runs ./do check"
+(
+  cd "$copy" || exit 1
+  git reset -q --hard HEAD~1
+)
+
+stage docs/diagram.svg
+precommit
+ran check "a file under docs/ that is not Markdown runs ./do check"
+
 stage src/domain/project.ts
 CHECK_EXIT=1
 export CHECK_EXIT
@@ -86,12 +106,12 @@ unset CHECK_DOCS_EXIT
 if [ "$status" -ne 0 ]; then ok "a failing docs check refuses a docs commit"; else no "a failing docs check refuses a docs commit"; fi
 
 cp "$copy/scripts/check" "$work/check-stand-in"
-printf '#!/bin/sh\necho "index=${GIT_INDEX_FILE:-} dir=${GIT_DIR:-}" >> "$VP_LOG"\n' >"$copy/scripts/check"
+printf '#!/bin/sh\necho "index=${GIT_INDEX_FILE:-} dir=${GIT_DIR:-} config=${GIT_CONFIG_PARAMETERS:-}" >> "$VP_LOG"\n' >"$copy/scripts/check"
 stage src/domain/project.ts
 status=0
 : >"$VP_LOG"
-(cd "$copy" && GIT_INDEX_FILE="$copy/.git/index" GIT_DIR="$copy/.git" "$copy/do" precommit) >"$work/out" 2>"$work/err" || status=$?
-expect_vp 'index= dir=' "the checks run without the repository git hands a hook"
+(cd "$copy" && GIT_INDEX_FILE="$copy/.git/index" GIT_DIR="$copy/.git" GIT_CONFIG_PARAMETERS="'user.name'='x'" "$copy/do" precommit) >"$work/out" 2>"$work/err" || status=$?
+expect_vp 'index= dir= config=' "the checks run without the repository or the settings git hands a hook"
 cp "$work/check-stand-in" "$copy/scripts/check"
 
 finish

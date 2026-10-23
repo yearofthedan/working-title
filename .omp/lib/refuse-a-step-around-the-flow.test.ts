@@ -27,6 +27,7 @@ type Tree = {
   dirty?: string[];
   untracked?: string[];
   preCommit?: 'installed' | 'missing' | 'not executable';
+  hooksPath?: string;
 };
 
 const repository = ({
@@ -34,6 +35,7 @@ const repository = ({
   dirty = [],
   untracked = [],
   preCommit = 'installed',
+  hooksPath,
 }: Tree = {}): string => {
   const dir = mkdtempSync(join(tmpdir(), 'refuse-a-step-around-the-flow-'));
   execFileSync('git', ['init', '-q', '-b', branch, dir]);
@@ -52,9 +54,12 @@ const repository = ({
     '-qm',
     'base',
   ]);
+  const hooks = join(dir, hooksPath ?? '.git/hooks');
+  if (hooksPath !== undefined)
+    execFileSync('git', ['-C', dir, 'config', 'core.hooksPath', hooksPath]);
   if (preCommit !== 'missing') {
-    mkdirSync(join(dir, '.git/hooks'), { recursive: true });
-    const hook = join(dir, '.git/hooks/pre-commit');
+    mkdirSync(hooks, { recursive: true });
+    const hook = join(hooks, 'pre-commit');
     writeFileSync(hook, '#!/bin/sh\nexit 0\n');
     chmodSync(hook, preCommit === 'installed' ? 0o755 : 0o644);
   }
@@ -160,6 +165,7 @@ describe('a git push', () => {
     ['echo hi > "" ; git push --force origin main', clean],
     // The drop stops at the redirection's own target, so the push's arguments are read.
     ['git push 2>/dev/null --force origin main', clean],
+    ['GIT_TRACE=1 git push --force origin main', clean],
   ])('refuses %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(true);
   });
@@ -291,12 +297,28 @@ describe('a git commit', () => {
     'git commit -m "72: a change" --no-verify',
     'git add -A && git commit -n -m "72: a change"',
     `git -C ${clean} commit --no-verify -m "72: a change"`,
+    'git commit --no-veri -m "72: a change"',
+    'git commit --no-verif -m "72: a change"',
+    'DISABLE_MODEL_CHECK=1 git commit -n -m "72: a change"',
+    'VP_GIT_HOOKS=0 git commit -m "72: a change"',
+    'HUSKY=0 git commit -m "72: a change"',
+    'env VITE_GIT_HOOKS=0 git commit -m "72: a change"',
   ])('refuses %s', (command) => {
     expect(refused(command, clean)).toBe(true);
   });
 
   it('names the checks it would skip', () => {
     expect(reasonFor('git commit -n -m "72: a change"', clean)).toContain('./do check');
+  });
+
+  it('reads the hook from where core.hooksPath points, not .git/hooks', () => {
+    const elsewhere = repository({ preCommit: 'missing', hooksPath: '.vite-hooks/_' });
+    writeFileSync(join(elsewhere, '.git/hooks/pre-commit'), '#!/bin/sh\nexit 0\n');
+    chmodSync(join(elsewhere, '.git/hooks/pre-commit'), 0o755);
+    expect(refused('git commit -m "72: a change"', elsewhere)).toBe(true);
+    expect(
+      refused('git commit -m "72: a change"', repository({ hooksPath: '.vite-hooks/_' })),
+    ).toBe(false);
   });
 
   it.each([
@@ -325,6 +347,9 @@ describe('a git commit', () => {
     'git commit -m "72: refuse --no-verify"',
     'git commit -uno -m "72: a change"',
     "git commit --allow-empty -m '72: a title' --trailer 'Agent-Model: x'",
+    'DISABLE_MODEL_CHECK=1 git commit -m "72: a change"',
+    'git commit --no-verbose -m "72: a change"',
+    'VP_GIT_HOOKS=1 git commit -m "72: a change"',
   ])('passes %s', (command) => {
     expect(refused(command, clean)).toBe(false);
   });

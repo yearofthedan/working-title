@@ -175,14 +175,21 @@ const switchRefusal = (subcommand: string, args: string[], cwd: string): string 
   return 'This is the main worktree, which the builder and other sessions share: a branch switch here moves their work. Start the planned pull request in a worktree of its own: `git worktree add ../<branch> -b <branch> origin/main`.';
 };
 
-const gitReason = (subcommand: string, args: string[], cwd: string): string | undefined => {
+const gitReason = (
+  subcommand: string,
+  args: string[],
+  cwd: string,
+  env: Record<string, string>,
+): string | undefined => {
   if (subcommand === 'switch') return switchRefusal(subcommand, args, cwd);
   if (subcommand === 'checkout') {
     return switchRefusal(subcommand, args, cwd) ?? overwriteRefusal(subcommand, args, cwd);
   }
   if (subcommand === 'restore') return overwriteRefusal(subcommand, args, cwd);
   if (subcommand === 'push') return pushRefusal(args, cwd);
-  if (subcommand === 'commit') return commitRefusal(args) ?? hooklessRefusal(cwd);
+  if (subcommand === 'commit') {
+    return commitRefusal(args) ?? hooksOffRefusal(env) ?? hooklessRefusal(cwd);
+  }
   return undefined;
 };
 
@@ -265,7 +272,7 @@ const commitRefusal = (args: string[]): string | undefined => {
   for (let index = 0; index < args.length; index += 1) {
     const word = args[index] ?? '';
     if (word === '--') return undefined;
-    if (word === '--no-verify') return skipsTheChecks;
+    if (word.length >= '--no-veri'.length && '--no-verify'.startsWith(word)) return skipsTheChecks;
     if (Object.hasOwn(COMMIT_OPTIONS_THAT_TAKE_A_VALUE, word)) {
       index += 1;
       continue;
@@ -282,6 +289,28 @@ const commitRefusal = (args: string[]): string | undefined => {
     }
   }
   return undefined;
+};
+
+// `.vite-hooks/_/h` exits 0 before running a hook when one of these is `0`.
+const HOOKS_OFF = ['HUSKY', 'VP_GIT_HOOKS', 'VITE_GIT_HOOKS'];
+
+const hooksOffRefusal = (env: Record<string, string>): string | undefined => {
+  const off = HOOKS_OFF.find((name) => env[name] === '0');
+  return off === undefined
+    ? undefined
+    : `\`${off}=0\` turns the pre-commit hook off, so the commit would land without \`./do check\`. Commit without it.`;
+};
+
+const environmentOf = (words: string[]): { env: Record<string, string>; rest: string[] } => {
+  const env: Record<string, string> = {};
+  let start = 0;
+  if (words[0]?.split('/').pop() === 'env') start = 1;
+  for (; start < words.length; start += 1) {
+    const assignment = /^([A-Za-z_]\w*)=(.*)$/s.exec(words[start] ?? '');
+    if (assignment === null) break;
+    env[assignment[1] ?? ''] = assignment[2] ?? '';
+  }
+  return { env, rest: words.slice(start) };
 };
 
 const hooklessRefusal = (cwd: string): string | undefined => {
@@ -305,7 +334,8 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
     const command = event.input.command;
     if (typeof command !== 'string') return undefined;
     const callCwd = callDirectory(event.input, context.cwd);
-    for (const words of wordsPerCommand(command)) {
+    for (const found of wordsPerCommand(command)) {
+      const { env, rest: words } = environmentOf(found);
       const program = words[0]?.split('/').pop() ?? '';
       if (program === 'gh') {
         const ready = words.indexOf('pr') >= 0 && words[words.indexOf('pr') + 1] === 'ready';
@@ -316,7 +346,7 @@ export default function refuseAStepAroundTheFlow(pi: Extension): void {
       const invocation = gitInvocation(words, callCwd);
       if (invocation === undefined) continue;
       const { subcommand, args, cwd } = invocation;
-      const reason = gitReason(subcommand, args, cwd);
+      const reason = gitReason(subcommand, args, cwd, env);
       if (reason !== undefined) return { block: true, reason };
     }
     return undefined;
