@@ -17,4 +17,5 @@ What belongs elsewhere:
 - [Communication standards](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, the model on each agent commit, and the body naming who wrote it in which role.
 - [Coding](coding.md): when a comment has value, and what to do instead when it has none.
+- [Markup](markup.md): what an element is, and what its name means to the writer hearing it.
 - [Testing](testing.md): a test beside its code, browser specs in `e2e/`, what runs each, and approved scenarios.
