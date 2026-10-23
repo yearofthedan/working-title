@@ -1,5 +1,5 @@
 import { test as base, type Locator, type Page } from '@playwright/test';
-import { linesOf, type AppScope } from '../src/test-helpers/scope';
+import { exactName, linesOf, type AppScope, type Field } from '../src/test-helpers/scope';
 
 // A closure over `page`, not a class holding `this.page`: lint restricts Page's
 // selector actions by the name `page`, which `this.page` does not match.
@@ -11,8 +11,14 @@ export interface Writer {
 }
 
 const writerOn = (page: Page): Writer => {
-  // The parts a scenario plays reach the page through this and nothing wider: a field by the
-  // label a writer reads, and the page as Playwright prints it.
+  // The parts a scenario plays reach the page through this and nothing wider: the group a name
+  // marks and the field a label names inside it, and the page as Playwright prints it.
+  const fieldIn = (within: Page | Locator, label: string): Field => ({
+    enter: async (text) => {
+      await within.getByLabel(exactName(label)).fill(text);
+    },
+  });
+
   const scope: AppScope = {
     fresh: async () => {
       await page.goto('/');
@@ -20,10 +26,9 @@ const writerOn = (page: Page): Writer => {
     reload: async () => {
       await page.reload();
     },
-    field: (label) => ({
-      enter: async (text) => {
-        await page.getByLabel(label).fill(text);
-      },
+    field: (label) => fieldIn(page, label),
+    group: (name) => ({
+      field: (label) => fieldIn(page.getByRole('group', { name: exactName(name) }), label),
     }),
     tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
   };

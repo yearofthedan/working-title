@@ -1,11 +1,17 @@
 /**
- * What a page's driver part reaches the page through. A part never sees `Page`: it asks for a
- * field by the label a writer would read, and for the page as the runner prints it, so finding
- * an element any other way is not something a part can express.
+ * What a page's driver part reaches the page through. A part never sees `Page`: it asks for the
+ * group a name marks and the field a label names inside it, and for the page as the runner prints
+ * it, so finding an element any other way is not something a part can express.
  */
 export interface Field {
   /** What the writer types into it. */
   enter(text: string): Promise<void>;
+}
+
+/** A group a name marks, such as one piece and its facets. */
+export interface Group {
+  /** The field a label names, inside this group. */
+  field(label: string): Field;
 }
 
 export interface PageScope {
@@ -13,6 +19,8 @@ export interface PageScope {
   fresh(): Promise<void>;
   /** The field a label names, as a writer finds it. */
   field(label: string): Field;
+  /** The group a name marks, as a writer hears it. */
+  group(name: string): Group;
   /** What the page shows, as the runner prints it. */
   tree(): Promise<readonly string[]>;
 }
@@ -21,6 +29,15 @@ export interface PageScope {
 export interface AppScope extends PageScope {
   reload(): Promise<void>;
 }
+
+/**
+ * A name as a scenario writes it: the whole string, whatever its case. One pattern serves both
+ * runners because a plain string does not: Playwright reads it as part of a name
+ * (https://playwright.dev/docs/api/class-page#page-get-by-label-option-exact), and Vitest reads it
+ * as the whole name, so the same scenario would find a different element in each.
+ */
+export const exactName = (name: string): RegExp =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
 
 /** A runner's tree, as the lines a scenario file records. */
 export const linesOf = (tree: string): readonly string[] =>
