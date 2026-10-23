@@ -119,7 +119,7 @@ export const readProject = (
   };
   return {
     method: stored.method,
-    version: stored.version,
+    version: method.version,
     pieces: [root, ...startingChildren(method, root, newId)],
   };
 };

@@ -89,6 +89,12 @@ describe('readProject', () => {
       ],
     });
   });
+
+  it("records the method's version, reading a save the version 1 wrote", () => {
+    const atVersion2 = { ...toyMethod, version: 2 };
+    const fromVersion1 = { method: 'toy', version: 1, root: { kind: 'root', facets: {} } };
+    expect(readProject(fromVersion1, atVersion2, ids())?.version).toBe(2);
+  });
 });
 
 describe('isProject', () => {
