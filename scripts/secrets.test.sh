@@ -11,6 +11,9 @@ secrets_repo="$work/secrets-repo"
 mkdir -p "$secrets_repo/node_modules/.bin"
 cp "$root/do" "$secrets_repo/do"
 cp -R "$root/scripts" "$secrets_repo/scripts"
+for task in check check-docs check-links check-names; do
+  printf '#!/bin/sh\nexit 0\n' >"$secrets_repo/scripts/$task"
+done
 cp "$root/.secretlintrc.json" "$secrets_repo/"
 ln -s "$root/node_modules/.bin/secretlint" "$secrets_repo/node_modules/.bin/secretlint"
 printf '#!/bin/sh\nexit 0\n' >"$secrets_repo/node_modules/.bin/vp"
