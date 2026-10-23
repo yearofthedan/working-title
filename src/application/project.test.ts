@@ -50,6 +50,31 @@ describe('opening a project', () => {
     expect(focus.pieces[0]?.facets[0]?.text).toBe('a sentence');
   });
 
+  it('lists the story first and the beats by their order, however the store holds them', async () => {
+    const started = newProject(snowflakeExtended, ids());
+    const shuffled = { ...started, pieces: [...started.pieces].reverse() };
+    const focus = await openProject(snowflakeExtended, storeOf(shuffled), ids());
+    expect(focus.pieces.map(({ id }) => id)).toEqual([
+      'id-1',
+      'id-2',
+      'id-3',
+      'id-4',
+      'id-5',
+      'id-6',
+    ]);
+    expect(focus.pieces.map(({ name }) => name)).toEqual(names);
+  });
+
+  it('lists nothing where the stored pieces name no root', async () => {
+    const store = storeOf({
+      method: 'snowflake-extended',
+      version: 2,
+      pieces: [{ id: 'id-1', kind: 'beat', parent: 'id-0', order: 0, facets: {} }],
+    });
+    const focus = await openProject(snowflakeExtended, store, ids());
+    expect(focus.pieces).toEqual([]);
+  });
+
   it('refuses to open where the store cannot read what it holds', async () => {
     const store: ProjectStore = {
       load: async () => {
@@ -62,7 +87,8 @@ describe('opening a project', () => {
 
   it('saves the sentence typed into a beat, leaving the story and the other beats alone', async () => {
     const store = keepingStore();
-    const focus = await openProject(snowflakeExtended, store, ids());
+    // No id source, as `main` wires it: the ids are the app's own.
+    const focus = await openProject(snowflakeExtended, store);
     await focus.elaborate(beat2Of(focus.pieces).id, summary, typed);
     expect(store.saved()?.pieces.map(({ facets }) => facets[summary] ?? '')).toEqual([
       '',

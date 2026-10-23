@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import {
   elaborate,
   isProject,
+  isProjectFromVersion1,
   newProject,
   readProject,
   type Method,
@@ -63,6 +64,10 @@ describe('elaborate', () => {
 });
 
 describe('readProject', () => {
+  it('reads nothing where nothing was saved', () => {
+    expect(readProject(undefined, toyMethod, ids())).toBeUndefined();
+  });
+
   it('reads a project in the shape the app writes as it is', () => {
     const saved = elaborate(project(), 'id-2', 'title', 'the first');
     expect(readProject(saved, toyMethod, ids())).toEqual(saved);
@@ -113,7 +118,65 @@ describe('isProject', () => {
     ],
     ['no method', { version: 1, pieces: [] }],
     ['no version', { method: 'toy', pieces: [] }],
+    ['a piece that is nothing', { method: 'toy', version: 1, pieces: [null] }],
+    [
+      'facets that are nothing',
+      { method: 'toy', version: 1, pieces: [{ id: 'id-1', kind: 'item', facets: null }] },
+    ],
+    [
+      'a piece the writer filled in beside one that names no kind',
+      {
+        method: 'toy',
+        version: 1,
+        pieces: [
+          { id: 'id-1', kind: 'item', facets: { note: 'the first' } },
+          { id: 'id-2', facets: {} },
+        ],
+      },
+    ],
   ])('refuses %s, which parses but is not a project', (_, value) => {
     expect(isProject(value)).toBe(false);
+  });
+});
+
+describe('isProjectFromVersion1', () => {
+  it('reads a save in the shape version 1 wrote, its facets filled in or not', () => {
+    expect(
+      isProjectFromVersion1({ method: 'toy', version: 1, root: { kind: 'root', facets: {} } }),
+    ).toBe(true);
+    expect(
+      isProjectFromVersion1({
+        method: 'toy',
+        version: 1,
+        root: { kind: 'root', facets: { note: 'the root' } },
+      }),
+    ).toBe(true);
+  });
+
+  it.each([
+    ['null', null],
+    ['a number', 0],
+    ['a string', 'x'],
+    ['an array', []],
+    ['an empty object', {}],
+    ['a root with no facets', { method: 'toy', version: 1, root: { kind: 'root' } }],
+    ['a method that is not text', { method: 7, version: 1, root: { kind: 'root', facets: {} } }],
+    ['no version', { method: 'toy', root: { kind: 'root', facets: {} } }],
+    [
+      'a version that is not a number',
+      { method: 'toy', version: '1', root: { kind: 'root', facets: {} } },
+    ],
+    ['no root', { method: 'toy', version: 1 }],
+    ['a root with no kind', { method: 'toy', version: 1, root: { facets: {} } }],
+    [
+      'a facet that is not text',
+      { method: 'toy', version: 1, root: { kind: 'root', facets: { note: { a: 1 } } } },
+    ],
+    [
+      'facets that are nothing',
+      { method: 'toy', version: 1, root: { kind: 'root', facets: null } },
+    ],
+  ])('refuses %s, which parses but is not a save version 1 wrote', (_, value) => {
+    expect(isProjectFromVersion1(value)).toBe(false);
   });
 });
