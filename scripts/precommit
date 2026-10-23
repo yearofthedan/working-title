@@ -1,11 +1,33 @@
 #!/bin/sh
-# Check and fix the staged files, as the pre-commit hook does.
+# Check and fix the staged files, then run the checks the staged change needs.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
 
+do="$(dirname "$0")/../do"
+
 # The scan runs first, since `vp staged` may rewrite the files it checks.
-"$(dirname "$0")/../do" secrets --staged
+"$do" secrets --staged
 
 vp staged "$@"
+
+# A change of docs alone, Markdown outside the scenario folders, takes the checks
+# that read docs. Anything else, an empty or deleted change included, takes every check.
+# shortcut: the checks read the working tree, so unstaged changes count; check the
+# index alone when a partial commit needs it.
+staged=$(git diff --cached --name-only)
+outside_docs=$(printf '%s\n' "$staged" | grep -vE '^docs/' | grep -vE '\.md$' || true)
+in_scenarios=$(printf '%s\n' "$staged" | grep -E '^(src|e2e)/' || true)
+
+# git exports what locates this repository to a hook, so a check's own scratch repo
+# would read this commit's index (https://git-scm.com/docs/githooks#_description).
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
+
+if [ -n "$staged" ] && [ -z "$outside_docs" ] && [ -z "$in_scenarios" ]; then
+  "$do" check-docs
+  "$do" check-links
+  "$do" check-names
+else
+  "$do" check
+fi

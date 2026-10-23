@@ -1,5 +1,6 @@
-// Refuse a git step that would discard uncommitted work or push off the story branch,
-// and a pull request marked ready without the checks ./do ready runs.
+// Refuse a git step that would discard uncommitted work, push off the story branch or
+// commit past the pre-commit hook, and a pull request marked ready without the checks
+// ./do ready runs.
 
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -180,6 +181,7 @@ const gitReason = (subcommand: string, args: string[], cwd: string): string | un
   }
   if (subcommand === 'restore') return overwriteRefusal(subcommand, args, cwd);
   if (subcommand === 'push') return pushRefusal(args, cwd);
+  if (subcommand === 'commit') return commitRefusal(args);
   return undefined;
 };
 
@@ -235,6 +237,54 @@ const pushRefusal = (args: string[], cwd: string): string | undefined => {
     return undefined;
   const would = targets[0] === undefined ? 'no branch' : `\`${targets[0]}\``;
   return `A push goes only to the story branch, named \`<issue number>-…\`, without force. This one would push ${would}.`;
+};
+
+// The commit options whose value can be the next word, so that word is not read
+// as a flag ([git-commit](https://git-scm.com/docs/git-commit)).
+const COMMIT_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
+  '--message': true,
+  '--file': true,
+  '--reuse-message': true,
+  '--reedit-message': true,
+  '--template': true,
+  '--author': true,
+  '--date': true,
+  '--cleanup': true,
+  '--trailer': true,
+  '--fixup': true,
+  '--squash': true,
+};
+const COMMIT_SHORT_OPTIONS_THAT_TAKE_A_VALUE = 'mFCct';
+// These take a value only when it is attached, as in `-uno` (`git commit -h`).
+const COMMIT_SHORT_OPTIONS_WITH_AN_ATTACHED_VALUE = 'uS';
+
+const skipsTheChecks =
+  'A commit runs the pre-commit hook, which runs `./do check`: skipping it with `--no-verify` or `-n` commits what the checks have not passed. Fix what fails, or stop and ask the builder.';
+
+// shortcut: reads the flag alone; a hook path changed by `-c core.hooksPath` or
+// `git config` passes, until an agent is seen to reach for one.
+const commitRefusal = (args: string[]): string | undefined => {
+  for (let index = 0; index < args.length; index += 1) {
+    const word = args[index] ?? '';
+    if (word === '--') return undefined;
+    if (word === '--no-verify') return skipsTheChecks;
+    if (Object.hasOwn(COMMIT_OPTIONS_THAT_TAKE_A_VALUE, word)) {
+      index += 1;
+      continue;
+    }
+    if (!word.startsWith('-') || word.startsWith('--')) continue;
+    // A cluster of short flags ends at the first that takes a value: the rest is that value.
+    for (let at = 1; at < word.length; at += 1) {
+      const flag = word[at] ?? '';
+      if (flag === 'n') return skipsTheChecks;
+      if (COMMIT_SHORT_OPTIONS_THAT_TAKE_A_VALUE.includes(flag)) {
+        if (at === word.length - 1) index += 1;
+        break;
+      }
+      if (COMMIT_SHORT_OPTIONS_WITH_AN_ATTACHED_VALUE.includes(flag)) break;
+    }
+  }
+  return undefined;
 };
 
 const notReadyYet =

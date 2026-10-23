@@ -269,6 +269,38 @@ describe('a branch switch', () => {
   });
 });
 
+describe('a git commit', () => {
+  const clean = repository();
+
+  it.each([
+    'git commit --no-verify -m "72: a change"',
+    'git commit -n -m "72: a change"',
+    'git commit -anm "72: a change"',
+    'git commit -m "72: a change" --no-verify',
+    'git add -A && git commit -n -m "72: a change"',
+    `git -C ${clean} commit --no-verify -m "72: a change"`,
+  ])('refuses %s', (command) => {
+    expect(refused(command, clean)).toBe(true);
+  });
+
+  it('names the checks it would skip', () => {
+    expect(reasonFor('git commit -n -m "72: a change"', clean)).toContain('./do check');
+  });
+
+  it.each([
+    'git commit -m "72: a change"',
+    'git commit -am "72: a change"',
+    // The message is the value of -m, so an n in it is not the flag.
+    'git commit -mn',
+    'git commit -m "72: refuse --no-verify"',
+    // -u takes its mode attached, so the n in `-uno` is the mode, not the flag.
+    'git commit -uno -m "72: a change"',
+    "git commit --allow-empty -m '72: a title' --trailer 'Agent-Model: x'",
+  ])('passes %s', (command) => {
+    expect(refused(command, clean)).toBe(false);
+  });
+});
+
 describe('a tool call', () => {
   it('passes when it is not bash', () => {
     expect(handler()({ toolName: 'read', input: {} }, { cwd: repository() })).toBeUndefined();
