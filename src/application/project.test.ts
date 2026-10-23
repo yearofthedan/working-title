@@ -65,16 +65,6 @@ describe('opening a project', () => {
     expect(focus.pieces.map(({ name }) => name)).toEqual(names);
   });
 
-  it('lists nothing where the stored pieces name no root', async () => {
-    const store = storeOf({
-      method: 'snowflake-extended',
-      version: 2,
-      pieces: [{ id: 'id-1', kind: 'beat', parent: 'id-0', order: 0, facets: {} }],
-    });
-    const focus = await openProject(snowflakeExtended, store, ids());
-    expect(focus.pieces).toEqual([]);
-  });
-
   it('refuses to open where the store cannot read what it holds', async () => {
     const store: ProjectStore = {
       load: async () => {

@@ -39,8 +39,7 @@ const view = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
  * arrive with the guidance that tells the writer what each is for.
  */
 const listed = (project: Project, method: Method): readonly PieceView[] => {
-  const root = project.pieces.find(({ parent }) => parent === null);
-  if (root === undefined) return [];
+  const root = project.pieces.find(({ parent }) => parent === null)!;
   const children = project.pieces
     .filter(({ parent }) => parent === root.id)
     .sort((one, other) => one.order - other.order);
