@@ -80,7 +80,7 @@ const isFacetText = (value: unknown): value is FacetText =>
  * project from another version opens and keeps the facets its ids do not name.
  */
 export const isProject = (value: unknown): value is Project => {
-  if (typeof value !== 'object' || value === null) return false;
+  if (value === null) return false;
   const { method, version, pieces } = value as Project;
   if (typeof method !== 'string' || typeof version !== 'number') return false;
   if (!Array.isArray(pieces)) return false;
@@ -108,7 +108,6 @@ export const readProject = (
   method: Method,
   newId: () => string,
 ): Project | undefined => {
-  if (stored === undefined) return undefined;
   if (!isProjectFromVersion1(stored)) return stored;
   const root: Piece = {
     id: newId(),

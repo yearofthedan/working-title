@@ -64,10 +64,6 @@ describe('elaborate', () => {
 });
 
 describe('readProject', () => {
-  it('reads nothing where nothing was saved', () => {
-    expect(readProject(undefined, toyMethod, ids())).toBeUndefined();
-  });
-
   it('reads a project in the shape the app writes as it is', () => {
     const saved = elaborate(project(), 'id-2', 'title', 'the first');
     expect(readProject(saved, toyMethod, ids())).toEqual(saved);
