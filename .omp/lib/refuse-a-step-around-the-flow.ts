@@ -240,8 +240,6 @@ const pushRefusal = (args: string[], cwd: string): string | undefined => {
   return `A push goes only to the story branch, named \`<issue number>-…\`, without force. This one would push ${would}.`;
 };
 
-// The commit options whose value can be the next word, so that word is not read
-// as a flag ([git-commit](https://git-scm.com/docs/git-commit)).
 const COMMIT_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--message': true,
   '--file': true,
@@ -256,7 +254,6 @@ const COMMIT_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--squash': true,
 };
 const COMMIT_SHORT_OPTIONS_THAT_TAKE_A_VALUE = 'mFCct';
-// These take a value only when it is attached, as in `-uno` (`git commit -h`).
 const COMMIT_SHORT_OPTIONS_WITH_AN_ATTACHED_VALUE = 'uS';
 
 const skipsTheChecks =
@@ -274,7 +271,6 @@ const commitRefusal = (args: string[]): string | undefined => {
       continue;
     }
     if (!word.startsWith('-') || word.startsWith('--')) continue;
-    // A cluster of short flags ends at the first that takes a value: the rest is that value.
     for (let at = 1; at < word.length; at += 1) {
       const flag = word[at] ?? '';
       if (flag === 'n') return skipsTheChecks;
@@ -288,10 +284,6 @@ const commitRefusal = (args: string[]): string | undefined => {
   return undefined;
 };
 
-// git skips a pre-commit hook it cannot find without a word, and one it cannot execute
-// with only a hint, so a worktree that has not had `pnpm install`, which writes the
-// hooks `core.hooksPath` names, commits with no check run. `git rev-parse --git-path
-// hooks` names the directory git runs hooks from, `core.hooksPath` included (git 2.54).
 const hooklessRefusal = (cwd: string): string | undefined => {
   const hooks = git(cwd, ['rev-parse', '--git-path', 'hooks']);
   if (hooks.failed) return undefined;

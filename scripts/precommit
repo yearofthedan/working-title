@@ -12,8 +12,6 @@ do="$(dirname "$0")/../do"
 
 vp staged "$@"
 
-# A change of docs alone, Markdown outside the scenario folders, takes the checks
-# that read docs. Anything else, an empty or deleted change included, takes every check.
 # shortcut: the checks read the working tree, so unstaged changes count; check the
 # index alone when a partial commit needs it.
 staged=$(git diff --cached --name-only)

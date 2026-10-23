@@ -52,7 +52,6 @@ const repository = ({
     '-qm',
     'base',
   ]);
-  // Installed after the base commit, so making the repository runs no hook.
   if (preCommit !== 'missing') {
     mkdirSync(join(dir, '.git/hooks'), { recursive: true });
     const hook = join(dir, '.git/hooks/pre-commit');
@@ -300,8 +299,6 @@ describe('a git commit', () => {
     expect(reasonFor('git commit -n -m "72: a change"', clean)).toContain('./do check');
   });
 
-  // git skips a hook it cannot find without a word, and one it cannot execute with only
-  // a hint, so the commit lands with no check run (git 2.54).
   it.each([
     ['missing', repository({ preCommit: 'missing' })],
     ['not executable', repository({ preCommit: 'not executable' })],
@@ -324,10 +321,8 @@ describe('a git commit', () => {
   it.each([
     'git commit -m "72: a change"',
     'git commit -am "72: a change"',
-    // The message is the value of -m, so an n in it is not the flag.
     'git commit -mn',
     'git commit -m "72: refuse --no-verify"',
-    // -u takes its mode attached, so the n in `-uno` is the mode, not the flag.
     'git commit -uno -m "72: a change"',
     "git commit --allow-empty -m '72: a title' --trailer 'Agent-Model: x'",
   ])('passes %s', (command) => {

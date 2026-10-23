@@ -8,13 +8,11 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 
 make_copy
 
-# Each check the gate can run records its name, so a case reads which ran.
 for task in check check-docs check-links check-names; do
-  printf '#!/bin/sh\n# Stand-in.\necho "ran %s" >> "$VP_LOG"\nexit "${%s:-0}"\n' "$task" "$(printf '%s' "$task" | tr a-z- A-Z_)_EXIT" >"$copy/scripts/$task"
+  printf '#!/bin/sh\necho "ran %s" >> "$VP_LOG"\nexit "${%s:-0}"\n' "$task" "$(printf '%s' "$task" | tr a-z- A-Z_)_EXIT" >"$copy/scripts/$task"
   chmod +x "$copy/scripts/$task"
 done
 
-# Stage exactly the paths named, from a tree that holds only the base commit.
 stage() {
   (
     cd "$copy" || exit 1
@@ -87,10 +85,8 @@ precommit
 unset CHECK_DOCS_EXIT
 if [ "$status" -ne 0 ]; then ok "a failing docs check refuses a docs commit"; else no "a failing docs check refuses a docs commit"; fi
 
-# A check that builds a scratch repo must not reach this commit's index through the
-# variables git exports to a hook.
 cp "$copy/scripts/check" "$work/check-stand-in"
-printf '#!/bin/sh\n# Stand-in.\necho "index=${GIT_INDEX_FILE:-} dir=${GIT_DIR:-}" >> "$VP_LOG"\n' >"$copy/scripts/check"
+printf '#!/bin/sh\necho "index=${GIT_INDEX_FILE:-} dir=${GIT_DIR:-}" >> "$VP_LOG"\n' >"$copy/scripts/check"
 stage src/domain/project.ts
 status=0
 : >"$VP_LOG"

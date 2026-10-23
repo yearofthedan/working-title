@@ -11,10 +11,8 @@ secrets_repo="$work/secrets-repo"
 mkdir -p "$secrets_repo/node_modules/.bin"
 cp "$root/do" "$secrets_repo/do"
 cp -R "$root/scripts" "$secrets_repo/scripts"
-# The checks precommit runs after the scan pass here: this suite is about the scan,
-# and precommit.test.sh covers which check runs.
 for task in check check-docs check-links check-names; do
-  printf '#!/bin/sh\n# Stand-in.\nexit 0\n' >"$secrets_repo/scripts/$task"
+  printf '#!/bin/sh\nexit 0\n' >"$secrets_repo/scripts/$task"
 done
 cp "$root/.secretlintrc.json" "$secrets_repo/"
 ln -s "$root/node_modules/.bin/secretlint" "$secrets_repo/node_modules/.bin/secretlint"
