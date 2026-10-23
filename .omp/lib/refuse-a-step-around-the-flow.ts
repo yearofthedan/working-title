@@ -1,8 +1,9 @@
 // Refuse a git step that would discard uncommitted work, push off the story branch or
-// commit past the pre-commit hook, and a pull request marked ready without the checks
-// ./do ready runs.
+// commit without the pre-commit hook, and a pull request marked ready without the
+// checks ./do ready runs.
 
 import { spawnSync } from 'node:child_process';
+import { accessSync, constants } from 'node:fs';
 import { resolve } from 'node:path';
 import { callDirectory } from './call-cwd';
 import { wordsPerCommand } from './shell-words';
@@ -181,7 +182,7 @@ const gitReason = (subcommand: string, args: string[], cwd: string): string | un
   }
   if (subcommand === 'restore') return overwriteRefusal(subcommand, args, cwd);
   if (subcommand === 'push') return pushRefusal(args, cwd);
-  if (subcommand === 'commit') return commitRefusal(args);
+  if (subcommand === 'commit') return commitRefusal(args) ?? hooklessRefusal(cwd);
   return undefined;
 };
 
@@ -285,6 +286,22 @@ const commitRefusal = (args: string[]): string | undefined => {
     }
   }
   return undefined;
+};
+
+// git skips a pre-commit hook it cannot find without a word, and one it cannot execute
+// with only a hint, so a worktree that has not had `pnpm install`, which writes the
+// hooks `core.hooksPath` names, commits with no check run. `git rev-parse --git-path
+// hooks` names the directory git runs hooks from, `core.hooksPath` included (git 2.54).
+const hooklessRefusal = (cwd: string): string | undefined => {
+  const hooks = git(cwd, ['rev-parse', '--git-path', 'hooks']);
+  if (hooks.failed) return undefined;
+  const hook = resolve(cwd, hooks.out.trim(), 'pre-commit');
+  try {
+    accessSync(hook, constants.X_OK);
+    return undefined;
+  } catch {
+    return `This worktree has no pre-commit hook git can run (\`${hook}\`), so the commit would land without \`./do check\`. Run \`pnpm install\` in the worktree, which installs the hooks, then commit.`;
+  }
 };
 
 const notReadyYet =

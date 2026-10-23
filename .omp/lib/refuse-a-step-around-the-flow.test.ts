@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
@@ -22,12 +22,18 @@ const handler = (): Handler => {
   return registered;
 };
 
-type Tree = { branch?: string; dirty?: string[]; untracked?: string[] };
+type Tree = {
+  branch?: string;
+  dirty?: string[];
+  untracked?: string[];
+  preCommit?: 'installed' | 'missing' | 'not executable';
+};
 
 const repository = ({
   branch = '73-fix-a-dodgy-restore',
   dirty = [],
   untracked = [],
+  preCommit = 'installed',
 }: Tree = {}): string => {
   const dir = mkdtempSync(join(tmpdir(), 'refuse-a-step-around-the-flow-'));
   execFileSync('git', ['init', '-q', '-b', branch, dir]);
@@ -46,6 +52,13 @@ const repository = ({
     '-qm',
     'base',
   ]);
+  // Installed after the base commit, so making the repository runs no hook.
+  if (preCommit !== 'missing') {
+    mkdirSync(join(dir, '.git/hooks'), { recursive: true });
+    const hook = join(dir, '.git/hooks/pre-commit');
+    writeFileSync(hook, '#!/bin/sh\nexit 0\n');
+    chmodSync(hook, preCommit === 'installed' ? 0o755 : 0o644);
+  }
   for (const path of dirty) writeFileSync(join(dir, path), 'a change not committed\n');
   for (const path of untracked) writeFileSync(join(dir, path), 'new\n');
   return dir;
@@ -285,6 +298,27 @@ describe('a git commit', () => {
 
   it('names the checks it would skip', () => {
     expect(reasonFor('git commit -n -m "72: a change"', clean)).toContain('./do check');
+  });
+
+  // git skips a hook it cannot find without a word, and one it cannot execute with only
+  // a hint, so the commit lands with no check run (git 2.54).
+  it.each([
+    ['missing', repository({ preCommit: 'missing' })],
+    ['not executable', repository({ preCommit: 'not executable' })],
+  ] as const)('refuses a commit where the pre-commit hook is %s', (_, cwd) => {
+    expect(refused('git commit -m "72: a change"', cwd)).toBe(true);
+  });
+
+  it('names pnpm install where the pre-commit hook is missing', () => {
+    expect(
+      reasonFor('git commit -m "72: a change"', repository({ preCommit: 'missing' })),
+    ).toContain('pnpm install');
+  });
+
+  it('reads the hook from the worktree -C names', () => {
+    const missing = repository({ preCommit: 'missing' });
+    expect(refused(`git -C ${missing} commit -m "72: a change"`, clean)).toBe(true);
+    expect(refused(`git -C ${clean} commit -m "72: a change"`, missing)).toBe(false);
   });
 
   it.each([
