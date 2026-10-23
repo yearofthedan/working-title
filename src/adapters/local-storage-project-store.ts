@@ -1,4 +1,4 @@
-import { isProject } from '../domain/project';
+import { isProject, isProjectFromVersion1 } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 
 const key = 'working-title:project';
@@ -12,7 +12,10 @@ export const projectStore = (): ProjectStore => ({
     const project: unknown = JSON.parse(saved);
     // `null` parses where unreadable text throws, so the shape decides: a value the app cannot
     // render is refused rather than read as nothing saved and replaced on the first keystroke.
-    if (!isProject(project)) throw new Error(`${key} holds something that is not a project`);
+    // The shape version 1 wrote is readable: `readProject` brings it forward.
+    if (!isProject(project) && !isProjectFromVersion1(project)) {
+      throw new Error(`${key} holds something that is not a project`);
+    }
     return project;
   },
   save: async (project) => {
