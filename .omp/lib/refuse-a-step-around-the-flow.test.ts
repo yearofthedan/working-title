@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vite-plus/test';
@@ -22,12 +22,20 @@ const handler = (): Handler => {
   return registered;
 };
 
-type Tree = { branch?: string; dirty?: string[]; untracked?: string[] };
+type Tree = {
+  branch?: string;
+  dirty?: string[];
+  untracked?: string[];
+  preCommit?: 'installed' | 'missing' | 'not executable';
+  hooksPath?: string;
+};
 
 const repository = ({
   branch = '73-fix-a-dodgy-restore',
   dirty = [],
   untracked = [],
+  preCommit = 'installed',
+  hooksPath,
 }: Tree = {}): string => {
   const dir = mkdtempSync(join(tmpdir(), 'refuse-a-step-around-the-flow-'));
   execFileSync('git', ['init', '-q', '-b', branch, dir]);
@@ -46,6 +54,15 @@ const repository = ({
     '-qm',
     'base',
   ]);
+  const hooks = join(dir, hooksPath ?? '.git/hooks');
+  if (hooksPath !== undefined)
+    execFileSync('git', ['-C', dir, 'config', 'core.hooksPath', hooksPath]);
+  if (preCommit !== 'missing') {
+    mkdirSync(hooks, { recursive: true });
+    const hook = join(hooks, 'pre-commit');
+    writeFileSync(hook, '#!/bin/sh\nexit 0\n');
+    chmodSync(hook, preCommit === 'installed' ? 0o755 : 0o644);
+  }
   for (const path of dirty) writeFileSync(join(dir, path), 'a change not committed\n');
   for (const path of untracked) writeFileSync(join(dir, path), 'new\n');
   return dir;
@@ -148,6 +165,7 @@ describe('a git push', () => {
     ['echo hi > "" ; git push --force origin main', clean],
     // The drop stops at the redirection's own target, so the push's arguments are read.
     ['git push 2>/dev/null --force origin main', clean],
+    ['GIT_TRACE=1 git push --force origin main', clean],
   ])('refuses %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(true);
   });
@@ -266,6 +284,74 @@ describe('a branch switch', () => {
 
   it('passes behind -C, read against the worktree it names', () => {
     expect(refused(`git -C ${linked} switch 73-another-line`, main)).toBe(false);
+  });
+});
+
+describe('a git commit', () => {
+  const clean = repository();
+
+  it.each([
+    'git commit --no-verify -m "72: a change"',
+    'git commit -n -m "72: a change"',
+    'git commit -anm "72: a change"',
+    'git commit -m "72: a change" --no-verify',
+    'git add -A && git commit -n -m "72: a change"',
+    `git -C ${clean} commit --no-verify -m "72: a change"`,
+    'git commit --no-veri -m "72: a change"',
+    'git commit --no-verif -m "72: a change"',
+    'DISABLE_MODEL_CHECK=1 git commit -n -m "72: a change"',
+    'VP_GIT_HOOKS=0 git commit -m "72: a change"',
+    'HUSKY=0 git commit -m "72: a change"',
+    'env VITE_GIT_HOOKS=0 git commit -m "72: a change"',
+  ])('refuses %s', (command) => {
+    expect(refused(command, clean)).toBe(true);
+  });
+
+  it('names the checks it would skip', () => {
+    expect(reasonFor('git commit -n -m "72: a change"', clean)).toContain('./do check');
+  });
+
+  it('reads the hook from where core.hooksPath points, not .git/hooks', () => {
+    const elsewhere = repository({ preCommit: 'missing', hooksPath: '.vite-hooks/_' });
+    writeFileSync(join(elsewhere, '.git/hooks/pre-commit'), '#!/bin/sh\nexit 0\n');
+    chmodSync(join(elsewhere, '.git/hooks/pre-commit'), 0o755);
+    expect(refused('git commit -m "72: a change"', elsewhere)).toBe(true);
+    expect(
+      refused('git commit -m "72: a change"', repository({ hooksPath: '.vite-hooks/_' })),
+    ).toBe(false);
+  });
+
+  it.each([
+    ['missing', repository({ preCommit: 'missing' })],
+    ['not executable', repository({ preCommit: 'not executable' })],
+  ] as const)('refuses a commit where the pre-commit hook is %s', (_, cwd) => {
+    expect(refused('git commit -m "72: a change"', cwd)).toBe(true);
+  });
+
+  it('names pnpm install where the pre-commit hook is missing', () => {
+    expect(
+      reasonFor('git commit -m "72: a change"', repository({ preCommit: 'missing' })),
+    ).toContain('pnpm install');
+  });
+
+  it('reads the hook from the worktree -C names', () => {
+    const missing = repository({ preCommit: 'missing' });
+    expect(refused(`git -C ${missing} commit -m "72: a change"`, clean)).toBe(true);
+    expect(refused(`git -C ${clean} commit -m "72: a change"`, missing)).toBe(false);
+  });
+
+  it.each([
+    'git commit -m "72: a change"',
+    'git commit -am "72: a change"',
+    'git commit -mn',
+    'git commit -m "72: refuse --no-verify"',
+    'git commit -uno -m "72: a change"',
+    "git commit --allow-empty -m '72: a title' --trailer 'Agent-Model: x'",
+    'DISABLE_MODEL_CHECK=1 git commit -m "72: a change"',
+    'git commit --no-verbose -m "72: a change"',
+    'VP_GIT_HOOKS=1 git commit -m "72: a change"',
+  ])('passes %s', (command) => {
+    expect(refused(command, clean)).toBe(false);
   });
 });
 
