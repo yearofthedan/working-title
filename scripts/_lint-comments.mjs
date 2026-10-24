@@ -10,7 +10,7 @@ const rule = defineRule({
   meta: {
     messages: {
       prefix:
-        'A comment is allowed only with one of the prefixes the comments rule lists: shortcut:, workaround: with its issue link, help:, or a directive a tool reads (https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/comments.md).',
+        'A comment is allowed only with one of the prefixes this repo allows: shortcut:, workaround: with a GitHub issue link, help:, @ts-expect-error, oxlint-disable or @type. Why there is almost never a reason for a comment: https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/comments.md',
     },
   },
   create(context) {

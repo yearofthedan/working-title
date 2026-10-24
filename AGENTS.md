@@ -7,7 +7,7 @@ working-title is a local-first planning and drafting tool for novelists, built o
 
 ## Always in context
 
-How to write anything, from replies to commit messages, docs and PR bodies, and how to work with the builder, is in the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills)'s rules, which `./do setup` installs and OMP puts in every prompt.
+How to write anything, from replies to commit messages, docs and PR bodies, and how to work with the builder, is in the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills)'s rules, which `./do setup` installs. OMP loads each rule as its frontmatter says: most go to every session, and the one on working with the builder to the main session only ([OMP's rulebook matching](https://github.com/can1357/oh-my-pi/blob/main/docs/rulebook-matching-pipeline.md)).
 
 The words to use in code, tests, scenarios and UI:
 

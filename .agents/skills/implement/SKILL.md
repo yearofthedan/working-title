@@ -99,7 +99,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the approach](#confirm-the-approach) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
-- A question or aside from the builder is [answered, not immediately acted on](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
+- A question or aside from the builder is [answered, and changes nothing on its own](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/durable-writing.md), raise it with the builder rather than building on it or moving it yourself.
 - Each planned pull request lands as one pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
