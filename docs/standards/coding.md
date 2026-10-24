@@ -20,8 +20,6 @@ A comment is allowed only when it starts with one of these prefixes, after the c
 
 A `//` or `#` comment is one line. A longer comment is a `/* … */` block, which shell does not have, so a shell comment is always one line.
 
-Two checks refuse every other comment: `scripts/_lint-comments.mjs` reads JavaScript and TypeScript, `scripts/check-comments` reads shell and CSS.
-
 ## Configuration
 
 A configuration file follows the same rule. A comment on a setting goes one of three ways:
