@@ -98,6 +98,22 @@ See [the directory](underscore.md#the-node_modules-directory).
 links
 expect_status 0 "an underscore stays in the anchor, as GitHub keeps it"
 
+write docs/repeated.md '# Repeated\n\n## The rule\n\nText.\n\n## The rule\n\nMore text.\n'
+write docs/guide.md '# Guide
+
+See [the second copy](repeated.md#the-rule-1).
+'
+links
+expect_status 0 "a heading written twice answers to its slug numbered, as GitHub numbers it"
+
+write docs/guide.md '# Guide
+
+See [the third copy](repeated.md#the-rule-2).
+'
+links
+expect_status 1 "an anchor past every copy of a heading is refused"
+expect_err '#the-rule-2' "the anchor past every copy is named"
+
 write docs/guide.md '# Guide
 
 See [the site](https://example.com/docs#the-rule).
@@ -157,6 +173,8 @@ See [the site](https://example.com/busy).
 links --external
 expect_status 0 "a site answering 503 warns rather than refusing"
 expect_err 'which is the site rather than the link' "the warning says it is the site"
+asked=$(grep -c 'example.com/busy' "$STUB_CALLS" || true)
+if [ "$asked" -eq 2 ]; then ok "a site answering 503 is asked once more before it warns"; else no "a site answering 503 is asked once more before it warns (asked $asked times)"; fi
 
 write docs/guide.md '# Guide
 
@@ -165,6 +183,8 @@ See [the site](https://example.com/gone).
 links --external
 expect_status 1 "an address that answers 404 is refused"
 expect_err '404' "an address that answers 404 says so"
+asked=$(grep -c 'example.com/gone' "$STUB_CALLS" || true)
+if [ "$asked" -eq 1 ]; then ok "an address that answers 404 is asked once"; else no "an address that answers 404 is asked once (asked $asked times)"; fi
 
 write docs/guide.md "$good"
 links
