@@ -45,6 +45,7 @@ run_do setup
 expect_status 0 "setup succeeds when Ponytail is installed and dev-skills is not"
 expect_out 'Ponytail is already installed.' "setup says Ponytail is already installed"
 expect_no_call 'marketplace add DietrichGebert/ponytail' "setup does not re-add the Ponytail marketplace"
+expect_no_call 'plugin install ponytail@ponytail' "setup does not re-install Ponytail"
 expect_call 'plugin marketplace add yearofthedan/snippets' "setup adds the snippets marketplace"
 expect_call 'plugin install dev-skills@snippets' "setup installs dev-skills"
 
