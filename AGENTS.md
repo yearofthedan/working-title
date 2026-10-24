@@ -7,9 +7,7 @@ working-title is a local-first planning and drafting tool for novelists, built o
 
 ## Always in context
 
-How to write anything, from replies to commit messages, docs and PR bodies:
-
-@docs/standards/communication-standards.md
+How to write anything, from replies to commit messages, docs and PR bodies, and how to work with the builder, is in the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills)'s rules, which `./do setup` installs and OMP puts in every prompt.
 
 The words to use in code, tests, scenarios and UI:
 
@@ -35,17 +33,10 @@ Once `pnpm install` has installed the dependencies, every task runs through `./d
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
 
-## What you assert
-
-Check what a tool, a platform or a library does against its current docs before writing it down as a fact — in a story, a rule, a comment, a commit or a reply — and link the doc beside the claim. A search that finds nothing is not the docs, and the artifact at hand is not the platform: check the claim against the thing itself, a run or the installed version, because the types, the repo's own prose and a remembered API are each somewhere a wrong claim reads as checked.
-
-## What the builder remembers
-
-A session can lose part of its conversation, to a restart or a summary, and keeps nothing from one session to the next. When the builder refers to something you have no record of, such as a plan you offered or an answer they gave, say plainly that your context may be missing it, and take their account as the record. Never correct the builder from a context that can be incomplete.
-
 ## Where docs go
 
 - `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here (OMP's `context-files.md`, "Sticky rules vs normal context"; `system-prompt-customization.md`, "Inputs by session type").
+- The [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills): a rule or skill shared with the builder's other projects. It is changed there, and this repo keeps no copy.
 - `docs/product.md`: what the product is for, and its design principles.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.

@@ -3,7 +3,7 @@
 **Audience:** anyone who needs to know why the [architecture](../architecture.md) is the way it is, before changing it.
 **Purpose:** records why each architecture decision was chosen over its alternatives, one record per decision.
 
-How to decide whether a decision needs a record, and how to write one: [the writing-adrs skill](../../.agents/skills/writing-adrs/SKILL.md).
+How to decide whether a decision needs a record, and how to write one: [the writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md).
 
 | # | Decision | Status |
 | --- | --- | --- |

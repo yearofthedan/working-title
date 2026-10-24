@@ -51,7 +51,8 @@ stage
 comments
 expect_status 1 "a shell comment without a prefix is refused"
 expect_out '^plain\.sh:3$' "the offending shell line is named"
-expect_err 'prefixes the coding standard lists' "the failure states the rule"
+expect_err 'prefixes the comments rule lists' "the failure states the rule"
+expect_err 'plugins/dev-skills/rules/comments.md' "the failure links the rule"
 rm "$project/plain.sh"
 stage
 

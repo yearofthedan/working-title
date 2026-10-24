@@ -48,7 +48,7 @@ Before a planned pull request's first commit, set out its approach, grouped by t
 
 1. **Tooling and dependencies**, including a choice not to use one.
 2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).
-3. **Decision records the planned pull request touches**: how it follows each one, and any you think is wrong for this case. A challenge names the record, what this planned pull request shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](../writing-adrs/SKILL.md), ahead of the planned pull request that depends on it.
+3. **Decision records the planned pull request touches**: how it follows each one, and any you think is wrong for this case. A challenge names the record, what this planned pull request shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md), ahead of the planned pull request that depends on it.
 4. **Reading the issue**: how you read an acceptance criterion or a `Done when` line that allows more than one reading.
 5. **Scope** beyond the planned pull request, including changing or removing existing behaviour.
 6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
@@ -99,8 +99,8 @@ Work that belongs to a different issue — a bug in code this change does not to
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
 - Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the approach](#confirm-the-approach) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
-- A question or aside from the builder is [answered, not immediately acted on](../../../.omp/RULES.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
-- When something already written down fails [the relevance and placement check](../../../docs/standards/communication-standards.md), raise it with the builder rather than building on it or moving it yourself.
+- A question or aside from the builder is [answered, not immediately acted on](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
+- When something already written down fails [the relevance and placement check](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/durable-writing.md), raise it with the builder rather than building on it or moving it yourself.
 - Each planned pull request lands as one pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
 - Every edge the issue lists needs a test in the pull request table.
 - Re-read the definition of done below before handing over.
@@ -109,7 +109,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 
 A pull request is done when all of these hold:
 
-- A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](../writing-adrs/SKILL.md) says it needs one.
+- A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md) says it needs one.
 - A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
 - Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine. A case is shown failing by breaking the code that should catch it, on committed work, and the file is read after the break is undone: a restore that quietly puts back the wrong version reads as a passing case, and as a flaky one later.
