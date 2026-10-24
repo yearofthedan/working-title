@@ -1,5 +1,5 @@
 #!/bin/sh
-# Write what a scenario's runner observed into the file, choosing the runner by where
+# help: Write what a scenario's runner observed into the file, choosing the runner by where
 # the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
 
 set -eu

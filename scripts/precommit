@@ -1,5 +1,5 @@
 #!/bin/sh
-# Check and fix the staged files, then run the checks the staged change needs.
+# help: Check and fix the staged files, then run the checks the staged change needs.
 
 set -eu
 

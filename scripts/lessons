@@ -1,5 +1,5 @@
 #!/bin/sh
-# List the lesson entries past the window in docs/lessons.md.
+# help: List the lesson entries past the window in docs/lessons.md.
 
 set -eu
 

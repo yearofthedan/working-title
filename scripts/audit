@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuse a dependency this change brings in that has a known advisory, and warn
+# help: Refuse a dependency this change brings in that has a known advisory, and warn
 # about the ones the base already carried.
 
 set -eu

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuse a commit on a story branch whose message has no Agent-Model: trailer.
+# help: Refuse a commit on a story branch whose message has no Agent-Model: trailer.
 
 set -eu
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install Ponytail, the skill the build work runs under, into your OMP.
+# help: Install Ponytail, the skill the build work runs under, into your OMP.
 
 set -eu
 

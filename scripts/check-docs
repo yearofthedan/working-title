@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuse a docs page that does not open with its audience and purpose.
+# help: Refuse a docs page that does not open with its audience and purpose.
 
 set -eu
 

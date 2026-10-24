@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuse a file whose name breaks the convention.
+# help: Refuse a file whose name breaks the convention.
 #
 # The rule: a file's name is lowercase kebab-case in every dot-separated part,
 # after any leading dot. The exceptions, each narrow on purpose, since a wide one

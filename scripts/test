@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run the tests.
+# help: Run the tests.
 
 set -eu
 

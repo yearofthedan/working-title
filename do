@@ -17,7 +17,7 @@ tasks() {
     name=$(basename "$file")
     case "$name" in _* | *.test.sh) continue ;; esac
     [ -f "$file" ] && [ -x "$file" ] || continue
-    summary=$(sed -n '2,/^[^#]/s/^# *//p' "$file" | head -n 1)
+    summary=$(sed -n 's/^# help: //p' "$file" | head -n 1)
     printf '  %-12s %s\n' "$name" "$summary"
   done
 }

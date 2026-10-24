@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuse a layer importing another out of turn, and any cycle, in the files given
+# help: Refuse a layer importing another out of turn, and any cycle, in the files given
 # (src when none are). The rules are .dependency-cruiser.mjs.
 
 set -eu

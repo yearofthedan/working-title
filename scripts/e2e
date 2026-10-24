@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run the browser specs against a build of the app.
+# help: Run the browser specs against a build of the app.
 
 set -eu
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Add a dependency: resolve and audit it in a scratch copy first, so a release with
+# help: Add a dependency: resolve and audit it in a scratch copy first, so a release with
 # a known advisory is refused before any of it is installed.
 
 set -eu

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Mark a pull request ready for review when the tree, CI and the body back it.
+# help: Mark a pull request ready for review when the tree, CI and the body back it.
 
 set -eu
 
