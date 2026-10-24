@@ -9,7 +9,7 @@ How is the graph drawn?
 - **Movement.** A focus or level change takes under 100 ms and every keystroke renders within one frame, at a design size of about 300 pieces and 2,000 links ([architecture](../architecture.md#quality-targets)). Each option was measured on that shape: one story, five beats and 294 scenes, every piece a fixed-size box drawn and redrawn with nothing measured, in headless Chromium, median of 7 runs.
 - **Accessibility tree.** A piece is a named boundary, and a wrapper that exists only for layout carries no role and no name ([the markup standard](../standards/markup.md)). A story's approved files record the tree ([ADR 8](0008-story-scenarios-run-from-their-approved-files.md)), so what the graph adds to it is read in a diff.
 - **Bundle and dependencies.** The app is one build of static files, cached whole on the first load and usable within 2 s ([ADR 1](0001-no-backend-in-v1.md), [ADR 6](0006-vite-plus-toolchain.md)). A graph library brings its own bundle and its own release schedule into that.
-- **Room for later needs.** Scenes under a beat, links across the tree, and panning once the graph outgrows the screen are later stories of the epic ([#100](https://github.com/yearofthedan/working-title/issues/100)).
+- **Room for later needs.** Scenes under a beat, links across the tree, and panning once the graph outgrows the screen are later stories of the epic ([#2](https://github.com/yearofthedan/working-title/issues/2)).
 
 ## Options considered
 
