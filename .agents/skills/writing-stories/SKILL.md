@@ -44,7 +44,3 @@ Show the draft to the builder, in the conversation, before it exists as an issue
 When they agree, file it with `gh issue create` from its template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
 
 Agreement is theirs to give: add no `ready` label yourself, and start nothing until they do.
-
-## Once it is agreed
-
-A story is never edited by the agent once coding starts; it is the record of what was agreed. A call the story left open goes in the pull request's `Decisions` section instead. A change of scope goes back to the builder, who updates the story.

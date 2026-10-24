@@ -67,6 +67,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A test strategy is planned from the cases already recorded, not from the story's scenarios alone: a scenario whose steps and tree another file already holds adds a run and no check | [#101](https://github.com/yearofthedan/working-title/pull/101) | [implement: Confirm the approach](../.agents/skills/implement/SKILL.md#confirm-the-approach), [testing: Approved scenarios](standards/testing.md#approved-scenarios) |
 | A brief's file list is drawn from a search for the wording the change makes untrue, not from the code it touches: the README and the dev flow still said setup installs Ponytail alone | [#103](https://github.com/yearofthedan/working-title/pull/103) | none |
 | A doc the builder points to is read whole, not searched for keywords: a search for "scenario" in the architecture page missed the Testability and Analysability rows that answered where a later story's scenario goes, and the question went back to the builder as if the docs were silent | [#109](https://github.com/yearofthedan/working-title/pull/109) | none |
+| A rule found in more than one place is given one owner before it is changed, and the copies go: the rule on editing an agreed issue sat in four files, already worded differently, and the first plan edited all four | [#110](https://github.com/yearofthedan/working-title/pull/110) | none |
 
 ## The columns
 
