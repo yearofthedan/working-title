@@ -1,5 +1,3 @@
-// Refuse a shell command that would resolve a package without the audit ./do add runs.
-
 import { spawnSync } from 'node:child_process';
 import { callDirectory } from './call-cwd';
 import { wordsPerCommand } from './shell-words';
@@ -31,8 +29,6 @@ const RESOLVES_SOMETHING_NEW: Record<string, true> = {
 };
 const ONE_OFF_RUNNERS: Record<string, true> = { npx: true, pnpx: true };
 const OTHER_PACKAGE_MANAGERS: Record<string, true> = { npm: true, yarn: true, bun: true };
-// An option that takes a value and is not listed here reads as a package, which
-// refuses an install that would have passed.
 const OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '-C': true,
   '--dir': true,
@@ -40,7 +36,6 @@ const OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--filter': true,
 };
 
-// A tree git cannot be asked about is treated as differing.
 const manifestMatchesHead = (cwd: string): boolean => {
   const status = spawnSync('git', ['-C', cwd, 'status', '--porcelain', '--', '*package.json'], {
     encoding: 'utf8',
