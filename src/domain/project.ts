@@ -13,7 +13,6 @@ export interface Method {
   readonly name: string;
   readonly version: number;
   readonly rootKind: PieceKind;
-  /** The kind a project starts with under its root, and how many of it. */
   readonly startingChildren: { readonly kind: PieceKind; readonly count: number };
 }
 
@@ -24,9 +23,8 @@ export interface FacetText {
 export interface Piece {
   readonly id: string;
   readonly kind: string;
-  /** The piece it sits under; the root has none. */
   readonly parent: string | null;
-  /** Where it sits among its siblings, from none. */
+  /** Counted from 0 among its siblings. */
   readonly order: number;
   readonly facets: FacetText;
 }
@@ -37,14 +35,12 @@ export interface Project {
   readonly pieces: readonly Piece[];
 }
 
-/** The shape version 1 wrote: one root piece, with no id and no order, and nothing under it. */
 export interface ProjectFromVersion1 {
   readonly method: string;
   readonly version: number;
   readonly root: { readonly kind: string; readonly facets: FacetText };
 }
 
-/** What the store holds: today's flat list, or a save version 1 wrote. */
 export type StoredProject = Project | ProjectFromVersion1;
 
 const startingChildren = (method: Method, root: Piece, newId: () => string): readonly Piece[] =>
@@ -56,10 +52,7 @@ const startingChildren = (method: Method, root: Piece, newId: () => string): rea
     facets: {},
   }));
 
-/**
- * A project as a new one starts: the root, and the children the method starts it with, in order
- * under it. `newId` is passed in so a test reads the ids it mints.
- */
+/** `newId` is passed in so a test reads the ids it mints. */
 export const newProject = (method: Method, newId: () => string): Project => {
   const root: Piece = { id: newId(), kind: method.rootKind.id, parent: null, order: 0, facets: {} };
   return {
@@ -75,9 +68,8 @@ const isFacetText = (value: unknown): value is FacetText =>
   Object.values(value).every((text) => typeof text === 'string');
 
 /**
- * Whether a stored value is a project in the shape the app writes, so a piece that names neither
- * itself nor its kind is refused rather than rendered. The method and version are not compared: a
- * project from another version opens and keeps the facets its ids do not name.
+ * The method and version are not compared: a project from another version opens and keeps the
+ * facets its ids do not name.
  */
 export const isProject = (value: unknown): value is Project => {
   if (value === null) return false;
@@ -90,7 +82,6 @@ export const isProject = (value: unknown): value is Project => {
   );
 };
 
-/** Whether a stored value is a save in the shape version 1 wrote, which `readProject` upgrades. */
 export const isProjectFromVersion1 = (value: unknown): value is ProjectFromVersion1 => {
   if (typeof value !== 'object' || value === null) return false;
   const { method, version, root } = value as ProjectFromVersion1;
@@ -98,11 +89,7 @@ export const isProjectFromVersion1 = (value: unknown): value is ProjectFromVersi
   return typeof root?.kind === 'string' && isFacetText(root.facets);
 };
 
-/**
- * The project a stored value holds, or nothing where nothing was saved. A save in the shape
- * version 1 wrote becomes its root piece with the children the method starts it with, so the
- * sentence the writer typed survives the upgrade.
- */
+/** A save in the shape version 1 wrote gains the method's starting children, so its sentence survives. */
 export const readProject = (
   stored: StoredProject | undefined,
   method: Method,
@@ -123,7 +110,6 @@ export const readProject = (
   };
 };
 
-/** Fill in one facet of one piece, leaving every other piece and facet as it was. */
 export const elaborate = (
   project: Project,
   pieceId: string,

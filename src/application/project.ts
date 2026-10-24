@@ -15,7 +15,6 @@ export interface FacetView {
   readonly text: string;
 }
 
-/** A piece as the page shows it: what the writer hears it called, and its facets in turn. */
 export interface PieceView {
   readonly id: string;
   readonly name: string;
@@ -33,11 +32,8 @@ const view = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
   facets: kind.facets.map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
 });
 
-/**
- * What the page shows, in order: the story, then the children under it by their order among
- * themselves. A child is named for its kind and its place, since the method's own names for them
- * arrive with the guidance that tells the writer what each is for.
- */
+// shortcut: a child is named for its kind and its place, until the method's own names for its
+// children arrive with their guidance in #4.
 const listed = (project: Project, method: Method): readonly PieceView[] => {
   const root = project.pieces.find(({ parent }) => parent === null)!;
   const children = project.pieces

@@ -8,13 +8,11 @@ const key = 'working-title:project';
 const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
 const saved = (): string | null => localStorage.getItem(key);
 
-/** Ids a test can read. The shape version 1 wrote carries none, so reading it mints them. */
 const ids = (): (() => string) => {
   let made = 0;
   return () => `id-${(made += 1)}`;
 };
 
-/** The project the app would open from what the store holds, since the store hands it over unread. */
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());
 

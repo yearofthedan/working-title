@@ -8,9 +8,7 @@ export interface Field {
   enter(text: string): Promise<void>;
 }
 
-/** A group a name marks, such as one piece and its facets. */
 export interface Group {
-  /** The field a label names, inside this group. */
   field(label: string): Field;
 }
 
@@ -19,7 +17,6 @@ export interface PageScope {
   fresh(): Promise<void>;
   /** The field a label names, as a writer finds it. */
   field(label: string): Field;
-  /** The group a name marks, as a writer hears it. */
   group(name: string): Group;
   /** What the page shows, as the runner prints it. */
   tree(): Promise<readonly string[]>;

@@ -9,7 +9,6 @@ import {
   type Project,
 } from './project';
 
-/** Ids a test can read. The domain mints them, and nothing here depends on their shape. */
 const ids = (): (() => string) => {
   let made = 0;
   return () => `id-${(made += 1)}`;
