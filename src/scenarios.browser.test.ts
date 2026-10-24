@@ -9,11 +9,8 @@ import { playScenarios, type Runner } from './test-helpers/play';
 import { renderFocus } from './ui/focus/focus';
 import { focusPageActions } from './ui/focus/writer';
 
-// ./do approve sets this to the scenario file it is approving; a plain run has it empty.
 declare const __SCENARIO_APPROVE__: string;
 
-// Vite reads each file as raw text. Its client types are not wired into this project's
-// tsconfig, so the shape the glob returns is declared here.
 interface RawGlob {
   glob(
     pattern: string,
@@ -58,11 +55,9 @@ for (const [key, text] of Object.entries(files)) {
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
         const scope = browserScope(theStoryOnScreen);
-        // Approving reads the file as it stands, so a file of several scenarios is rewritten
-        // a section at a time.
-        const current = approving ? await browser.server.commands.readFile(path) : text;
+        const asItStands = approving ? await browser.server.commands.readFile(path) : text;
         await playScenarios(
-          { path, text: current },
+          { path, text: asItStands },
           runnerFor(approving),
           focusPageActions(scope),
           { only: behaviour, ...(approving ? { approve: true } : {}) },

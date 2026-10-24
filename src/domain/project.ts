@@ -36,11 +36,7 @@ export const newProject = (method: Method): Project => ({
   root: { kind: method.rootKind.id, facets: {} },
 });
 
-/**
- * Whether a stored value can be read as a project: every facet's text is a string, since that
- * is all the app ever renders or writes. The method and version are not compared, so a project
- * from another version opens and keeps the facets its ids do not name; #2 owns acting on them.
- */
+// shortcut: the method and version a stored value names are not compared, until #2 acts on them.
 export const isProject = (value: unknown): value is Project => {
   if (typeof value !== 'object' || value === null) return false;
   const { method, version, root } = value as Project;
