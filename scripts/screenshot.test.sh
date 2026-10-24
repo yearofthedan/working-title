@@ -38,4 +38,13 @@ expect_status 1 "screenshot gives up when the preview stops before answering"
 expect_err 'stopped before it answered' "screenshot says the preview stopped"
 expect_no_vp 'playwright screenshot.*' "screenshot takes no shot when the preview stopped"
 
+CURL_FAILS=999 VP_PREVIEW_STAYS=1 "$copy/do" screenshot >"$work/out" 2>"$work/err" &
+run=$!
+sleep 1
+kill -TERM "$run"
+status=0
+wait "$run" || status=$?
+expect_status 1 "screenshot exits 1 when it is signalled"
+expect_err 'was interrupted' "screenshot says the run was interrupted"
+
 finish

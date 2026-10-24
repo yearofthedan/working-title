@@ -27,6 +27,7 @@ stop() {
   wait "$server" 2>/dev/null || true
 }
 trap stop EXIT
+trap 'echo "the screenshot run was interrupted" >&2; exit 1' INT TERM
 
 tries=0
 until curl -fsS http://localhost:4174 >/dev/null 2>&1; do
