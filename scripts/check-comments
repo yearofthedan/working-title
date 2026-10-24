@@ -1,0 +1,94 @@
+#!/bin/sh
+# help: Refuse a comment that does not start with an allowed prefix.
+# shortcut: a # after code on a line passes, and one inside a string reads as a comment, since telling them apart needs a shell parser.
+# shortcut: CSS comments are matched here by line, until the CSS grows enough for stylelint, whose comment-pattern rule replaces this.
+
+set -eu
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+link='^workaround: https://github\.com/[^/ ]+/[^/ ]+/issues/[0-9]+'
+allowed() {
+  case "$1" in
+  'shortcut: '* | 'help: '* | '@ts-expect-error'* | 'oxlint-disable'* | '@type'*) return 0 ;;
+  esac
+  printf '%s\n' "$1" | grep -Eq "$link"
+}
+
+: >"$work/bad"
+printf 0 >"$work/count"
+
+git ls-files | while IFS= read -r file; do
+  case "$file" in
+  *.css)
+    printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
+    awk '
+      BEGIN { inside = 0; judged = 0; start = 0 }
+      {
+        rest = $0
+        while (1) {
+          if (!inside) {
+            at = index(rest, "/*")
+            if (at == 0) break
+            inside = 1; judged = 0; start = NR
+            rest = substr(rest, at + 2)
+          } else if (rest == "") {
+            break
+          }
+          stop = index(rest, "*/")
+          if (stop > 0) { text = substr(rest, 1, stop - 1); rest = substr(rest, stop + 2); inside = 0 }
+          else { text = rest; rest = "" }
+          if (judged) continue
+          sub(/^[ \t*]+/, "", text)
+          sub(/[ \t]+$/, "", text)
+          if (text == "") continue
+          judged = 1
+          printf "%d\t%s\n", start, text
+        }
+      }
+    ' "$file" | while IFS="$(printf '\t')" read -r line text; do
+      allowed "$text" || printf '%s:%s\n' "$file" "$line" >>"$work/bad"
+    done
+    continue
+    ;;
+  esac
+
+  case "$file" in
+  scripts/_vp | scripts/_test-helpers) skip=0 ;;
+  *)
+    case "$(sed -n 1p "$file")" in
+    '#!'*' sh' | '#!'*'/sh' | '#!'*' bash' | '#!'*'/bash' | '#!sh' | '#!bash') skip=1 ;;
+    *) continue ;;
+    esac
+    ;;
+  esac
+
+  printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
+  n=0
+  sed 's/^[[:space:]]*//' "$file" | while IFS= read -r line || [ -n "$line" ]; do
+    n=$((n + 1))
+    [ "$n" -le "$skip" ] && continue
+    case "$line" in
+    '#'*) ;;
+    *) continue ;;
+    esac
+    text=${line#\#}
+    text=${text# }
+    allowed "$text" || printf '%s:%s\n' "$file" "$n" >>"$work/bad"
+  done
+done
+
+if [ -s "$work/bad" ]; then
+  cat "$work/bad"
+  echo "A comment is allowed only with one of the prefixes the coding standard lists: shortcut:, workaround: with its issue link, help:, or a directive a tool reads (docs/standards/coding.md)." >&2
+  exit 1
+fi
+
+count=$(cat "$work/count")
+[ "$count" -gt 0 ] || {
+  echo "no tracked file was read" >&2
+  exit 1
+}
+
+echo "every comment in the $count shell and CSS files starts with an allowed prefix"
