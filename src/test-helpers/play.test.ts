@@ -26,7 +26,6 @@ const file = [
   '',
 ].join('\n');
 
-// One tree per scenario, in the order the file holds them, with a place to record a write.
 const runnerSeeing = (...trees: readonly (readonly string[])[]) => {
   let at = 0;
   const written: { path: string; text: string }[] = [];
@@ -63,7 +62,6 @@ describe('playing a scenario file', () => {
       runnerSeeing(['- main:', '  - text: A toy'], ['- main:']),
       actions,
     );
-    // `the writer sees` is the runner's step, so nothing plays it.
     expect(played).toEqual(['a toy', 'types "the line"', 'reloads', 'a toy']);
   });
 
