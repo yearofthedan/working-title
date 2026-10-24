@@ -16,7 +16,7 @@ snapshot() {
 }
 before() { snapshot >"$work/before"; }
 
-run_add() { # $@ environment assignments, as in `run_add PNPM_ADD_CLEAN=1`
+run_add() {
   status=0
   : >"$VP_LOG"
   (cd "$copy" && env "$@" "$copy/do" add -D vulnerable-fixture) >"$work/out" 2>"$work/err" || status=$?

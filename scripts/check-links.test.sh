@@ -44,7 +44,7 @@ export STUB_CALLS
 
 track() { (cd "$project" && git add -A); }
 
-links() { # $1 the flags, if any; CI unset, so the machine is a builder's
+links() {
   status=0
   : >"$STUB_CALLS"
   track

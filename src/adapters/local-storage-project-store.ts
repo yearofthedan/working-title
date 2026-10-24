@@ -3,7 +3,7 @@ import type { ProjectStore } from '../ports/project-store';
 
 const key = 'working-title:project';
 
-// shortcut: one JSON blob in localStorage, moved to IndexedDB, until #2 saves pieces, links and a library pick together.
+// shortcut: one JSON blob in localStorage, until #2 saves pieces and links together and picks a library, which moves it to IndexedDB.
 export const projectStore = (): ProjectStore => ({
   load: async () => {
     const saved = localStorage.getItem(key);

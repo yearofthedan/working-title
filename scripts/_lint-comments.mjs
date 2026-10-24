@@ -17,7 +17,10 @@ const rule = defineRule({
     return {
       Program(node) {
         for (const comment of context.sourceCode.getAllComments()) {
-          const text = comment.value.trim().replace(/^\*/, '').trim().split('\n')[0].trim();
+          const text = comment.value
+            .replace(/^[\s*]+/, '')
+            .split('\n')[0]
+            .trim();
           if (!allowed(text)) {
             context.report({ node, loc: comment.loc, messageId: 'prefix' });
           }

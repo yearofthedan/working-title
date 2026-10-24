@@ -10,7 +10,7 @@ PNPM_AUDIT_JSON="$work/audit.json"
 export PNPM_AUDIT_JSON
 make_copy
 
-advisory() { # $1 version, $2 path
+advisory() {
   printf '{"advisories":{"1106913":{"title":"Command Injection in lodash","module_name":"lodash","severity":"high","github_advisory_id":"GHSA-35jh-r3h4-6jhm","url":"u","findings":[{"version":"%s","dev":true,"paths":["%s"]}]}}}' "$1" "$2"
 }
 advisory 4.17.20 '.>lodash' >"$work/audit-a.json"

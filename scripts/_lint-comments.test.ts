@@ -46,6 +46,10 @@ beforeAll(() => {
     'block-shortcut.ts',
     '/* shortcut: a limit,\n   until it is lifted. */\nexport const a = 1;\n',
   );
+  write(
+    'doc-block-shortcut.ts',
+    '/**\n * shortcut: a limit, until it is lifted.\n */\nexport const a = 1;\n',
+  );
   write('workaround-without-link.ts', '// workaround: patched here.\nexport const a = 1;\n');
   write(
     'not-a-comment.ts',
@@ -97,6 +101,10 @@ describe('comments/allowed-prefix', { timeout: 60_000 }, () => {
 
   it('passes a /* shortcut: */ block that spans lines', () => {
     expect(refusedIn('block-shortcut.ts')).toEqual([]);
+  });
+
+  it('passes a /** block whose shortcut: starts on its second line', () => {
+    expect(refusedIn('doc-block-shortcut.ts')).toEqual([]);
   });
 
   it('refuses a workaround: with no issue link', () => {

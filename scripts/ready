@@ -40,7 +40,7 @@ rows() {
   ' "$work/acceptance"
 }
 
-run_answer() { # $1 the API path
+run_answer() {
   if ! grep -q "^$1 " "$work/runs"; then
     answer=$(gh api "$1" --jq '"\(.head_sha) \(.conclusion)"' 2>/dev/null) || answer=unreadable
     printf '%s %s\n' "$1" "$answer" >>"$work/runs"
@@ -96,7 +96,7 @@ check_the_boxes() {
   done
 }
 
-check_a_run() { # $1 the row number, $2 the criterion, $3 the link
+check_a_run() {
   number=$1
   criterion=$2
   link=$3
@@ -119,7 +119,7 @@ check_a_run() { # $1 the row number, $2 the criterion, $3 the link
   fi
 }
 
-check_a_row() { # $1 the row number, $2 the criterion, $3 the Run cell
+check_a_row() {
   number=$1
   criterion=$2
   run=$3

@@ -1,6 +1,6 @@
 #!/bin/sh
 # help: Refuse a comment that does not start with an allowed prefix.
-# shortcut: a # after code on a line passes, and one inside a string reads as a comment, since telling them apart needs a shell parser.
+# shortcut: a # after code on a line passes, and one inside a string reads as a comment, until review finds one of either, which calls for a shell parser.
 # shortcut: CSS comments are matched here by line, until the CSS grows enough for stylelint, whose comment-pattern rule replaces this.
 
 set -eu

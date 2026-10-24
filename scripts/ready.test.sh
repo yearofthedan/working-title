@@ -21,7 +21,7 @@ GH_REQUIRED="$work/gh-required"
 GH_RUNS="$work/gh-runs"
 export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS
 
-printf '#!/bin/sh\n# As gh does with --json: the list and exit 0 whatever the checks'\'' state, and an\n# error only when it cannot answer.\n' >"$work/bin/gh"
+printf '#!/bin/sh\n' >"$work/bin/gh"
 cat >>"$work/bin/gh" <<'STUB'
 echo "gh $*" >>"$GH_LOG"
 case "$1 $2" in
@@ -61,7 +61,7 @@ run_path="repos/yearofthedan/working-title/actions/jobs/202"
 
 crlf() { awk '{ printf "%s\r\n", $0 }' "$GH_BODY" >"$GH_BODY.crlf" && mv "$GH_BODY.crlf" "$GH_BODY"; }
 
-body() { # $1 the For review lines, $2 the table rows
+body() {
   {
     printf 'Part of #73\n\n## Acceptance criteria\n\n'
     printf '| Acceptance criterion | Test | Run |\n| --- | --- | --- |\n'
@@ -93,11 +93,11 @@ ready() {
   (cd "$repo" && "$root/do" ready 77) >"$work/out" 2>"$work/err" || status=$?
 }
 
-refused() { # $1 what the case is
+refused() {
   if grep -q '^gh pr ready' "$GH_LOG"; then no "$1 leaves the pull request in draft"; else ok "$1 leaves the pull request in draft"; fi
 }
 
-expect_one_failure() { # $1 what the case is
+expect_one_failure() {
   count=$(grep -c '^- ' "$work/err" || true)
   if [ "$count" -eq 1 ]; then ok "$1 names that condition alone"; else no "$1 names that condition alone ($count named)"; fi
 }

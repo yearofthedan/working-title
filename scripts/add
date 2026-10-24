@@ -24,7 +24,7 @@ refuse() {
   exit 1
 }
 
-restore() { # puts the files that were there back, and says which would not go
+restore() {
   failed=
   for file in $files; do
     cp "$work/backup/$file" "$root/$file" 2>/dev/null ||
