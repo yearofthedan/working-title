@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, readProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
+import type { RawGlob } from '../test-helpers/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
@@ -15,13 +16,6 @@ const ids = (): (() => string) => {
 
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());
-
-interface RawGlob {
-  glob(
-    pattern: string,
-    options: { query: string; import: string; eager: true },
-  ): Record<string, string>;
-}
 
 const screenshots = (import.meta as unknown as RawGlob).glob(
   '/scripts/_screenshot-long-sentences.json',

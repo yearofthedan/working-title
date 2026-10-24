@@ -4,19 +4,13 @@ import { projectStore } from './adapters/local-storage-project-store';
 import { openProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
 import { browserScope } from './test-helpers/browser-scope';
+import type { RawGlob } from './test-helpers/raw-glob';
 import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner } from './test-helpers/play';
 import { renderFocus } from './ui/focus/focus';
 import { focusPageActions } from './ui/focus/writer';
 
 declare const __SCENARIO_APPROVE__: string;
-
-interface RawGlob {
-  glob(
-    pattern: string,
-    options: { query: string; import: string; eager: true },
-  ): Record<string, string>;
-}
 
 const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.approved.md', {
   query: '?raw',
