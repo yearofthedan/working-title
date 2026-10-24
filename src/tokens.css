@@ -3,13 +3,27 @@
 @import '@fontsource-variable/inter';
 
 :root {
-  --color-background: #fbfaf7;
+  --color-background: #f4f2ed;
+  --color-surface: #fdfcfa;
   --color-text: #1f1d1a;
+  --color-text-muted: #5f5a52;
+  --color-edge: #8f897e;
+  --color-line: #c9c3b8;
+  --color-focus: #2f5fa8;
 
   --font-prose: 'Literata Variable', serif;
   --font-interface: 'Inter Variable', sans-serif;
 
   --text-prose: 1.125rem;
   --text-interface: 0.875rem;
+  --text-small: 0.75rem;
   --leading-prose: 1.6;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
 }

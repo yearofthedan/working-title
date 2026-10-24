@@ -9,16 +9,24 @@ body {
   font-size: var(--text-interface);
 }
 
+header,
+main {
+  margin: var(--space-8);
+}
+
+header h1 {
+  margin: 0;
+}
+
 main {
   font-family: var(--font-prose);
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
-  padding: 2rem;
   overflow: auto;
 }
 
 fieldset {
-  --card: 15rem;
+  --card: 12rem;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -36,11 +44,12 @@ legend {
   translate: -50%;
   box-sizing: border-box;
   width: var(--card);
-  height: 2rem;
-  padding: 0.5rem 0.75rem 0;
-  border: 1px solid;
+  height: var(--space-8);
+  padding: var(--space-3) var(--space-4) 0;
+  border: 1px solid var(--color-edge);
   border-bottom: none;
-  background: var(--color-background);
+  border-radius: var(--space-2) var(--space-2) 0 0;
+  background: var(--color-surface);
 }
 
 legend :is(h2, h3) {
@@ -52,19 +61,20 @@ legend :is(h2, h3) {
 .facet {
   box-sizing: border-box;
   width: var(--card);
-  margin-top: 2rem;
+  margin-top: var(--space-8);
   display: grid;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem 0.75rem;
-  border: 1px solid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  border: 1px solid var(--color-edge);
   border-top: none;
-  background: var(--color-background);
+  border-radius: 0 0 var(--space-2) var(--space-2);
+  background: var(--color-surface);
 }
 
 .facet label {
   font-family: var(--font-interface);
-  font-size: 0.75rem;
-  color: color-mix(in srgb, currentColor 65%, transparent);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
 }
 
 .facet textarea {
@@ -78,18 +88,26 @@ legend :is(h2, h3) {
   min-height: 2lh;
 }
 
+.facet:hover textarea {
+  outline: 1px solid var(--color-edge);
+}
+
+.facet textarea:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
 main > fieldset {
   --card: 17rem;
   width: max-content;
-  margin-inline: auto;
 }
 
 ol {
   position: relative;
   display: flex;
-  gap: 1rem;
+  gap: var(--space-4);
   margin: 0;
-  padding: 2.5rem 0 0;
+  padding: var(--space-12) 0 0;
 }
 
 ol > li {
@@ -99,19 +117,19 @@ ol > li {
 ol > li::before {
   content: '';
   position: absolute;
-  top: -1.25rem;
+  top: calc(-1 * var(--space-6));
   left: 50%;
-  height: 1.25rem;
-  border-left: 1px solid;
+  height: var(--space-6);
+  border-left: 1px solid var(--color-line);
 }
 
 ol > li::after {
   content: '';
   position: absolute;
-  top: -1.25rem;
-  left: -0.5rem;
-  right: -0.5rem;
-  border-top: 1px solid;
+  top: calc(-1 * var(--space-6));
+  left: calc(-1 * var(--space-2));
+  right: calc(-1 * var(--space-2));
+  border-top: 1px solid var(--color-line);
 }
 
 ol > li:first-child::after {
@@ -127,6 +145,6 @@ ol::before {
   position: absolute;
   top: 0;
   left: 50%;
-  height: 1.25rem;
-  border-left: 1px solid;
+  height: var(--space-6);
+  border-left: 1px solid var(--color-line);
 }
