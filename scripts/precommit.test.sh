@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do precommit: it hands the staged files to vp staged, then runs the
-# checks the staged change needs. Its credential scan is in secrets.test.sh.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
