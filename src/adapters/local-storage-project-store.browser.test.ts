@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, readProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
+import type { RawGlob } from '../test-helpers/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
@@ -15,6 +16,11 @@ const ids = (): (() => string) => {
 
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());
+
+const screenshots = (import.meta as unknown as RawGlob).glob(
+  '/scripts/_screenshot-long-sentences.json',
+  { query: '?raw', import: 'default', eager: true },
+);
 
 describe('the project in browser storage', () => {
   it('reads back what it saved, an empty sentence included', async () => {
@@ -63,6 +69,29 @@ describe('the project in browser storage', () => {
       '',
       '',
     ]);
+  });
+
+  it('opens the project the screenshots load, its story and Beat 2 holding their long sentences', async () => {
+    const [raw] = Object.values(screenshots);
+    const state = JSON.parse(String(raw)) as {
+      origins: { localStorage: { name: string; value: string }[] }[];
+    };
+    const value =
+      state.origins.flatMap(({ localStorage: items }) => items).find(({ name }) => name === key)
+        ?.value ?? '';
+    localStorage.setItem(key, value);
+
+    const project = await opened();
+    const story = project?.pieces.find(({ parent }) => parent === null);
+    const beats = project?.pieces.filter(({ parent }) => parent === story?.id) ?? [];
+    const beat2 = beats.find(({ order }) => order === 1);
+
+    expect(project?.pieces).toHaveLength(1 + snowflakeExtended.startingChildren.count);
+    expect((story?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
+    expect((beat2?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
+    expect(
+      beats.filter(({ order }) => order !== 1).every(({ facets }) => facets[summary] === ''),
+    ).toBe(true);
   });
 
   it('refuses text that is not JSON, leaving it where it is', async () => {

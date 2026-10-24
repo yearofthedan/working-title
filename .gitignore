@@ -7,5 +7,6 @@ playwright-report/
 e2e/lint-sample-*/
 lint-comments-sample-*/
 reports/
+screenshots/
 .stryker-tmp/
 .omp/agent-notes/

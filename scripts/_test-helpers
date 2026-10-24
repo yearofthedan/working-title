@@ -39,9 +39,25 @@ make_copy() {
     [ "$tool" = vp ] && prefix=''
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
     chmod +x "$copy/node_modules/.bin/$tool"
+    if [ "$tool" = vp ]; then
+      cat >>"$copy/node_modules/.bin/vp" <<'STUB'
+case "$*" in
+'preview '*) [ -z "${VP_PREVIEW_STAYS:-}" ] || sleep 30 ;;
+esac
+exit 0
+STUB
+    fi
   done
   printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
   chmod +x "$copy/node_modules/.bin/node"
+  printf '#!/bin/sh\n' >"$copy/node_modules/.bin/curl"
+  cat >>"$copy/node_modules/.bin/curl" <<'STUB'
+echo "curl $*" >>"$VP_LOG"
+answered=$(grep -c "^curl " "$VP_LOG" 2>/dev/null) || answered=0
+[ "$answered" -le "${CURL_FAILS:-0}" ] && exit 7
+exit 0
+STUB
+  chmod +x "$copy/node_modules/.bin/curl"
   printf '#!/bin/sh\n' >"$copy/node_modules/.bin/pnpm"
   cat >>"$copy/node_modules/.bin/pnpm" <<'STUB'
 echo "pnpm $*" >>"$VP_LOG"
@@ -86,4 +102,5 @@ run_copy() {
   "$copy/do" "$@" >"$work/out" 2>"$work/err" || status=$?
 }
 expect_vp() { if grep -qx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
+expect_no_vp() { if grep -qx "$1" "$VP_LOG"; then no "$2"; else ok "$2"; fi; }
 expect_vp_literal() { if grep -Fqx "$1" "$VP_LOG"; then ok "$2"; else no "$2"; fi; }
