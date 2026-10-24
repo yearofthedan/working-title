@@ -21,3 +21,13 @@ A comment is allowed only when it starts with one of these prefixes, after the c
 A `//` or `#` comment is one line. A longer comment is a `/* … */` block, which shell does not have, so a shell comment is always one line.
 
 Two checks refuse every other comment: `scripts/_lint-comments.mjs` reads JavaScript and TypeScript, `scripts/check-comments` reads shell and CSS.
+
+## Configuration
+
+A configuration file follows the same rule. A comment on a setting goes one of three ways:
+
+- If the file is hard to read without it, extract a named module or helper, or rename one, so the name says what the comment said.
+- A known limit becomes a `shortcut:`.
+- Otherwise it goes. The reason for a value is in the history of the change that set it, one `git blame` away, and a copy of it in the file goes stale.
+
+Whether a setting gets a test is in [Testing](testing.md#levels-and-names).
