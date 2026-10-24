@@ -17,7 +17,6 @@ const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus
 
 const pieceGroup = (piece: PieceView, headingTag: 'h2' | 'h3', elaborate: Focus['elaborate']) => {
   const group = document.createElement('fieldset');
-  group.className = headingTag === 'h2' ? 'story' : 'beat';
   const name = document.createElement('legend');
   const heading = document.createElement(headingTag);
   heading.textContent = piece.name;
@@ -29,13 +28,13 @@ const pieceGroup = (piece: PieceView, headingTag: 'h2' | 'h3', elaborate: Focus[
 export const renderFocus = (main: HTMLElement, focus: Focus): void => {
   const [story, ...rest] = focus.pieces;
   if (story === undefined) return;
-  const beats = document.createElement('ol');
+  const children = document.createElement('ol');
   for (const piece of rest) {
     const item = document.createElement('li');
     item.append(pieceGroup(piece, 'h3', focus.elaborate));
-    beats.append(item);
+    children.append(item);
   }
   const group = pieceGroup(story, 'h2', focus.elaborate);
-  group.append(beats);
+  group.append(children);
   main.replaceChildren(group);
 };

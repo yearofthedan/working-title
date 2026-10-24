@@ -18,6 +18,7 @@ main {
 }
 
 fieldset {
+  --card: 15rem;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -77,14 +78,10 @@ legend :is(h2, h3) {
   min-height: 2lh;
 }
 
-.story {
+main > fieldset {
   --card: 17rem;
   width: max-content;
   margin-inline: auto;
-}
-
-.beat {
-  --card: 15rem;
 }
 
 ol {
