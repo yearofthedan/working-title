@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do ready: it marks a pull request ready only when the tree, CI on the
-# head commit and the body's tables back it, and names each condition that fails.
-# gh is stubbed with the answers its --json -q filters give; a real run against a
-# pull request checks those filters.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
@@ -26,8 +21,8 @@ GH_REQUIRED="$work/gh-required"
 GH_RUNS="$work/gh-runs"
 export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS
 
-cat >"$work/bin/gh" <<'STUB'
-#!/bin/sh
+printf '#!/bin/sh\n# As gh does with --json: the list and exit 0 whatever the checks'\'' state, and an\n# error only when it cannot answer.\n' >"$work/bin/gh"
+cat >>"$work/bin/gh" <<'STUB'
 echo "gh $*" >>"$GH_LOG"
 case "$1 $2" in
 'pr view')
@@ -37,8 +32,6 @@ case "$1 $2" in
   esac
   ;;
 'pr checks')
-  # As gh does with --json: the list and exit 0 whatever the checks' state, and an
-  # error only when it cannot answer.
   if [ -n "${GH_CHECKS_ERROR:-}" ]; then
     echo "$GH_CHECKS_ERROR" >&2
     exit 1
@@ -66,8 +59,6 @@ chmod +x "$work/bin/gh"
 run="https://github.com/yearofthedan/working-title/actions/runs/101/job/202"
 run_path="repos/yearofthedan/working-title/actions/jobs/202"
 
-# Fixtures are LF; the case below rewrites its body with CRLF, which is what pins
-# the trailing-whitespace allowance ./do ready matches on.
 crlf() { awk '{ printf "%s\r\n", $0 }' "$GH_BODY" >"$GH_BODY.crlf" && mv "$GH_BODY.crlf" "$GH_BODY"; }
 
 body() { # $1 the For review lines, $2 the table rows

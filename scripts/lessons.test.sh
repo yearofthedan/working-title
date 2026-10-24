@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do lessons: every entry is checked, the window boundary holds, and a
-# lookup that fails is not an entry that is current; with a stub gh.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
@@ -22,11 +19,8 @@ mkdir -p "$lesson_repo/docs"
 first=$(git -C "$lesson_repo" rev-list --max-parents=0 main)
 tip=$(git -C "$lesson_repo" rev-parse main)
 printf 'merged:%s\nmerged:%s\nopen:\nfail:\nclosed:\n' "$first" "$tip" >"$work/gh-answers"
-cat >"$work/bin/gh" <<'STUB'
-#!/bin/sh
-# Answers the one call ./do lessons makes: a single `pr list`, one line per number,
-# `N STATE SHA`, as the `-q` filter prints it. Line N of GH_ANSWERS is pull request N,
-# and a `fail:` line is left out of the list.
+printf '#!/bin/sh\n# Answers the one call ./do lessons makes: a single `pr list`, one line per number,\n# `N STATE SHA`, as the `-q` filter prints it. Line N of GH_ANSWERS is pull request N,\n# and a `fail:` line is left out of the list.\n' >"$work/bin/gh"
+cat >>"$work/bin/gh" <<'STUB'
 case "$1 $2" in
 'pr list')
   [ -n "${GH_LIST_FAIL:-}" ] && exit 1

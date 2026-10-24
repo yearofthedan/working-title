@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do test: it never writes an approved scenario.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 

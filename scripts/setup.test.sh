@@ -1,12 +1,10 @@
 #!/bin/sh
 
-# Tests for ./do setup: installing Ponytail into OMP, with a stub omp that records its calls.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
-cat >"$work/bin/omp" <<'STUB'
-#!/bin/sh
+printf '#!/bin/sh\n' >"$work/bin/omp"
+cat >>"$work/bin/omp" <<'STUB'
 echo "$*" >> "$OMP_LOG"
 if [ "$1 $2" = "plugin list" ]; then cat "$OMP_LIST"; fi
 if [ "$1 $2" = "plugin marketplace" ] && [ "$3" = "list" ]; then cat "$OMP_MARKETPLACES"; fi
@@ -17,7 +15,6 @@ OMP_LIST="$work/plugins.json"
 OMP_MARKETPLACES="$work/marketplaces"
 export OMP_LOG OMP_LIST OMP_MARKETPLACES
 
-# A machine with no marketplaces configured and nothing installed.
 fresh() {
   printf '{"npm":[],"marketplace":[]}' >"$OMP_LIST"
   : >"$OMP_MARKETPLACES"
@@ -49,7 +46,6 @@ expect_status 0 "setup succeeds when the marketplace is already configured"
 expect_no_call 'marketplace add' "setup does not re-add the marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
-# A PATH holding only what ./do itself needs, so omp is missing wherever this runs.
 mkdir -p "$work/nowhere"
 ln -s "$(command -v dirname)" "$work/nowhere/dirname"
 status=0

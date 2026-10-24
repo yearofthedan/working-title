@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do approve: it picks a scenario's runner by where the file is, refuses anything
-# that is not a scenario file, and asks that runner to record what it observed.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 

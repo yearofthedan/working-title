@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do check-docs: the rule over a docs page's opening lines, the
-# numbered record it leaves alone, and the files it does not read.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
@@ -15,20 +12,16 @@ mkdir -p "$project"
   git config user.name t
 )
 
-# A page's opening is what sits under its title, so the fixture writes a title
-# and the two lines.
 page() {
   mkdir -p "$project/$(dirname "$1")"
   printf '# A page\n\n**Audience:** anyone.\n**Purpose:** why it exists.\n' >"$project/$1"
 }
 
-# A page that breaks the rule, from a given opening.
 raw() {
   mkdir -p "$project/$(dirname "$1")"
-  printf '%s' "$2" >"$project/$1"
+  printf '%b' "$2" >"$project/$1"
 }
 
-# Only what git tracks is read, so the fixture stages what a case wrote.
 stage() {
   (cd "$project" || exit 1 && git add -A)
 }
@@ -45,8 +38,6 @@ docs_in() {
   ) >"$work/out" 2>"$work/err" || status=$?
 }
 
-# A clean tree passes, and says how many pages it read, so a run over nothing
-# cannot read as a pass.
 page docs/one.md
 page docs/standards/two.md
 stage
@@ -54,7 +45,6 @@ docs
 expect_status 0 "a clean tree passes"
 expect_out '^every one of the 2 docs pages opens with its audience and purpose$' "a pass says how many pages it read"
 
-# Each line is required, and the page that lacks one is named with the rule.
 raw docs/no-audience.md '# A page
 
 **Purpose:** why it exists.
@@ -79,7 +69,6 @@ expect_out '^docs/no-purpose\.md$' "the page with no purpose line is named"
 rm "$project/docs/no-purpose.md"
 stage
 
-# A page missing both is named once, not twice.
 raw docs/neither.md '# A page
 
 Nothing here.
@@ -91,8 +80,6 @@ if [ "$(grep -c '^docs/neither\.md$' "$work/out")" = 1 ]; then ok "a page missin
 rm "$project/docs/neither.md"
 stage
 
-# The pages are the repository's, so the check reads docs/ from a directory inside
-# the repository too, and names a page from the top of the tree.
 docs_in "$project/docs"
 expect_status 0 "the pages are read from a directory inside the repository"
 expect_out '^every one of the 2 docs pages opens with its audience and purpose$' "the run from below reads them all"
@@ -107,14 +94,7 @@ expect_out '^docs/from-below\.md$' "a page judged from below is still named from
 rm "$project/docs/from-below.md"
 stage
 
-# The record the exception names is left alone even though it opens with neither
-# line, and a near miss of its name is not the exception.
-raw docs/adr/0001-a-decision.md '# A decision
-
-## Context
-
-The record shape.
-'
+raw docs/adr/0001-a-decision.md '# A decision\n\n## Context\n\nThe record shape.\n'
 stage
 docs
 expect_status 0 "a numbered record is not read"
@@ -153,15 +133,7 @@ expect_out '^docs/adr/0001-a-decision/note\.md$' "the page below the record is n
 rm -r "$project/docs/adr/0001-a-decision"
 stage
 
-# The opening ends at the first "## " heading: the lines below it are not the
-# opening, so a page that states them there still breaks the rule.
-raw docs/late.md '# A page
-
-## Who it is for
-
-**Audience:** anyone.
-**Purpose:** why it exists.
-'
+raw docs/late.md '# A page\n\n## Who it is for\n\n**Audience:** anyone.\n**Purpose:** why it exists.\n'
 stage
 docs
 expect_status 1 "the lines after the first heading are not the opening"
@@ -169,8 +141,6 @@ expect_out '^docs/late\.md$' "the page stating both lines late is named"
 rm "$project/docs/late.md"
 stage
 
-# A page whose first line is the heading itself opens with that line alone, so the
-# lines below it are not the opening either.
 raw docs/heads.md '## Who it is for
 
 **Audience:** anyone.
@@ -183,16 +153,7 @@ expect_out '^docs/heads\.md$' "the page whose first line is a heading is named"
 rm "$project/docs/heads.md"
 stage
 
-# A heading deeper than "## " does not end the opening, since the title is what
-# the page opens with and a subheading still belongs to it.
-raw docs/deep.md '# A page
-
-**Audience:** anyone.
-
-### Still the opening
-
-**Purpose:** why it exists.
-'
+raw docs/deep.md '# A page\n\n**Audience:** anyone.\n\n### Still the opening\n\n**Purpose:** why it exists.\n'
 stage
 docs
 expect_status 0 "a subheading does not end the opening"
@@ -200,7 +161,6 @@ expect_out '^every one of the 3 docs pages opens with its audience and purpose$'
 rm "$project/docs/deep.md"
 stage
 
-# Only a markdown file under docs/ is a page.
 raw NOTES.md 'Nothing here.
 '
 raw docs/notes.txt 'Nothing here.
@@ -209,8 +169,6 @@ stage
 docs
 expect_status 0 "a markdown file outside docs/ and a file that is not markdown are not read"
 
-# A page whose name holds a byte above 0x80 is read: git quotes such a name by
-# default, and quotes are not a path.
 page docs/café.md
 stage
 docs
@@ -219,7 +177,6 @@ expect_out '^every one of the 3 docs pages opens with its audience and purpose$'
 rm "$project/docs/café.md"
 stage
 
-# A page git does not track is not read.
 raw docs/untracked.md '# A page
 
 Nothing here.
@@ -228,7 +185,6 @@ docs
 expect_status 0 "a page git does not track is not read"
 rm "$project/docs/untracked.md"
 
-# A run that read nothing is not a pass.
 empty="$work/empty"
 mkdir -p "$empty"
 (cd "$empty" || exit 1; git init -q -b main .)
@@ -236,14 +192,12 @@ docs_in "$empty"
 expect_status 1 "a repository with no docs page is not a pass"
 expect_err 'no docs page was read' "the failure says nothing was read"
 
-# A directory that is not a working tree is not read either, and says so.
 nowhere="$work/nowhere"
 mkdir -p "$nowhere"
 docs_in "$nowhere"
 expect_status 1 "a directory outside a working tree is refused"
 expect_err 'not in a git working tree' "the refusal says the tree is what is missing"
 
-# The rule this repository keeps: every page it holds passes.
 docs_in "$root"
 expect_status 0 "this repository's pages open with their audience and purpose"
 
