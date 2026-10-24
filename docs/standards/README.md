@@ -9,13 +9,12 @@ What belongs elsewhere:
 
 | It is | It goes in |
 | --- | --- |
-| How a session behaves — check a claim before asserting it, never edit an agreed issue | `.omp/RULES.md`, `AGENTS.md` and the skills, where it binds without being looked up |
+| How a session behaves — check a claim before asserting it, never edit an agreed issue | `.omp/RULES.md`, `AGENTS.md`, the skills and the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills)'s rules, where it binds without being looked up |
+| How to write anything, and when a comment has value | the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills)'s rules, shared with the builder's other projects |
 | What a machine enforces — a ruleset, a check | the check, whose message names the standard it enforces; the standard states the rule and names no check |
 
 ## Pages
 
-- [Communication standards](communication-standards.md): how to write anything at all — directness, placement, living docs and dated records.
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, the model on each agent commit, and the body naming who wrote it in which role.
-- [Coding](coding.md): when a comment has value, and what to do instead when it has none.
 - [Markup](markup.md): what an element is, and what its name means to the writer hearing it.
 - [Testing](testing.md): a test beside its code, browser specs in `e2e/`, what runs each, and approved scenarios.
