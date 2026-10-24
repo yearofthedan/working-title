@@ -21,13 +21,14 @@ const wholeNameAnyCase = (name: string): RegExp =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
 
 interface Finds {
-  getByLabel(text: RegExp): { fill(text: string): Promise<void> };
+  getByLabel(text: RegExp): { first(): { fill(text: string): Promise<void> } };
   getByRole(role: 'group', options: { name: RegExp }): Finds;
 }
 
 const fieldIn = (within: Finds, label: string): Field => ({
   enter: async (text) => {
-    await within.getByLabel(wholeNameAnyCase(label)).fill(text);
+    // shortcut: a piece's own facets come before its children's in its group, until a facet's field can be told from a child piece's by name.
+    await within.getByLabel(wholeNameAnyCase(label)).first().fill(text);
   },
 });
 

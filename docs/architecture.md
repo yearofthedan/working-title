@@ -17,7 +17,7 @@ UI ──► application ──► domain ◄── method definition
 service worker ──► the built app, cached on the first load
 ```
 
-- **UI:** what the writer sees and does. It calls only the application. ([ADR 2](adr/0002-hexagonal-layers.md))
+- **UI:** what the writer sees and does, drawn in plain HTML and CSS with no framework. It calls only the application. ([ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md))
 - **Application:** the use cases (focus, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. ([ADR 2](adr/0002-hexagonal-layers.md))
 - **Domain:** pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. ([ADR 2](adr/0002-hexagonal-layers.md))
 - **Method definition:** Snowflake, extended, as data the engine reads. The code never names a method. ([ADR 5](adr/0005-method-as-data.md))

@@ -39,6 +39,7 @@ The **core** terms below name things every method has. They are the only words i
 | Prose | The facet that holds the novel's written text | draft (as a noun) |
 | Chapter | A group of pieces with prose, in the order a reader meets them | |
 | Manuscript | All the prose, chapter by chapter: the novel as a reader would read it | |
+| Graph | The view of the pieces in their tree, each piece's children in order under it | |
 | Focus | The piece the writer is working on | |
 | Next move | Something the writer can do from the focus: a stage the method offers, or a move up or down a level | |
 | Capture | Add a piece outside the flow, linked to the focus from the start | |

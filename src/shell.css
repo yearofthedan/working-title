@@ -14,20 +14,57 @@ main {
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
   padding: 2rem;
+  overflow: auto;
 }
 
-/* shortcut: the field's look, until the stories that put pieces on screen pick one. */
+fieldset {
+  --card: 15rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+legend {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50%;
+  box-sizing: border-box;
+  width: var(--card);
+  height: 2rem;
+  padding: 0.5rem 0.75rem 0;
+  border: 1px solid;
+  border-bottom: none;
+  background: var(--color-background);
+}
+
+legend :is(h2, h3) {
+  font-family: var(--font-interface);
+  font-size: var(--text-interface);
+  font-weight: 600;
+}
+
 .facet {
+  box-sizing: border-box;
+  width: var(--card);
+  margin-top: 2rem;
   display: grid;
-  gap: 0.5rem;
-  max-width: 44rem;
-  margin: 0 auto;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem 0.75rem;
+  border: 1px solid;
+  border-top: none;
+  background: var(--color-background);
 }
 
 .facet label {
   font-family: var(--font-interface);
-  font-size: var(--text-interface);
-  color: var(--color-text);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, currentColor 65%, transparent);
 }
 
 .facet textarea {
@@ -35,7 +72,61 @@ main {
   color: inherit;
   background: none;
   border: none;
-  border-bottom: 1px solid currentColor;
-  padding: 0.25rem 0;
-  resize: vertical;
+  padding: 0;
+  resize: none;
+  field-sizing: content;
+  min-height: 2lh;
+}
+
+main > fieldset {
+  --card: 17rem;
+  width: max-content;
+  margin-inline: auto;
+}
+
+ol {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 2.5rem 0 0;
+}
+
+ol > li {
+  position: relative;
+}
+
+ol > li::before {
+  content: '';
+  position: absolute;
+  top: -1.25rem;
+  left: 50%;
+  height: 1.25rem;
+  border-left: 1px solid;
+}
+
+ol > li::after {
+  content: '';
+  position: absolute;
+  top: -1.25rem;
+  left: -0.5rem;
+  right: -0.5rem;
+  border-top: 1px solid;
+}
+
+ol > li:first-child::after {
+  left: 50%;
+}
+
+ol > li:last-child::after {
+  right: 50%;
+}
+
+ol::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 1.25rem;
+  border-left: 1px solid;
 }

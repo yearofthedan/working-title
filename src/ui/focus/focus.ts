@@ -10,7 +10,6 @@ const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus
   const input = document.createElement('textarea');
   input.id = fieldId;
   input.value = text;
-  input.rows = 3;
   input.addEventListener('input', () => void elaborate(pieceId, id, input.value));
   wrapper.append(name, input);
   return wrapper;
@@ -26,15 +25,16 @@ const pieceGroup = (piece: PieceView, headingTag: 'h2' | 'h3', elaborate: Focus[
   return group;
 };
 
-// shortcut: plain DOM, until the first #2 story that renders the graph picks a framework.
 export const renderFocus = (main: HTMLElement, focus: Focus): void => {
   const [story, ...rest] = focus.pieces;
   if (story === undefined) return;
-  const list = document.createElement('ol');
+  const children = document.createElement('ol');
   for (const piece of rest) {
     const item = document.createElement('li');
     item.append(pieceGroup(piece, 'h3', focus.elaborate));
-    list.append(item);
+    children.append(item);
   }
-  main.replaceChildren(pieceGroup(story, 'h2', focus.elaborate), list);
+  const group = pieceGroup(story, 'h2', focus.elaborate);
+  group.append(children);
+  main.replaceChildren(group);
 };
