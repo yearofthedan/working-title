@@ -16,9 +16,20 @@ vp build
 
 vp preview --port 4174 --strictPort &
 server=$!
-trap 'kill "$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true' EXIT
+stop() {
+  pkill -P "$server" 2>/dev/null || true
+  kill "$server" 2>/dev/null || true
+  wait "$server" 2>/dev/null || true
+}
+trap stop EXIT
 
+tries=0
 until curl -fsS http://localhost:4174 >/dev/null 2>&1; do
+  tries=$((tries + 1))
+  if [ "$tries" -ge 30 ]; then
+    echo "the preview on 4174 did not answer" >&2
+    exit 1
+  fi
   sleep 1
 done
 

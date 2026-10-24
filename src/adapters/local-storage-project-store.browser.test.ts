@@ -96,6 +96,7 @@ describe('the project in browser storage', () => {
       (piece) => piece.parent === openedStory?.id && piece.order === 1,
     );
 
+    expect(project?.pieces).toHaveLength(1 + snowflakeExtended.startingChildren.count);
     expect(openedStory?.facets[summary]).toBe(story?.facets[summary]);
     expect(openedBeat2?.facets[summary]).toBe(beat2?.facets[summary]);
   });
