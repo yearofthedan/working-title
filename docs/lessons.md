@@ -67,6 +67,7 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A new step phrase that extends an existing one is played by both, because a placeholder matches any text: the harness refuses the step, so the new phrase reuses the old wording or differs before its first placeholder | [#101](https://github.com/yearofthedan/working-title/pull/101) | none |
 | A mock built outside the repository misses what the repository's own CSS does to it: the mock had no reset, and a reset selector widened from `main > ol` to `main ol` zeroed the gap between the story and its beats, which only the built app showed | [#101](https://github.com/yearofthedan/working-title/pull/101) | none |
 | A decision record's deciding force cannot favour both options: the writing-adrs rule that the record says why each other option lost did not stop a cell and a consequence that disagreed on links across the tree | [#101](https://github.com/yearofthedan/working-title/pull/101) | none |
+| A test strategy is planned from the cases already recorded, not from the story's scenarios alone: a scenario whose steps and tree another file already holds adds a run and no check. The testing standard's "lowest level that can catch it" was read in the session and still not applied to the new journey file, which was planned, built and then recommended for keeping | [#101](https://github.com/yearofthedan/working-title/pull/101) | none |
 
 ## The columns
 
