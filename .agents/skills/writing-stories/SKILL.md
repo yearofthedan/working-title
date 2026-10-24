@@ -31,6 +31,8 @@ Fill the rest of the template as its own comments say: they are the authority on
 
 **One rule per story.** Count rules, not sentences: a `Rule:` that joins behaviours the writer would see separately — an `and` between things that could ship on their own — is two rules written as one sentence. Two rules mean two stories: propose both, each valuable on its own. Keep one story only when neither half is worth shipping alone, or when both halves change the same files and reviewing them apart would cost more than it saves. Say which in the draft.
 
+**Each scenario is checked against the recorded ones.** Before writing a scenario, read the scenario files [the testing standard](../../../docs/standards/testing.md#approved-scenarios) keeps, and say for each scenario which recorded one it restates, changes or adds to, or that it is new. A restated scenario is cut. One that adds to or changes a recorded behaviour is written as it will read in that behaviour's file, and a change to a recorded scenario is a change to existing behaviour, shown to the builder as one. A story that changes only how recorded scenarios look names their files, whose recorded trees change, as its criteria, with a screenshot for what no tree records.
+
 ## Check a draft already filed
 
 A filed draft without the `ready` label gets the same checks, against the template's own comments and the checks above. Before calling something a gap, read how the agreed stories and tasks handle it: what they share is the convention, and a draft that follows it passes, unless a template comment says otherwise. Show each proposed change to the builder, and edit the issue once they agree.
@@ -42,7 +44,3 @@ Show the draft to the builder, in the conversation, before it exists as an issue
 When they agree, file it with `gh issue create` from its template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
 
 Agreement is theirs to give: add no `ready` label yourself, and start nothing until they do.
-
-## Once it is agreed
-
-A story is never edited by the agent once coding starts; it is the record of what was agreed. A call the story left open goes in the pull request's `Decisions` section instead. A change of scope goes back to the builder, who updates the story.

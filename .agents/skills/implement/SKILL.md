@@ -54,7 +54,7 @@ Before a planned pull request's first commit, set out its approach, grouped by t
 6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
 7. **What the writer sees**: copy, interaction and layout.
 8. **The shape of stored data**, and what happens to data already saved.
-9. **Test strategy**: the level each case is tested at, and what is faked.
+9. **Test strategy**: the level each case is tested at, what is faked, and the file each case lands in: the recorded behaviour's file it changes or adds to, as [the testing standard](../../../docs/standards/testing.md#approved-scenarios) says, or a new one for a new behaviour.
 
 A part of the approach that comes up once the planned pull request is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
@@ -89,7 +89,8 @@ A pull request whose work is done is handed over, not left in draft. The main se
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, ahead of the one that closes the issue, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
-5. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
+5. **Fill `How to verify` and give it in the conversation**, as [working with the user](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md) says of handing work over. For a change the writer sees, walk the steps yourself first, in the built app with the browser helper, and write down what you saw rather than what you expected.
+6. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
 
 ## Work found outside the issue
 
@@ -98,7 +99,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 ## Build rules
 
 - Work comes from the issue. Its acceptance criteria were agreed before any code: build to them.
-- Never edit the issue yourself once coding starts. When you disagree with it, or it left something open, propose the call as [Confirm the approach](#confirm-the-approach) says and record the builder's answer in the pull request's `Decisions`. A change of scope goes back to the builder, who updates the issue.
+- Edit the issue once coding starts only at the builder's request: show them the new wording, edit it once they say yes, and record the change in the pull request's `Decisions`. When you disagree with the issue, or it left something open, propose the call as [Confirm the approach](#confirm-the-approach) says and record the builder's answer in `Decisions`. A change of scope goes back to the builder, who makes it or asks you to.
 - A question or aside from the builder is [answered, and changes nothing on its own](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md): where it points at a change of scope or a call the plan did not make, ask for a direct yes before building it. Until it is answered, name it again at each hand-over; never drop it or settle it yourself.
 - When something already written down fails [the relevance and placement check](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/durable-writing.md), raise it with the builder rather than building on it or moving it yourself.
 - Each planned pull request lands as one pull request. Pull requests go to `main` only through review, squash-merged. Never push to `main`.
