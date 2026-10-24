@@ -63,7 +63,7 @@ legend :is(h2, h3) {
 .facet label {
   font-family: var(--font-interface);
   font-size: 0.75rem;
-  color: color-mix(in srgb, currentColor 60%, transparent);
+  color: color-mix(in srgb, currentColor 65%, transparent);
 }
 
 .facet textarea {
