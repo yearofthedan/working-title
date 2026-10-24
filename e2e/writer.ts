@@ -39,6 +39,7 @@ const writerOn = (page: Page): Writer => {
     },
 
     contrastViolations: async () => {
+      await page.getByRole('main').getByRole('group').first().waitFor();
       const { violations } = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
       return violations.flatMap((violation) =>
         violation.nodes.map((node) => ({
