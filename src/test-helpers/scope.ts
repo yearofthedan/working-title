@@ -17,7 +17,26 @@ export interface AppScope extends PageScope {
   reload(): Promise<void>;
 }
 
-export const wholeNameAnyCase = (name: string): RegExp =>
+const wholeNameAnyCase = (name: string): RegExp =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+
+interface Finds {
+  getByLabel(text: RegExp): { fill(text: string): Promise<void> };
+  getByRole(role: 'group', options: { name: RegExp }): Finds;
+}
+
+const fieldIn = (within: Finds, label: string): Field => ({
+  enter: async (text) => {
+    await within.getByLabel(wholeNameAnyCase(label)).fill(text);
+  },
+});
+
+export const fieldsOn = (page: Finds): Pick<PageScope, 'field' | 'group'> => ({
+  field: (label) => fieldIn(page, label),
+  group: (name) => ({
+    field: (label) => fieldIn(page.getByRole('group', { name: wholeNameAnyCase(name) }), label),
+  }),
+});
+
 export const linesOf = (tree: string): readonly string[] =>
   tree.replace(/^\n/, '').replace(/\n$/, '').split('\n');
