@@ -45,13 +45,12 @@ describe('opening a project', () => {
       },
     };
 
-    const focus = await openProject(snowflakeExtended, store);
-    const facet = focus.facets[0];
+    const opened = await openProject(snowflakeExtended, store);
+    const facet = opened.facets[0];
     if (facet === undefined) throw new Error('the story has no facet');
-    await focus.elaborate(facet.id, 'a sentence');
+    await opened.elaborate(facet.id, 'a sentence');
 
-    // The facets a reader holds are what the project looked like when it opened; the typing
-    // is in the store, and the next open reads it back.
-    expect((await openProject(snowflakeExtended, store)).facets[0]?.text).toBe('a sentence');
+    const reopened = await openProject(snowflakeExtended, store);
+    expect(reopened.facets[0]?.text).toBe('a sentence');
   });
 });

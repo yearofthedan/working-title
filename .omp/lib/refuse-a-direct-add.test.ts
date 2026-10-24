@@ -42,12 +42,10 @@ const repository = (dirty = false): string => {
   return dir;
 };
 
-// `cwd` is the session's; `callCwd` is the directory the call itself names, which
-// the harness hands the hook in the tool input.
-const refused = (command: string, cwd: string, callCwd?: string): boolean =>
+const refused = (command: string, sessionCwd: string, namedCwd?: string): boolean =>
   handler()(
-    { toolName: 'bash', input: callCwd === undefined ? { command } : { command, cwd: callCwd } },
-    { cwd },
+    { toolName: 'bash', input: namedCwd === undefined ? { command } : { command, cwd: namedCwd } },
+    { cwd: sessionCwd },
   ) !== undefined;
 
 const reasonFor = (command: string, cwd: string): string =>
@@ -116,12 +114,20 @@ describe('refuseADirectAdd', () => {
     expect(refused('pnpm install', repositoryWithAnUntrackedManifest())).toBe(true);
   });
 
+  it('refuses pnpm install in a directory git cannot be asked about', () => {
+    expect(refused('pnpm install', mkdtempSync(join(tmpdir(), 'not-a-repository-')))).toBe(true);
+  });
+
   it('refuses pnpm install where the directory the call names holds a change', () => {
     expect(refused('pnpm install', clean, repository(true))).toBe(true);
   });
 
   it('passes pnpm install where the directory the call names matches HEAD', () => {
     expect(refused('pnpm install', repository(true), clean)).toBe(false);
+  });
+
+  it('passes pnpm install behind an option that takes a value', () => {
+    expect(refused('pnpm install -C packages/x', clean)).toBe(false);
   });
 
   it('passes pnpm install behind a filter with --frozen-lockfile', () => {

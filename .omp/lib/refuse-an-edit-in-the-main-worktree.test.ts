@@ -27,8 +27,6 @@ const handler = (): Handler => {
   return registered;
 };
 
-// What a logging hook saw in OMP 18.11.3: a subagent's header names the session it
-// came from as `parentSession`, and the main session's has none.
 const subagent = { getHeader: () => ({ parentSession: '/some/parent.jsonl' }) };
 const mainSession = { getHeader: () => ({}) };
 
@@ -58,9 +56,6 @@ const repository = (): { main: string; linked: string } => {
 
 const aWrite = (path: string): Call => ({ toolName: 'write', input: { path, content: 'hi' } });
 
-// What a logging hook saw in OMP 18.11.3: a one-target hashline `edit` arrives as
-// `{ input, path, paths }`, `input` being the hashline text and the paths the
-// `[PATH#TAG]` headers ([hooks](https://github.com/can1357/oh-my-pi/blob/main/docs/hooks.md), "Event surfaces").
 const anEditOf = (input: string, ...paths: string[]): Call => ({
   toolName: 'edit',
   input: paths.length === 1 ? { input, path: paths[0], paths } : { input, paths },
@@ -76,8 +71,7 @@ const reasonFor = (event: Call, session: Session): string =>
 describe('an edit or a write in a subagent', () => {
   const { main, linked } = repository();
   const outside = join(mkdtempSync(join(tmpdir(), 'not-a-repository-')), 'notes.md');
-  // Each case: what it is, the call, the session's directory, the path it must name.
-  const mainCases: [string, Call, string, string][] = [
+  const mainCases: [what: string, call: Call, cwd: string, named: string][] = [
     ['a relative write in the main worktree', aWrite('notes.txt'), main, join(main, 'notes.txt')],
     [
       'a relative write of a file not yet on disk',

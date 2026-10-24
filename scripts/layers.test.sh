@@ -1,15 +1,10 @@
 #!/bin/sh
 
-# Tests for ./do layers: a layer importing another out of turn, and a cycle, are refused.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 PATH="$root/node_modules/.bin:$PATH"
 export PATH
 
-# A project of its own, holding the paths the rules match, so no fixture reaches the
-# files of this repository. The pairs below are written from the record, apart from the
-# configuration's own copy of them, so that dropping a layer from one fails a case here.
 project="$work/project"
 layers='domain application ports adapters ui'
 
@@ -46,10 +41,8 @@ run_layers() {
 
 run_do layers
 expect_status 0 "the imports this repository has keep the direction"
-# A crawl that reads no file refuses nothing, so the pass above would mean nothing.
 not_out '(0 modules' "the crawl of this repository read its files"
 
-# Every pair of layers, and a cycle between two files of one layer, in one crawl.
 for from in $layers; do
   for to in $layers; do
     [ "$from" = "$to" ] && continue
@@ -62,8 +55,6 @@ write src/ui/round.ts "import { back } from './back';
 export const round = back;"
 write src/ui/back.ts "import { round } from './round';
 export const back = round;"
-# TypeScript of its own, and an import of a type, which a reader of plain JavaScript
-# could miss: both are read, not passed over.
 write src/domain/enum.ts "import { two } from '../ui/two';
 export enum Thing { One }
 export const thing = (label: string): Thing => (label === two ? Thing.One : Thing.One);"
@@ -97,7 +88,6 @@ expect_out 'no-circular: src/ui/back.ts →' "a cycle is refused"
 expect_out 'src/ui/round.ts →' "the cycle is shown round to back"
 expect_out '0002-hexagonal-layers.md' "the refusal links the record"
 
-# A project where no layer reaches another, and no cycle holds.
 rm -rf "$project/src"
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/application/plan.ts "import type { Story } from '../domain/story';

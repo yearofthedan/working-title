@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do audit: only what a change adds is refused.
-
 root=$(cd "$(dirname "$0")/.." && pwd)
 . "$root/scripts/_test-helpers"
 
@@ -12,9 +10,7 @@ PNPM_AUDIT_JSON="$work/audit.json"
 export PNPM_AUDIT_JSON
 make_copy
 
-# What counts as new: the same advisory at the same version under a new path is
-# not, and the same path at a new version is.
-advisory() { # $1 version, $2 path
+advisory() {
   printf '{"advisories":{"1106913":{"title":"Command Injection in lodash","module_name":"lodash","severity":"high","github_advisory_id":"GHSA-35jh-r3h4-6jhm","url":"u","findings":[{"version":"%s","dev":true,"paths":["%s"]}]}}}' "$1" "$2"
 }
 advisory 4.17.20 '.>lodash' >"$work/audit-a.json"
@@ -31,8 +27,6 @@ node "$root/scripts/_audit.mjs" "$work/audit-c.json" "$work/audit-a.json" origin
 expect_status 1 "a version the base does not carry is refused"
 expect_err 'added by this change' "a version the base does not carry says so"
 
-# The audit refuses only what the change adds, and a service that does not answer
-# is refused in CI but only warned about on a builder's machine.
 printf 'vulnerable-fixture@1.0.0\n' >>"$copy/pnpm-lock.yaml"
 run_audit() {
   status=0

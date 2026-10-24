@@ -68,9 +68,6 @@ const repository = ({
   return dir;
 };
 
-// A branch that is there to switch to, one only on the remote, and a linked
-// worktree to switch in, holding a change so a branch name is still left alone
-// there while the tree is dirty.
 const repositoryToSwitchIn = (): { main: string; linked: string } => {
   const main = repository();
   execFileSync('git', ['-C', main, 'branch', '73-another-line']);
@@ -81,12 +78,10 @@ const repositoryToSwitchIn = (): { main: string; linked: string } => {
   return { main, linked };
 };
 
-// `cwd` is the session's; `callCwd` is the directory the call itself names, which
-// the harness hands the hook in the tool input.
-const refused = (command: string, cwd: string, callCwd?: string): boolean =>
+const refused = (command: string, sessionCwd: string, namedCwd?: string): boolean =>
   handler()(
-    { toolName: 'bash', input: callCwd === undefined ? { command } : { command, cwd: callCwd } },
-    { cwd },
+    { toolName: 'bash', input: namedCwd === undefined ? { command } : { command, cwd: namedCwd } },
+    { cwd: sessionCwd },
   ) !== undefined;
 
 const reasonFor = (command: string, cwd: string): string =>
@@ -138,6 +133,12 @@ describe('a git restore or checkout', () => {
   it('passes git restore where two -C options lead to the repository', () => {
     expect(refused(throughTwoC, clean)).toBe(false);
   });
+
+  it('refuses git restore in a directory git cannot be asked about', () => {
+    expect(refused('git restore notes.txt', mkdtempSync(join(tmpdir(), 'not-a-repository-')))).toBe(
+      true,
+    );
+  });
 });
 
 describe('a git push', () => {
@@ -159,11 +160,9 @@ describe('a git push', () => {
     ['git push --delete origin 73-fix-a-dodgy-restore', clean],
     ['git push --all', clean],
     ['git push --mirror', clean],
+    ['git push --tags', clean],
     ['git push', detached],
-    // The empty target of the first command leaves no word to drop, so the push
-    // after the `;` is still read as the command it is.
     ['echo hi > "" ; git push --force origin main', clean],
-    // The drop stops at the redirection's own target, so the push's arguments are read.
     ['git push 2>/dev/null --force origin main', clean],
     ['GIT_TRACE=1 git push --force origin main', clean],
   ])('refuses %s', (command, cwd) => {
@@ -186,14 +185,11 @@ describe('a git push', () => {
     expect(refused(command, cwd)).toBe(false);
   });
 
-  // A redirection belongs to the shell, so what follows the push is not a refspec.
   it.each([
     'git push -u origin HEAD 2>&1',
     'git push -u origin HEAD 2>&1 | tail -3',
     `git -C ${clean} push -u origin HEAD 2>&1 | tail -3`,
     'git push -u origin HEAD > "a log file"',
-    // Ancillary to `--force-with-lease`, which is refused: alone it is a no-op
-    // ([git-push](https://git-scm.com/docs/git-push)).
     'git push --force-if-includes',
   ])('passes %s', (command) => {
     expect(refused(command, clean)).toBe(false);
@@ -244,11 +240,9 @@ describe('a branch switch', () => {
   it.each([
     'git switch 73-another-line',
     'git switch -c 73-new',
-    // `-` names the branch before this one.
     'git switch -',
     'git checkout 73-another-line',
     'git checkout -',
-    // A branch only on the remote, which git makes a local branch of and switches to.
     'git checkout 73-a-remote-line',
     'git checkout -b 73-new',
     'git checkout --detach 73-another-line',
@@ -270,13 +264,10 @@ describe('a branch switch', () => {
   });
 
   it.each([
-    // The way in.
     'git worktree add ../73-new -b 73-new origin/main',
-    // A restore, which line 1's rule reads and leaves alone on a clean tree.
     'git checkout notes.txt',
     'git checkout -- notes.txt',
     'git checkout HEAD -- notes.txt',
-    // Neither switches.
     'git switch --help',
   ])('passes %s in the main worktree', (command) => {
     expect(refused(command, main)).toBe(false);

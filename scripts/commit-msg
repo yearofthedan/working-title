@@ -1,21 +1,17 @@
 #!/bin/sh
-# Refuse a commit on a story branch whose message has no Agent-Model: trailer.
+# help: Refuse a commit on a story branch whose message has no Agent-Model: trailer.
 
 set -eu
 
 message=$1
 
-# The builder's own commits skip this check alone, keeping the pre-commit scan.
 [ -n "${DISABLE_MODEL_CHECK:-}" ] && exit 0
 
-# A story branch starts with its issue number; a detached HEAD, as in a rebase, is none.
 branch=$(git symbolic-ref --short -q HEAD || true)
 printf '%s\n' "$branch" | grep -Eq '^[0-9]+-' || exit 0
 
-# A merge brings in commits already written; MERGE_HEAD exists only while one is committed.
 git rev-parse -q --verify MERGE_HEAD >/dev/null && exit 0
 
-# A commit message has no patch part, so a --- line is not where the message ends.
 if git interpret-trailers --parse --no-divider "$message" | grep -q '^Agent-Model: *[^ ]'; then
   exit 0
 fi

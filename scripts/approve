@@ -1,6 +1,5 @@
 #!/bin/sh
-# Write what a scenario's runner observed into the file, choosing the runner by where
-# the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
+# help: Write what a scenario's runner observed into the file, choosing the runner by where the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
 
 set -eu
 
@@ -51,5 +50,4 @@ src/*)
   ;;
 esac
 
-# The entry matches the file it read, and only that one records.
 SCENARIO_APPROVE=$path exec "$runner" test "$entry" "$filter" "$path"

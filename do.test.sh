@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Tests for ./do itself: listing tasks, refusing what is not one, and the PATH.
-# Run: sh do.test.sh, or ./do test, which runs every *.test.sh.
-
 root=$(cd "$(dirname "$0")" && pwd)
 . "$root/scripts/_test-helpers"
 
@@ -53,7 +50,6 @@ if [ -s "$VP_LOG" ]; then no "an unknown task runs nothing"; else ok "an unknown
 run_copy check
 expect_vp 'check' "a task runs vp from node_modules"
 
-# Without the stub, and with a PATH that holds no vp of its own.
 rm "$copy/node_modules/.bin/vp"
 status=0
 PATH=/usr/bin:/bin "$copy/do" test >"$work/out" 2>"$work/err" || status=$?
