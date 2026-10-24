@@ -1,6 +1,5 @@
-// Split a shell command line into its commands, each a list of words.
-
-// Substitution and escapes are not read, so a command another shell builds is not caught.
+/* shortcut: substitution and escapes are not read, so a command another shell builds is not
+   caught; read them once a session is seen to hide a command behind one. */
 export const wordsPerCommand = (line: string): string[][] => {
   const commands: string[][] = [];
   let words: string[] = [];
@@ -19,9 +18,6 @@ export const wordsPerCommand = (line: string): string[][] => {
     words = [];
     droppingTarget = false;
   };
-  // A redirection is the shell's, not the command's: its operator and the word that is
-  // its target are dropped, so `git push … 2>&1` reaches the command as `git push …`
-  // ([bash: redirection](https://manpages.ubuntu.com/manpages/noble/man1/bash.1.html#redirection)).
   const operatorEnd = (index: number): number => {
     const start = line[index] === '&' ? index + 1 : index;
     let at = start + 1;
