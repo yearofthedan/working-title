@@ -1,7 +1,3 @@
-// Refuse a git step that would discard uncommitted work, push off the story branch or
-// commit without the pre-commit hook, and a pull request marked ready without the
-// checks ./do ready runs.
-
 import { spawnSync } from 'node:child_process';
 import { accessSync, constants } from 'node:fs';
 import { resolve } from 'node:path';
@@ -19,7 +15,6 @@ export type Extension = {
   ): void;
 };
 
-// A planned pull request's branch names its issue, as the implement skill names it.
 const STORY_BRANCH = /^[0-9]+-/;
 
 const GIT_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
@@ -37,15 +32,10 @@ const PUSH_OPTIONS_THAT_TAKE_A_VALUE: Record<string, true> = {
   '--receive-pack': true,
   '--exec': true,
 };
-// `--force-if-includes` is not here: it is ancillary to `--force-with-lease`, which is,
-// and alone it is a no-op ([git-push](https://git-scm.com/docs/git-push)).
 const FORCE_FLAGS: Record<string, true> = {
   '--force': true,
   '--force-with-lease': true,
 };
-// What lets a push move or rewrite what the remote carries, each with the note
-// that a refspec's `+` forces the update too
-// ([git-push](https://git-scm.com/docs/git-push)).
 const PUSHES_OTHER_REFS: Record<string, true> = {
   '--all': true,
   '--mirror': true,
@@ -92,12 +82,8 @@ const gitInvocation = (
   return undefined;
 };
 
-// A path git reports as modified or staged is work this step would destroy.
-// Untracked and ignored paths are not: only tracked paths are restored
-// ([git-restore](https://git-scm.com/docs/git-restore)).
 const holdsUncommittedWork = (cwd: string, path: string): boolean => {
   const status = git(cwd, ['status', '--porcelain', '--', path]);
-  // A tree git cannot be asked about is treated as holding work.
   if (status.failed) return true;
   return status.out
     .split('\n')
@@ -122,20 +108,13 @@ const overwriteRefusal = (subcommand: string, args: string[], cwd: string): stri
     }
     named.push(word);
   }
-  // With neither -W nor -S the working tree is restored; -S alone leaves it
-  // ([git-restore](https://git-scm.com/docs/git-restore)).
   if (!worktree && staged) return undefined;
-  // A word that names no path reports nothing, so a branch name among the words
-  // is left alone; a glob or `:/` is matched by git, as the shell or git would.
   const dirty = named.filter((path) => holdsUncommittedWork(cwd, path));
   if (dirty.length === 0) return undefined;
   const names = dirty.map((path) => `\`${path}\``).join(', ');
   return `${names} ${dirty.length === 1 ? 'has' : 'have'} uncommitted changes that \`git ${subcommand}\` would overwrite. Commit them first, or ask the builder.`;
 };
 
-// What moves HEAD: switch itself, and the flags that name a branch to create or
-// detach onto ([git-switch](https://git-scm.com/docs/git-switch),
-// [git-checkout](https://git-scm.com/docs/git-checkout)).
 const SWITCH_FLAGS: Record<string, true> = {
   '-b': true,
   '-B': true,
@@ -145,26 +124,18 @@ const SWITCH_FLAGS: Record<string, true> = {
   '--detach': true,
 };
 
-// A linked worktree keeps its git directory apart from the common one, so the two
-// paths matching is what says this is the one the builder shares
-// ([git-worktree](https://git-scm.com/docs/git-worktree)).
 const isMainWorktree = (cwd: string): boolean => {
   const paths = git(cwd, ['rev-parse', '--path-format=absolute', '--git-dir', '--git-common-dir']);
   const [directory, common] = paths.out.trim().split('\n');
   return !paths.failed && directory !== undefined && directory === common;
 };
 
-// A word names a branch when it resolves as a commit, or when a remote branch of
-// that name is the only one, which git switches to by making a local branch of it
-// ([git-checkout](https://git-scm.com/docs/git-checkout)).
 const namesABranch = (cwd: string, word: string): boolean =>
   !git(cwd, ['rev-parse', '--verify', '-q', `${word}^{commit}`]).failed ||
   git(cwd, ['for-each-ref', '--count=1', `refs/remotes/*/${word}`]).out.trim() !== '';
 
 const switchRefusal = (subcommand: string, args: string[], cwd: string): string | undefined => {
   if (args.includes('--help') || args.includes('-h')) return undefined;
-  // A `--` says the words after it are paths, which restores files from a version
-  // and leaves HEAD where it is, so no word there is read for a branch.
   const words = args.includes('--') ? [] : args;
   const switches =
     subcommand === 'switch' ||
@@ -266,8 +237,8 @@ const COMMIT_SHORT_OPTIONS_WITH_AN_ATTACHED_VALUE = 'uS';
 const skipsTheChecks =
   'A commit runs the pre-commit hook, which runs `./do check`: skipping it with `--no-verify` or `-n` commits what the checks have not passed. Fix what fails, or stop and ask the builder.';
 
-// shortcut: reads the flag alone; a hook path changed by `-c core.hooksPath` or
-// `git config` passes, until an agent is seen to reach for one.
+/* shortcut: reads the flag alone; a hook path changed by `-c core.hooksPath` or `git config`
+   passes, until an agent is seen to reach for one. */
 const commitRefusal = (args: string[]): string | undefined => {
   for (let index = 0; index < args.length; index += 1) {
     const word = args[index] ?? '';
@@ -291,7 +262,6 @@ const commitRefusal = (args: string[]): string | undefined => {
   return undefined;
 };
 
-// `.vite-hooks/_/h` exits 0 before running a hook when one of these is `0`.
 const HOOKS_OFF = ['HUSKY', 'VP_GIT_HOOKS', 'VITE_GIT_HOOKS'];
 
 const hooksOffRefusal = (env: Record<string, string>): string | undefined => {
