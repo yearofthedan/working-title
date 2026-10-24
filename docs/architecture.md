@@ -17,13 +17,17 @@ UI ──► application ──► domain ◄── method definition
 service worker ──► the built app, cached on the first load
 ```
 
-- **UI:** what the writer sees and does, drawn in plain HTML and CSS with no framework. It calls only the application. ([ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md))
-- **Application:** the use cases (focus, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. ([ADR 2](adr/0002-hexagonal-layers.md))
-- **Domain:** pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. ([ADR 2](adr/0002-hexagonal-layers.md))
-- **Method definition:** Snowflake, extended, as data the engine reads. The code never names a method. ([ADR 5](adr/0005-method-as-data.md))
-- **Browser working copy:** where every change is saved first, so typing never waits on a file. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md))
-- **Folder mirror:** the writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md))
-- **Service worker:** serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that, as the start-up target asks. ([ADR 1](adr/0001-no-backend-in-v1.md))
+| Part | What it is | Where | Decided by |
+| --- | --- | --- | --- |
+| UI | What the writer sees and does, drawn in plain HTML and CSS with no framework. It calls only the application. | `src/ui/` | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) |
+| Application | The use cases (focus, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. | `src/application/` | [ADR 2](adr/0002-hexagonal-layers.md) |
+| Domain | Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. | `src/domain/` | [ADR 2](adr/0002-hexagonal-layers.md) |
+| Method definition | Snowflake, extended, as data the engine reads. The code never names a method. | `src/methods/` | [ADR 5](adr/0005-method-as-data.md) |
+| Ports | What the application asks of storage. | `src/ports/` | [ADR 2](adr/0002-hexagonal-layers.md) |
+| Browser working copy | Where every change is saved first, so typing never waits on a file. | `src/adapters/` | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md) |
+| Folder mirror | The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. | not built yet | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md) |
+| Service worker | Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. | `vite.config.ts` | [ADR 1](adr/0001-no-backend-in-v1.md) |
+| Development environment | The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds. | `scripts/`, `.omp/`, `.github/workflows/` | |
 
 ## Constraints
 
@@ -32,29 +36,36 @@ service worker ──► the built app, cached on the first load
 
 ## Quality targets
 
+The attributes for the code are named as in [ISO/IEC 25010:2023](https://webstore.iec.ch/en/publication/90024). Confidence says how sure we are that the target holds today, judged on whether a break is caught early (before it reaches `main`), broadly (on every path it can arrive by) and reliably (by something automatic rather than someone remembering). High is all three; a rating below that says which is missing, and so where a check would raise it.
+
+### For the writer
+
 Design size is about 300 pieces and 2,000 links.
 
-| Attribute | Target |
-| --- | --- |
-| Durability | A crash loses at most about 2 s of typing |
-| Disaster recovery | The folder mirror is at most about 10 s behind while typing |
-| Typing | Every keystroke renders within one frame (16 ms) |
-| Movement | A focus or level change takes under 100 ms |
-| Data | Filtering and querying the whole project takes under 100 ms |
-| Start-up | Usable within 2 s, and fully offline after the first load |
-| Fidelity | Prose survives the round trip to Markdown and back unchanged |
+| Attribute | Target | Checked by | Confidence |
+| --- | --- | --- | --- |
+| Durability | A crash loses at most about 2 s of typing | [`your-words-survive-a-reload`](../e2e/your-words-survive-a-reload.approved.md) | Medium: a reload is checked, a crash mid-typing is not |
+| Disaster recovery | The folder mirror is at most about 10 s behind while typing | nothing yet | Low: the folder mirror is not built |
+| Typing | Every keystroke renders within one frame (16 ms) | nothing yet | Low: no test times a keystroke at the design size |
+| Movement | A focus or level change takes under 100 ms | nothing yet | Low: no test times a move at the design size; [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) measured one once, to decide how the graph is drawn |
+| Data | Filtering and querying the whole project takes under 100 ms | nothing yet | Low: no test times a query at the design size |
+| Start-up | Usable within 2 s, and fully offline after the first load | [`e2e/offline.spec.ts`](../e2e/offline.spec.ts) | Medium: offline is checked, the 2 s is not |
+| Fidelity | Prose survives the round trip to Markdown and back unchanged | nothing yet | Low: the Markdown round trip is not built |
+| Accessibility | Meets [WCAG 2.2](https://www.w3.org/TR/WCAG22/) at level AA. The [markup standard](standards/markup.md) sets how elements and their names are written | Review of the accessibility tree each story's approved files record ([ADR 8](adr/0008-story-scenarios-run-from-their-approved-files.md)); the lint, which makes specs find elements by role or label | Low: beyond names, it rests on a reviewer noticing. An automated audit such as [axe-core](https://github.com/dequelabs/axe-core#readme), run from the browser specs, would catch contrast; focus order and keyboard reach need a spec that moves by keyboard |
+
+### For the code
+
+`./do check` runs the `./do` tasks named here other than `./do add` and `./do mutate`, and the ruleset on `main` requires it ([the workflow](../.github/workflows/ci.yml)).
+
+| Attribute | What it guards against | Standard | Enforced by | Confidence |
+| --- | --- | --- | --- | --- |
+| Security of the development environment: integrity and resistance | A malicious release running on the machine when it is installed | The release cutoff and trust policy in `pnpm-workspace.yaml`, and the lockfile | pnpm, which applies both on every install ([`trustLockfile`](https://pnpm.io/settings/dependency-resolution#trustlockfile)); `./do add`, which audits a dependency in a scratch copy before it is installed; `.omp/hooks/pre/refuse-a-direct-add.ts`; `./do audit` | High: pnpm refuses on every install, whoever runs it. The hook adds an earlier stop for agents only. No page states the policy, which lives in the settings and the scripts |
+| Security of the development environment: confidentiality | A credential leaking, committed to the repository or read off the machine by an install script or an agent | none | `./do secrets`, over what is committed | Medium: `./do secrets` refuses a committed credential; nothing keeps one on the machine from an install script or an agent |
+| Security of the app: integrity | A compromised dependency shipping into the writer's tab, which holds their manuscript and their folder's permission | as above | The install guards above, `./do audit`, [Renovate](https://docs.renovatebot.com/) on the schedule in `renovate.json`, and CodeQL on `main` | High |
+| Modifiability | Moving storage, replacing the editor or changing the method forcing a change in the domain | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 5](adr/0005-method-as-data.md) | `./do layers` | Medium: `./do layers` holds the direction between domain, application, ports, adapters and UI; nothing checks that a method's words stay out of the domain and the application |
+| Testability | Behaviour that can only be checked in a browser, and tests that pass while the code is wrong | [Testing](standards/testing.md) | `./do test`; review, for a test seen to fail first | Low: a test that passes while the code is wrong is caught only by a reviewer, or by `./do mutate`, which runs [on its own](../.github/workflows/mutate.yml) and which the ruleset does not require |
+| Analysability | Code, files and docs an agent takes longer to read or find than it needs to, since agents write most of the code and copy what they find | [Coding](standards/coding.md); doc openings and file names: none, each check holds its rule | The comments lint, `./do check-comments`, `./do check-names`, `./do check-docs`, `./do check-links` | Medium: the checks cover comments, names, doc openings and links; the rest is review |
 
 ## Toolchain
 
-The code is TypeScript, checked and tested with [Vite+](https://github.com/voidzero-dev/vite-plus#readme) ([ADR 6](adr/0006-vite-plus-toolchain.md)), and the browser specs of the built app run in [Playwright](https://playwright.dev/docs/intro) ([ADR 7](adr/0007-playwright-for-browser-specs.md)).
-
-- **Packages:** pnpm, on the Node.js version in `.node-version`. An install refuses a release younger than the cutoff, or weaker in publisher trust than an earlier release, both set in `pnpm-workspace.yaml` with any exception recorded beside the setting it excepts. A dependency is added with `./do add`, which resolves it in a scratch copy and audits what the resolution brought in before it is installed ([`--lockfile-only`](https://pnpm.io/cli/install#--lockfile-only)), so a release with a known advisory does not reach this machine. An agent adds one the same way: `.omp/hooks/pre/refuse-a-direct-add.ts` refuses a `pnpm add`, `pnpm update`, `pnpm dlx` or `npx` typed straight into the shell, and passes a plain `pnpm install`, whose lockfile is the source.
-- **Updates:** [Renovate](https://docs.renovatebot.com/) pull requests, on the schedule in `renovate.json`.
-- **Layers:** [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) checks the direction of the layers, and cycles between modules, against `.dependency-cruiser.mjs`, as `./do layers` ([ADR 2](adr/0002-hexagonal-layers.md)).
-- **Mutation:** StrykerJS writes faults into the domain and the application and reports the ones the tests let through, as `./do mutate` ([the workflow](../.github/workflows/mutate.yml)). A run fails when its score falls under one threshold for the whole run, with none per directory ([`thresholds`](https://stryker-mutator.io/docs/stryker-js/configuration#thresholds-object)), and the ruleset does not require that job.
-- **Links:** every link the repository writes is checked to resolve, as `./do check-links`: a markdown file is read as prose and every other file as its comment lines, so the paths and headings a link points at inside the repository are checked on every check, and the sites it names in [a job of their own](../.github/workflows/links.yml), because a link dies with no commit here.
-- **Names:** every tracked file's name is checked against the convention, as `./do check-names`: a name is lowercase kebab-case in every dot-separated part, after any leading dot, and the three exceptions — a name a tool looks for, a leading `_` on a file in `scripts/`, and the patch `pnpm-workspace.yaml` names — are stated in [the check](../scripts/check-names) itself.
-- **Doc openings:** every page under `docs/` is checked to open with its audience and purpose, as `./do check-docs`: both lines sit above the page's first `##` heading, and the exception — a numbered record `docs/adr/NNNN-*.md` — is stated in [the check](../scripts/check-docs)'s message.
-- **Comments:** a comment is allowed only with one of the prefixes [the coding standard](standards/coding.md#comments) lists. A rule loaded into the lint from [`scripts/_lint-comments.mjs`](../scripts/_lint-comments.mjs) checks JavaScript and TypeScript, and `./do check-comments` checks shell and CSS.
-- **Tasks:** `./do` lists them and runs them. Where a test goes and what runs it is [the testing standard](standards/testing.md), and a story's scenarios run from their approved files ([ADR 8](adr/0008-story-scenarios-run-from-their-approved-files.md)).
-- **CI:** every pull request to `main` runs `./do check`, which the ruleset on `main` requires by name ([the workflow](../.github/workflows/ci.yml)).
+The code is TypeScript on the Node.js version in `.node-version`, installed with pnpm, checked and tested with [Vite+](https://github.com/voidzero-dev/vite-plus#readme) ([ADR 6](adr/0006-vite-plus-toolchain.md)), and the browser specs of the built app run in [Playwright](https://playwright.dev/docs/intro) ([ADR 7](adr/0007-playwright-for-browser-specs.md)). A story's scenarios run from their approved files ([ADR 8](adr/0008-story-scenarios-run-from-their-approved-files.md)). `./do` lists every task.

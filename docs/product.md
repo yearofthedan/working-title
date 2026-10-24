@@ -9,6 +9,8 @@ A full, end-to-end writing environment for planners writing long-form narrative,
 
 It is built deliberately for planners, the writers who define structure first and work forward from it, rather than for pantsers. We are excluding pantsers on purpose. The whole design assumes you set something up earlier that guides what you do next, and that assumption only holds if you plan.
 
+Every writer can use it, whatever their sight or whether they use a keyboard, a mouse or a screen reader: it is built to a baseline of accessibility, whose target is in [the architecture](architecture.md#quality-targets).
+
 ## The heart
 
 Planning, drafting and replanning form one continuous, cyclical loop: plan a level, drop into a slice and draft it, surface to plan the next slice, draft that, replan upstream as the writing teaches you things. Much of the work is redrafting, so the tool must stay useful deep in the writing, not only at planning time.
