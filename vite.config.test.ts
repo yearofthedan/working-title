@@ -11,6 +11,7 @@ const callingOnPage = (call: string) =>
 
 let samples: string;
 const lintErrors = new Map<string, string[]>();
+const commentRefusals = new Set<string>();
 const errorsIn = (file: string) => lintErrors.get(join(samples, file)) ?? [];
 
 beforeAll(() => {
@@ -30,6 +31,8 @@ beforeAll(() => {
     'driver-acting-on-a-locator/writer.ts',
     "import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.getByRole('button').click();\n",
   );
+  write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
+  write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
@@ -39,6 +42,7 @@ beforeAll(() => {
     if (code === 'eslint(no-restricted-properties)') {
       lintErrors.set(filename, [...(lintErrors.get(filename) ?? []), help]);
     }
+    if (code.includes('allowed-prefix')) commentRefusals.add(filename);
   }
 });
 
@@ -69,4 +73,14 @@ describe('e2e locators', { timeout: 60_000 }, () => {
       ]);
     },
   );
+});
+
+describe('comments', { timeout: 60_000 }, () => {
+  it('a comment without an allowed prefix fails lint', () => {
+    expect(commentRefusals.has(join(samples, 'comment-plain.ts'))).toBe(true);
+  });
+
+  it('a shortcut: comment passes lint', () => {
+    expect(commentRefusals.has(join(samples, 'comment-shortcut.ts'))).toBe(false);
+  });
 });

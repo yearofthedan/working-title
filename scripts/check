@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Run every local check: secrets, format, lint and types, the direction of the layers, the dependency audit, the link check, the names and docs checks, the browser specs, then the tests.
+# help: Run every local check: secrets, format, lint and types, the direction of the layers, the dependency audit, the link check, the names, docs and comments checks, the browser specs, then the tests.
 
 set -eu
 
@@ -12,5 +12,6 @@ vp check
 "$(dirname "$0")/../do" check-links
 "$(dirname "$0")/../do" check-names
 "$(dirname "$0")/../do" check-docs
+"$(dirname "$0")/../do" check-comments
 "$(dirname "$0")/../do" e2e
 "$(dirname "$0")/../do" test

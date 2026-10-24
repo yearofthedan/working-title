@@ -96,7 +96,9 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
+    jsPlugins: ['./scripts/_lint-comments.mjs'],
     rules: {
+      'comments/allowed-prefix': 'error',
       'unicorn/no-thenable': 'error',
     },
     overrides: [

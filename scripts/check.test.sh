@@ -13,6 +13,7 @@ expect_vp 'pnpm audit --json' "check audits the lockfile"
 expect_vp 'node .*scripts/_check-links.mjs [^ ]*$' "check refuses a link that does not resolve"
 if grep -q 'follows the convention' "$work/out"; then ok "check refuses a file name that breaks the convention"; else no "check refuses a file name that breaks the convention"; fi
 if grep -q 'opens with its audience and purpose' "$work/out"; then ok "check refuses a docs page that does not open with its audience and purpose"; else no "check refuses a docs page that does not open with its audience and purpose"; fi
+if grep -q 'starts with an allowed prefix' "$work/out"; then ok "check refuses a shell or CSS comment without an allowed prefix"; else no "check refuses a shell or CSS comment without an allowed prefix"; fi
 if grep -q -- '--external' "$VP_LOG"; then no "check asks no site, which cannot block a merge"; else ok "check asks no site, which cannot block a merge"; fi
 if [ "$(grep -c '^pnpm audit --json$' "$VP_LOG")" = 2 ]; then ok "check audits the head and the base"; else no "check audits the head and the base"; fi
 expect_vp 'test' "check runs the tests"
