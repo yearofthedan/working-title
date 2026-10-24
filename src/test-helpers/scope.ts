@@ -27,7 +27,7 @@ interface Finds {
 
 const fieldIn = (within: Finds, label: string): Field => ({
   enter: async (text) => {
-    // shortcut: a piece's own facet is the first field named so in its group, until its fields stop coming before its children's.
+    // shortcut: a piece's own facets come before its children's in its group, until a facet's field can be told from a child piece's by name.
     await within.getByLabel(wholeNameAnyCase(label)).first().fill(text);
   },
 });
