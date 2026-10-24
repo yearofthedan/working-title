@@ -29,7 +29,6 @@ Once `pnpm install` has installed the dependencies, every task runs through `./d
 ## How work lands
 
 - Never push to `main`: a change reaches it the way [commits and merges](docs/standards/commits.md) sets out.
-- Work comes from an issue whose acceptance criteria were agreed before any code. Never edit an agreed issue to fit what was built: a change of scope goes back to its owner.
 
 How a story is planned, built and handed over is in the skills below, which is where the build rules and the definition of done live.
 
