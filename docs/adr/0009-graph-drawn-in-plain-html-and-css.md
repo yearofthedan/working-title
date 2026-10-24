@@ -1,6 +1,6 @@
 # 9. Graph drawn in plain HTML and CSS
 
-Status: Accepted, 2026-10-24
+Status: Proposed, 2026-10-24
 
 ## Context
 
