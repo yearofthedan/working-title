@@ -4,12 +4,11 @@ test("the install splash uses the page's background colour", async ({ writer, pa
   await writer.opensTheApp();
   const { background_color } = await (await page.request.get('/manifest.webmanifest')).json();
   const [manifest, body] = await page.evaluate((colour) => {
-    // The browser normalises both colours to rgb() so a hex value compares with a computed one.
-    const probe = document.createElement('div');
-    probe.style.backgroundColor = colour;
-    document.body.append(probe);
+    const normalised = document.createElement('div');
+    normalised.style.backgroundColor = colour;
+    document.body.append(normalised);
     return [
-      getComputedStyle(probe).backgroundColor,
+      getComputedStyle(normalised).backgroundColor,
       getComputedStyle(document.body).backgroundColor,
     ];
   }, background_color);

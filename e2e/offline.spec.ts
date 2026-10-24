@@ -5,7 +5,6 @@ async function loadOnceThenGoOffline(writer: Writer, page: Page, context: Browse
   await writer.opensTheApp();
   await page.evaluate(() => navigator.serviceWorker.ready);
   await context.setOffline(true);
-  // Without this, a setOffline that stopped cutting the network would let both tests pass online.
   const reachable = await page.evaluate(() =>
     fetch('/not-precached').then(
       () => true,
