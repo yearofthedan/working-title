@@ -9,6 +9,11 @@ root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 out="$root/screenshots"
 sentences="$root/scripts/_screenshot-long-sentences.json"
 
+if curl -fsS http://localhost:4174 >/dev/null 2>&1; then
+  echo "something is already answering on 4174, and the shots would show its build; stop it first" >&2
+  exit 1
+fi
+
 rm -rf "$out"
 mkdir -p "$out"
 
@@ -25,6 +30,10 @@ trap stop EXIT
 
 tries=0
 until curl -fsS http://localhost:4174 >/dev/null 2>&1; do
+  if ! kill -0 "$server" 2>/dev/null; then
+    echo "the preview on 4174 stopped before it answered" >&2
+    exit 1
+  fi
   tries=$((tries + 1))
   if [ "$tries" -ge 30 ]; then
     echo "the preview on 4174 did not answer" >&2
