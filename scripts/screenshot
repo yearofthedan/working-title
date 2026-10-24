@@ -1,0 +1,37 @@
+#!/bin/sh
+# help: Screenshot the built app at the widths the look criteria name.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+out="$root/screenshots"
+sentences="$root/scripts/_screenshot-long-sentences.json"
+
+rm -rf "$out"
+mkdir -p "$out"
+
+vp build
+
+vp preview --port 4174 --strictPort &
+server=$!
+trap 'kill "$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true' EXIT
+
+until curl -fsS http://localhost:4174 >/dev/null 2>&1; do
+  sleep 1
+done
+
+playwright install --with-deps chromium
+
+shot() {
+  width=$1
+  name=$2
+  shift 2
+  playwright screenshot --viewport-size "$width, 900" --full-page "$@" http://localhost:4174 "$out/$name.png"
+}
+
+shot 1440 new-project-1440
+shot 1100 new-project-1100
+shot 1440 long-sentences-1440 --load-storage "$sentences"
+shot 1100 long-sentences-1100 --load-storage "$sentences"

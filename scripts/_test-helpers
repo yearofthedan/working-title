@@ -42,6 +42,8 @@ make_copy() {
   done
   printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
   chmod +x "$copy/node_modules/.bin/node"
+  printf '#!/bin/sh\nexit 0\n' >"$copy/node_modules/.bin/curl"
+  chmod +x "$copy/node_modules/.bin/curl"
   printf '#!/bin/sh\n' >"$copy/node_modules/.bin/pnpm"
   cat >>"$copy/node_modules/.bin/pnpm" <<'STUB'
 echo "pnpm $*" >>"$VP_LOG"
