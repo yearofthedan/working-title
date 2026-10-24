@@ -89,7 +89,8 @@ A pull request whose work is done is handed over, not left in draft. The main se
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, ahead of the one that closes the issue, once the builder confirms.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
-5. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
+5. **Fill `How to verify` and give it in the conversation**, as [working with the user](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md) says of handing work over. For a change the writer sees, walk the steps yourself first, in the built app with the browser helper, and write down what you saw rather than what you expected.
+6. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
 
 ## Work found outside the issue
 
