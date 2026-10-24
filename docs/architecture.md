@@ -36,7 +36,7 @@ service worker ──► the built app, cached on the first load
 
 ## Quality targets
 
-Each attribute is named as in [ISO/IEC 25010:2023](https://webstore.iec.ch/en/publication/90024) where the standard has a name for it. Confidence says how sure we are that the target holds today:
+The attributes for the code are named as in [ISO/IEC 25010:2023](https://webstore.iec.ch/en/publication/90024). Confidence says how sure we are that the target holds today:
 
 - **High:** a check in `./do check` fails a change that breaks it.
 - **Medium:** a check covers part of it, or a reviewer covers it by reading.
@@ -57,7 +57,7 @@ Design size is about 300 pieces and 2,000 links.
 | Data | Filtering and querying the whole project takes under 100 ms | nothing yet | Low: no test times a query at the design size |
 | Start-up | Usable within 2 s, and fully offline after the first load | [`e2e/offline.spec.ts`](../e2e/offline.spec.ts) | Medium: offline is checked, the 2 s is not |
 | Fidelity | Prose survives the round trip to Markdown and back unchanged | nothing yet | Low: the Markdown round trip is not built |
-| Accessibility (inclusivity) | Meets [WCAG 2.2](https://www.w3.org/TR/WCAG22/) at level AA, as the [markup standard](standards/markup.md) sets out | Review of the accessibility tree each story's approved files record ([ADR 8](adr/0008-story-scenarios-run-from-their-approved-files.md)); the lint, which makes specs find elements by role or label | Medium: contrast, focus order and keyboard reach rest on a reviewer; an automated audit such as [axe-core](https://github.com/dequelabs/axe-core), run from the browser specs, would check them |
+| Accessibility | Meets [WCAG 2.2](https://www.w3.org/TR/WCAG22/) at level AA. The [markup standard](standards/markup.md) sets how elements and their names are written | Review of the accessibility tree each story's approved files record ([ADR 8](adr/0008-story-scenarios-run-from-their-approved-files.md)); the lint, which makes specs find elements by role or label | Medium: contrast, focus order and keyboard reach rest on a reviewer. An automated audit such as [axe-core](https://github.com/dequelabs/axe-core#readme), run from the browser specs, would check contrast; focus order and keyboard reach need a spec that moves by keyboard |
 
 ### For the code
 
@@ -65,12 +65,12 @@ Design size is about 300 pieces and 2,000 links.
 
 | Attribute | What it guards against | Standard | Enforced by | Confidence |
 | --- | --- | --- | --- | --- |
-| Security of the development environment: integrity and resistance | A malicious release running on the machine when it is installed | The release cutoff and trust policy in `pnpm-workspace.yaml`, and the lockfile | pnpm, on every install; `./do add`, which audits a dependency in a scratch copy before it is installed; `.omp/hooks/pre/refuse-a-direct-add.ts`; `./do audit` | High; no page states the policy, which lives in the settings and the scripts |
-| Security of the development environment: confidentiality | A credential leaking, committed to the repository or read off the machine by an install script or an agent | none | `./do secrets`, over what is committed | Low: nothing keeps a credential on the machine from an install script or an agent |
+| Security of the development environment: integrity and resistance | A malicious release running on the machine when it is installed | The release cutoff and trust policy in `pnpm-workspace.yaml`, and the lockfile | pnpm, which applies both on every install ([`trustLockfile`](https://pnpm.io/settings/dependency-resolution#trustlockfile)); `./do add`, which audits a dependency in a scratch copy before it is installed; `.omp/hooks/pre/refuse-a-direct-add.ts`; `./do audit` | High; no page states the policy, which lives in the settings and the scripts |
+| Security of the development environment: confidentiality | A credential leaking, committed to the repository or read off the machine by an install script or an agent | none | `./do secrets`, over what is committed | Medium: `./do secrets` refuses a committed credential; nothing keeps one on the machine from an install script or an agent |
 | Security of the app: integrity | A compromised dependency shipping into the writer's tab, which holds their manuscript and their folder's permission | as above | The install guards above, `./do audit`, [Renovate](https://docs.renovatebot.com/) on the schedule in `renovate.json`, and CodeQL on `main` | High |
-| Modifiability | Moving storage, replacing the editor or changing the method forcing a change in the domain | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 5](adr/0005-method-as-data.md) | `./do layers` | High |
+| Modifiability | Moving storage, replacing the editor or changing the method forcing a change in the domain | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 5](adr/0005-method-as-data.md) | `./do layers` | Medium: `./do layers` holds the direction between domain, application, ports, adapters and UI; nothing checks that a method's words stay out of the domain and the application |
 | Testability | Behaviour that can only be checked in a browser, and tests that pass while the code is wrong | [Testing](standards/testing.md) | `./do test`; review, for a test seen to fail first | Medium: `./do mutate`, which finds tests that let a fault through, runs [on its own](../.github/workflows/mutate.yml) and the ruleset does not require it |
-| Analysability | Code, files and docs an agent takes longer to read or find than it needs to, since agents write most of the code and copy what they find | [Coding](standards/coding.md); doc openings: the dev-skills plugin's `writing-docs`; file names: none, the check holds the rule | The comments lint, `./do check-comments`, `./do check-names`, `./do check-docs`, `./do check-links` | Medium: the checks cover comments, names, doc openings and links; the rest is review |
+| Analysability | Code, files and docs an agent takes longer to read or find than it needs to, since agents write most of the code and copy what they find | [Coding](standards/coding.md); doc openings and file names: none, each check holds its rule | The comments lint, `./do check-comments`, `./do check-names`, `./do check-docs`, `./do check-links` | Medium: the checks cover comments, names, doc openings and links; the rest is review |
 
 ## Toolchain
 

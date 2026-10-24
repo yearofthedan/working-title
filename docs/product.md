@@ -9,7 +9,7 @@ A full, end-to-end writing environment for planners writing long-form narrative,
 
 It is built deliberately for planners, the writers who define structure first and work forward from it, rather than for pantsers. We are excluding pantsers on purpose. The whole design assumes you set something up earlier that guides what you do next, and that assumption only holds if you plan.
 
-Every writer can use it, whatever their sight or whether they use a keyboard, a mouse or a screen reader: it meets a baseline of accessibility, whose target is in [the architecture](architecture.md#quality-targets).
+Every writer can use it, whatever their sight or whether they use a keyboard, a mouse or a screen reader: it is built to a baseline of accessibility, whose target is in [the architecture](architecture.md#quality-targets).
 
 ## The heart
 
