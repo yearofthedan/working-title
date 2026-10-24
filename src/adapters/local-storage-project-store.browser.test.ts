@@ -16,6 +16,18 @@ const ids = (): (() => string) => {
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());
 
+interface RawGlob {
+  glob(
+    pattern: string,
+    options: { query: string; import: string; eager: true },
+  ): Record<string, string>;
+}
+
+const screenshots = (import.meta as unknown as RawGlob).glob(
+  '/scripts/_screenshot-long-sentences.json',
+  { query: '?raw', import: 'default', eager: true },
+);
+
 describe('the project in browser storage', () => {
   it('reads back what it saved, an empty sentence included', async () => {
     const store = projectStore();
@@ -63,6 +75,29 @@ describe('the project in browser storage', () => {
       '',
       '',
     ]);
+  });
+
+  it('opens the project the screenshots load, its story and Beat 2 holding their long sentences', async () => {
+    const [raw] = Object.values(screenshots);
+    const state = JSON.parse(String(raw)) as {
+      origins: { localStorage: { name: string; value: string }[] }[];
+    };
+    const value =
+      state.origins.flatMap(({ localStorage: items }) => items).find(({ name }) => name === key)
+        ?.value ?? '';
+    localStorage.setItem(key, value);
+
+    const project = await opened();
+    const stored = JSON.parse(value) as Project;
+    const story = stored.pieces.find(({ parent }) => parent === null);
+    const openedStory = project?.pieces.find(({ parent }) => parent === null);
+    const beat2 = stored.pieces.find((piece) => piece.parent === story?.id && piece.order === 1);
+    const openedBeat2 = project?.pieces.find(
+      (piece) => piece.parent === openedStory?.id && piece.order === 1,
+    );
+
+    expect(openedStory?.facets[summary]).toBe(story?.facets[summary]);
+    expect(openedBeat2?.facets[summary]).toBe(beat2?.facets[summary]);
   });
 
   it('refuses text that is not JSON, leaving it where it is', async () => {
