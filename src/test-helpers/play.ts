@@ -8,6 +8,7 @@ export interface ScenarioSource {
 
 export interface Runner {
   tree(): Promise<readonly string[]>;
+  read?(path: string): Promise<string>;
   write?(path: string, text: string): Promise<void>;
 }
 
@@ -49,8 +50,11 @@ export const playScenarios = async (
   const table = stepTable(actions);
   let approved = source.text;
 
-  if (options.approve && runner.write === undefined) {
-    throw new Error('Approving needs a runner that can write the file it read');
+  if (options.approve) {
+    if (runner.read === undefined || runner.write === undefined) {
+      throw new Error('Approving needs a runner that can read the file as it stands and write it');
+    }
+    approved = await runner.read(source.path);
   }
 
   for (const scenario of file.scenarios) {

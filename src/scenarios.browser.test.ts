@@ -38,6 +38,7 @@ const runnerFor = (approving: boolean): Runner => {
     tree: async () => scope.tree(),
     ...(approving
       ? {
+          read: async (where: string) => browser.server.commands.readFile(where),
           write: async (where: string, text: string) => {
             await browser.server.commands.writeFile(where, text);
           },
@@ -55,13 +56,10 @@ for (const [key, text] of Object.entries(files)) {
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
         const scope = browserScope(theStoryOnScreen);
-        const asItStands = approving ? await browser.server.commands.readFile(path) : text;
-        await playScenarios(
-          { path, text: asItStands },
-          runnerFor(approving),
-          focusPageActions(scope),
-          { only: behaviour, ...(approving ? { approve: true } : {}) },
-        );
+        await playScenarios({ path, text }, runnerFor(approving), focusPageActions(scope), {
+          only: behaviour,
+          ...(approving ? { approve: true } : {}),
+        });
       });
     }
   });

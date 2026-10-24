@@ -25,13 +25,13 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
             ? { tree }
             : {
                 tree,
+                read: async (where) => readFileSync(join(root, where), 'utf8'),
                 write: async (where, what) => {
                   writeFileSync(join(root, where), what);
                 },
               };
-        const asItStands = approvingPath === '' ? text : readFileSync(join(root, path), 'utf8');
 
-        await playScenarios({ path, text: asItStands }, runner, journeyActions(writer.scope), {
+        await playScenarios({ path, text }, runner, journeyActions(writer.scope), {
           only: behaviour,
           ...(approvingPath === '' ? {} : { approve: true }),
         });

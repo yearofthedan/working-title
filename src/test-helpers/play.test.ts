@@ -28,10 +28,13 @@ const file = [
 
 const runnerSeeing = (...trees: readonly (readonly string[])[]) => {
   let at = 0;
+  let held = file;
   const written: { path: string; text: string }[] = [];
   const runner: Runner & { written: typeof written } = {
     tree: async () => trees[at++] ?? [],
+    read: async () => held,
     write: async (path, text) => {
+      held = text;
       written.push({ path, text });
     },
     written,
@@ -98,6 +101,19 @@ describe('playing a scenario file', () => {
         'Approve it with ./do approve a/toy.approved.md if the change is the one you meant.',
       ].join('\n'),
     );
+  });
+
+  it('keeps both recorded blocks where two plays approve two scenarios of one file', async () => {
+    const runner = runnerSeeing(
+      ['- main:', '  - text: As it is now'],
+      ['- main:', '  - text: A toy again'],
+    );
+    await playScenarios(source(), runner, actions, { only: 'A toy behaviour', approve: true });
+    await playScenarios(source(), runner, actions, { only: 'Another behaviour', approve: true });
+
+    const written = runner.written.at(-1)?.text ?? '';
+    expect(written).toContain('  - text: As it is now');
+    expect(written).toContain('  - text: A toy again');
   });
 
   it('replaces what it saw where it is approving, and writes the file through the runner', async () => {
