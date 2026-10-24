@@ -1,6 +1,3 @@
-// Compare two `pnpm audit --json` reports: what this change brings in, and what
-// the base already carried. Usage: _audit.mjs <base.json> <head.json> [base name]
-
 import { readFileSync } from 'node:fs';
 
 const [, , baseJsonPath, headJsonPath, baseName = 'the base'] = process.argv;

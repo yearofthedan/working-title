@@ -1,6 +1,5 @@
 #!/bin/sh
-# help: Add a dependency: resolve and audit it in a scratch copy first, so a release with
-# a known advisory is refused before any of it is installed.
+# help: Add a dependency: resolve and audit it in a scratch copy first, so a release with a known advisory is refused before any of it is installed.
 
 set -eu
 
@@ -13,13 +12,9 @@ fi
 work=$(mktemp -d)
 mkdir -p "$work/scratch" "$work/backup"
 
-# Everything pnpm add can write, so what is installed is what was audited.
 files='package.json pnpm-lock.yaml pnpm-workspace.yaml'
 for file in $files; do cp "$root/$file" "$work/scratch/$file"; done
 
-# And what the resolution reads besides those, when the manifest or the workspace
-# file names it: a patch file, a pnpmfile, the registry settings. A missing one
-# fails the resolve, and a resolve that cannot run refuses the add.
 for named in patches .pnpmfile.mjs .pnpmfile.cjs .npmrc; do
   if [ -e "$root/$named" ]; then cp -R "$root/$named" "$work/scratch/$named"; fi
 done
@@ -41,16 +36,10 @@ restore() { # puts the files that were there back, and says which would not go
   [ -z "$failed" ]
 }
 
-# The repo holds the audited files from the copy-back until the install succeeds, so
-# anything that ends the task in between — a refusal, an interrupt — undoes the add
-# here, rather than leaving a manifest that names what the lockfile does not carry.
 state=untouched
 cleanup() {
   if [ "$state" = copied ]; then
     if restore; then
-      # The failed install may have changed node_modules, so the files that were
-      # put back are installed again; when that fails too, node_modules is not
-      # known to match them, and the line says so rather than claim it does.
       if (cd "$root" && pnpm install --frozen-lockfile); then
         echo 'Nothing was changed.' >&2
       else
@@ -70,8 +59,6 @@ is_json() {
   node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
 }
 
-# A gate that cannot answer refuses: what it guards against is a dependency
-# reaching this machine, so an unreachable service is not a reason to carry on.
 audit() {
   (cd "$work/scratch" && pnpm audit --json >"$1") || true
   is_json "$1" || refuse 'the advisory service could not be reached, so nothing was audited'
