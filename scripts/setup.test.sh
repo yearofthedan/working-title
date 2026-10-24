@@ -20,30 +20,59 @@ fresh() {
   : >"$OMP_MARKETPLACES"
   : >"$OMP_LOG"
 }
-expect_call() { if grep -q "$1" "$OMP_LOG"; then ok "$2"; else no "$2"; fi; }
-expect_no_call() { if grep -q "$1" "$OMP_LOG"; then no "$2"; else ok "$2"; fi; }
+expect_call() { if grep -qF "$1" "$OMP_LOG"; then ok "$2"; else no "$2"; fi; }
+expect_no_call() { if grep -qF "$1" "$OMP_LOG"; then no "$2"; else ok "$2"; fi; }
+expect_out_times() {
+  count=$(grep -cF "$2" "$work/out" || true)
+  if [ "$count" -eq "$1" ]; then ok "$3"; else no "$3 (printed $count times)"; fi
+}
 
 fresh
 run_do setup
 expect_status 0 "setup succeeds on a fresh machine"
-expect_call 'plugin marketplace add DietrichGebert/ponytail' "setup adds the marketplace"
+expect_call 'plugin marketplace add DietrichGebert/ponytail' "setup adds the Ponytail marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
+expect_call 'plugin marketplace add yearofthedan/snippets' "setup adds the snippets marketplace"
+expect_call 'plugin install dev-skills@snippets' "setup installs dev-skills"
 expect_out 'Installed Ponytail' "setup says it installed Ponytail"
+expect_out 'Installed dev-skills' "setup says it installed dev-skills"
+expect_out_times 1 'Run /reload-plugins in an open OMP session to load it.' "setup says to reload once"
 
 printf '{"npm":[],"marketplace":[{"id":"ponytail@ponytail","scope":"user"}]}' >"$OMP_LIST"
+printf '  ponytail  DietrichGebert/ponytail\n' >"$OMP_MARKETPLACES"
 : >"$OMP_LOG"
 run_do setup
-expect_status 0 "setup succeeds when Ponytail is installed"
-expect_out 'already installed' "setup says Ponytail is already installed"
-expect_no_call 'marketplace add' "setup does not re-add the marketplace"
-expect_no_call 'plugin install' "setup re-installs nothing"
+expect_status 0 "setup succeeds when Ponytail is installed and dev-skills is not"
+expect_out 'Ponytail is already installed.' "setup says Ponytail is already installed"
+expect_no_call 'marketplace add DietrichGebert/ponytail' "setup does not re-add the Ponytail marketplace"
+expect_call 'plugin marketplace add yearofthedan/snippets' "setup adds the snippets marketplace"
+expect_call 'plugin install dev-skills@snippets' "setup installs dev-skills"
+
+printf '{"npm":[],"marketplace":[{"id":"ponytail@ponytail","scope":"user"},{"id":"dev-skills@snippets","scope":"user"}]}' >"$OMP_LIST"
+printf '  ponytail  DietrichGebert/ponytail\n  snippets  yearofthedan/snippets\n' >"$OMP_MARKETPLACES"
+: >"$OMP_LOG"
+run_do setup
+expect_status 0 "setup succeeds when both plugins are installed"
+expect_out 'Ponytail is already installed.' "setup says Ponytail is already installed"
+expect_out 'dev-skills is already installed.' "setup says dev-skills is already installed"
+expect_no_call 'marketplace add' "setup adds no marketplace"
+expect_no_call 'plugin install' "setup installs nothing"
+expect_out_times 0 'Run /reload-plugins' "setup does not say to reload when it installed nothing"
+
+printf '{"npm":[],"marketplace":[{"id":"ponytail@ponytail","scope":"user"}]}' >"$OMP_LIST"
+printf '  ponytail  DietrichGebert/ponytail\n  snippets  yearofthedan/snippets\n' >"$OMP_MARKETPLACES"
+: >"$OMP_LOG"
+run_do setup
+expect_status 0 "setup succeeds when the snippets marketplace is already configured"
+expect_no_call 'marketplace add' "setup does not re-add either marketplace"
+expect_call 'plugin install dev-skills@snippets' "setup installs dev-skills"
 
 printf '{"npm":[],"marketplace":[]}' >"$OMP_LIST"
-printf 'ponytail  DietrichGebert/ponytail\n' >"$OMP_MARKETPLACES"
+printf '  ponytail  DietrichGebert/ponytail\n' >"$OMP_MARKETPLACES"
 : >"$OMP_LOG"
 run_do setup
-expect_status 0 "setup succeeds when the marketplace is already configured"
-expect_no_call 'marketplace add' "setup does not re-add the marketplace"
+expect_status 0 "setup succeeds when the Ponytail marketplace is already configured"
+expect_no_call 'marketplace add DietrichGebert/ponytail' "setup does not re-add the Ponytail marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
 mkdir -p "$work/nowhere"
