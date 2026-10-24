@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import './reset.css';
 
 body {
   margin: 0;
@@ -27,18 +28,6 @@ main {
   font-family: var(--font-interface);
   font-size: var(--text-interface);
   color: var(--color-text);
-}
-
-/* The heading gives a screen reader user a level to move by; the legend's type stays. */
-legend :is(h2, h3) {
-  margin: 0;
-  font: inherit;
-}
-
-/* Each beat's heading carries its number. Chromium still announces an unmarked list as a list. */
-main > ol {
-  list-style: none;
-  padding: 0;
 }
 
 .facet textarea {

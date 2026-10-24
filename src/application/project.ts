@@ -32,8 +32,7 @@ const view = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
   facets: kind.facets.map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
 });
 
-// shortcut: a child is named for its kind and its place, until the method's own names for its
-// children arrive with their guidance in #4.
+// shortcut: a child is named for its kind and its place, until the method's own names arrive with their guidance in #4.
 const listed = (project: Project, method: Method): readonly PieceView[] => {
   const root = project.pieces.find(({ parent }) => parent === null)!;
   const children = project.pieces
@@ -51,8 +50,6 @@ export const openProject = async (
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<Focus> => {
-  // The focus this returns reads a project as it was when it opened: what is typed is saved, and
-  // the next open reads it back.
   const project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
   const save = () => store.save(project);
   return {

@@ -1,5 +1,5 @@
-// shortcut: its own TypeScript, 6, as it reads only a `typescript` below 7 and the toolchain is
-// on 7; one version when it reads 7 (the range is what `depcruise --info` prints).
+/* shortcut: its own TypeScript, 6, as it reads only a `typescript` below 7 and the toolchain is
+   on 7; one version when it reads 7 (the range is what `depcruise --info` prints). */
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 export default {
@@ -28,9 +28,6 @@ export default {
   ],
   options: {
     doNotFollow: { path: 'node_modules' },
-    // A layer reaches another through a type as easily as through a value, and without this
-    // dependency-cruiser reads such a dependency and drops it
-    // (https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#tsprecompilationdeps).
     tsPreCompilationDeps: true,
   },
 };

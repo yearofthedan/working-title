@@ -16,11 +16,6 @@ const everyFile = (dir: string, found: string[] = []): string[] => {
   return found;
 };
 
-/**
- * An entry reads every scenario file it can match: `e2e/*.approved.md` for the journeys,
- * `src/<area>/scenarios/*.approved.md` for the page scenarios. A file outside those runs in
- * no entry, so it is never played and never recorded.
- */
 const anEntryReads = (path: string): boolean =>
   /^e2e\/[^/]+\.approved\.md$/.test(path) ||
   /^src\/(.+\/)?scenarios\/[^/]+\.approved\.md$/.test(path);

@@ -1,11 +1,9 @@
 #!/bin/sh
-# Run the browser specs against a build of the app.
+# help: Run the browser specs against a build of the app.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
 
-# Installs Chromium and its system libraries here, so a fresh clone or a fresh
-# CI runner runs the specs with no setup step. On macOS it installs no libraries.
 playwright install --with-deps chromium
 playwright test "$@"

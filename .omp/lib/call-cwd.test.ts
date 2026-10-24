@@ -12,12 +12,12 @@ describe('resolveCallCwd', () => {
     ['@~/notes', join(homedir(), 'notes')],
     ['file:///tmp/elsewhere', '/tmp/elsewhere'],
     ['FILE:///tmp/elsewhere', '/tmp/elsewhere'],
+    ['file://host/tmp/notes', '/session/file:/host/tmp/notes'],
     [':/tmp/elsewhere', '/tmp/elsewhere'],
     ['/tmp/a\u00A0b', '/tmp/a b'],
     ['/tmp/elsewhere', '/tmp/elsewhere'],
     ['plan', '/session/plan'],
     ['/', '/session'],
-    // None of these is a shorthand, so the `@` and the `:` stand as typed.
     ['@my-file.txt', '/session/@my-file.txt'],
     ['@~someone', '/session/@~someone'],
     [':plan', '/session/:plan'],

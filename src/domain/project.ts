@@ -24,7 +24,6 @@ export interface Piece {
   readonly id: string;
   readonly kind: string;
   readonly parent: string | null;
-  /** Counted from 0 among its siblings. */
   readonly order: number;
   readonly facets: FacetText;
 }
@@ -52,7 +51,6 @@ const startingChildren = (method: Method, root: Piece, newId: () => string): rea
     facets: {},
   }));
 
-/** `newId` is passed in so a test reads the ids it mints. */
 export const newProject = (method: Method, newId: () => string): Project => {
   const root: Piece = { id: newId(), kind: method.rootKind.id, parent: null, order: 0, facets: {} };
   return {
@@ -67,10 +65,7 @@ const isFacetText = (value: unknown): value is FacetText =>
   value !== null &&
   Object.values(value).every((text) => typeof text === 'string');
 
-/**
- * The method and version are not compared: a project from another version opens and keeps the
- * facets its ids do not name.
- */
+// shortcut: the method and version a stored value names are not compared, until #2 acts on them.
 export const isProject = (value: unknown): value is Project => {
   if (value === null) return false;
   const { method, version, pieces } = value as Project;
@@ -89,7 +84,6 @@ export const isProjectFromVersion1 = (value: unknown): value is ProjectFromVersi
   return typeof root?.kind === 'string' && isFacetText(root.facets);
 };
 
-/** A save in the shape version 1 wrote gains the method's starting children, so its sentence survives. */
 export const readProject = (
   stored: StoredProject | undefined,
   method: Method,

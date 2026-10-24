@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the app and serve the build, as a writer would get it.
+# help: Build the app and serve the build, as a writer would get it.
 
 set -eu
 

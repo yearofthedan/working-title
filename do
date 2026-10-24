@@ -5,7 +5,6 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 scripts="$root/scripts"
 
-# Tasks run the project's own tools, such as vp, without a global install.
 PATH="$root/node_modules/.bin:$PATH"
 export PATH
 
@@ -17,8 +16,8 @@ tasks() {
     name=$(basename "$file")
     case "$name" in _* | *.test.sh) continue ;; esac
     [ -f "$file" ] && [ -x "$file" ] || continue
-    summary=$(sed -n '2,/^[^#]/s/^# *//p' "$file" | head -n 1)
-    printf '  %-12s %s\n' "$name" "$summary"
+    summary=$(sed -n 's/^# help: //p' "$file" | head -n 1)
+    printf '  %-14s %s\n' "$name" "$summary"
   done
 }
 

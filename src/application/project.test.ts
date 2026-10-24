@@ -18,8 +18,7 @@ const storeOf = (project?: Project): ProjectStore => ({
   save: async () => undefined,
 });
 
-/** A store that keeps a copy of the project as it was saved, as the browser's does. */
-const keepingStore = (): ProjectStore & { saved: () => Project | undefined } => {
+const copyingStore = (): ProjectStore & { saved: () => Project | undefined } => {
   let kept: Project | undefined;
   return {
     saved: () => kept,
@@ -74,9 +73,8 @@ describe('opening a project', () => {
     await expect(openProject(snowflakeExtended, store, ids())).rejects.toThrow('is not a project');
   });
 
-  it('saves the sentence typed into a beat, leaving the story and the other beats alone', async () => {
-    const store = keepingStore();
-    // No id source, as `main` wires it: the ids are the app's own.
+  it('saves the sentence typed into a beat under the ids the app mints, leaving the story and the other beats alone', async () => {
+    const store = copyingStore();
     const focus = await openProject(snowflakeExtended, store);
     await focus.elaborate(beat2Of(focus.pieces).id, summary, typed);
     expect(store.saved()?.pieces.map(({ facets }) => facets[summary] ?? '')).toEqual([
@@ -90,7 +88,7 @@ describe('opening a project', () => {
   });
 
   it('reads the sentence back on the next open', async () => {
-    const store = keepingStore();
+    const store = copyingStore();
     const first = await openProject(snowflakeExtended, store, ids());
     await first.elaborate(beat2Of(first.pieces).id, summary, typed);
 

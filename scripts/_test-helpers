@@ -1,6 +1,3 @@
-# Sourced by do.test.sh and scripts/*.test.sh, after each sets $root to the repo
-# root. Gives a scratch folder, the assertions, and stubs that record their calls.
-
 set -eu
 
 work=$(mktemp -d)
@@ -30,21 +27,12 @@ expect_out() { if grep -q "$1" "$work/out"; then ok "$2"; else no "$2"; fi; }
 expect_err() { if grep -q "$1" "$work/err"; then ok "$2"; else no "$2"; fi; }
 expect_status() { if [ "$status" -eq "$1" ]; then ok "$2"; else no "$2 (exit $status)"; fi; }
 
-# A copy of ./do and its tasks in $copy, with stubs for vp, playwright, secretlint,
-# depcruise and pnpm that record their calls in $VP_LOG, so nothing is written into
-# the repo and no real check runs. node is recorded and then run for real, since a
-# task's own work is node. The copy is a git repo whose origin/main holds the
-# lockfile, as the audit needs. The pnpm stub's add marks each file pnpm add can
-# write, and brings in an advisory unless PNPM_ADD_CLEAN is set. Its install fails
-# on a marked lockfile when PNPM_INSTALL_FAIL is set, and every time when
-# PNPM_INSTALL_FAIL_ALWAYS is, logging which of them failed.
 make_copy() {
   copy="$work/copy"
   mkdir -p "$copy/node_modules/.bin"
   cp "$root/do" "$copy/do"
   cp -R "$root/scripts" "$copy/scripts"
   cp "$root/.secretlintrc.json" "$root/.dependency-cruiser.mjs" "$root/package.json" "$root/pnpm-workspace.yaml" "$root/pnpm-lock.yaml" "$copy/"
-  # The workspace file names patches, which the resolution reads.
   if [ -d "$root/patches" ]; then cp -R "$root/patches" "$copy/patches"; fi
   for tool in vp playwright secretlint depcruise; do
     prefix="$tool "
@@ -52,12 +40,10 @@ make_copy() {
     printf '#!/bin/sh\necho "%s$*" >> "$VP_LOG"\n' "$prefix" >"$copy/node_modules/.bin/$tool"
     chmod +x "$copy/node_modules/.bin/$tool"
   done
-  # node is recorded and then run for real: the audit comparison is itself node, and a stub that
-  # answered instead of running it would leave that suite seeing nothing.
   printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
   chmod +x "$copy/node_modules/.bin/node"
-  cat >"$copy/node_modules/.bin/pnpm" <<'STUB'
-#!/bin/sh
+  printf '#!/bin/sh\n' >"$copy/node_modules/.bin/pnpm"
+  cat >>"$copy/node_modules/.bin/pnpm" <<'STUB'
 echo "pnpm $*" >>"$VP_LOG"
 case "$*" in
 'audit --json')
@@ -65,7 +51,6 @@ case "$*" in
   if grep -q 'vulnerable-fixture@' pnpm-lock.yaml 2>/dev/null; then cat "$PNPM_AUDIT_JSON"; else printf %s '{"advisories":{}}'; fi
   ;;
 'add '*' --lockfile-only')
-  # A resolve reads the patch files the workspace file names, as pnpm does.
   if grep -q patchedDependencies pnpm-workspace.yaml 2>/dev/null && [ ! -d patches ]; then
     echo 'ERR_PNPM_PATCH_NOT_FOUND' >&2
     exit 1

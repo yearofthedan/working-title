@@ -1,5 +1,5 @@
 #!/bin/sh
-# Check and fix the staged files, then run the checks the staged change needs.
+# help: Check and fix the staged files, then run the checks the staged change needs.
 
 set -eu
 
@@ -7,19 +7,15 @@ set -eu
 
 do="$(dirname "$0")/../do"
 
-# The scan runs first, since `vp staged` may rewrite the files it checks.
 "$do" secrets --staged
 
 vp staged "$@"
 
-# shortcut: the checks read the working tree, so unstaged changes count; check the
-# index alone when a partial commit needs it.
+# shortcut: the checks read the working tree, so unstaged changes count; check the index alone when a partial commit needs it.
 staged=$(git diff --cached --name-only --no-renames)
 not_markdown=$(printf '%s\n' "$staged" | grep -vE '\.md$' || true)
 in_scenarios=$(printf '%s\n' "$staged" | grep -E '^(src|e2e)/' || true)
 
-# git exports what locates this repository to a hook, and says to clear it before running
-# git elsewhere (https://git-scm.com/docs/githooks#_description).
 unset $(git rev-parse --local-env-vars)
 
 if [ -n "$staged" ] && [ -z "$not_markdown" ] && [ -z "$in_scenarios" ]; then

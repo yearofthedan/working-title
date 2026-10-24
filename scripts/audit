@@ -1,6 +1,5 @@
 #!/bin/sh
-# Refuse a dependency this change brings in that has a known advisory, and warn
-# about the ones the base already carried.
+# help: Refuse a dependency this change brings in that has a known advisory, and warn about the ones the base already carried.
 
 set -eu
 
@@ -20,8 +19,6 @@ is_json() {
   node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$1" 2>/dev/null
 }
 
-# A gate that cannot answer must not pass. Without a network a builder gets a
-# warning instead, so a check that needs no advisory data still runs.
 no_answer() {
   if [ "${CI:-}" = 'true' ]; then
     echo "error: $1" >&2
@@ -46,7 +43,6 @@ done
 (cd "$work/base" && pnpm audit --json >"$work/base.json") || true
 is_json "$work/base.json" || no_answer "the advisory service could not be reached to audit $base"
 
-# The revision is named too, so a base that is behind the branch is visible.
 label=$base
 if revision=$(git rev-parse --short "$base" 2>/dev/null); then
   label="$base ($revision)"

@@ -14,7 +14,6 @@ const ids = (): (() => string) => {
   return () => `id-${(made += 1)}`;
 };
 
-// A method shaped unlike Snowflake: a root kind that starts with two children of another kind.
 const toyMethod: Method = {
   name: 'toy',
   version: 1,

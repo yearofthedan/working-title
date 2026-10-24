@@ -19,8 +19,6 @@ const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus
 const pieceGroup = (piece: PieceView, headingTag: 'h2' | 'h3', elaborate: Focus['elaborate']) => {
   const group = document.createElement('fieldset');
   const name = document.createElement('legend');
-  // The heading is what lets a writer jump from piece to piece; the legend carries it so the
-  // group's accessible name stays the piece's.
   const heading = document.createElement(headingTag);
   heading.textContent = piece.name;
   name.append(heading);

@@ -2,8 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import { expect, it } from 'vite-plus/test';
 
-// ./do and its tasks are shell, so their tests are too; this runs each file with the rest.
-// A file starts a few stubbed tasks, which takes seconds under load.
 const suites = [
   'do.test.sh',
   ...readdirSync('scripts')

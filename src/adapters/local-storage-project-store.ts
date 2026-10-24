@@ -3,15 +3,12 @@ import type { ProjectStore } from '../ports/project-store';
 
 const key = 'working-title:project';
 
-// shortcut: one JSON blob in localStorage, moved to IndexedDB when #2 saves pieces
-// and links together and picks a library.
+// shortcut: one JSON blob in localStorage, until #2 saves pieces and links together and picks a library, which moves it to IndexedDB.
 export const projectStore = (): ProjectStore => ({
   load: async () => {
     const saved = localStorage.getItem(key);
     if (saved === null) return undefined;
     const project: unknown = JSON.parse(saved);
-    // `null` parses where unreadable text throws, so the shape decides: a value the app cannot
-    // render is refused rather than read as nothing saved and replaced on the first keystroke.
     if (!isProject(project) && !isProjectFromVersion1(project)) {
       throw new Error(`${key} holds something that is not a project`);
     }

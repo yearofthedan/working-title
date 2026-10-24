@@ -1,5 +1,5 @@
 #!/bin/sh
-# Report the mutants the tests over the domain and the application let through.
+# help: Report the mutants the tests over the domain and the application let through.
 
 set -eu
 

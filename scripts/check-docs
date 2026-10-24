@@ -1,13 +1,11 @@
 #!/bin/sh
-# Refuse a docs page that does not open with its audience and purpose.
+# help: Refuse a docs page that does not open with its audience and purpose.
 
 set -eu
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# A case pattern's * matches a slash, so the name alone does not say the record sits
-# in docs/adr ([POSIX: patterns used for filename expansion](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html#tag_19_14_03)).
 record_ok() {
   [ "${1%/*}" = docs/adr ] || return 1
   case "${1##*/}" in
@@ -16,8 +14,6 @@ record_ok() {
   return 1
 }
 
-# sed's q stops at the first "## " heading wherever it is, where a range reads past one
-# on the file's first line ([POSIX: sed](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sed.html)).
 opening_ok() {
   opening=$(sed '/^## /q' "$1")
   printf '%s\n' "$opening" | grep -q '^\*\*Audience:\*\*' || return 1
@@ -26,17 +22,12 @@ opening_ok() {
 
 : >"$work/bad"
 printf 0 >"$work/count"
-# A pathspec is read against the working directory, and its * crosses a slash: running at
-# the top of the working tree is what reads docs/ at any depth
-# ([gitglossary: pathspec](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec)).
 top=$(git rev-parse --show-toplevel 2>/dev/null) || {
   echo "not in a git working tree, so the docs pages cannot be read" >&2
   exit 1
 }
 cd "$top"
 
-# A name holding a byte above 0x80 comes back quoted, which is not a path
-# ([git-config: core.quotePath](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corequotePath)).
 git -c core.quotePath=false ls-files 'docs/*.md' | while IFS= read -r file; do
   record_ok "$file" && continue
   printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
