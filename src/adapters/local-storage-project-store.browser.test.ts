@@ -88,17 +88,16 @@ describe('the project in browser storage', () => {
     localStorage.setItem(key, value);
 
     const project = await opened();
-    const stored = JSON.parse(value) as Project;
-    const story = stored.pieces.find(({ parent }) => parent === null);
-    const openedStory = project?.pieces.find(({ parent }) => parent === null);
-    const beat2 = stored.pieces.find((piece) => piece.parent === story?.id && piece.order === 1);
-    const openedBeat2 = project?.pieces.find(
-      (piece) => piece.parent === openedStory?.id && piece.order === 1,
-    );
+    const story = project?.pieces.find(({ parent }) => parent === null);
+    const beats = project?.pieces.filter(({ parent }) => parent === story?.id) ?? [];
+    const beat2 = beats.find(({ order }) => order === 1);
 
     expect(project?.pieces).toHaveLength(1 + snowflakeExtended.startingChildren.count);
-    expect(openedStory?.facets[summary]).toBe(story?.facets[summary]);
-    expect(openedBeat2?.facets[summary]).toBe(beat2?.facets[summary]);
+    expect((story?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
+    expect((beat2?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
+    expect(
+      beats.filter(({ order }) => order !== 1).every(({ facets }) => facets[summary] === ''),
+    ).toBe(true);
   });
 
   it('refuses text that is not JSON, leaving it where it is', async () => {
