@@ -1,4 +1,4 @@
-import { isProject } from '../domain/project';
+import { isProject, isProjectFromVersion1 } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 
 const key = 'working-title:project';
@@ -9,7 +9,9 @@ export const projectStore = (): ProjectStore => ({
     const saved = localStorage.getItem(key);
     if (saved === null) return undefined;
     const project: unknown = JSON.parse(saved);
-    if (!isProject(project)) throw new Error(`${key} holds something that is not a project`);
+    if (!isProject(project) && !isProjectFromVersion1(project)) {
+      throw new Error(`${key} holds something that is not a project`);
+    }
     return project;
   },
   save: async (project) => {

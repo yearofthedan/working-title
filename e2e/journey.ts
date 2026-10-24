@@ -7,10 +7,13 @@ export const journeyActions = (scope: AppScope): Record<string, StepAction> => (
   'a new project': async () => {
     await scope.fresh();
   },
+  'the writer opens the app': async () => {
+    await scope.fresh();
+  },
   'reloads the app': async () => {
     await scope.reload();
   },
-  'the writer types "{text}" as the story\'s {facet}': async ({ text, facet }) => {
-    await scope.field(facet).enter(text);
+  'the writer types "{text}" as {piece}\'s {facet}': async ({ text, piece, facet }) => {
+    await scope.group(piece).field(facet).enter(text);
   },
 });

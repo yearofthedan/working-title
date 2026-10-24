@@ -1,5 +1,5 @@
 import { test as base, type Locator, type Page } from '@playwright/test';
-import { linesOf, type AppScope } from '../src/test-helpers/scope';
+import { linesOf, wholeNameAnyCase, type AppScope, type Field } from '../src/test-helpers/scope';
 
 export interface Writer {
   readonly scope: AppScope;
@@ -9,6 +9,11 @@ export interface Writer {
 }
 
 const writerOn = (page: Page): Writer => {
+  const fieldIn = (within: Page | Locator, label: string): Field => ({
+    enter: async (text) => {
+      await within.getByLabel(wholeNameAnyCase(label)).fill(text);
+    },
+  });
   const scope: AppScope = {
     fresh: async () => {
       await page.goto('/');
@@ -16,10 +21,9 @@ const writerOn = (page: Page): Writer => {
     reload: async () => {
       await page.reload();
     },
-    field: (label) => ({
-      enter: async (text) => {
-        await page.getByLabel(label).fill(text);
-      },
+    field: (label) => fieldIn(page, label),
+    group: (name) => ({
+      field: (label) => fieldIn(page.getByRole('group', { name: wholeNameAnyCase(name) }), label),
     }),
     tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
   };

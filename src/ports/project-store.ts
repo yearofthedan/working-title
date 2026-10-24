@@ -1,6 +1,6 @@
-import type { Project } from '../domain/project';
+import type { Project, StoredProject } from '../domain/project';
 
 export interface ProjectStore {
-  load(): Promise<Project | undefined>;
+  load(): Promise<StoredProject | undefined>;
   save(project: Project): Promise<void>;
 }

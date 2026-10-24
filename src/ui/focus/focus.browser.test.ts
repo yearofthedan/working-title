@@ -8,8 +8,8 @@ const facet = { id: 'note', label: 'Note' };
 const typed: string[] = [];
 
 const focusOn = (): Focus => ({
-  facets: [{ ...facet, text: '' }],
-  elaborate: async (_id, text) => {
+  pieces: [{ id: 'story', name: 'The story', facets: [{ ...facet, text: '' }] }],
+  elaborate: async (_pieceId, _facetId, text) => {
     typed.push(text);
   },
 });
