@@ -35,6 +35,12 @@ legend :is(h2, h3) {
   font: inherit;
 }
 
+/* Each beat's heading carries its number. Chromium still announces an unmarked list as a list. */
+main > ol {
+  list-style: none;
+  padding: 0;
+}
+
 .facet textarea {
   font: inherit;
   color: inherit;
