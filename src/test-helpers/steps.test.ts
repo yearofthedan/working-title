@@ -20,6 +20,18 @@ describe('a step table', () => {
     expect(played).toEqual(['a new project', 'the one-sentence summary <- "a widow hunts"']);
   });
 
+  it('plays a quoted placeholder that holds nothing', async () => {
+    const played: string[] = [];
+    const table = stepTable({
+      'types "{text}"': ({ text }) => {
+        played.push(text ?? '');
+      },
+    });
+
+    await table.play(step('types ""'));
+    expect(played).toEqual(['']);
+  });
+
   it('refuses a phrase nothing plays', async () => {
     const table = stepTable({ 'a new project': () => {} });
     await expect(table.play(step('a reloaded app'))).rejects.toThrow('Nothing plays the phrase');

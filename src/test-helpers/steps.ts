@@ -21,7 +21,6 @@ const patternFor = (phrase: string): RegExp => {
           throw new Error(`A phrase uses {${name}} twice: ${JSON.stringify(phrase)}`);
         }
         names.add(name);
-        // A quoted placeholder may hold nothing: a scenario types an empty sentence.
         return phrase.includes(`"{${name}}"`) ? `(?<${name}>.*)` : `(?<${name}>.+)`;
       }
       if (/[{}]/.test(part)) {

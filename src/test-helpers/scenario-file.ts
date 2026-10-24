@@ -8,11 +8,9 @@ export interface Step {
 export interface Scenario {
   readonly behaviour: string;
   readonly steps: readonly Step[];
-  /** What the runner observed, kept as written: the parser reads no meaning into it. */
   readonly observed?: readonly string[];
 }
 
-/** The step a scenario ends with: the runner prints the page there, and the block under it. */
 export const OBSERVED = 'the writer sees';
 
 export interface ScenarioFile {
@@ -54,7 +52,6 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
 
 const isStepLine = (line: string): boolean => stepLine.test(line);
 
-/** The runner prints the accessibility tree of `main`, whose every line names a node. */
 const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
 
 const firstDifference = (printed: string, text: string): number => {
@@ -64,12 +61,6 @@ const firstDifference = (printed: string, text: string): number => {
   return (at === -1 ? Math.min(a.length, b.length) : at) + 1;
 };
 
-/**
- * A scenario file is the story template's acceptance criteria, copied as agreed: a rule line,
- * then per scenario a heading and one fenced block holding its steps and, after them, what the
- * runner observed. A file that does not read as it prints is refused, so nothing is silently
- * rewritten — the layout is part of what was agreed.
- */
 export const readScenarioFile = (text: string): ScenarioFile => {
   if (text.includes('\r')) {
     throw new Error('A scenario file has LF line endings, and this one holds a carriage return');
@@ -200,7 +191,6 @@ export const printScenarioFile = ({ rule, scenarios }: ScenarioFile): string =>
     ]),
   ].join('\n') + '\n';
 
-/** Replace one scenario's observed block, leaving every other line as it was. */
 export const withObserved = (
   text: string,
   behaviour: string,

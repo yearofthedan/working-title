@@ -2,22 +2,12 @@ import { OBSERVED, readScenarioFile, withObserved, type Scenario } from './scena
 import { stepTable, type StepAction } from './steps';
 
 export interface ScenarioSource {
-  /** For a failure's message, and where an approved file goes. */
   readonly path: string;
-  /** What the entry read from `path`, so an entry in a browser can pass it in. */
   readonly text: string;
 }
 
-/**
- * A runner sees what the writer sees. Both of ours hand the tree back — Playwright with
- * `ariaSnapshot()`, Vitest browser mode with `renderAriaTree(generateAriaTree(element))` — so
- * the harness compares it and shows a difference, and an approving run writes the file through
- * the runner: the Node side writes it, a browser sends it to the server.
- */
 export interface Runner {
-  /** What the page shows, as the runner prints it. */
   tree(): Promise<readonly string[]>;
-  /** Write an approved scenario file. */
   write?(path: string, text: string): Promise<void>;
 }
 
@@ -49,11 +39,6 @@ const refuse = (scenario: Scenario, observed: readonly string[], path: string): 
   );
 };
 
-/**
- * Play a file's scenarios against a runner, in the order they are written. The entry gives each
- * scenario its own world; each plays its steps and is then compared with what the file records
- * — or, when approving, has that recording replaced and the file written.
- */
 export const playScenarios = async (
   source: ScenarioSource,
   runner: Runner,
