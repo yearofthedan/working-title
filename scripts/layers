@@ -1,6 +1,5 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, and any cycle, in the files given
-# (src when none are). The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, and any cycle, in the files given (src when none are). The rules are .dependency-cruiser.mjs.
 
 set -eu
 
@@ -15,6 +14,4 @@ if [ "$#" -eq 0 ]; then
   set -- src
 fi
 
-# err-long prints each violation with the comment of the rule it broke, which says
-# why and links the record. The exit code is the number of errors, as a linter's.
 exec depcruise --config "$root/.dependency-cruiser.mjs" --output-type err-long -- "$@"

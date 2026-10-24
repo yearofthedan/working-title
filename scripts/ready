@@ -16,7 +16,6 @@ trap 'rm -rf "$work"' EXIT
 fail() { printf -- '- %s\n' "$1" >>"$work/failures"; }
 short() { printf '%s' "$1" | cut -c1-7; }
 
-# The lines of one `## ` section of the body, up to the next.
 section() {
   awk -v want="## $1" '
     /^## / { inside = ($0 ~ "^" want "[[:space:]]*$"); if (inside) found = 1; next }
@@ -25,8 +24,6 @@ section() {
   ' "$work/body"
 }
 
-# The rows of the section's first table, one per line: the row number, the
-# criterion and the Run cell, tab-separated. An escaped pipe is part of its cell.
 rows() {
   awk -F'|' '
     /^[[:space:]]*\|/ { table = 1 } table && !/^[[:space:]]*\|/ { exit }
@@ -43,8 +40,6 @@ rows() {
   ' "$work/acceptance"
 }
 
-# A run or a job the API knows, read once however many rows cite it: the head
-# commit and the conclusion it ended with, or `unreadable`.
 run_answer() { # $1 the API path
   if ! grep -q "^$1 " "$work/runs"; then
     answer=$(gh api "$1" --jq '"\(.head_sha) \(.conclusion)"' 2>/dev/null) || answer=unreadable
@@ -53,7 +48,6 @@ run_answer() { # $1 the API path
   grep "^$1 " "$work/runs" | head -n 1 | cut -d' ' -f2-
 }
 
-# The working tree is clean, and the branch's head is the pull request's.
 check_the_tree() {
   changes=$(git status --porcelain)
   if [ -n "$changes" ]; then
@@ -65,9 +59,6 @@ check_the_tree() {
   fi
 }
 
-# The names are read from the rules on `main`, the branch a pull request lands on
-# here, rather than listed again in this file where they would drift from them
-# (https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch).
 check_the_required() {
   if ! gh api "repos/{owner}/{repo}/rules/branches/main" \
     --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
@@ -82,10 +73,6 @@ check_the_required() {
   done <"$work/required"
 }
 
-# Every check gh reports on the head commit passed. With --json, gh writes the list
-# and exits 0 whatever the checks' state; it exits non-zero only on an error, "no
-# checks reported" among them
-# (https://github.com/cli/cli/blob/v2.91.0/pkg/cmd/pr/checks/checks.go#L189-L191).
 check_the_checks() {
   if ! gh pr checks "$pr" --json name,bucket -q '.[] | "\(.bucket) \(.name)"' >"$work/checks" 2>"$work/checks-error"; then
     fail "gh could not read the checks on $short_head: $(paste -sd ' ' - <"$work/checks-error")"
@@ -99,7 +86,6 @@ check_the_checks() {
   done <"$work/checks"
 }
 
-# Every box under `For review` is ticked.
 check_the_boxes() {
   if ! section 'For review' >"$work/for-review"; then
     fail 'the body has no `## For review` section'
@@ -110,7 +96,6 @@ check_the_boxes() {
   done
 }
 
-# One cited run or job: on the head commit, and ended `success`.
 check_a_run() { # $1 the row number, $2 the criterion, $3 the link
   number=$1
   criterion=$2
@@ -134,7 +119,6 @@ check_a_run() { # $1 the row number, $2 the criterion, $3 the link
   fi
 }
 
-# One row of the acceptance criteria table: a Run cell, and every run it cites.
 check_a_row() { # $1 the row number, $2 the criterion, $3 the Run cell
   number=$1
   criterion=$2
@@ -148,8 +132,6 @@ check_a_row() { # $1 the row number, $2 the criterion, $3 the Run cell
   done
 }
 
-# Every acceptance-criteria row has a Run cell whose cited runs are on the head
-# commit and passed.
 check_the_rows() {
   if ! section 'Acceptance criteria' >"$work/acceptance"; then
     fail 'the body has no `## Acceptance criteria` section'

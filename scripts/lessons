@@ -3,9 +3,6 @@
 
 set -eu
 
-# The window docs/lessons.md counts entries against, in commits behind main.
-# What it means — commits rather than days, and which entries count as current —
-# is in that file.
 LESSON_WINDOW=${LESSON_WINDOW:-50}
 
 lessons() {
@@ -24,7 +21,6 @@ lessons() {
   fi
 
   rows=$(grep '^| ' "$file" | grep -v -- '^| --- ' | grep -v -- '^| Lesson ' | wc -l | tr -d ' ')
-  # One listing answers for every entry, where a lookup per entry is a round trip each.
   # shortcut: --limit 1000 reads the newest 1000 pull requests; page through them once the repository has more.
   if ! pulled=$(gh pr list --state all --limit 1000 --json number,state,mergeCommit -q '.[] | "\(.number) \(.state) \(.mergeCommit.oid // "")"'); then
     printf 'gh pr list could not read the pull requests\n' >&2
