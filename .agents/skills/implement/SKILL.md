@@ -54,7 +54,7 @@ Before a planned pull request's first commit, set out its approach, grouped by t
 6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
 7. **What the writer sees**: copy, interaction and layout.
 8. **The shape of stored data**, and what happens to data already saved.
-9. **Test strategy**: the level each case is tested at, and what is faked.
+9. **Test strategy**: the level each case is tested at, what is faked, and the file each case lands in: the recorded behaviour's file it changes or adds to, as [the testing standard](../../../docs/standards/testing.md#approved-scenarios) says, or a new one for a new behaviour.
 
 A part of the approach that comes up once the planned pull request is underway goes through the same gate: stop, propose it, and wait for the builder's yes before building further. Record each answer in the pull request's `Decisions`.
 
