@@ -5,7 +5,6 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 scripts="$root/scripts"
 
-# Tasks run the project's own tools, such as vp, without a global install.
 PATH="$root/node_modules/.bin:$PATH"
 export PATH
 
