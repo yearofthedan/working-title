@@ -21,7 +21,7 @@ GH_REQUIRED="$work/gh-required"
 GH_RUNS="$work/gh-runs"
 export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS
 
-printf '#!/bin/sh\n' >"$work/bin/gh"
+printf '#!/bin/sh\n# As gh does with --json: the list and exit 0 whatever the checks'\'' state, and an\n# error only when it cannot answer.\n' >"$work/bin/gh"
 cat >>"$work/bin/gh" <<'STUB'
 echo "gh $*" >>"$GH_LOG"
 case "$1 $2" in
