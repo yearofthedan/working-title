@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "oxlint": {
+      "command": "vp",
+      "args": ["lint", "--lsp"],
+      "fileTypes": [".ts", ".tsx", ".mts", ".js", ".mjs", ".cjs"],
+      "rootMarkers": ["vite.config.ts"],
+      "isLinter": true
+    }
+  }
+}
