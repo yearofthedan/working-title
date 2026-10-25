@@ -49,8 +49,8 @@ main {
   legend {
     position: absolute;
     top: 0;
-    left: 50%;
-    translate: -50%;
+    inset-inline: 0;
+    margin-inline: auto;
     box-sizing: border-box;
     width: var(--card);
     height: var(--space-8);
