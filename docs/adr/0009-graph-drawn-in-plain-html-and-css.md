@@ -30,5 +30,5 @@ The accessibility tree decided it. React Flow wraps the graph in an `application
 - A level of the graph is markup and CSS: the beats of this story and the scenes of a later one arrive the same way.
 - Nothing computes a position, so no layout pass is kept in step with the tree. Panning and links across the tree are where CSS layout stops giving the graph what it needs; the positioned option supersedes this record there.
 - The joins are pseudo-elements: they hold no text and no role, so they are never in the tree a scenario records, and nothing finds them by name.
-- The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. The widths, the joins and the sideways scroll are not checked, and a screenshot in the pull request is their evidence.
+- The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. The widths, the joins and the sideways scroll are not in the tree a scenario records, so no recorded scenario checks them.
 - Ruled out: a framework or layout library for the graph, and its bundle on the first load.
