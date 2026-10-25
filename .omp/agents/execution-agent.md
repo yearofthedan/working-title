@@ -20,7 +20,7 @@ The dispatch gives you the pull request's number, its branch, the worktree to wo
 
 ## Build
 
-You own how the brief's outcome is reached, including every place that still holds what your change replaces. Stop and return only when what to build looks wrong.
+You own how the brief's outcome is reached, including every place that still holds what your change replaces. What to build is the brief's: stop and return as [Stop and return](#stop-and-return) says.
 
 For each acceptance criterion or `Done when` line in the brief, in order — or, when the brief has a `### Findings` heading, for each finding under it alone, since the rest is built already:
 
