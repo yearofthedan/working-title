@@ -2,7 +2,7 @@
 @import './reset.css';
 
 body {
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -17,7 +17,7 @@ header {
 }
 
 main {
-  margin: var(--space-8);
+  padding: var(--space-8);
 }
 
 header h1 {
