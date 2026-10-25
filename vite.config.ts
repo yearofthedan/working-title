@@ -143,6 +143,7 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['**/*.browser.test.ts'],
+          setupFiles: ['src/shell.css'],
           ...(approving ? { api: { allowWrite: true } } : {}),
           browser: {
             enabled: true,
