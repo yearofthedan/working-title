@@ -109,11 +109,16 @@ const commandsIn = (line: string): Command[] => {
       processSubstitution = line[operator.at] === '(';
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
-    } else if (character === '\n' && heredocs.length > 0) {
+    } else if (character === '\\' && line[index + 1] === '\n') {
       endWord();
-      let at = index;
-      while (heredocs.length > 0) at = bodyEnd(at, heredocs.shift() as Heredoc);
-      index = at - 1;
+      index += 1;
+    } else if (character === '\n') {
+      endCommand();
+      if (heredocs.length > 0) {
+        let at = index;
+        while (heredocs.length > 0) at = bodyEnd(at, heredocs.shift() as Heredoc);
+        index = at - 1;
+      }
     } else if (/\s/.test(character)) {
       endWord();
     } else {

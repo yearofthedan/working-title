@@ -308,4 +308,16 @@ describe('a shell write in a subagent', () => {
       reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
     ).toContain(join(main, 'notes.txt'));
   });
+
+  it.each([
+    ['a tee on the next line', 'echo hi\ntee notes.txt'],
+    [
+      'a tee on the line after a heredoc ends',
+      `cat > ${join(linked, 'notes.md')} <<'EOF'\nbody\nEOF\ntee notes.txt`,
+    ],
+  ])('refuses %s, which a newline does not end', (_what, command) => {
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
 });
