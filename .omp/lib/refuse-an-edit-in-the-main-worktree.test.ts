@@ -219,6 +219,10 @@ describe('a shell write in a subagent', () => {
     ['tee', 'tee notes.txt'],
     ['tee -a', 'echo hi | tee -a notes.txt'],
     ['a heredoc', "cat > notes.txt <<'EOF'\nhi\nEOF"],
+    ['&>', 'echo hi &> notes.txt'],
+    ['&>>', 'echo hi &>> notes.txt'],
+    ['>|', 'echo hi >| notes.txt'],
+    ['2>', 'echo hi 2> notes.txt'],
   ];
 
   it.each(writesIntoTheMainWorktree)('refuses %s into the main worktree', (_what, command) => {
@@ -235,6 +239,12 @@ describe('a shell write in a subagent', () => {
     expect(refused(aShellWrite(command, linked), { cwd: linked, sessionManager: subagent })).toBe(
       false,
     );
+  });
+
+  it('refuses the file >& writes when the word after it is no descriptor', () => {
+    expect(
+      reasonFor(aShellWrite('echo hi >&out.txt', main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'out.txt'));
   });
 
   it('passes a target in an ignored path', () => {
