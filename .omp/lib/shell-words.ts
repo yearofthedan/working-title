@@ -13,13 +13,15 @@ const commandsIn = (line: string): Command[] => {
   let quote = '';
   let dropped = false;
   let target = false;
+  let processSubstitution = false;
   const endWord = () => {
     if (word === '') return;
     if (!dropped) command.words.push(word);
-    else if (target && !UNRESOLVED.test(word)) command.targets.push(word);
+    else if (target && !processSubstitution && !UNRESOLVED.test(word)) command.targets.push(word);
     word = '';
     dropped = false;
     target = false;
+    processSubstitution = false;
   };
   const endCommand = () => {
     endWord();
@@ -27,6 +29,7 @@ const commandsIn = (line: string): Command[] => {
     command = { words: [], targets: [] };
     dropped = false;
     target = false;
+    processSubstitution = false;
   };
   const delimiterAfter = (from: number): string => {
     let at = from;
@@ -62,6 +65,11 @@ const commandsIn = (line: string): Command[] => {
     }
     return line.length;
   };
+  const afterBlanks = (from: number): string => {
+    let at = from;
+    while (line[at] === ' ' || line[at] === '\t') at += 1;
+    return line[at] ?? '';
+  };
   const operatorEnd = (
     index: number,
   ): { at: number; writes: boolean; heredoc: boolean; tabs: boolean } => {
@@ -73,7 +81,7 @@ const commandsIn = (line: string): Command[] => {
     const heredoc = line[start] === '<' && doubled && !ampersand;
     const tabs = heredoc && line[at] === '-';
     if (tabs) at += 1;
-    const copy = !ampersand && line[at] === '&' && /^[0-9-]/.test(line[at + 1] ?? '');
+    const copy = !ampersand && line[at] === '&' && /^[0-9-]/.test(afterBlanks(at + 1));
     if (line[at] === '|' || line[at] === '&') at += 1;
     return { at, writes: writes && !copy, heredoc, tabs };
   };
@@ -99,6 +107,7 @@ const commandsIn = (line: string): Command[] => {
       index = operator.at - 1;
       dropped = true;
       target = operator.writes;
+      processSubstitution = line[operator.at] === '(';
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
     } else if (character === '\n' && heredocs.length > 0) {

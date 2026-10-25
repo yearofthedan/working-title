@@ -248,6 +248,8 @@ describe('a shell write in a subagent', () => {
 
   it.each([
     ['a file-descriptor copy', 'git status 2>&1'],
+    ['a file-descriptor copy written with a space', 'echo hi >& 2'],
+    ['a process substitution', 'tee >(cat) < a'],
     ['a write of /dev/null', './do check > /dev/null'],
   ])('passes %s, which writes no file', (_what, command) => {
     expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
