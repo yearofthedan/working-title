@@ -117,6 +117,8 @@ main {
 
   :scope > fieldset {
     --card: 17rem;
+    inline-size: max-content;
+    min-inline-size: 100%;
   }
 
   ol {
@@ -132,6 +134,7 @@ main {
     position: relative;
     flex: 1 1 0;
     min-width: 12rem;
+    container-type: inline-size;
   }
 
   ol > li > fieldset {
