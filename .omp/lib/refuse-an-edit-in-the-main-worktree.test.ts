@@ -277,6 +277,7 @@ describe('a shell write in a subagent', () => {
     ['a variable', 'echo hi > "$TMPDIR/out.txt"'],
     ['a command substitution', './do check > "$(mktemp)"'],
     ['a backtick', 'echo hi > "`mktemp`"'],
+    ['a tee file with a command substitution', 'echo hi | tee "$(mktemp)"'],
   ])('passes a target holding %s, which it cannot resolve', (_what, command) => {
     expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
       false,

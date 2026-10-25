@@ -1,9 +1,9 @@
 type Command = { words: string[]; targets: string[] };
 type Heredoc = { word: string; tabs: boolean };
 
-/* shortcut: a target holding `$` or a backtick is neither refused nor followed, since resolving it
-   means running the shell; read it once a session is seen to write through one. */
-const UNRESOLVED = /[`$]/;
+/* shortcut: a target or a file argument holding `$` or a backtick is neither refused nor followed,
+   since resolving it means running the shell; read it once a session is seen to write through one. */
+export const UNRESOLVED = /[`$]/;
 
 const commandsIn = (line: string): Command[] => {
   const commands: Command[] = [];

@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { resolveCallCwd, callDirectory } from './call-cwd';
-import { wordsPerCommand, writeTargetsPerCommand } from './shell-words';
+import { UNRESOLVED, wordsPerCommand, writeTargetsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
 type SessionHeader = { parentSession?: unknown };
@@ -68,7 +68,9 @@ const unwrapped = (path: string): string => /^\[(.+?)(#[0-9A-Fa-f]{4})?\]$/.exec
 const teeFiles = (command: string): string[] =>
   wordsPerCommand(command)
     .filter((words) => words[0]?.split('/').pop() === 'tee')
-    .flatMap((words) => words.slice(1).filter((word) => !word.startsWith('-')));
+    .flatMap((words) =>
+      words.slice(1).filter((word) => !word.startsWith('-') && !UNRESOLVED.test(word)),
+    );
 
 /* shortcut: a `cd` inside the command is not followed, so a target written relative to a directory the command moves to is read against the call's own directory; follow `cd` once a session is seen to write one that way. */
 const shellWriteTargets = (input: Record<string, unknown>): string[] => {
