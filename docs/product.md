@@ -1,7 +1,7 @@
 # Product
 
 **Audience:** anyone writing a story, or making a call no story or epic covers.
-**Purpose:** says what working-title is for and who it serves, and gives the principles that decide calls the epics leave open. Terms are in the [ubiquitous language](ubiquitous-language.md).
+**Purpose:** says what working-title is for and who it serves, and gives the principles that decide calls the epics leave open. Terms are in the [ubiquitous language](domain/ubiquitous-language.md).
 
 ## What it is
 

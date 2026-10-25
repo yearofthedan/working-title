@@ -51,7 +51,7 @@ Before a planned pull request's first commit, set out its approach, grouped by t
 3. **Decision records the planned pull request touches**: how it follows each one, and any you think is wrong for this case. A challenge names the record, what this planned pull request shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md), ahead of the planned pull request that depends on it.
 4. **Reading the issue**: how you read an acceptance criterion or a `Done when` line that allows more than one reading.
 5. **Scope** beyond the planned pull request, including changing or removing existing behaviour.
-6. **New domain terms**, for [`docs/ubiquitous-language.md`](../../../docs/ubiquitous-language.md).
+6. **New domain terms**, for [`docs/domain/ubiquitous-language.md`](../../../docs/domain/ubiquitous-language.md).
 7. **What the writer sees**: copy, interaction and layout. It is shown from the repository's built app with the proposed change applied in a scratch clone, never from a standalone mock, since a mock lacks the repository's own CSS. The main session opens that build with its browser helper and puts the screenshots in the approach message.
 8. **The shape of stored data**, and what happens to data already saved.
 9. **Test strategy**: the level each case is tested at, what is faked, and the file each case lands in: the recorded behaviour's file it changes or adds to, as [the testing standard](../../../docs/standards/testing.md#approved-scenarios) says, or a new one for a new behaviour.
@@ -88,7 +88,7 @@ A pull request whose work is done is handed over, not left in draft. The main se
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner?
    - Read [the lessons index](../../../docs/lessons.md) and update it: add this pull request to the **Found in** list of the lesson it is, or add a row when it is new. Then run `./do lessons` and drop the entries it names.
    - When the row says the lesson has recurred, propose a lesson pull request carrying the smallest fix — a check wherever a check can be written, a rule only where none can — and add it to the plan, ahead of the one that closes the issue, once the builder confirms.
-4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/ubiquitous-language.md`.
+4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/domain/ubiquitous-language.md`.
 5. **Fill `How to verify` and give it in the conversation**, as [working with the user](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md) says of handing work over. For a change the writer sees, walk the steps yourself first, in the built app with the browser helper, and write down what you saw rather than what you expected.
 6. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
 
@@ -111,7 +111,7 @@ Work that belongs to a different issue — a bug in code this change does not to
 A pull request is done when all of these hold:
 
 - A change to the system's shape, parts or constraints comes with `docs/architecture.md` updated, and a decision record in `docs/adr/` when the [writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md) says it needs one.
-- A new term used in code, scenarios or the UI is in `docs/ubiquitous-language.md`.
+- A new term used in code, scenarios or the UI is in `docs/domain/ubiquitous-language.md`.
 - The `Learned` section is filled and [the lessons index](../../../docs/lessons.md) updated: the lesson it names is a row with this pull request in its **Found in** list, and a lesson found twice inside the window has a proposed lesson pull request.
 - Each case's test is written before its code, and seen to fail while every other case passes. A hook or rule the change adds is seen to fail on the case it catches. The run is linked from its row in the acceptance table, or described there when it ran locally and nothing it covers depends on the machine. A case is shown failing by breaking the code that should catch it, on committed work, and the file is read after the break is undone: a restore that quietly puts back the wrong version reads as a passing case, and as a flaky one later.
 - A run counts as evidence only when its answer is not already written where it can read it: not in what it is handed, such as a pull request body; not in the files it reads, such as a probe's own text; and not in a harness beside it — stand-ins, their logs, other cases' inputs and answers — that it could find from its own directory or `PATH`.

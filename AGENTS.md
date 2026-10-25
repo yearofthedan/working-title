@@ -11,11 +11,12 @@ How to write anything, from replies to commit messages, docs and PR bodies, and 
 
 The words to use in code, tests, scenarios and UI:
 
-@docs/ubiquitous-language.md
+@docs/domain/ubiquitous-language.md
 
 ## Read before writing a story or making a call
 
 - [docs/product.md](docs/product.md): what the product is for, and the design principles that decide calls no story or epic covers.
+- [docs/domain/snowflake-extended.md](docs/domain/snowflake-extended.md): the built-in method's pieces, facets and stages, and the rules between them.
 
 ## Read before changing code
 
@@ -37,6 +38,7 @@ How a story is planned, built and handed over is in the skills below, which is w
 - `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here (OMP's `context-files.md`, "Sticky rules vs normal context"; `system-prompt-customization.md`, "Inputs by session type").
 - The [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills): a rule or skill shared with the builder's other projects. It is changed there, and this repo keeps no copy.
 - `docs/product.md`: what the product is for, and its design principles.
+- `docs/domain/`: the writer's world: the ubiquitous language, and each method's design, whose built part is in `src/methods/`.
 - `docs/architecture.md`: the shape of the system.
 - `docs/adr/`: why, one record per decision; never edited once Accepted, superseded by a new record.
 - `docs/dev-flow.md`: the builder's page for writing, agreeing and implementing a story.
