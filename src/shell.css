@@ -99,7 +99,7 @@ li .facet label {
   padding: 0;
   resize: none;
   field-sizing: content;
-  min-height: 2lh;
+  min-height: 1lh;
 }
 
 .facet:hover textarea {
@@ -113,19 +113,22 @@ li .facet label {
 
 main > fieldset {
   --card: 17rem;
-  width: max-content;
 }
 
 ol {
   position: relative;
   display: flex;
   gap: var(--space-4);
+  width: 100%;
   margin: 0;
   padding: var(--space-12) 0 0;
 }
 
 ol > li {
   position: relative;
+  flex: 1 1 0;
+  min-width: 12rem;
+  --card: 100%;
 }
 
 ol > li::before {
