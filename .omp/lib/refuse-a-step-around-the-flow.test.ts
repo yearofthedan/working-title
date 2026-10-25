@@ -165,6 +165,7 @@ describe('a git push', () => {
     ['echo hi > "" ; git push --force origin main', clean],
     ['git push 2>/dev/null --force origin main', clean],
     ['GIT_TRACE=1 git push --force origin main', clean],
+    ['git push \\\n--force', clean],
   ])('refuses %s', (command, cwd) => {
     expect(refused(command, cwd)).toBe(true);
   });

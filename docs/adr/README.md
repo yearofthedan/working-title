@@ -15,4 +15,4 @@ How to decide whether a decision needs a record, and how to write one: [the writ
 | [6](0006-vite-plus-toolchain.md) | Vite+ as the toolchain | Accepted |
 | [7](0007-playwright-for-browser-specs.md) | Playwright for the browser specs | Accepted |
 | [8](0008-story-scenarios-run-from-their-approved-files.md) | Story scenarios run from their approved files | Proposed |
-| [9](0009-graph-drawn-in-plain-html-and-css.md) | Graph drawn in plain HTML and CSS | Proposed |
+| [9](0009-graph-drawn-in-plain-html-and-css.md) | Graph drawn in plain HTML and CSS | Accepted |

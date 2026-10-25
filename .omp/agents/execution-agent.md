@@ -15,19 +15,22 @@ The dispatch gives you the pull request's number, its branch, the worktree to wo
 1. Start your notes file, below.
 2. Read `AGENTS.md`: you do not inherit it. Each line in it that starts with `@` names a file it keeps always in context: read each of those too.
 3. Read `docs/standards/README.md`, and the pages it lists that the change touches.
-4. Read the brief: `gh pr view <number> --json body --jq .body`. It holds the acceptance criteria or `Done when` lines, the confirmed approach, the files the change touches, the interface it changes, and where each test lands.
+4. Read the brief: `gh pr view <number> --json body --jq .body`. It holds the acceptance criteria or `Done when` lines, the confirmed approach, the files it starts from, the interface it changes, and where each test lands.
 5. Read the files the brief names, and their neighbours, before writing anything.
 
 ## Build
 
+You own how the brief's outcome is reached, including every place that still holds what your change replaces. What to build is the brief's: stop and return as [Stop and return](#stop-and-return) says.
+
 For each acceptance criterion or `Done when` line in the brief, in order — or, when the brief has a `### Findings` heading, for each finding under it alone, since the rest is built already:
 
-1. Write its test where the brief says it lands, and run it to see it fail for the reason it should.
-2. Write the least code that makes it pass. Follow the surrounding code's patterns.
-3. Run `./do check`. Do not commit past a failing check.
-4. For a change the writer sees, run `./do screenshot` and read each image it writes to `screenshots/`. Your answer says what each image shows, and claims nothing about the look that no image shows.
-5. Commit with the issue number leading the subject and your model in the trailer, as `docs/standards/commits.md` says: `git commit -m '<issue>: <what changed>' --trailer 'Agent-Model: <your model>'`.
-6. Push to the pull request's branch: `git push origin <branch>`.
+1. Write its test where the brief says it lands, and run it to see it fail for the reason it should. An assertion's expected value is written in the test, never computed from the input the test checks.
+2. Search the tracked files for every value or phrase the change replaces — `git grep`, or the `grep` tool, which skips ignored files — and use the language server's references for a symbol. Fix each hit as part of the change, and note each file outside the brief's list in the notes file.
+3. Write the least code that makes it pass. Follow the surrounding code's patterns.
+4. Run `./do check`. Do not commit past a failing check.
+5. For a change the writer sees, run `./do screenshot` and read each image it writes to `screenshots/`. Your answer says what each image shows, and claims nothing about the look that no image shows.
+6. Commit with the issue number leading the subject and your model in the trailer, as `docs/standards/commits.md` says: `git commit -m '<issue>: <what changed>' --trailer 'Agent-Model: <your model>'`.
+7. Push to the pull request's branch: `git push origin <branch>`.
 
 ## Notes
 
@@ -53,4 +56,4 @@ Before returning, commit only work that passes `./do check`, write in your notes
 
 - Never create, edit, comment on or mark ready a pull request or an issue, whether by `gh` or by `./do ready`. `gh` is for reading the brief.
 - Never push to any branch but the pull request's.
-- Never change the brief's approach, its scope or its acceptance criteria.
+- Never change the brief's approach or its acceptance criteria.

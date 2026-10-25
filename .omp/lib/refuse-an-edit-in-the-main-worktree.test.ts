@@ -205,3 +205,128 @@ describe('an edit or a write in a subagent', () => {
     ).toBe(false);
   });
 });
+
+const aShellWrite = (command: string, cwd: string): Call => ({
+  toolName: 'bash',
+  input: { command, cwd },
+});
+
+describe('a shell write in a subagent', () => {
+  const { main, linked } = repository();
+  const writesIntoTheMainWorktree: [what: string, command: string][] = [
+    ['a redirect', 'echo hi > notes.txt'],
+    ['an append', 'echo hi >> notes.txt'],
+    ['tee', 'tee notes.txt'],
+    ['tee -a', 'echo hi | tee -a notes.txt'],
+    ['a heredoc', "cat > notes.txt <<'EOF'\nhi\nEOF"],
+    ['&>', 'echo hi &> notes.txt'],
+    ['&>>', 'echo hi &>> notes.txt'],
+    ['>|', 'echo hi >| notes.txt'],
+    ['2>', 'echo hi 2> notes.txt'],
+  ];
+
+  it.each(writesIntoTheMainWorktree)('refuses %s into the main worktree', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(true);
+  });
+
+  it.each(writesIntoTheMainWorktree)('names the main-worktree path for %s', (_what, command) => {
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+
+  it.each(writesIntoTheMainWorktree)('passes %s into the linked worktree', (_what, command) => {
+    expect(refused(aShellWrite(command, linked), { cwd: linked, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it('refuses the file >& writes when the word after it is no descriptor', () => {
+    expect(
+      reasonFor(aShellWrite('echo hi >&out.txt', main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'out.txt'));
+  });
+
+  it('refuses a >& whose word is more than a descriptor', () => {
+    expect(
+      reasonFor(aShellWrite('echo hi >& 2notes.txt', main), {
+        cwd: main,
+        sessionManager: subagent,
+      }),
+    ).toContain(join(main, '2notes.txt'));
+  });
+
+  it('passes a target in an ignored path', () => {
+    expect(
+      refused(aShellWrite('echo hi > ignored/notes.md', main), {
+        cwd: main,
+        sessionManager: subagent,
+      }),
+    ).toBe(false);
+  });
+
+  it.each([
+    ['a file-descriptor copy', 'git status 2>&1'],
+    ['a file-descriptor copy written with a space', 'echo hi >& 2'],
+    ['a process substitution', 'tee >(cat) < a'],
+    ['a write of /dev/null', './do check > /dev/null'],
+  ])('passes %s, which writes no file', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it.each(writesIntoTheMainWorktree)('passes %s from the main session', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: mainSession })).toBe(
+      false,
+    );
+  });
+
+  it.each([
+    ['a variable', 'echo hi > "$TMPDIR/out.txt"'],
+    ['a command substitution', './do check > "$(mktemp)"'],
+    ['a backtick', 'echo hi > "`mktemp`"'],
+    ['a tee file with a command substitution', 'echo hi | tee "$(mktemp)"'],
+  ])('passes a target holding %s, which it cannot resolve', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  const bodies = ['> a quoted line', 'echo hi > out.txt', 'the probe -> the ADR'];
+  const aHeredoc = (target: string, body: string): string =>
+    `cat > ${target} <<'EOF'\n${body}\nEOF`;
+
+  it.each(bodies)('reads no target from the body line %s of a heredoc', (body) => {
+    const command = aHeredoc(join(linked, 'notes.md'), body);
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it('refuses a heredoc whose own target is in the main worktree', () => {
+    const command = aHeredoc('notes.txt', '> a quoted line');
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+
+  it('ends a <<- body at its tab-indented delimiter', () => {
+    const command = `cat > ${join(linked, 'notes.md')} <<-'EOF'\n\tEOF\necho hi > notes.txt`;
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+
+  it.each([
+    ['a tee on the next line', 'echo hi\ntee notes.txt'],
+    [
+      'a tee on the line after a heredoc ends',
+      `cat > ${join(linked, 'notes.md')} <<'EOF'\nbody\nEOF\ntee notes.txt`,
+    ],
+  ])('refuses %s, which a newline does not end', (_what, command) => {
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+});

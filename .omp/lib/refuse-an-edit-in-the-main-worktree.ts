@@ -1,7 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { resolveCallCwd } from './call-cwd';
+import { resolveCallCwd, callDirectory } from './call-cwd';
+import { UNRESOLVED, wordsPerCommand, writeTargetsPerCommand } from './shell-words';
 
 type ToolCall = { toolName: string; input: Record<string, unknown> };
 type SessionHeader = { parentSession?: unknown };
@@ -64,16 +65,37 @@ const moveDestinations = (input: Record<string, unknown>): string[] =>
 
 const unwrapped = (path: string): string => /^\[(.+?)(#[0-9A-Fa-f]{4})?\]$/.exec(path)?.[1] ?? path;
 
+const teeFiles = (command: string): string[] =>
+  wordsPerCommand(command)
+    .filter((words) => words[0]?.split('/').pop() === 'tee')
+    .flatMap((words) =>
+      words.slice(1).filter((word) => !word.startsWith('-') && !UNRESOLVED.test(word)),
+    );
+
+/* shortcut: a `cd` inside the command is not followed, so a target written relative to a directory the command moves to is read against the call's own directory; follow `cd` once a session is seen to write one that way. */
+const shellWriteTargets = (input: Record<string, unknown>): string[] => {
+  const command = input.command;
+  if (typeof command !== 'string') return [];
+  return [...writeTargetsPerCommand(command).flat(), ...teeFiles(command)];
+};
+
 export default function refuseAnEditInTheMainWorktree(pi: Extension): void {
   pi.on('tool_call', (event, context) => {
-    if (event.toolName !== 'edit' && event.toolName !== 'write') return undefined;
+    const edits = event.toolName === 'edit' || event.toolName === 'write';
+    const shells = event.toolName === 'bash';
+    if (!edits && !shells) return undefined;
     // shortcut: parentSession is not documented as a subagent flag (omp://session.md, "parentSession is an opaque lineage string"). A forked, branched or lease-moved main session carries it too, so it is refused; a subagent run in memory, with no session file, does not, so it passes. Read a documented subagent flag if OMP adds one.
     const parentSession = context.sessionManager?.getHeader?.()?.parentSession;
     if (typeof parentSession !== 'string' || parentSession === '') return undefined;
-    const refused = [...pathsOf(event.input), ...moveDestinations(event.input)]
+    const cwd = callDirectory(event.input, context.cwd);
+    const named = shells
+      ? shellWriteTargets(event.input)
+      : [...pathsOf(event.input), ...moveDestinations(event.input)];
+    const refused = named
       .map(unwrapped)
       .filter((path) => !URL_SCHEME.test(path))
-      .map((path) => resolveCallCwd(path, context.cwd))
+      .map((path) => resolveCallCwd(path, cwd))
+      .filter((path) => !path.startsWith('/dev/'))
       .filter(landsInTheMainWorktree);
     if (refused.length === 0) return undefined;
     const names = refused.map((path) => `\`${path}\``).join(', ');
