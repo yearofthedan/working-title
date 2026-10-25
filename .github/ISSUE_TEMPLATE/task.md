@@ -32,4 +32,4 @@ One line per fact the pull request shows, each in one of two kinds:
 
 ## Pointers
 
-<!-- The docs of any tool or library it relies on, and the Architecture sections this task touches, one line each. -->
+<!-- The docs of any tool or library it relies on, and the Architecture sections this task touches, one line each. Every link in this issue goes into the repo or to a public page an agent can read; a working idea from a chat moves into docs/ before an issue links to it. -->

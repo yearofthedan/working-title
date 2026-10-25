@@ -23,6 +23,16 @@ The primary view is a visual graph rather than a flat tree, because a story is a
 
 Movement between levels of abstraction is first-class. When you're working down at the level of how chapters relate, you can glance up and keep the section's goals, intended character change and key beats in view, so the why stays present while you're deep in the how.
 
+### The graph's layout (working idea)
+
+An idea to build from, not a locked design. A story that settles part of it says so in its criteria.
+
+- **Where a facet is typed.** Short facets, such as a one-sentence summary or a list line, are typed on the piece in the graph. Long facets, such as a paragraph, a page or prose, open in a panel beside the graph, which any piece can open and the writer can close at any time.
+- **Cards and chips.** The focus, its parent, its children and the pieces linked to it are cards; every other piece is a chip showing its name. Each level has one card width: story 200 px, beat 180, scene 120, character and place 108. The name takes one line and the sentence two, then they are cut short. Every card is the same height, and a card being typed in grows downward only.
+- **Stage word.** A word at a card's bottom right names the stage its piece has reached, such as Sentence, Page, List line or Prose. Whether that stage is done is not shown.
+- **Opening the panel.** An icon at a card's top right opens the panel beside. It always shows on a card whose piece has a page or prose, and elsewhere when the pointer is over the card or it has keyboard focus. It is lit while that piece's panel is open.
+- **Moving around.** The graph pans and never shrinks. Siblings off screen show as markers level with the focus, one step sideways. The theme runs across the top. The cast and places sit in a band under the tree, which collapses when nothing in it is linked. Next moves are quiet text links in the panel.
+
 ## North star
 
 Keep the writer focused on the next right thing, guided by what they defined before, so they carry one bite at a time rather than the whole story at once.

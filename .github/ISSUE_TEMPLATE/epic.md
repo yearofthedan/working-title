@@ -17,7 +17,7 @@ labels: epic
 
 ## Done when
 
-<!-- The demo runs automatically, plus each quality bar, one crisp line each, linking to its reasoning. -->
+<!-- The demo runs automatically, plus each quality bar, one crisp line each, linking to its reasoning. Every link in this issue goes into the repo or to a public page an agent can read; a working idea from a chat moves into docs/ before an issue links to it. -->
 
 - The demo runs end to end, automatically, and keeps passing as later epics land.
 
