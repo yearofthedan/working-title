@@ -4,7 +4,12 @@ const headingTags = ['h2', 'h3', 'h4'] as const;
 
 type Adding = (pieceId: string) => void;
 
-const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus['elaborate']) => {
+const field = (
+  pieceId: string,
+  { id, label, text }: FacetView,
+  elaborate: Focus['elaborate'],
+  twoLine: boolean,
+) => {
   const wrapper = document.createElement('div');
   wrapper.className = 'facet';
   const fieldId = `facet-${pieceId}-${id}`;
@@ -14,8 +19,17 @@ const field = (pieceId: string, { id, label, text }: FacetView, elaborate: Focus
   const input = document.createElement('textarea');
   input.id = fieldId;
   input.value = text;
-  input.addEventListener('input', () => void elaborate(pieceId, id, input.value));
-  wrapper.append(name, input);
+  const shown = twoLine ? document.createElement('div') : undefined;
+  if (shown !== undefined) {
+    shown.className = 'shown';
+    shown.setAttribute('aria-hidden', 'true');
+    shown.textContent = text;
+  }
+  input.addEventListener('input', () => {
+    if (shown !== undefined) shown.textContent = input.value;
+    void elaborate(pieceId, id, input.value);
+  });
+  wrapper.append(name, input, ...(shown === undefined ? [] : [shown]));
   return wrapper;
 };
 
@@ -25,7 +39,10 @@ const pieceGroup = (piece: PieceView, level: number, focus: Focus, add: Adding):
   const heading = document.createElement(headingTags[level]);
   heading.textContent = piece.name;
   name.append(heading);
-  group.append(name, ...piece.facets.map((facet) => field(piece.id, facet, focus.elaborate)));
+  group.append(
+    name,
+    ...piece.facets.map((facet) => field(piece.id, facet, focus.elaborate, level > 0)),
+  );
 
   if (piece.childKind !== undefined) {
     const button = document.createElement('button');
@@ -64,23 +81,25 @@ const pieceWith = (pieces: readonly PieceView[], id: string): PieceView | undefi
   return undefined;
 };
 
-// shortcut: a smooth scroll carries the eye up to 260 px only, since Chromium's own scroll grows with distance (300 ms at 260 px, 584 ms across a viewport) and ignores reduced motion; upgrade it with a hand-written pan once focus brings long pans.
 const bringIntoView = (main: HTMLElement, target: HTMLElement): void => {
-  const view = main.getBoundingClientRect();
-  const box = target.getBoundingClientRect();
-  const distance = Math.max(
-    view.left - box.left,
-    box.right - view.right,
-    view.top - box.top,
-    box.bottom - view.bottom,
-    0,
-  );
-  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  target.scrollIntoView({
-    block: 'nearest',
-    inline: 'nearest',
-    behavior: still || distance > 260 ? 'instant' : 'smooth',
-  });
+  const from = { left: main.scrollLeft, top: main.scrollTop };
+  target.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+  const to = { left: main.scrollLeft, top: main.scrollTop };
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  main.scrollTo({ ...from, behavior: 'instant' });
+  const started = performance.now();
+  const pan = (now: number) => {
+    const at = Math.min(1, (now - started) / 250);
+    const eased = 1 - (1 - at) ** 3;
+    main.scrollTo({
+      left: from.left + (to.left - from.left) * eased,
+      top: from.top + (to.top - from.top) * eased,
+      behavior: 'instant',
+    });
+    if (at < 1) requestAnimationFrame(pan);
+  };
+  requestAnimationFrame(pan);
 };
 
 const cursorInto = (main: HTMLElement, focus: Focus, pieceId: string): void => {

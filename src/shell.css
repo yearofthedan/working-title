@@ -133,7 +133,7 @@ main {
   ol > li {
     position: relative;
     flex: 1 1 0;
-    min-width: 12rem;
+    min-width: 17rem;
     container-type: inline-size;
   }
 
@@ -199,27 +199,95 @@ main {
   }
 
   ol > li:has(> fieldset > ol) > fieldset {
-    --card: 12rem;
+    --card: 17rem;
+  }
+
+  :scope > fieldset > ol {
+    gap: var(--space-8);
+  }
+
+  :scope > fieldset > ol > li::after {
+    left: calc(-1 * var(--space-4));
+    right: calc(-1 * var(--space-4));
+  }
+
+  :scope > fieldset > ol > li:first-child::after {
+    left: 50%;
+  }
+
+  :scope > fieldset > ol > li:last-child::after {
+    right: 50%;
+  }
+
+  ol > li > fieldset > ol {
+    justify-content: center;
   }
 
   ol > li > fieldset > ol > li {
     flex: none;
-    width: 7.5rem;
+    width: 12rem;
     min-width: 0;
     container-type: normal;
   }
 
-  /* shortcut: a scene's list line is clamped with the prefixed property, since neither -webkit-line-clamp nor line-clamp cuts a textarea short without the legacy box display; upgrade it when a clamp works on form controls. */
-  ol > li > fieldset > ol > li .facet textarea {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
+  ol > li > fieldset > ol > li .facet {
     font-family: var(--font-interface);
     font-size: var(--text-interface);
   }
 
-  ol > li > fieldset > ol > li .facet textarea:focus {
-    -webkit-line-clamp: none;
+  li .facet {
+    position: relative;
+    box-sizing: content-box;
+    width: calc(var(--card) - 2 * var(--space-4) - 2px);
+    height: 2lh;
+  }
+
+  li .facet textarea {
+    height: 2lh;
+    min-height: 0;
+    overflow: hidden;
+    field-sizing: fixed;
+  }
+
+  li .facet textarea:not(:focus) {
+    opacity: 0;
+  }
+
+  /* shortcut: the cut at two lines uses the prefixed property, which MDN does not mark Baseline; upgrade it once line-clamp is Baseline. */
+  li .facet .shown {
+    position: absolute;
+    top: var(--space-2);
+    inset-inline: var(--space-4);
+    min-height: 1lh;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    pointer-events: none;
+  }
+
+  li .facet:has(textarea:focus) .shown {
+    display: none;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet {
+    height: auto;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet textarea {
+    height: auto;
+    min-height: 2lh;
+    field-sizing: content;
+    opacity: 1;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet .shown {
+    display: none;
+  }
+
+  li .facet:hover .shown {
+    outline: 1px solid var(--color-edge);
   }
 }

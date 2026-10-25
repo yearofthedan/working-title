@@ -13,7 +13,6 @@ export interface Writer {
   reloads(): Promise<void>;
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theAppsName: Locator;
-  stepsTheGraphMovedWhile(act: () => Promise<void>): Promise<number>;
 }
 
 const writerOn = (page: Page): Writer => {
@@ -51,25 +50,6 @@ const writerOn = (page: Page): Writer => {
     },
 
     theAppsName: page.getByRole('heading', { name: 'working-title' }),
-
-    stepsTheGraphMovedWhile: async (act) => {
-      await page.evaluate(() => {
-        const graph = document.querySelector('main');
-        let where = `${graph?.scrollLeft},${graph?.scrollTop}`;
-        document.body.dataset.moves = '0';
-        graph?.addEventListener('scroll', () => {
-          const now = `${graph.scrollLeft},${graph.scrollTop}`;
-          if (now === where) return;
-          where = now;
-          document.body.dataset.moves = String(Number(document.body.dataset.moves) + 1);
-        });
-      });
-
-      await act();
-      await page.waitForTimeout(300);
-
-      return Number(await page.evaluate(() => document.body.dataset.moves));
-    },
   };
 };
 

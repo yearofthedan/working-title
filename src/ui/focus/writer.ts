@@ -15,4 +15,10 @@ export const focusPageActions = (scope: PageScope): Record<string, StepAction> =
     await scope.group(beat).press('Add a scene');
     await scope.group(beat).press('Add a scene');
   },
+  'adds a scene under {beat}': async ({ beat }) => {
+    await scope.group(beat).press('Add a scene');
+  },
+  'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
+    await scope.group(beat).group(scene).field('List line').enter(text);
+  },
 });

@@ -16,10 +16,4 @@ export const journeyActions = (scope: AppScope): Record<string, StepAction> => (
   'the writer types "{text}" as {piece}\'s {facet}': async ({ text, piece, facet }) => {
     await scope.group(piece).field(facet).enter(text);
   },
-  'adds a scene under {beat}': async ({ beat }) => {
-    await scope.group(beat).press('Add a scene');
-  },
-  'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
-    await scope.group(beat).group(scene).field('List line').enter(text);
-  },
 });
