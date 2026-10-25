@@ -87,7 +87,7 @@ Guidance, scaffolds and next moves suggest. The writer can skip a stage, go out 
 
 ### 5. Instant or not at all
 
-Anything the writer triggers starts to show its result within a tenth of a second, and typing keeps up within a frame. Motion that carries the result into place follows [the motion standard](standards/motion.md). Work that can't be that fast runs in the background while the writer carries on.
+Anything the writer triggers shows its result within a tenth of a second, and typing keeps up within a frame. Work that can't be that fast runs in the background while the writer carries on.
 
 **Example.** Searching the novel shows matches as the writer types.
 
