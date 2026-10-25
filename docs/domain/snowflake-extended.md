@@ -36,6 +36,6 @@ A stage's needs suggest the next move and lock nothing ([product principle 4](..
 
 - **Views, not copies.** Snowflake's story paragraph is the five beat sentences read in order, and its four-page synopsis is the beat pages read together. Neither is stored, so nothing drifts.
 - **Needs are local.** A stage needs a facet on the piece itself or on its parent, never project-wide. Beat 1 can reach scenes and prose while beat 4 is still a sentence.
-- **Beats start at five.** Five is Ingermanson's own preference (three disasters plus an ending), so the writer can add or remove beats afterwards. Removing a beat asks first and takes its scenes with it.
+- **Beats start at five.** Five is [Ingermanson's paragraph](https://www.advancedfictionwriting.com/articles/snowflake-method): the setup, three disasters and the ending. It is only a starting point: the writer can add or remove beats afterwards. Removing a beat asks first and takes its scenes with it.
 - **Scaffold fields are prompts.** The writer can leave any field empty or clear the scaffold. A stage completes on its facet, so a scene with no POV character is fine.
 - **POV is a mention.** When filled, it links the scene to a character. Who appears in a scene comes from mentions in its prose.
