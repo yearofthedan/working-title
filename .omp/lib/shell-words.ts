@@ -1,8 +1,10 @@
 type Command = { words: string[]; targets: string[] };
 type Heredoc = { word: string; tabs: boolean };
 
-/* shortcut: substitution and escapes are not read, so a command another shell builds is not
-   caught; read them once a session is seen to hide a command behind one. */
+/* shortcut: a target holding `$` or a backtick is neither refused nor followed, since resolving it
+   means running the shell; read it once a session is seen to write through one. */
+const UNRESOLVED = /[`$]/;
+
 const commandsIn = (line: string): Command[] => {
   const commands: Command[] = [];
   const heredocs: Heredoc[] = [];
@@ -14,7 +16,7 @@ const commandsIn = (line: string): Command[] => {
   const endWord = () => {
     if (word === '') return;
     if (!dropped) command.words.push(word);
-    else if (target) command.targets.push(word);
+    else if (target && !UNRESOLVED.test(word)) command.targets.push(word);
     word = '';
     dropped = false;
     target = false;

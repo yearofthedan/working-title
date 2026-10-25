@@ -261,6 +261,16 @@ describe('a shell write in a subagent', () => {
     );
   });
 
+  it.each([
+    ['a variable', 'echo hi > "$TMPDIR/out.txt"'],
+    ['a command substitution', './do check > "$(mktemp)"'],
+    ['a backtick', 'echo hi > "`mktemp`"'],
+  ])('passes a target holding %s, which it cannot resolve', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
   const bodies = ['> a quoted line', 'echo hi > out.txt', 'the probe -> the ADR'];
   const aHeredoc = (target: string, body: string): string =>
     `cat > ${target} <<'EOF'\n${body}\nEOF`;
