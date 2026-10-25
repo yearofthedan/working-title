@@ -15,7 +15,7 @@ How are the tests that show what the writer sees written, run and reviewed?
 
 | Option | Agent-written tests | Two runners | The agreed text | Review cost |
 | --- | --- | --- | --- | --- |
-| Scenario files, played and approved | The runner's assertions are written once; a case is a file diff | One format, and each runner hands back the same printed tree | The rule and scenarios are copied from the issue, and the file is refused unless it reads as it prints | A behaviour change is a few lines of diff in the file |
+| Scenario files, played and approved | The runner's assertions are written once; a case is a file diff | One format, which each runner has to print | The rule and scenarios are copied from the issue, and the file is refused unless it reads as it prints | A behaviour change is a few lines of diff in the file |
 | Hand-written tests against a printed scenario | Each case hand-writes its steps and its assertions | Both, as the harness around it allowed | The scenario is printed to an approved file, but the assertions sit beside it | A weak assertion can be added without the file changing |
 | Gherkin with a shared step library | Steps are reused, so a case is short | Both, with a step binding each | Reads as prose, and drifts from the issue unless the two are kept in step | A change in wording hides a change in behaviour |
 
@@ -31,7 +31,7 @@ The forces that decided it were the review cost and the agreed text: the pattern
 
 - Adding a case is a file diff, and a behaviour change shows as a line diff in that file.
 - The two runners have to print the same tree format, since a scenario file reads the same whichever runner approved it.
-- The tree normalises whitespace, so a facet's text as typed needs a value-level test: the storage round trip carries that, not the scenario file.
+- The tree normalises whitespace, so a facet's text as typed needs a value-level test; the scenario file can't carry it.
 - A runner must be able to hand the tree back and to write the file it read; a runner that could only compare would force a second way to approve.
 - Vitest browser mode needs Chromium installed wherever the tests run.
-- The harness and the entries sit outside the five layers `./do layers` covers, so the layers' rules on what may import what don't reach them.
+- The harness and the entries sit outside the five layers, so the rules on which layer may import which don't reach them.
