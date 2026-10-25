@@ -17,4 +17,5 @@ What belongs elsewhere:
 
 - [Commits and merges](commits.md): the issue number on titles and on commits, a pull request and squash only, the model on each agent commit, and the body naming who wrote it in which role.
 - [Markup](markup.md): what an element is, and what its name means to the writer hearing it.
+- [Styles](styles.md): which CSS features a style may rely on.
 - [Testing](testing.md): a test beside its code, browser specs in `e2e/`, what runs each, and approved scenarios.

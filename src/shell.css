@@ -2,6 +2,9 @@
 @import './reset.css';
 
 body {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   background: var(--color-background);
   color: var(--color-text);
@@ -9,124 +12,167 @@ body {
   font-size: var(--text-interface);
 }
 
+header {
+  margin: var(--space-8) var(--space-8) 0;
+}
+
 main {
+  padding: var(--space-8);
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  flex: 1;
+  min-height: 0;
   font-family: var(--font-prose);
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
-  padding: 2rem;
   overflow: auto;
 }
 
-fieldset {
-  --card: 15rem;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: none;
-  margin: 0;
-  padding: 0;
-  min-inline-size: 0;
-}
+@scope (main) {
+  fieldset {
+    --card: 12rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
 
-legend {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  translate: -50%;
-  box-sizing: border-box;
-  width: var(--card);
-  height: 2rem;
-  padding: 0.5rem 0.75rem 0;
-  border: 1px solid;
-  border-bottom: none;
-  background: var(--color-background);
-}
+  legend {
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+    box-sizing: border-box;
+    width: var(--card);
+    height: var(--space-8);
+    padding: var(--space-3) var(--space-4) 0;
+    border: 1px solid var(--color-edge);
+    border-bottom: none;
+    border-radius: var(--space-2) var(--space-2) 0 0;
+    background: var(--color-surface);
+  }
 
-legend :is(h2, h3) {
-  font-family: var(--font-interface);
-  font-size: var(--text-interface);
-  font-weight: 600;
-}
+  legend :is(h2, h3) {
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+    font-weight: 600;
+  }
 
-.facet {
-  box-sizing: border-box;
-  width: var(--card);
-  margin-top: 2rem;
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem 0.75rem;
-  border: 1px solid;
-  border-top: none;
-  background: var(--color-background);
-}
+  .facet {
+    box-sizing: border-box;
+    width: var(--card);
+    margin-top: var(--space-8);
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-top: none;
+    border-radius: 0 0 var(--space-2) var(--space-2);
+    background: var(--color-surface);
+  }
 
-.facet label {
-  font-family: var(--font-interface);
-  font-size: 0.75rem;
-  color: color-mix(in srgb, currentColor 65%, transparent);
-}
+  .facet label {
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
 
-.facet textarea {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: none;
-  padding: 0;
-  resize: none;
-  field-sizing: content;
-  min-height: 2lh;
-}
+  li .facet label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 
-main > fieldset {
-  --card: 17rem;
-  width: max-content;
-  margin-inline: auto;
-}
+  .facet textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    resize: none;
+    field-sizing: content;
+    min-height: 1lh;
+  }
 
-ol {
-  position: relative;
-  display: flex;
-  gap: 1rem;
-  margin: 0;
-  padding: 2.5rem 0 0;
-}
+  .facet:hover textarea {
+    outline: 1px solid var(--color-edge);
+  }
 
-ol > li {
-  position: relative;
-}
+  .facet textarea:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
 
-ol > li::before {
-  content: '';
-  position: absolute;
-  top: -1.25rem;
-  left: 50%;
-  height: 1.25rem;
-  border-left: 1px solid;
-}
+  :scope > fieldset {
+    --card: 17rem;
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
 
-ol > li::after {
-  content: '';
-  position: absolute;
-  top: -1.25rem;
-  left: -0.5rem;
-  right: -0.5rem;
-  border-top: 1px solid;
-}
+  ol {
+    position: relative;
+    display: flex;
+    gap: var(--space-4);
+    width: 100%;
+    margin: 0;
+    padding: var(--space-12) 0 0;
+  }
 
-ol > li:first-child::after {
-  left: 50%;
-}
+  ol > li {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 12rem;
+    container-type: inline-size;
+  }
 
-ol > li:last-child::after {
-  right: 50%;
-}
+  ol > li > fieldset {
+    --card: 100%;
+  }
 
-ol::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  height: 1.25rem;
-  border-left: 1px solid;
+  ol > li::before {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--space-6));
+    left: 50%;
+    height: var(--space-6);
+    border-left: 1px solid var(--color-line);
+  }
+
+  ol > li::after {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--space-6));
+    left: calc(-1 * var(--space-2));
+    right: calc(-1 * var(--space-2));
+    border-top: 1px solid var(--color-line);
+  }
+
+  ol > li:first-child::after {
+    left: 50%;
+  }
+
+  ol > li:last-child::after {
+    right: 50%;
+  }
+
+  ol::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: var(--space-6);
+    border-left: 1px solid var(--color-line);
+  }
 }
