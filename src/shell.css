@@ -268,10 +268,6 @@ main {
     pointer-events: none;
   }
 
-  li .facet:has(textarea:focus) .shown {
-    display: none;
-  }
-
   li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet {
     height: auto;
   }
