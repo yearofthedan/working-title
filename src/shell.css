@@ -61,7 +61,7 @@ main {
     background: var(--color-surface);
   }
 
-  legend :is(h2, h3) {
+  legend :is(h2, h3, h4) {
     font-family: var(--font-interface);
     font-size: var(--text-interface);
     font-weight: 600;
@@ -133,7 +133,7 @@ main {
   ol > li {
     position: relative;
     flex: 1 1 0;
-    min-width: 12rem;
+    min-width: 17rem;
     container-type: inline-size;
   }
 
@@ -174,5 +174,116 @@ main {
     left: 50%;
     height: var(--space-6);
     border-left: 1px solid var(--color-line);
+  }
+
+  button {
+    margin-top: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  ol > li:has(> fieldset > ol) {
+    flex: none;
+    container-type: normal;
+  }
+
+  ol > li:has(> fieldset > ol) > fieldset {
+    --card: 17rem;
+  }
+
+  :scope > fieldset > ol {
+    gap: var(--space-8);
+  }
+
+  :scope > fieldset > ol > li::after {
+    left: calc(-1 * var(--space-4));
+    right: calc(-1 * var(--space-4));
+  }
+
+  :scope > fieldset > ol > li:first-child::after {
+    left: 50%;
+  }
+
+  :scope > fieldset > ol > li:last-child::after {
+    right: 50%;
+  }
+
+  ol > li > fieldset > ol {
+    justify-content: center;
+  }
+
+  ol > li > fieldset > ol > li {
+    flex: none;
+    width: 12rem;
+    min-width: 0;
+    container-type: normal;
+  }
+
+  ol > li > fieldset > ol > li .facet {
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  li .facet {
+    position: relative;
+    box-sizing: content-box;
+    width: calc(var(--card) - 2 * var(--space-4) - 2px);
+    height: 2lh;
+  }
+
+  li .facet textarea {
+    height: 2lh;
+    min-height: 0;
+    overflow: hidden;
+    field-sizing: fixed;
+  }
+
+  li .facet textarea:not(:focus) {
+    opacity: 0;
+  }
+
+  /* shortcut: the cut at two lines uses the prefixed property, which MDN does not mark Baseline; upgrade it once line-clamp is Baseline. */
+  li .facet .shown {
+    position: absolute;
+    top: var(--space-2);
+    inset-inline: var(--space-4);
+    min-height: 1lh;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    pointer-events: none;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet {
+    height: auto;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet textarea {
+    height: auto;
+    min-height: 2lh;
+    field-sizing: content;
+    opacity: 1;
+  }
+
+  li > fieldset:has(> .facet textarea:focus, > button:focus) > .facet .shown {
+    display: none;
+  }
+
+  li .facet:hover .shown {
+    outline: 1px solid var(--color-edge);
   }
 }

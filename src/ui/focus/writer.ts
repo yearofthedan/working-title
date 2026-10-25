@@ -8,4 +8,17 @@ export const focusPageActions = (scope: PageScope): Record<string, StepAction> =
   'the writer types "{text}" into {piece}\'s {facet}': async ({ text, piece, facet }) => {
     await scope.group(piece).field(facet).enter(text);
   },
+  'the writer adds a scene under {beat}': async ({ beat }) => {
+    await scope.group(beat).press('Add a scene');
+  },
+  'the writer adds two scenes under {beat}': async ({ beat }) => {
+    await scope.group(beat).press('Add a scene');
+    await scope.group(beat).press('Add a scene');
+  },
+  'adds a scene under {beat}': async ({ beat }) => {
+    await scope.group(beat).press('Add a scene');
+  },
+  'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
+    await scope.group(beat).group(scene).field('List line').enter(text);
+  },
 });

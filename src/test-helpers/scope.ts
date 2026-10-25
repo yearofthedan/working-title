@@ -4,6 +4,8 @@ export interface Field {
 
 export interface Group {
   field(label: string): Field;
+  group(name: string): Group;
+  press(name: string): Promise<void>;
 }
 
 export interface PageScope {
@@ -22,7 +24,10 @@ const wholeNameAnyCase = (name: string): RegExp =>
 
 interface Finds {
   getByLabel(text: RegExp): { first(): { fill(text: string): Promise<void> } };
-  getByRole(role: 'group', options: { name: RegExp }): Finds;
+  getByRole(
+    role: 'group' | 'button',
+    options: { name: RegExp },
+  ): Finds & { click(): Promise<void> };
 }
 
 const fieldIn = (within: Finds, label: string): Field => ({
@@ -32,11 +37,17 @@ const fieldIn = (within: Finds, label: string): Field => ({
   },
 });
 
+const groupIn = (within: Finds): Group => ({
+  field: (label) => fieldIn(within, label),
+  group: (name) => groupIn(within.getByRole('group', { name: wholeNameAnyCase(name) })),
+  press: async (name) => {
+    await within.getByRole('button', { name: wholeNameAnyCase(name) }).click();
+  },
+});
+
 export const fieldsOn = (page: Finds): Pick<PageScope, 'field' | 'group'> => ({
   field: (label) => fieldIn(page, label),
-  group: (name) => ({
-    field: (label) => fieldIn(page.getByRole('group', { name: wholeNameAnyCase(name) }), label),
-  }),
+  group: (name) => groupIn(page.getByRole('group', { name: wholeNameAnyCase(name) })),
 });
 
 export const linesOf = (tree: string): readonly string[] =>

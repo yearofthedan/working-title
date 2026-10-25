@@ -7,6 +7,7 @@ export interface PieceKind {
   readonly id: string;
   readonly label: string;
   readonly facets: readonly Facet[];
+  readonly childKind?: PieceKind;
 }
 
 export interface Method {
@@ -114,4 +115,23 @@ export const elaborate = (
   pieces: project.pieces.map((piece) =>
     piece.id === pieceId ? { ...piece, facets: { ...piece.facets, [facetId]: text } } : piece,
   ),
+});
+
+export const branch = (
+  project: Project,
+  parentId: string,
+  kind: PieceKind,
+  id: string,
+): Project => ({
+  ...project,
+  pieces: [
+    ...project.pieces,
+    {
+      id,
+      kind: kind.id,
+      parent: parentId,
+      order: project.pieces.filter((piece) => piece.parent === parentId).length,
+      facets: {},
+    },
+  ],
 });

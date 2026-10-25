@@ -13,6 +13,11 @@ export const snowflakeExtended: Method = {
       id: 'beat',
       label: 'Beat',
       facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary' }],
+      childKind: {
+        id: 'scene',
+        label: 'Scene',
+        facets: [{ id: 'list-line', label: 'List line' }],
+      },
     },
     count: 5,
   },

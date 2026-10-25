@@ -8,6 +8,7 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 out="$root/screenshots"
 sentences="$root/scripts/_screenshot-long-sentences.json"
+scenes="$root/scripts/_screenshot-eight-scenes.json"
 
 if curl -fsS http://localhost:4174 >/dev/null 2>&1; then
   echo "something is already answering on 4174, and the shots would show its build; stop it first" >&2
@@ -56,3 +57,5 @@ shot 1440 new-project-1440
 shot 1100 new-project-1100
 shot 1440 long-sentences-1440 --load-storage "$sentences"
 shot 1100 long-sentences-1100 --load-storage "$sentences"
+shot 1440 eight-scenes-1440 --load-storage "$scenes"
+shot 1100 eight-scenes-1100 --load-storage "$scenes"
