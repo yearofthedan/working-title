@@ -1,6 +1,6 @@
 # 8. Story scenarios run from their approved files
 
-Status: Proposed, 2026-10-11
+Status: Accepted, 2026-10-25
 
 ## Context
 
@@ -30,8 +30,8 @@ The forces that decided it were the review cost and the agreed text: the pattern
 ## Consequences
 
 - Adding a case is a file diff, and a behaviour change shows as a line diff in that file.
-- Both runners print one tree format, verified byte for byte for the same field.
+- The two runners have to print the same tree format, since a scenario file reads the same whichever runner approved it.
 - The tree normalises whitespace, so a facet's text as typed needs a value-level test: the storage round trip carries that, not the scenario file.
 - A runner must be able to hand the tree back and to write the file it read; a runner that could only compare would force a second way to approve.
-- Vitest browser mode needs Chromium installed, so `./do check` runs the specs before the tests on a fresh machine.
+- Vitest browser mode needs Chromium installed wherever the tests run.
 - The harness and the entries sit outside the five layers `./do layers` covers, so what they may import is a convention rather than a check: nothing stops `e2e/journey.ts` importing the domain.
