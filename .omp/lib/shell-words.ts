@@ -1,9 +1,11 @@
 type Command = { words: string[]; targets: string[] };
+type Heredoc = { word: string; tabs: boolean };
 
 /* shortcut: substitution and escapes are not read, so a command another shell builds is not
    caught; read them once a session is seen to hide a command behind one. */
 const commandsIn = (line: string): Command[] => {
   const commands: Command[] = [];
+  const heredocs: Heredoc[] = [];
   let command: Command = { words: [], targets: [] };
   let word = '';
   let quote = '';
@@ -24,15 +26,54 @@ const commandsIn = (line: string): Command[] => {
     dropped = false;
     target = false;
   };
-  const operatorEnd = (index: number): { at: number; writes: boolean } => {
+  const delimiterAfter = (from: number): string => {
+    let at = from;
+    while (line[at] === ' ' || line[at] === '\t') at += 1;
+    let delimiter = '';
+    let quoted = '';
+    for (; at < line.length; at += 1) {
+      const character = line[at] as string;
+      if (quoted !== '') {
+        if (character === quoted) quoted = '';
+        else delimiter += character;
+      } else if (character === '"' || character === "'") {
+        quoted = character;
+      } else if (character === '\\') {
+        at += 1;
+        delimiter += line[at] ?? '';
+      } else if (/[\s;|&<>]/.test(character)) {
+        break;
+      } else {
+        delimiter += character;
+      }
+    }
+    return delimiter;
+  };
+  const bodyEnd = (from: number, heredoc: Heredoc): number => {
+    let at = line.indexOf('\n', from);
+    while (at !== -1) {
+      const next = line.indexOf('\n', at + 1);
+      const body = line.slice(at + 1, next === -1 ? line.length : next);
+      const terminator = heredoc.tabs ? body.replace(/^\t+/, '') : body;
+      if (terminator === heredoc.word) return next === -1 ? line.length : next;
+      at = next;
+    }
+    return line.length;
+  };
+  const operatorEnd = (
+    index: number,
+  ): { at: number; writes: boolean; heredoc: boolean; tabs: boolean } => {
     const ampersand = line[index] === '&';
     const start = ampersand ? index + 1 : index;
     const writes = line[start] === '>';
-    let at = start + 1;
-    if (line[at] === line[start]) at += 1;
+    const doubled = line[start + 1] === line[start];
+    let at = doubled ? start + 2 : start + 1;
+    const heredoc = line[start] === '<' && doubled && !ampersand;
+    const tabs = heredoc && line[at] === '-';
+    if (tabs) at += 1;
     const copy = !ampersand && line[at] === '&' && /^[0-9-]/.test(line[at + 1] ?? '');
     if (line[at] === '|' || line[at] === '&') at += 1;
-    return { at, writes: writes && !copy };
+    return { at, writes: writes && !copy, heredoc, tabs };
   };
   for (let index = 0; index < line.length; index += 1) {
     const character = line[index] as string;
@@ -49,11 +90,20 @@ const commandsIn = (line: string): Command[] => {
       if (/^[0-9]+$/.test(word)) word = '';
       else endWord();
       const operator = operatorEnd(index);
+      if (operator.heredoc) {
+        const delimiter = delimiterAfter(operator.at);
+        if (delimiter !== '') heredocs.push({ word: delimiter, tabs: operator.tabs });
+      }
       index = operator.at - 1;
       dropped = true;
       target = operator.writes;
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
+    } else if (character === '\n' && heredocs.length > 0) {
+      endWord();
+      let at = index;
+      while (heredocs.length > 0) at = bodyEnd(at, heredocs.shift() as Heredoc);
+      index = at - 1;
     } else if (/\s/.test(character)) {
       endWord();
     } else {

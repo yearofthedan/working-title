@@ -260,4 +260,29 @@ describe('a shell write in a subagent', () => {
       false,
     );
   });
+
+  const bodies = ['> a quoted line', 'echo hi > out.txt', 'the probe -> the ADR'];
+  const aHeredoc = (target: string, body: string): string =>
+    `cat > ${target} <<'EOF'\n${body}\nEOF`;
+
+  it.each(bodies)('reads no target from the body line %s of a heredoc', (body) => {
+    const command = aHeredoc(join(linked, 'notes.md'), body);
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it('refuses a heredoc whose own target is in the main worktree', () => {
+    const command = aHeredoc('notes.txt', '> a quoted line');
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+
+  it('ends a <<- body at its tab-indented delimiter', () => {
+    const command = `cat > ${join(linked, 'notes.md')} <<-'EOF'\n\tEOF\necho hi > notes.txt`;
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
 });
