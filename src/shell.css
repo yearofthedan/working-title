@@ -12,7 +12,10 @@ body {
   font-size: var(--text-interface);
 }
 
-header,
+header {
+  margin: var(--space-8) var(--space-8) 0;
+}
+
 main {
   margin: var(--space-8);
 }
