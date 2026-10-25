@@ -22,7 +22,7 @@ The dispatch gives you the pull request's number, its branch, the worktree to wo
 
 For each acceptance criterion or `Done when` line in the brief, in order — or, when the brief has a `### Findings` heading, for each finding under it alone, since the rest is built already:
 
-1. Write its test where the brief says it lands, and run it to see it fail for the reason it should.
+1. Write its test where the brief says it lands, and run it to see it fail for the reason it should. An assertion's expected value is written in the test, never computed from the input the test checks.
 2. Write the least code that makes it pass. Follow the surrounding code's patterns.
 3. Run `./do check`. Do not commit past a failing check.
 4. For a change the writer sees, run `./do screenshot` and read each image it writes to `screenshots/`. Your answer says what each image shows, and claims nothing about the look that no image shows.
