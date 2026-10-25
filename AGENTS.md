@@ -11,7 +11,7 @@ How to write anything, from replies to commit messages, docs and PR bodies, and 
 
 The words to use in code, tests, scenarios and UI:
 
-@docs/ubiquitous-language.md
+@docs/domain/ubiquitous-language.md
 
 ## Read before writing a story or making a call
 
