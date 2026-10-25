@@ -72,6 +72,8 @@ A lesson is something that would have saved time, or caught a mistake sooner. Ev
 | A question from the builder is not a choice: "placeholder A. will it be noisy?" was recorded as choosing A, though implement's Build rules say a question changes nothing until it has a direct yes | [#112](https://github.com/yearofthedan/working-title/pull/112) | none |
 | The execution agent reports the look only from screenshots of the built app it has read: it reported the joins as matching the mock before any screenshot was read | [#101](https://github.com/yearofthedan/working-title/pull/101) | [execution agent: Build](../.omp/agents/execution-agent.md#build) |
 | A file as it arrives in context is not the file: `AGENTS.md` came with its `@` import already expanded, so a claim that it had no `@` lines was made without reading it; the tripwire on reading the repo's own rules from the file did not stop it, since the context looked like the file | [#113](https://github.com/yearofthedan/working-title/pull/113) | none |
+| A reader of shell written by hand is briefed and reviewed against the bash manual's grammar, not against a list of cases: three review rounds each found a construct the brief's cases missed — a heredoc's body, a substituted target, a command on the next line | [#115](https://github.com/yearofthedan/working-title/pull/115) | none |
+| An agent's notes file is added to across dispatches, never started again: the second dispatch on one branch created the file afresh, and the first dispatch's failing runs, the evidence for its cases, were lost with it | [#115](https://github.com/yearofthedan/working-title/pull/115) | none |
 
 ## The columns
 
