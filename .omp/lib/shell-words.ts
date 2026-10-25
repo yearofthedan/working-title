@@ -1,29 +1,40 @@
+type Command = { words: string[]; targets: string[] };
+
 /* shortcut: substitution and escapes are not read, so a command another shell builds is not
    caught; read them once a session is seen to hide a command behind one. */
-export const wordsPerCommand = (line: string): string[][] => {
-  const commands: string[][] = [];
-  let words: string[] = [];
+const commandsIn = (line: string): Command[] => {
+  const commands: Command[] = [];
+  let command: Command = { words: [], targets: [] };
   let word = '';
   let quote = '';
-  let droppingTarget = false;
+  let dropped = false;
+  let target = false;
   const endWord = () => {
     if (word === '') return;
-    if (!droppingTarget) words.push(word);
+    if (!dropped) command.words.push(word);
+    else if (target) command.targets.push(word);
     word = '';
-    droppingTarget = false;
+    dropped = false;
+    target = false;
   };
   const endCommand = () => {
     endWord();
-    if (words.length > 0) commands.push(words);
-    words = [];
-    droppingTarget = false;
+    commands.push(command);
+    command = { words: [], targets: [] };
+    dropped = false;
+    target = false;
   };
-  const operatorEnd = (index: number): number => {
-    const start = line[index] === '&' ? index + 1 : index;
+  const operatorEnd = (index: number): { at: number; writes: boolean } => {
+    const ampersand = line[index] === '&';
+    const start = ampersand ? index + 1 : index;
+    const writes = line[start] === '>';
     let at = start + 1;
     if (line[at] === line[start]) at += 1;
-    if (line[at] === '&') at += 1;
-    return at;
+    if (line[at] === '|') return { at: at + 1, writes };
+    if (!ampersand && line[at] === '&') {
+      return { at: at + 1, writes: writes && !/^[0-9-]/.test(line[at + 1] ?? '') };
+    }
+    return { at, writes };
   };
   for (let index = 0; index < line.length; index += 1) {
     const character = line[index] as string;
@@ -39,8 +50,10 @@ export const wordsPerCommand = (line: string): string[][] => {
     ) {
       if (/^[0-9]+$/.test(word)) word = '';
       else endWord();
-      index = operatorEnd(index) - 1;
-      droppingTarget = true;
+      const operator = operatorEnd(index);
+      index = operator.at - 1;
+      dropped = true;
+      target = operator.writes;
     } else if (character === '&' || character === '|' || character === ';') {
       endCommand();
     } else if (/\s/.test(character)) {
@@ -52,3 +65,13 @@ export const wordsPerCommand = (line: string): string[][] => {
   endCommand();
   return commands;
 };
+
+export const wordsPerCommand = (line: string): string[][] =>
+  commandsIn(line)
+    .map(({ words }) => words)
+    .filter((words) => words.length > 0);
+
+export const writeTargetsPerCommand = (line: string): string[][] =>
+  commandsIn(line)
+    .map(({ targets }) => targets)
+    .filter((targets) => targets.length > 0);

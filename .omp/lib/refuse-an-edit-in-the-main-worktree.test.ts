@@ -205,3 +205,59 @@ describe('an edit or a write in a subagent', () => {
     ).toBe(false);
   });
 });
+
+const aShellWrite = (command: string, cwd: string): Call => ({
+  toolName: 'bash',
+  input: { command, cwd },
+});
+
+describe('a shell write in a subagent', () => {
+  const { main, linked } = repository();
+  const writesIntoTheMainWorktree: [what: string, command: string][] = [
+    ['a redirect', 'echo hi > notes.txt'],
+    ['an append', 'echo hi >> notes.txt'],
+    ['tee', 'tee notes.txt'],
+    ['tee -a', 'echo hi | tee -a notes.txt'],
+    ['a heredoc', "cat > notes.txt <<'EOF'\nhi\nEOF"],
+  ];
+
+  it.each(writesIntoTheMainWorktree)('refuses %s into the main worktree', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(true);
+  });
+
+  it.each(writesIntoTheMainWorktree)('names the main-worktree path for %s', (_what, command) => {
+    expect(
+      reasonFor(aShellWrite(command, main), { cwd: main, sessionManager: subagent }),
+    ).toContain(join(main, 'notes.txt'));
+  });
+
+  it.each(writesIntoTheMainWorktree)('passes %s into the linked worktree', (_what, command) => {
+    expect(refused(aShellWrite(command, linked), { cwd: linked, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it('passes a target in an ignored path', () => {
+    expect(
+      refused(aShellWrite('echo hi > ignored/notes.md', main), {
+        cwd: main,
+        sessionManager: subagent,
+      }),
+    ).toBe(false);
+  });
+
+  it.each([
+    ['a file-descriptor copy', 'git status 2>&1'],
+    ['a write of /dev/null', './do check > /dev/null'],
+  ])('passes %s, which writes no file', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: subagent })).toBe(
+      false,
+    );
+  });
+
+  it.each(writesIntoTheMainWorktree)('passes %s from the main session', (_what, command) => {
+    expect(refused(aShellWrite(command, main), { cwd: main, sessionManager: mainSession })).toBe(
+      false,
+    );
+  });
+});
