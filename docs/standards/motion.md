@@ -1,0 +1,9 @@
+# Motion
+
+**Audience:** anyone building something that moves on screen.
+**Purpose:** when the app may move something, how long it may take, and when nothing moves.
+
+- **Motion shows where something went.** The app moves something only to carry the eye from where it was to where it is now, such as the graph panning to a piece or a new card settling into its place. Decorative motion, such as a pulse, a bounce or parallax, is not used. Backed by [WCAG 2.2, 2.3.3 Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) ("eliminate unnecessary motion effects").
+- **Motion starts at once, ends within 300 ms, and never holds the writer up.** It starts within a tenth of a second of the writer's action, ends within 300 ms, and the writer can type or act while it runs. Backed by [principle 5](../product.md#5-instant-or-not-at-all) (a result shows within a tenth of a second; work that can't be that fast runs while the writer carries on) and [NN/g on animation duration](https://www.nngroup.com/articles/animation-duration/) (200–300 ms for substantial screen changes; 100 ms is "at the lower end of perceivable motion").
+- **Nothing moves when the writer's system asks for reduced motion.** Under `prefers-reduced-motion: reduce`, every change happens in one step, panning included. Backed by WCAG 2.3.3 above, [MDN: prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), and its Baseline status, widely available since 2022-07-15 ([the probe](https://github.com/yearofthedan/working-title/issues/121#issuecomment-6400137498)), which [the styles standard](styles.md) requires.
+- **Scrolling the writer does is not motion here.** [WCAG 2.3.3](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) treats movement the user drives by scrolling as essential, so the rules above don't cover it.
