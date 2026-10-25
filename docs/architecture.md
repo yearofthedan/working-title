@@ -47,7 +47,8 @@ Design size is about 300 pieces and 2,000 links.
 | Durability | A crash loses at most about 2 s of typing | [`your-words-survive-a-reload`](../e2e/your-words-survive-a-reload.approved.md) | Medium: a reload is checked, a crash mid-typing is not |
 | Disaster recovery | The folder mirror is at most about 10 s behind while typing | nothing yet | Low: the folder mirror is not built |
 | Typing | Every keystroke renders within one frame (16 ms) | nothing yet | Low: no test times a keystroke at the design size |
-| Movement | A focus or level change takes under 100 ms | nothing yet | Low: no test times a move at the design size; [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) measured one once, to decide how the graph is drawn |
+| Movement | A focus or level change starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | nothing yet | Low: no test times a move at the design size; [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) measured one once, to decide how the graph is drawn |
+| Motion | Motion meets WCAG 2.2 at AA, and stops when the writer's system asks for reduced motion (2.3.3), as the [motion standard](standards/motion.md) sets out | nothing yet | Low: nothing in the app moves yet |
 | Data | Filtering and querying the whole project takes under 100 ms | nothing yet | Low: no test times a query at the design size |
 | Start-up | Usable within 2 s, and fully offline after the first load | [`e2e/offline.spec.ts`](../e2e/offline.spec.ts) | Medium: offline is checked, the 2 s is not |
 | Fidelity | Prose survives the round trip to Markdown and back unchanged | nothing yet | Low: the Markdown round trip is not built |
