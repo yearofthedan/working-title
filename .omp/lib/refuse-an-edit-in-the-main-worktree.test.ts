@@ -247,6 +247,15 @@ describe('a shell write in a subagent', () => {
     ).toContain(join(main, 'out.txt'));
   });
 
+  it('refuses a >& whose word is more than a descriptor', () => {
+    expect(
+      reasonFor(aShellWrite('echo hi >& 2notes.txt', main), {
+        cwd: main,
+        sessionManager: subagent,
+      }),
+    ).toContain(join(main, '2notes.txt'));
+  });
+
   it('passes a target in an ignored path', () => {
     expect(
       refused(aShellWrite('echo hi > ignored/notes.md', main), {

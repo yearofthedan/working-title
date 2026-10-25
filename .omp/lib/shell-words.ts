@@ -36,6 +36,15 @@ const commandsIn = (line: string): Command[] => {
     while (line[at] === ' ' || line[at] === '\t') at += 1;
     return at;
   };
+  const wordAfterBlanks = (from: number): string => {
+    let at = afterBlanks(from);
+    let wordAfter = '';
+    while (at < line.length && !/[\s;|&<>()]/.test(line[at] as string)) {
+      wordAfter += line[at];
+      at += 1;
+    }
+    return wordAfter;
+  };
   const delimiterAfter = (from: number): string => {
     let at = afterBlanks(from);
     let delimiter = '';
@@ -80,7 +89,7 @@ const commandsIn = (line: string): Command[] => {
     const heredoc = line[start] === '<' && doubled && !ampersand;
     const tabs = heredoc && line[at] === '-';
     if (tabs) at += 1;
-    const copy = !ampersand && line[at] === '&' && /^[0-9-]/.test(line[afterBlanks(at + 1)] ?? '');
+    const copy = !ampersand && line[at] === '&' && /^[0-9-]+$/.test(wordAfterBlanks(at + 1));
     if (line[at] === '|' || line[at] === '&') at += 1;
     return { at, writes: writes && !copy, heredoc, tabs };
   };
