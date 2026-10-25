@@ -34,4 +34,4 @@ The forces that decided it were the review cost and the agreed text: the pattern
 - The tree normalises whitespace, so a facet's text as typed needs a value-level test: the storage round trip carries that, not the scenario file.
 - A runner must be able to hand the tree back and to write the file it read; a runner that could only compare would force a second way to approve.
 - Vitest browser mode needs Chromium installed wherever the tests run.
-- The harness and the entries sit outside the five layers `./do layers` covers, so what they may import is a convention rather than a check: nothing stops `e2e/journey.ts` importing the domain.
+- The harness and the entries sit outside the five layers `./do layers` covers, so the layers' rules on what may import what don't reach them.
