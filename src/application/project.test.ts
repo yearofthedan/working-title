@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { elaborate, newProject, type Project } from '../domain/project';
+import { elaborate, newProject, type Project, type StoredProject } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
 import { toyMethod } from '../test-helpers/toy-method';
@@ -8,7 +8,7 @@ import { openProject } from './project';
 const names = ['Root', 'Item 1', 'Item 2'];
 const typed = 'a title with "quotes" and a line\nbreak';
 
-const storeOf = (project?: Project): ProjectStore => ({
+const storeOf = (project?: StoredProject): ProjectStore => ({
   load: async () => project,
   save: async () => undefined,
 });
@@ -126,14 +126,17 @@ describe('opening a project', () => {
     expect(reopened.pieces[2]?.facets[0]?.text).toBe(typed);
   });
 
-  it('opens a save from before a kind could branch, its text kept and nothing under any piece', async () => {
-    const atVersion2 = { ...toyMethod, version: 2 };
-    const saved = elaborate(newProject(atVersion2, ids()), 'id-2', 'title', 'the first');
+  it('opens a version 1 save, its text kept and nothing under the pieces under the root', async () => {
+    const saved = {
+      method: 'toy',
+      version: 1,
+      root: { kind: 'root', facets: { note: 'the first' } },
+    };
 
-    const opened = await openProject(atVersion2, storeOf(saved), ids());
+    const opened = await openProject(toyMethod, storeOf(saved), ids());
 
     expect(opened.pieces.map(({ name }) => name)).toEqual(names);
-    expect(opened.pieces[1]?.facets[0]?.text).toBe('the first');
+    expect(opened.pieces[0]?.facets[0]?.text).toBe('the first');
     expect(opened.pieces[0]?.children.flatMap(({ children: under }) => under)).toEqual([]);
   });
 });
