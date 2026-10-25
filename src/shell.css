@@ -2,6 +2,9 @@
 @import './reset.css';
 
 body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   background: var(--color-background);
   color: var(--color-text);
@@ -19,6 +22,8 @@ header h1 {
 }
 
 main {
+  flex: 1;
+  min-height: 0;
   font-family: var(--font-prose);
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
