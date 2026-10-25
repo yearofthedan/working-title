@@ -45,4 +45,4 @@ Edges:
 
 ## Pointers
 
-<!-- Optional: links to the Architecture sections this story touches, one line each. -->
+<!-- Optional: links to the Architecture sections this story touches, one line each. Every link in this issue goes into the repo or to a public page an agent can read; a working idea from a chat moves into docs/ before an issue links to it. -->
