@@ -17,11 +17,15 @@ Everything below applies to both, with `Done when` in a task where a story has i
 
 A story exists to make one line of its epic's `Is` list true. Take the line, or the part of a line, that no story delivers yet, and quote it under `Delivers`. If you cannot name the line, there is nothing to write yet: ask which epic the story belongs to.
 
+When more than one line, or part of one, has no story yet, which comes next is the builder's call. List each with what it rests on, recommend one, and draft nothing until they choose.
+
 How to quote the line, or the part of it this story makes true, is in the template's `Delivers` comment.
 
 Fill the rest of the template as its own comments say: they are the authority on each section. What this skill decides is which line the story carries, and that the draft passes the checks below.
 
 ## Check the draft before showing it
+
+**Each rule holds under the product's principles and the method.** Before writing a rule, read the [design principles](../../../docs/product.md#design-principles) and the design of the method whose pieces it shows, in [`docs/domain/`](../../../docs/domain/). A rule a principle rules out, such as a stage that waits for another, is cut, or shown to the builder as a challenge to that principle.
 
 **Every rule has a basis today.** A rule that only holds once something a later story creates exists — a CI check before CI exists, a snapshot approval before there is a snapshot harness — belongs to that later story. Move it to that story's `Delivers` and name it here under `Is not`. A story's acceptance criteria are things this pull request can be judged against.
 
