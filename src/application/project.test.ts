@@ -1,17 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, type Project } from '../domain/project';
-import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
+import { ids } from '../test-helpers/ids';
+import { toyMethod } from '../test-helpers/toy-method';
 import { openProject } from './project';
 
-const ids = (): (() => string) => {
-  let made = 0;
-  return () => `id-${(made += 1)}`;
-};
-
-const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
-const names = ['The story', 'Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'];
-const typed = "Maren finds the ship's log and learns the sinking was no accident";
+const names = ['Root', 'Item 1', 'Item 2'];
+const typed = 'a title with "quotes" and a line\nbreak';
 
 const storeOf = (project?: Project): ProjectStore => ({
   load: async () => project,
@@ -29,37 +24,30 @@ const copyingStore = (): ProjectStore & { saved: () => Project | undefined } => 
   };
 };
 
-const beat2Of = (pieces: readonly { readonly id: string }[]): { readonly id: string } => {
-  const beat = pieces[2];
-  if (beat === undefined) throw new Error('the project has no beat 2');
-  return beat;
+const item2Of = (pieces: readonly { readonly id: string }[]): { readonly id: string } => {
+  const item = pieces[2];
+  if (item === undefined) throw new Error('the project has no item 2');
+  return item;
 };
 
 describe('opening a project', () => {
-  it('lists the story and its beats in order, named for what they are, each with an empty sentence', async () => {
-    const focus = await openProject(snowflakeExtended, storeOf(), ids());
+  it('lists the root and its children in order, named for what they are, each with an empty first facet', async () => {
+    const focus = await openProject(toyMethod, storeOf(), ids());
     expect(focus.pieces.map(({ name }) => name)).toEqual(names);
     expect(focus.pieces.map(({ facets }) => facets[0]?.text)).toEqual(names.map(() => ''));
   });
 
-  it('reads the sentence the story holds', async () => {
-    const started = elaborate(newProject(snowflakeExtended, ids()), 'id-1', summary, 'a sentence');
-    const focus = await openProject(snowflakeExtended, storeOf(started), ids());
-    expect(focus.pieces[0]?.facets[0]?.text).toBe('a sentence');
+  it('reads the text the root holds', async () => {
+    const started = elaborate(newProject(toyMethod, ids()), 'id-1', 'note', 'a note');
+    const focus = await openProject(toyMethod, storeOf(started), ids());
+    expect(focus.pieces[0]?.facets[0]?.text).toBe('a note');
   });
 
-  it('lists the story first and the beats by their order, however the store holds them', async () => {
-    const started = newProject(snowflakeExtended, ids());
+  it('lists the root first and its children by their order, however the store holds them', async () => {
+    const started = newProject(toyMethod, ids());
     const shuffled = { ...started, pieces: [...started.pieces].reverse() };
-    const focus = await openProject(snowflakeExtended, storeOf(shuffled), ids());
-    expect(focus.pieces.map(({ id }) => id)).toEqual([
-      'id-1',
-      'id-2',
-      'id-3',
-      'id-4',
-      'id-5',
-      'id-6',
-    ]);
+    const focus = await openProject(toyMethod, storeOf(shuffled), ids());
+    expect(focus.pieces.map(({ id }) => id)).toEqual(['id-1', 'id-2', 'id-3']);
     expect(focus.pieces.map(({ name }) => name)).toEqual(names);
   });
 
@@ -70,29 +58,26 @@ describe('opening a project', () => {
       },
       save: async () => undefined,
     };
-    await expect(openProject(snowflakeExtended, store, ids())).rejects.toThrow('is not a project');
+    await expect(openProject(toyMethod, store, ids())).rejects.toThrow('is not a project');
   });
 
-  it('saves the sentence typed into a beat under the ids the app mints, leaving the story and the other beats alone', async () => {
+  it('saves the text typed into a child under the ids the app mints, leaving the root and the other child alone', async () => {
     const store = copyingStore();
-    const focus = await openProject(snowflakeExtended, store);
-    await focus.elaborate(beat2Of(focus.pieces).id, summary, typed);
-    expect(store.saved()?.pieces.map(({ facets }) => facets[summary] ?? '')).toEqual([
+    const focus = await openProject(toyMethod, store);
+    await focus.elaborate(item2Of(focus.pieces).id, 'title', typed);
+    expect(store.saved()?.pieces.map(({ facets }) => facets['title'] ?? '')).toEqual([
       '',
       '',
       typed,
-      '',
-      '',
-      '',
     ]);
   });
 
-  it('reads the sentence back on the next open', async () => {
+  it('reads the text back on the next open', async () => {
     const store = copyingStore();
-    const first = await openProject(snowflakeExtended, store, ids());
-    await first.elaborate(beat2Of(first.pieces).id, summary, typed);
+    const first = await openProject(toyMethod, store, ids());
+    await first.elaborate(item2Of(first.pieces).id, 'title', typed);
 
-    const reopened = await openProject(snowflakeExtended, store, ids());
+    const reopened = await openProject(toyMethod, store, ids());
     expect(reopened.pieces[2]?.facets[0]?.text).toBe(typed);
   });
 });

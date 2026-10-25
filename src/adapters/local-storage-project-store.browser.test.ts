@@ -2,17 +2,13 @@ import { describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, readProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
+import { ids } from '../test-helpers/ids';
 import type { RawGlob } from '../test-helpers/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
 const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
 const saved = (): string | null => localStorage.getItem(key);
-
-const ids = (): (() => string) => {
-  let made = 0;
-  return () => `id-${(made += 1)}`;
-};
 
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());

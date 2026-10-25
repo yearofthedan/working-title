@@ -17,7 +17,7 @@ Project ── follows ──► Method: piece kinds, facets, stages
 
 ## Two vocabularies
 
-The **core** terms below name things every method has. They are the only words in domain and application code. The **method's own words** (novel, beat, scene, character, place) belong to one method. They appear only in that method's definition under `src/methods/`, its design page in `docs/domain/`, and in scenarios and UI text that show its pieces.
+The **core** terms below name things every method has. They are the only words in domain and application code. The **method's own words** (novel, beat, scene, character, place) belong to one method. In code they appear only in that method's definition under `src/methods/`, and in what shows or stores its pieces: scenarios, UI text, its saved data and the tests of those.
 
 ## Terms
 

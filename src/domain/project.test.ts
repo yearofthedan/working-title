@@ -1,35 +1,14 @@
 import { describe, expect, it } from 'vite-plus/test';
+import { ids } from '../test-helpers/ids';
+import { toyMethod } from '../test-helpers/toy-method';
 import {
   elaborate,
   isProject,
   isProjectFromVersion1,
   newProject,
   readProject,
-  type Method,
   type Project,
 } from './project';
-
-const ids = (): (() => string) => {
-  let made = 0;
-  return () => `id-${(made += 1)}`;
-};
-
-const toyMethod: Method = {
-  name: 'toy',
-  version: 1,
-  rootKind: { id: 'root', label: 'Root', facets: [{ id: 'note', label: 'Note' }] },
-  startingChildren: {
-    kind: {
-      id: 'item',
-      label: 'Item',
-      facets: [
-        { id: 'title', label: 'Title' },
-        { id: 'note', label: 'Note' },
-      ],
-    },
-    count: 2,
-  },
-};
 
 const project = (): Project => newProject(toyMethod, ids());
 
