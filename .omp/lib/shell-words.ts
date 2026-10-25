@@ -138,6 +138,10 @@ const commandsIn = (line: string): Command[] => {
   return commands;
 };
 
+/* shortcut: escapes, `$(…)` and `bash -c` hide a command from the callers of `wordsPerCommand`, which
+   read its words; a `<<` inside `$((…))` is read as a heredoc, so it skips the rest of the input; and
+   a process substitution of more than one word, such as `>(grep foo)`, is read as files, so it refuses
+   rather than letting a write through; read a hidden command once a session is seen to use one. */
 export const wordsPerCommand = (line: string): string[][] =>
   commandsIn(line)
     .map(({ words }) => words)
