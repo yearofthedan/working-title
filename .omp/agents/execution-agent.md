@@ -25,8 +25,9 @@ For each acceptance criterion or `Done when` line in the brief, in order — or,
 1. Write its test where the brief says it lands, and run it to see it fail for the reason it should.
 2. Write the least code that makes it pass. Follow the surrounding code's patterns.
 3. Run `./do check`. Do not commit past a failing check.
-4. Commit with the issue number leading the subject and your model in the trailer, as `docs/standards/commits.md` says: `git commit -m '<issue>: <what changed>' --trailer 'Agent-Model: <your model>'`.
-5. Push to the pull request's branch: `git push origin <branch>`.
+4. For a change the writer sees, run `./do screenshot` and read each image it writes to `screenshots/`. Your answer says what each image shows, and claims nothing about the look that no image shows.
+5. Commit with the issue number leading the subject and your model in the trailer, as `docs/standards/commits.md` says: `git commit -m '<issue>: <what changed>' --trailer 'Agent-Model: <your model>'`.
+6. Push to the pull request's branch: `git push origin <branch>`.
 
 ## Notes
 
