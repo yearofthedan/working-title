@@ -18,3 +18,13 @@ test('all text on the graph meets 4.5:1 contrast with long sentences in the stor
 
   expect(await writer.contrastViolations()).toEqual([]);
 });
+
+test("all text on the graph meets 4.5:1 contrast with a scene's long list line", async ({
+  writer,
+}) => {
+  await writer.opensTheApp();
+  await writer.scope.group('Beat 2').press('Add a scene');
+  await writer.scope.group('Beat 2').group('Scene 1').field('List line').enter(longSentence);
+
+  expect(await writer.contrastViolations()).toEqual([]);
+});

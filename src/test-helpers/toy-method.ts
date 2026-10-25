@@ -12,6 +12,7 @@ export const toyMethod: Method = {
         { id: 'title', label: 'Title' },
         { id: 'note', label: 'Note' },
       ],
+      childKind: { id: 'child', label: 'Child', facets: [{ id: 'note', label: 'Note' }] },
     },
     count: 2,
   },

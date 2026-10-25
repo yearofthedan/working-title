@@ -19,6 +19,8 @@ for width in 1440 1100; do
     "the new project at $width is a full-page $width by 900 shot"
   expect_vp_literal "playwright screenshot --viewport-size $width, 900 --full-page --load-storage $copy/scripts/_screenshot-long-sentences.json http://localhost:4174 $copy/screenshots/long-sentences-$width.png" \
     "the long sentences at $width load the storage file"
+  expect_vp_literal "playwright screenshot --viewport-size $width, 900 --full-page --load-storage $copy/scripts/_screenshot-eight-scenes.json http://localhost:4174 $copy/screenshots/eight-scenes-$width.png" \
+    "the eight scenes at $width load the storage file"
 done
 
 if [ -e "$copy/screenshots/stale.png" ]; then

@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:4174",
+      "localStorage": [
+        {
+          "name": "working-title:project",
+          "value": "{\"method\":\"snowflake-extended\",\"version\":2,\"pieces\":[{\"id\":\"story-1\",\"kind\":\"story\",\"parent\":null,\"order\":0,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"beat-1\",\"kind\":\"beat\",\"parent\":\"story-1\",\"order\":0,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"beat-2\",\"kind\":\"beat\",\"parent\":\"story-1\",\"order\":1,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"beat-3\",\"kind\":\"beat\",\"parent\":\"story-1\",\"order\":2,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"beat-4\",\"kind\":\"beat\",\"parent\":\"story-1\",\"order\":3,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"beat-5\",\"kind\":\"beat\",\"parent\":\"story-1\",\"order\":4,\"facets\":{\"one-sentence-summary\":\"\"}},{\"id\":\"scene-1\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":0,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-2\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":1,\"facets\":{\"list-line\":\"Maren bribes the harbourmaster for the log, then rows out past the bell buoy before first light, the chart weighted under a stone and the tide already turning.\"}},{\"id\":\"scene-3\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":2,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-4\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":3,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-5\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":4,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-6\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":5,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-7\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":6,\"facets\":{\"list-line\":\"\"}},{\"id\":\"scene-8\",\"kind\":\"scene\",\"parent\":\"beat-1\",\"order\":7,\"facets\":{\"list-line\":\"\"}}]}"
+        }
+      ]
+    }
+  ]
+}

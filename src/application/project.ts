@@ -1,4 +1,5 @@
 import {
+  branch as withBranch,
   elaborate as withFacet,
   newProject,
   readProject,
@@ -19,30 +20,47 @@ export interface PieceView {
   readonly id: string;
   readonly name: string;
   readonly facets: readonly FacetView[];
+  readonly children: readonly PieceView[];
+  readonly childKind?: string;
 }
 
 export interface Focus {
   readonly pieces: readonly PieceView[];
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
+  readonly branch: (pieceId: string) => Promise<{ readonly focus: Focus; readonly added: string }>;
 }
 
-const view = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
-  id: piece.id,
-  name,
-  facets: kind.facets.map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
-});
+const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
+  const withChildren = (kind: PieceKind): readonly PieceKind[] =>
+    kind.childKind === undefined ? [kind] : [kind, ...withChildren(kind.childKind)];
+  return new Map(
+    [method.rootKind, method.startingChildren.kind]
+      .flatMap(withChildren)
+      .map((kind): [string, PieceKind] => [kind.id, kind]),
+  );
+};
 
 // shortcut: a child is named for its kind and its place, until the method's own names arrive with their guidance in #4.
 const listed = (project: Project, method: Method): readonly PieceView[] => {
+  const kinds = kindsOf(method);
+
+  const listedUnder = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
+    id: piece.id,
+    name,
+    facets: kind.facets.map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
+    ...(kind.childKind === undefined ? {} : { childKind: kind.childKind.label }),
+    children: project.pieces
+      .filter(({ parent }) => parent === piece.id)
+      .sort((one, other) => one.order - other.order)
+      .map((child, at) => {
+        const childKind = kinds.get(child.kind)!;
+        return listedUnder(child, childKind, `${childKind.label} ${at + 1}`);
+      }),
+  });
+
   const root = project.pieces.find(({ parent }) => parent === null)!;
-  const children = project.pieces
-    .filter(({ parent }) => parent === root.id)
-    .sort((one, other) => one.order - other.order);
-  const { kind } = method.startingChildren;
-  return [
-    view(root, method.rootKind, method.rootKind.label),
-    ...children.map((piece, at) => view(piece, kind, `${kind.label} ${at + 1}`)),
-  ];
+  const story = listedUnder(root, method.rootKind, method.rootKind.label);
+  return [story, ...story.children];
 };
 
 export const openProject = async (
@@ -50,13 +68,26 @@ export const openProject = async (
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<Focus> => {
-  const project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
+  let project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
   const save = () => store.save(project);
-  return {
+
+  const focusOf = (): Focus => ({
     pieces: listed(project, method),
+
     elaborate: (pieceId, facetId, text) => {
-      Object.assign(project, withFacet(project, pieceId, facetId, text));
+      project = withFacet(project, pieceId, facetId, text);
       return save();
     },
-  };
+
+    branch: async (pieceId) => {
+      const piece = project.pieces.find(({ id }) => id === pieceId)!;
+      const kind = kindsOf(method).get(piece.kind)!.childKind!;
+      const id = newId();
+      project = withBranch(project, pieceId, kind, id);
+      await save();
+      return { focus: focusOf(), added: id };
+    },
+  });
+
+  return focusOf();
 };

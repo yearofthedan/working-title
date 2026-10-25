@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { ids } from '../test-helpers/ids';
 import { toyMethod } from '../test-helpers/toy-method';
 import {
+  branch,
   elaborate,
   isProject,
   isProjectFromVersion1,
@@ -36,6 +37,24 @@ describe('elaborate', () => {
       { id: 'id-1', kind: 'root', parent: null, order: 0, facets: { note: 'the root' } },
       { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: { title: 'the first' } },
       { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: { note: 'the second' } },
+    ]);
+  });
+});
+
+describe('branch', () => {
+  it('adds a piece under its parent, after the pieces already under it, leaving every other piece alone', () => {
+    const childKind = toyMethod.startingChildren.kind.childKind!;
+    const one = branch(project(), 'id-2', childKind, 'id-4');
+    const two = branch(one, 'id-2', childKind, 'id-5');
+
+    expect(one.pieces).toEqual([
+      ...everyPiece,
+      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
+    ]);
+    expect(two.pieces).toEqual([
+      ...everyPiece,
+      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'id-5', kind: 'child', parent: 'id-2', order: 1, facets: {} },
     ]);
   });
 });

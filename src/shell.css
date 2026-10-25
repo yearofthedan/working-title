@@ -61,7 +61,7 @@ main {
     background: var(--color-surface);
   }
 
-  legend :is(h2, h3) {
+  legend :is(h2, h3, h4) {
     font-family: var(--font-interface);
     font-size: var(--text-interface);
     font-weight: 600;
@@ -174,5 +174,52 @@ main {
     left: 50%;
     height: var(--space-6);
     border-left: 1px solid var(--color-line);
+  }
+
+  button {
+    margin-top: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  ol > li:has(> fieldset > ol) {
+    flex: none;
+    container-type: normal;
+  }
+
+  ol > li:has(> fieldset > ol) > fieldset {
+    --card: 12rem;
+  }
+
+  ol > li > fieldset > ol > li {
+    flex: none;
+    width: 7.5rem;
+    min-width: 0;
+    container-type: normal;
+  }
+
+  /* shortcut: a scene's list line is clamped with the prefixed property, since neither -webkit-line-clamp nor line-clamp cuts a textarea short without the legacy box display; upgrade it when a clamp works on form controls. */
+  ol > li > fieldset > ol > li .facet textarea {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  ol > li > fieldset > ol > li .facet textarea:focus {
+    -webkit-line-clamp: none;
   }
 }

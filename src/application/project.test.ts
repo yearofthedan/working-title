@@ -72,6 +72,51 @@ describe('opening a project', () => {
     ]);
   });
 
+  it('branches under a piece, saving the new piece after the ones already under it', async () => {
+    const store = copyingStore();
+    const opened = await openProject(toyMethod, store, ids());
+
+    const one = await opened.branch('id-2');
+    const two = await one.focus.branch('id-2');
+    const elsewhere = await two.focus.branch('id-3');
+
+    expect([one.added, two.added, elsewhere.added]).toEqual(['id-4', 'id-5', 'id-6']);
+    expect(store.saved()?.pieces).toEqual([
+      { id: 'id-1', kind: 'root', parent: null, order: 0, facets: {} },
+      { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: {} },
+      { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: {} },
+      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'id-5', kind: 'child', parent: 'id-2', order: 1, facets: {} },
+      { id: 'id-6', kind: 'child', parent: 'id-3', order: 0, facets: {} },
+    ]);
+  });
+
+  it('lists the new pieces under their own parent, in order, numbered within that parent', async () => {
+    const opened = await openProject(toyMethod, storeOf(), ids());
+    const one = await opened.branch('id-2');
+    const two = await one.focus.branch('id-2');
+    const elsewhere = await two.focus.branch('id-3');
+
+    expect(two.focus.pieces.map(({ name }) => name)).toEqual(names);
+    expect(two.focus.pieces.map(({ children }) => children.map(({ name }) => name))).toEqual([
+      ['Item 1', 'Item 2'],
+      ['Child 1', 'Child 2'],
+      [],
+    ]);
+    expect(elsewhere.focus.pieces[2]?.children.map(({ name }) => name)).toEqual(['Child 1']);
+    expect(two.focus.pieces[1]?.children[0]).toEqual({
+      id: 'id-4',
+      name: 'Child 1',
+      facets: [{ id: 'note', label: 'Note', text: '' }],
+      children: [],
+    });
+    expect(two.focus.pieces.map(({ childKind }) => childKind)).toEqual([
+      undefined,
+      'Child',
+      'Child',
+    ]);
+  });
+
   it('reads the text back on the next open', async () => {
     const store = copyingStore();
     const first = await openProject(toyMethod, store, ids());
@@ -79,5 +124,16 @@ describe('opening a project', () => {
 
     const reopened = await openProject(toyMethod, store, ids());
     expect(reopened.pieces[2]?.facets[0]?.text).toBe(typed);
+  });
+
+  it('opens a save from before a kind could branch, its text kept and nothing under any piece', async () => {
+    const atVersion2 = { ...toyMethod, version: 2 };
+    const saved = elaborate(newProject(atVersion2, ids()), 'id-2', 'title', 'the first');
+
+    const opened = await openProject(atVersion2, storeOf(saved), ids());
+
+    expect(opened.pieces.map(({ name }) => name)).toEqual(names);
+    expect(opened.pieces[1]?.facets[0]?.text).toBe('the first');
+    expect(opened.pieces[0]?.children.flatMap(({ children: under }) => under)).toEqual([]);
   });
 });
