@@ -48,6 +48,7 @@ const pieceGroup = (piece: PieceView, level: number, focus: Focus, add: Adding):
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = `Add a ${piece.childKind.toLowerCase()}`;
+    button.addEventListener('mousedown', (event) => event.preventDefault());
     button.addEventListener('click', () => add(piece.id));
     group.append(button);
   }

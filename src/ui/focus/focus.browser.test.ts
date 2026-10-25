@@ -22,11 +22,11 @@ const sceneAt = (at: number): PieceView => ({
 
 const sixScenes = [1, 2, 3, 4, 5, 6].map(sceneAt);
 
-const focusOn = (under: readonly PieceView[], storyText = ''): Focus => {
+const focusOn = (under: readonly PieceView[], storyText = '', beatText = ''): Focus => {
   const beat: PieceView = {
     id: 'beat-1',
     name: 'Beat 1',
-    facets: [{ ...facet, text: '' }],
+    facets: [{ ...facet, text: beatText }],
     childKind: 'Scene',
     children: under,
   };
@@ -48,7 +48,11 @@ const focusOn = (under: readonly PieceView[], storyText = ''): Focus => {
 
 const pageWith = (
   under: readonly PieceView[],
-  { storyText = '', pane = '20rem' }: { storyText?: string; pane?: string } = {},
+  {
+    storyText = '',
+    beatText = '',
+    pane = '20rem',
+  }: { storyText?: string; beatText?: string; pane?: string } = {},
 ): PageScope =>
   browserScope(async () => {
     await browser.page.viewport(1440, 900);
@@ -56,7 +60,7 @@ const pageWith = (
     const main = document.createElement('main');
     main.style.width = pane;
     document.body.append(main);
-    renderFocus(main, focusOn(under, storyText));
+    renderFocus(main, focusOn(under, storyText, beatText));
   });
 
 const pane = (): HTMLElement => document.querySelector('main')!;
@@ -224,6 +228,19 @@ describe('adding a scene', () => {
     expect(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)).toBe(
       button,
     );
+
+    await scope.group('Beat 1').press('Add a scene');
+    await until(() => sceneCard('Scene 1') !== undefined);
+
+    expect(sceneCard('Scene 1')).toBeDefined();
+  });
+
+  it('adds a scene when the pointer presses on a beat whose sentence runs past the card', async () => {
+    const scope = pageWith([], {
+      beatText:
+        'Maren bribes the harbourmaster, then waits for the tide to turn before she rows out past the breakwater at first light, and the lamp on the headland goes dark behind her as the current takes the boat sideways toward the shoal.',
+    });
+    await scope.fresh();
 
     await scope.group('Beat 1').press('Add a scene');
     await until(() => sceneCard('Scene 1') !== undefined);
