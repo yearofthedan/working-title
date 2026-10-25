@@ -30,11 +30,9 @@ const commandsIn = (line: string): Command[] => {
     const writes = line[start] === '>';
     let at = start + 1;
     if (line[at] === line[start]) at += 1;
-    if (line[at] === '|') return { at: at + 1, writes };
-    if (!ampersand && line[at] === '&') {
-      return { at: at + 1, writes: writes && !/^[0-9-]/.test(line[at + 1] ?? '') };
-    }
-    return { at, writes };
+    const copy = !ampersand && line[at] === '&' && /^[0-9-]/.test(line[at + 1] ?? '');
+    if (line[at] === '|' || line[at] === '&') at += 1;
+    return { at, writes: writes && !copy };
   };
   for (let index = 0; index < line.length; index += 1) {
     const character = line[index] as string;
