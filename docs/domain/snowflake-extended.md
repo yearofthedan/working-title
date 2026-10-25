@@ -15,12 +15,12 @@
 
 ## Stages
 
-Ten stages, in the order the writer meets them.
+The method has ten stages, listed in the order the writer meets them.
 
 | # | Stage | Kind | Needs |
 | --- | --- | --- | --- |
 | 1 | Story sentence | Elaborate story | Nothing |
-| 2 | Beats | Branch story into beats, starting with five, each seeded with a sentence | The story's one-sentence summary |
+| 2 | Beats | Branch story into beats, starting with five, each seeded with a one-sentence summary | The story's one-sentence summary |
 | 3 | Beat paragraph | Elaborate beat | Its own one-sentence summary |
 | 4 | Beat page | Elaborate beat | Its own paragraph |
 | 5 | Scenes | Branch beat into scenes, each with a list line | Its beat's page |
