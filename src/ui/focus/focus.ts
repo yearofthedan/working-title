@@ -348,7 +348,6 @@ const onKeyDown = (event: KeyboardEvent): void => {
     st.cards.get(st.at)?.focus({ preventScroll: true });
     return;
   }
-  if (target instanceof HTMLElement && target.closest('button') !== null) return;
 
   const where = arrowKeys[event.key];
   if (where !== undefined) {

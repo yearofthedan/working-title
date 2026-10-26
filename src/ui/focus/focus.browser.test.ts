@@ -335,6 +335,47 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('Scene 2');
   });
 
+  it('moves the focus with → from a sibling’s name button', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 3').click();
+
+    named('chip', 'Beat 1').querySelector('button')!.focus();
+    await scope.press('ArrowRight');
+
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(document.activeElement).toBe(focused());
+  });
+
+  it('moves the focus with ↓ from the add button', async () => {
+    const scope = pageWith(1);
+    await scope.fresh();
+    await scope.group('Beat 4').click();
+
+    const add = focused().querySelector('button')!;
+    expect(add.textContent).toBe('Add a scene');
+    add.focus();
+    await scope.press('ArrowDown');
+
+    expect(nameOf(focused())).toBe('Scene 1');
+    expect(document.activeElement).toBe(focused());
+  });
+
+  it('still presses a name button with Enter and with Space', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 3').click();
+
+    named('chip', 'Beat 1').querySelector('button')!.focus();
+    await scope.press('Enter');
+    expect(nameOf(focused())).toBe('Beat 1');
+
+    await scope.group('Beat 3').click();
+    named('chip', 'Beat 5').querySelector('button')!.focus();
+    await scope.press('Space');
+    expect(nameOf(focused())).toBe('Beat 5');
+  });
+
   it('leaves the focus where it is while the cursor is in a sentence', async () => {
     const scope = pageWith();
     await scope.fresh();
