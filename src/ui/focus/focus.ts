@@ -256,17 +256,18 @@ const place = (st: State): void => {
   const focus = st.cards.get(st.at)!;
   const focusWidth = widthOf(st, st.at);
 
-  let top = 0;
-  if (parentId !== undefined) {
-    const parent = st.cards.get(parentId)!;
-    parent.style.left = `${centre - widthOf(st, parentId) / 2}px`;
-    parent.style.top = '0px';
-    top = parent.offsetHeight + ROW_GAP;
-  }
+  const focusHeight = focus.offsetHeight;
+  const top = st.main.clientHeight / 2 - focusHeight / 2;
 
   focus.style.left = `${centre - focusWidth / 2}px`;
   focus.style.top = `${top}px`;
-  const focusHeight = focus.offsetHeight;
+
+  if (parentId !== undefined) {
+    const parent = st.cards.get(parentId)!;
+    parent.style.left = `${centre - widthOf(st, parentId) / 2}px`;
+    parent.style.top = `${top - ROW_GAP - parent.offsetHeight}px`;
+  }
+
   const below = top + focusHeight + ROW_GAP;
 
   const children = childrenOf(st, st.at);

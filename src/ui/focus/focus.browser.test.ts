@@ -93,14 +93,14 @@ describe('the focus page', () => {
     expect(drawnOn(focused(), theStory)).toBe(1);
   });
 
-  it("draws a card's text in the colour of the field it shows", async () => {
+  it("draws a card's sentence in the muted colour", async () => {
     const scope = pageWith();
     await scope.fresh();
 
     const layer = document.querySelector('.card .facet .shown')!;
-    const field = document.querySelector('.card .facet textarea')!;
+    const label = document.querySelector('.card .facet label')!;
 
-    expect(getComputedStyle(layer).color).toBe(getComputedStyle(field).color);
+    expect(getComputedStyle(layer).color).toBe(getComputedStyle(label).color);
   });
 });
 
@@ -262,6 +262,71 @@ describe('the graph around the focus', () => {
     const rowTop = Math.min(...children.map((card) => card.getBoundingClientRect().top));
     expect(rowTop).toBeGreaterThanOrEqual(focused().getBoundingClientRect().bottom);
   });
+
+  it.each([1440, 1100])(
+    'centres the focus row in main, with the parent inside it, at %i px',
+    async (width) => {
+      const scope = pageWith(0, width);
+      await scope.fresh();
+      await scope.group('Beat 2').click();
+
+      const bounds = pane().getBoundingClientRect();
+      const box = focused().getBoundingClientRect();
+      expect(box.top + box.height / 2).toBeCloseTo(bounds.top + bounds.height / 2, 0);
+
+      const parent = named('card', 'The story').getBoundingClientRect();
+      expect(parent.top).toBeGreaterThanOrEqual(bounds.top);
+      expect(parent.bottom).toBeLessThanOrEqual(bounds.bottom);
+    },
+  );
+
+  it('shows a card’s sentence small and in the interface font', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const card = named('card', 'The story');
+    const sentence = getComputedStyle(card.querySelector('.shown')!);
+    const name = getComputedStyle(card.querySelector('h2, h3, h4')!);
+    const focus = getComputedStyle(focused().querySelector('textarea')!);
+
+    expect(Number.parseFloat(sentence.fontSize)).toBeLessThan(Number.parseFloat(focus.fontSize));
+    expect(sentence.fontFamily).toBe(name.fontFamily);
+  });
+
+  it('draws a chip sized to its name, with the name whole inside it', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 3').click();
+
+    const chip = named('chip', 'Beat 1');
+    const legend = chip.querySelector('legend')!;
+    const box = legend.getBoundingClientRect();
+    const inside = {
+      top: box.top + legend.clientTop,
+      bottom: box.top + legend.clientTop + legend.clientHeight,
+    };
+    const name = chip.querySelector('h2, h3, h4')!.getBoundingClientRect();
+
+    expect(name.top).toBeGreaterThanOrEqual(inside.top);
+    expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
+    expect(box.width).toBeLessThan(180);
+  });
+
+  it('keeps the add button inside the focus card', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const card = focused();
+    const body = card.querySelector('.facet')!.getBoundingClientRect();
+    const button = [...card.querySelectorAll('button')]
+      .find((one) => one.textContent === 'Add a scene')!
+      .getBoundingClientRect();
+
+    expect(button.top).toBeGreaterThanOrEqual(body.top);
+    expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+  });
 });
 
 describe('moving the focus', () => {
@@ -333,40 +398,6 @@ describe('moving the focus', () => {
 
     await scope.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 2');
-  });
-
-  it('draws a chip sized to its name, with the name whole inside it', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
-
-    const chip = named('chip', 'Beat 1');
-    const legend = chip.querySelector('legend')!;
-    const box = legend.getBoundingClientRect();
-    const inside = {
-      top: box.top + legend.clientTop,
-      bottom: box.top + legend.clientTop + legend.clientHeight,
-    };
-    const name = chip.querySelector('h2, h3, h4')!.getBoundingClientRect();
-
-    expect(name.top).toBeGreaterThanOrEqual(inside.top);
-    expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
-    expect(box.width).toBeLessThan(180);
-  });
-
-  it('keeps the add button inside the focus card', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-
-    const card = focused();
-    const body = card.querySelector('.facet')!.getBoundingClientRect();
-    const button = [...card.querySelectorAll('button')]
-      .find((one) => one.textContent === 'Add a scene')!
-      .getBoundingClientRect();
-
-    expect(button.top).toBeGreaterThanOrEqual(body.top);
-    expect(button.bottom).toBeLessThanOrEqual(body.bottom);
   });
 
   it('moves the focus with → from a sibling’s name button', async () => {

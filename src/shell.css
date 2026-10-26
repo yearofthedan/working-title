@@ -213,6 +213,12 @@ main {
     display: none;
   }
 
+  .card .shown {
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
   .card:has(.facet textarea:focus) .facet textarea {
     height: auto;
     min-height: 2lh;
