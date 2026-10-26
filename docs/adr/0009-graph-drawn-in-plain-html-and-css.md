@@ -21,13 +21,13 @@ How is the graph drawn?
 
 ## Decision
 
-The graph is plain HTML and CSS: every piece is one `fieldset` holding its name and its facets, and the UI module writes each one a width, a position and a class for the part it plays around the focus. No framework and no layout library draw any of it.
+The graph is absolute-positioned HTML, without the SVG lines: every piece is one `fieldset` holding its name and its facets, kept on the page, and the UI module writes each one a width, a position and a class. No framework and no layout library draw any of it.
 
-The accessibility tree decided it. React Flow wraps the graph in an `application` role and gives every piece an unnamed `group`, both against the markup standard, so it lost whatever it gains elsewhere. The movement target separates neither of the plain-HTML options: both are far inside 100 ms at the design size. Room for later needs then separates neither: what the graph shows around the focus is a set of pieces the UI module already holds — the focus, its parent, its siblings and its children — so it keeps no coordinate in step with anything else, and a framework's own bundle and release schedule buy it nothing.
+The accessibility tree decided against React Flow. It wraps the graph in an `application` role and gives every piece an unnamed `group`, both against the markup standard, so it lost whatever it gains elsewhere. The movement target separates neither of the plain-HTML options: both are far inside 100 ms at the design size. Room for later needs chose between them: the positioned option keeps a position per piece, which a layout that places each piece afresh on every move needs, and which nested markup does not have.
 
 ## Consequences
 
 - A piece is a `fieldset` with a `legend` and its facets, the same at every level: the beats of this story and the scenes of a later one arrive the same way.
-- A move recomputes each piece's width, position and kind and writes them in place, so the arrangement is the UI module's alone: nothing about it is stored, and nothing is rebuilt to move the focus.
+- A move recomputes each piece's width, position and class and writes them in place, so nothing is rebuilt to move a piece, and a change of position or size can be animated by CSS.
 - The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. A width or a position is not in the tree a scenario records, so the browser test measures those.
 - Ruled out: a framework or layout library for the graph, and its bundle on the first load.
