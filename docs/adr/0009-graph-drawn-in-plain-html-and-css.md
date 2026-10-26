@@ -27,7 +27,7 @@ The accessibility tree decided against React Flow. It wraps the graph in an `app
 
 ## Consequences
 
-- A piece is a `fieldset` with a `legend` and its facets, the same at every level: the beats of this story and the scenes of a later one arrive the same way.
-- A move recomputes each piece's width, position and class and writes them in place, so nothing is rebuilt to move a piece, and a change of position or size can be animated by CSS.
+- Every piece keeps a position the UI works out, so a move can be animated on the same elements, with nothing rebuilt.
+- The UI keeps a layout pass in step with the tree, the window's size and each card's size: work CSS layout did before.
 - The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. A width or a position is not in the tree a scenario records, so the browser test measures those.
 - Ruled out: a framework or layout library for the graph, and its bundle on the first load.

@@ -5,14 +5,28 @@
 
 - **A test sits beside the code it tests**, named after it: `piece.test.ts` beside `piece.ts`, `scripts/audit.test.sh` beside `scripts/audit`.
 - **Browser specs of the built app are in `e2e/`**, as `<name>.spec.ts`, and run in Playwright ([ADR 7](../adr/0007-playwright-for-browser-specs.md)). They drive the whole app, so no one file is theirs.
-- **A spec drives the app through the writer driver**, `e2e/writer.ts`: its `writer` fixture names what the writer does, in the [ubiquitous language](../domain/ubiquitous-language.md), and hands out the scope a scenario's part reaches the page through. The names it finds by are [the markup standard's](markup.md): an element says what the thing is, and its name means something to the writer hearing it. Lint fails a call to any element-finding API in `e2e/`, and in the driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so the driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
 - **The folder decides which spec runner runs a file**: Playwright runs only `e2e/` (`playwright.config.ts`), and Vitest runs every `*.test.*` and `*.spec.*` outside it, by [its default include](https://vitest.dev/config/include) with `e2e/` excluded in `vite.config.ts`. A test that needs a browser says so in its name — `*.browser.test.ts` — and the browser project takes those wherever they sit, because a file neither project matches runs nowhere and passes.
 - `./do test` runs the tests, `./do e2e` the browser specs, and `./do check` every local check, the tests and the specs among them. A shell suite beside a task runs under `./do test`, and so under `./do check`: `do.test.ts` spawns each one. What the checks are is `scripts/check`, which is what `./do` lists.
 - **Every commit runs the checks first**: all of them, or only the docs, links and names checks for a change to Markdown alone outside `src/` and `e2e/`. An agent's commit that would skip them is refused.
 
+## The layers
+
+A spec drives the app through the language, over a driver, so what it says is the writer's words and what it touches is one file. The code that plays a scenario sits in one of four layers:
+
+| Layer | File | Holds |
+| --- | --- | --- |
+| Language | `src/ui/focus/focus.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase is one line calling it |
+| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
+| Protocol driver | `src/test-helpers/vitest-browser.driver.ts`, `src/test-helpers/playwright.driver.ts` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
+| Spec fixture | `e2e/writer.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver |
+
+- **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver or the contract: a test, another language file, a driver and `src/test-helpers/` are what may. `./do layers` refuses the rest.
+- **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
+- **Only a driver finds an element**, by role or label, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a call to any element-finding API in `e2e/`, in a browser test and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
+
 ## Levels and names
 
-- **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, the writer driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
+- **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
 - **Where a test lives follows from what it is about**: a journey through the whole built app is a scenario file in `e2e/`, played by Playwright; behaviour within one page is a scenario file in the page's `scenarios/` folder, played in Vitest browser mode; a logic contract is a `describe`/`it` test beside the code.
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
 - **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
