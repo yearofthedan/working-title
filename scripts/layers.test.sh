@@ -96,4 +96,64 @@ run_layers
 allowed "imports that point inward are allowed"
 not_out 'error' "nothing is reported where there is nothing to refuse"
 
+rm -rf "$project/src"
+write src/test-helpers/driver.ts 'export interface Driver { fresh(): Promise<void> }'
+write src/test-helpers/playwright.driver.ts "import type { Driver } from './driver';
+export const playwrightDriver = (): Driver => ({ fresh: async () => undefined });"
+write src/test-helpers/vitest-browser.driver.ts "import type { Driver } from './driver';
+export const vitestBrowserDriver = (): Driver => ({ fresh: async () => undefined });"
+write src/test-helpers/steps.ts 'export type StepAction = () => void;'
+write src/ui/focus/focus.dsl.ts "import type { Driver } from '../../test-helpers/driver';
+export const writerOn = (driver: Driver): Driver => driver;"
+run_layers
+allowed "a language file on the driver contract, and the drivers under it, are allowed"
+
+write src/ui/focus/focus.dsl.ts "import type { StepAction } from '../../test-helpers/steps';
+export const steps = (): StepAction => () => undefined;"
+run_layers
+refused "a language file that does not import the driver contract is refused"
+expect_out 'dsl-on-the-driver-contract: src/ui/focus/focus.dsl.ts' "the file that skips the contract is named"
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+write src/ui/focus/focus.dsl.ts "import type { Driver } from '../../test-helpers/driver';
+import { playwrightDriver } from '../../test-helpers/playwright.driver';
+export const writerOn = (driver: Driver): unknown => playwrightDriver;"
+run_layers
+refused "a language file importing a protocol driver is refused"
+expect_out 'dsl-not-on-a-driver: src/ui/focus/focus.dsl.ts → src/test-helpers/playwright.driver.ts' \
+  "the driver it reached is shown"
+
+write src/ui/focus/story-page.ts "import { writerOn } from './focus.dsl';
+export const page = writerOn;"
+run_layers
+refused "a file outside the scenario layers importing a language file is refused"
+expect_out 'scenario-code-in-test-helpers: src/ui/focus/story-page.ts → src/ui/focus/focus.dsl.ts' \
+  "the language file it reached is shown"
+
+rm -rf "$project/src"
+write src/test-helpers/driver.ts 'export interface Driver { fresh(): Promise<void> }'
+write src/ui/focus/focus.dsl.ts "import type { Driver } from '../../test-helpers/driver';
+export const writerOn = (driver: Driver): Driver => driver;"
+write src/ui/focus/focus.dsl.browser.test.ts "import { writerOn } from './focus.dsl';
+export const judge = writerOn;"
+write src/test-helpers/runner.ts "import { writerOn } from '../ui/focus/focus.dsl';
+export const run = writerOn;"
+run_layers
+allowed "a test file and src/test-helpers/ reach a language file"
+not_out 'error' "nothing is reported where the scenario layers keep to themselves"
+
+write e2e/journey.dsl.ts "import type { StepAction } from '../src/test-helpers/steps';
+export const steps = (): StepAction => () => undefined;"
+run_layers
+refused "a journey language file that does not import the driver contract is refused"
+expect_out 'dsl-on-the-driver-contract: e2e/journey.dsl.ts' "the language file in e2e/ is named"
+
+write e2e/journey.dsl.ts "import type { Driver } from '../src/test-helpers/driver';
+export const journeyOn = (driver: Driver): Driver => driver;"
+write e2e/journey.spec.ts "import { journeyOn } from './journey.dsl';
+export const journey = journeyOn;"
+run_layers
+allowed "the journey language on the driver contract is allowed, and a spec reaches it"
+not_out 'error' "nothing is reported of e2e/ keeping to the contract"
+
 finish

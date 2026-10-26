@@ -1,24 +1,25 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { browserScope } from '../../test-helpers/browser-scope';
-import type { PageScope } from '../../test-helpers/scope';
+import type { Driver } from '../../test-helpers/driver';
 import { openTheApp, thePage } from '../../test-helpers/the-app';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { writerOn, type Writer } from './focus.dsl';
 
 const stored = 'working-title:project';
 
-const pageWith = (scenes = 0, width = 1440): PageScope => {
-  const scope = browserScope(async () => {
+const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
+  const driver = vitestBrowserDriver(async () => {
     localStorage.clear();
     const main = await thePage(width);
     await openTheApp(main);
     if (scenes === 0) return;
+    const writer = writerOn(driver);
     for (let at = 0; at < scenes; at += 1) {
-      await scope.group('Beat 4').click();
-      await scope.group('Beat 4').press('Add a scene');
+      await writer.addsASceneUnder('Beat 4');
     }
     await openTheApp(main);
   });
-  return scope;
+  return { driver, writer: writerOn(driver) };
 };
 
 const pane = (): HTMLElement => document.querySelector('main')!;
@@ -75,27 +76,27 @@ const laidOut = (): Promise<void> => {
 
 describe('the focus page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
 
-    await scope.group('The story').field('One-sentence summary').enter('A wid');
+    await writer.types('A wid', { piece: 'The story', facet: 'One-sentence summary' });
     expect(localStorage.getItem(stored)).toContain('A wid');
 
-    await scope.group('The story').field('One-sentence summary').enter(theStory);
+    await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
     expect(localStorage.getItem(stored)).toContain(theStory);
   });
 
   it('draws the sentence on the focus card once', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('The story').field('One-sentence summary').enter(theStory);
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
 
     expect(drawnOn(focused(), theStory)).toBe(1);
   });
 
   it("draws a card's sentence in the muted colour", async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver } = pageWith();
+    await driver.fresh();
 
     const layer = document.querySelector('.card .facet .shown')!;
     const label = document.querySelector('.card .facet label')!;
@@ -106,22 +107,20 @@ describe('the focus page', () => {
 
 describe('the graph around the focus', () => {
   it.each([1440, 1100])('draws the focus card 560 px wide and centred at %i px', async (width) => {
-    const scope = pageWith(0, width);
-    await scope.fresh();
+    const { driver } = pageWith(0, width);
+    await driver.fresh();
 
     expect(focused().getBoundingClientRect().width).toBe(560);
     expect(centreOf(focused())).toBeCloseTo(centreOf(pane()), 0);
   });
 
   it('shows the whole sentence on the focus card, and fits its height to what it holds', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope
-      .group('The story')
-      .field('One-sentence summary')
-      .enter(
-        'A widowed lighthouse keeper trades her last winter of fuel for a stranger\u2019s chart, then finds the chart leads back to the harbour where her husband\u2019s boat went down.',
-      );
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.types(
+      'A widowed lighthouse keeper trades her last winter of fuel for a stranger\u2019s chart, then finds the chart leads back to the harbour where her husband\u2019s boat went down.',
+      { piece: 'The story', facet: 'One-sentence summary' },
+    );
 
     const field = focused().querySelector('textarea')!;
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
@@ -131,9 +130,9 @@ describe('the graph around the focus', () => {
   });
 
   it('puts the parent straight above the focus and the children in a row under it', async () => {
-    const scope = pageWith(2);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
     const focus = focused();
     const parent = named('card', 'The story');
@@ -154,9 +153,9 @@ describe('the graph around the focus', () => {
   });
 
   it('centres a row of eight scenes under the focus, inside main at 1440 px', async () => {
-    const scope = pageWith(8, 1440);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(8, 1440);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     expect(children).toHaveLength(8);
@@ -168,9 +167,9 @@ describe('the graph around the focus', () => {
   });
 
   it('cuts a row of eight scenes off evenly at both edges at 1100 px', async () => {
-    const scope = pageWith(8, 1100);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     const bounds = pane().getBoundingClientRect();
@@ -181,9 +180,9 @@ describe('the graph around the focus', () => {
   });
 
   it('puts the earlier siblings left of the focus and the later ones right, on its row', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
 
     const focus = focused();
     const box = focus.getBoundingClientRect();
@@ -199,23 +198,23 @@ describe('the graph around the focus', () => {
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
-    const scope = pageWith(8);
-    await scope.fresh();
-    await scope.group('The story').click();
+    const { driver, writer } = pageWith(8);
+    await driver.fresh();
+    await writer.clicks('The story');
 
     expect(cards('hidden')).toHaveLength(8);
-    expect((await scope.tree()).join('\n')).not.toContain('Scene');
+    expect((await driver.tree()).join('\n')).not.toContain('Scene');
 
     for (let at = 0; at < 12; at += 1) {
-      await scope.press('Tab');
+      await driver.press('Tab');
       expect(document.activeElement?.closest('fieldset.hidden') ?? null).toBeNull();
     }
   });
 
   it("marks each piece's depth in its heading, and the focus with aria-current", async () => {
-    const scope = pageWith(2);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
     const level = (name: string): string =>
       [...document.querySelectorAll<HTMLElement>('main fieldset')]
@@ -233,8 +232,8 @@ describe('the graph around the focus', () => {
   });
 
   it('keeps the focus card whole and centred when main narrows, with no move', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver } = pageWith();
+    await driver.fresh();
 
     for (const width of [720, 320]) {
       pane().style.width = `${width}px`;
@@ -249,12 +248,12 @@ describe('the graph around the focus', () => {
   });
 
   it('keeps the children under the focus card as its sentence grows while the writer types', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
     const sentence =
       'She rows out before first light with the chart weighted under a stone, and finds a buoy ringing a bell nobody hung there, its rope still wet from a hand that had no business tying it.';
 
-    await scope.group('The story').field('One-sentence summary').enter(sentence);
+    await writer.types(sentence, { piece: 'The story', facet: 'One-sentence summary' });
     await laidOut();
 
     const children = cards('card');
@@ -266,9 +265,9 @@ describe('the graph around the focus', () => {
   it.each([1440, 1100])(
     'centres the focus row on the window, with the parent inside it, at %i px',
     async (width) => {
-      const scope = pageWith(0, width);
-      await scope.fresh();
-      await scope.group('Beat 2').click();
+      const { driver, writer } = pageWith(0, width);
+      await driver.fresh();
+      await writer.clicks('Beat 2');
 
       const bounds = pane().getBoundingClientRect();
       const box = focused().getBoundingClientRect();
@@ -281,10 +280,10 @@ describe('the graph around the focus', () => {
   );
 
   it('stops the focus row below the header when the window is too short to centre it', async () => {
-    const scope = pageWith(0, 400);
-    await scope.fresh();
+    const { driver, writer } = pageWith(0, 400);
+    await driver.fresh();
     await browser.page.viewport(400, 500);
-    await scope.group('Beat 2').click();
+    await writer.clicks('Beat 2');
 
     const header = document.querySelector('header')!.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
@@ -293,9 +292,9 @@ describe('the graph around the focus', () => {
   });
 
   it('shows a card’s sentence small and in the interface font', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
     const card = named('card', 'The story');
     const sentence = getComputedStyle(card.querySelector('.shown')!);
@@ -307,9 +306,9 @@ describe('the graph around the focus', () => {
   });
 
   it('draws a chip sized to its name, with the name whole inside it', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
 
     const chip = named('chip', 'Beat 1');
     const legend = chip.querySelector('legend')!;
@@ -326,9 +325,9 @@ describe('the graph around the focus', () => {
   });
 
   it('keeps the add button inside the focus card', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
     const card = focused();
     const body = card.querySelector('.facet')!.getBoundingClientRect();
@@ -343,179 +342,182 @@ describe('the graph around the focus', () => {
 
 describe('moving the focus', () => {
   it('leaves the focus on the story when ↑ has nowhere to go', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.press('ArrowUp');
+    const { driver } = pageWith();
+    await driver.fresh();
+    await driver.press('ArrowUp');
 
     expect(nameOf(focused())).toBe('The story');
   });
 
   it('leaves the focus where it is when ↓ has no child to go to', async () => {
-    const scope = pageWith(1);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
-    await scope.press('ArrowDown');
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
 
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
   });
 
   it('leaves the focus on the first sibling when ← has nowhere to go', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 1').click();
-    await scope.press('ArrowLeft');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 1');
+    await driver.press('ArrowLeft');
 
     expect(nameOf(focused())).toBe('Beat 1');
   });
 
   it('leaves the focus on the last sibling when → has nowhere to go', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 5').click();
-    await scope.press('ArrowRight');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 5');
+    await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 5');
   });
 
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
-    await scope.press('ArrowRight');
+    await driver.press('ArrowRight');
     expect(nameOf(focused())).toBe('Beat 3');
 
-    await scope.press('ArrowLeft');
+    await driver.press('ArrowLeft');
     expect(nameOf(focused())).toBe('Beat 2');
 
-    await scope.press('ArrowUp');
+    await driver.press('ArrowUp');
     expect(nameOf(focused())).toBe('The story');
   });
 
   it('moves down to the first child, and then to the child last visited', async () => {
-    const scope = pageWith(2);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
 
-    await scope.press('ArrowRight');
+    await driver.press('ArrowRight');
     expect(nameOf(focused())).toBe('Scene 2');
 
-    await scope.press('ArrowUp');
+    await driver.press('ArrowUp');
     expect(nameOf(focused())).toBe('Beat 4');
 
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 2');
   });
 
   it('moves the focus with → from a sibling’s name button', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
 
     named('chip', 'Beat 1').querySelector('button')!.focus();
-    await scope.press('ArrowRight');
+    await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
   });
 
   it('moves the focus with ↓ from the add button', async () => {
-    const scope = pageWith(1);
-    await scope.fresh();
-    await scope.group('Beat 4').click();
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
 
     const add = focused().querySelector('button')!;
     expect(add.textContent).toBe('Add a scene');
     add.focus();
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
 
     expect(nameOf(focused())).toBe('Scene 1');
     expect(document.activeElement).toBe(focused());
   });
 
   it('still presses a name button with Enter and with Space', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
 
     named('chip', 'Beat 1').querySelector('button')!.focus();
-    await scope.press('Enter');
+    await driver.press('Enter');
     expect(nameOf(focused())).toBe('Beat 1');
 
-    await scope.group('Beat 3').click();
+    await writer.clicks('Beat 3');
     named('chip', 'Beat 5').querySelector('button')!.focus();
-    await scope.press('Space');
+    await driver.press('Space');
     expect(nameOf(focused())).toBe('Beat 5');
   });
 
   it('leaves the focus where it is while the cursor is in a sentence', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-    await scope.press('Enter');
-    await scope.press('ArrowRight');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 2');
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
   });
 
   it('puts the cursor on the focus card with Esc, and the arrows then move the focus', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-    await scope.press('Enter');
-    await scope.press('Escape');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    await driver.press('Escape');
 
     expect(document.activeElement).toBe(focused());
     expect(nameOf(focused())).toBe('Beat 2');
 
-    await scope.press('ArrowRight');
+    await driver.press('ArrowRight');
     expect(nameOf(focused())).toBe('Beat 3');
   });
 
   it("puts the cursor in the focus card's sentence with Enter", async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-    await scope.press('Enter');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
 
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
   });
 
   it('leaves the cursor on the new focus card after a key, a chip, a card and a path', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
 
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Beat 1');
     expect(document.activeElement).toBe(focused());
 
-    await scope.group('Beat 3').click();
+    await writer.clicks('Beat 3');
     expect(nameOf(focused())).toBe('Beat 3');
     expect(document.activeElement).toBe(focused());
 
-    await scope.group('The story').click();
+    await writer.clicks('The story');
     expect(nameOf(focused())).toBe('The story');
     expect(document.activeElement).toBe(focused());
 
-    await scope.group('Beat 4').click();
+    await writer.clicks('Beat 4');
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
 
-    await scope.step('The story');
+    await driver.click('button', 'The story', {
+      role: 'navigation',
+      name: 'Where you are',
+    });
     expect(nameOf(focused())).toBe('The story');
     expect(document.activeElement).toBe(focused());
   });
 
   it('reaches every sibling with Tab, and Enter on one moves the focus there', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 3').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
 
     for (const card of [...cards('card'), ...cards('chip')]) {
       if (card === focused()) continue;
@@ -525,7 +527,7 @@ describe('moving the focus', () => {
 
     const reached: string[] = [];
     for (let at = 0; at < 20 && reached.length < 4; at += 1) {
-      await scope.press('Tab');
+      await driver.press('Tab');
       const chip = document.activeElement?.closest('fieldset.chip') ?? null;
       if (chip !== null) reached.push(nameOf(chip as HTMLElement));
     }
@@ -533,16 +535,16 @@ describe('moving the focus', () => {
 
     const button = named('chip', 'Beat 4').querySelector('button')!;
     button.focus();
-    await scope.press('Enter');
+    await driver.press('Enter');
 
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
   });
 
   it('leaves the focus where it is when an arrow key is held with a modifier', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
     const held: boolean[] = [];
     document.addEventListener('keydown', (event) => {
@@ -556,21 +558,24 @@ describe('moving the focus', () => {
   });
 
   it('moves the focus to a piece whose sentence is clicked, with the cursor in it', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').field('One-sentence summary').click();
+    const { driver } = pageWith();
+    await driver.fresh();
+    await driver.click('textbox', 'One-sentence summary', {
+      role: 'group',
+      name: 'Beat 2',
+    });
 
     expect(nameOf(focused())).toBe('Beat 2');
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
   });
 
   it('never tabs into a sentence that is not the focus’s', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver } = pageWith();
+    await driver.fresh();
 
     const strayed: string[] = [];
     for (let at = 0; at < 20; at += 1) {
-      await scope.press('Tab');
+      await driver.press('Tab');
       const card = document.activeElement?.closest('fieldset') ?? null;
       if (
         card !== null &&
@@ -585,14 +590,14 @@ describe('moving the focus', () => {
   });
 
   it('tabs into the sentence of the piece it moved to, and not the one it left', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
     const left = named('card', 'The story').querySelector('textarea')!;
     const reached: Element[] = [];
     for (let at = 0; at < 20; at += 1) {
-      await scope.press('Tab');
+      await driver.press('Tab');
       reached.push(document.activeElement!);
     }
 
@@ -601,9 +606,9 @@ describe('moving the focus', () => {
   });
 
   it('never puts the cursor on the add button through the press', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
 
     const held: string[] = [];
     document.addEventListener('focusin', (event) => {
@@ -611,48 +616,51 @@ describe('moving the focus', () => {
       if (element.closest('button') !== null) held.push(element.textContent ?? '');
     });
 
-    await scope.group('Beat 2').press('Add a scene');
+    await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
     expect(held).toEqual([]);
   });
 
   it('moves the focus to the new scene, and ↑ then ↓ returns to it', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-    await scope.group('Beat 2').press('Add a scene');
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
     expect(nameOf(focused())).toBe('Scene 1');
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
 
-    await scope.press('Escape');
-    await scope.press('ArrowUp');
+    await driver.press('Escape');
+    await driver.press('ArrowUp');
     expect(nameOf(focused())).toBe('Beat 2');
 
-    await scope.press('ArrowDown');
+    await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
   });
 });
 
 describe('what a move leaves alone', () => {
   it('writes nothing to storage', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').field('One-sentence summary').enter("Maren finds the ship's log");
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.types("Maren finds the ship's log", {
+      piece: 'Beat 2',
+      facet: 'One-sentence summary',
+    });
     const before = localStorage.getItem(stored);
     expect(before).not.toBeNull();
 
-    await scope.press('ArrowRight');
-    await scope.press('ArrowUp');
-    await scope.group('Beat 1').click();
+    await driver.press('ArrowRight');
+    await driver.press('ArrowUp');
+    await writer.clicks('Beat 1');
 
     expect(localStorage.getItem(stored)).toBe(before);
   });
 
   it('opens on the story when the page is drawn again', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
     expect(nameOf(focused())).toBe('Beat 2');
 
     await openTheApp(pane());
@@ -661,13 +669,13 @@ describe('what a move leaves alone', () => {
   });
 
   it('saves a sentence typed into a card after clicking it, read back by a fresh page', async () => {
-    const scope = pageWith();
-    await scope.fresh();
+    const { driver, writer } = pageWith();
+    await driver.fresh();
     const sentence = "Maren finds the ship's log";
-    await scope.group('Beat 4').field('One-sentence summary').enter(sentence);
+    await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
 
     await openTheApp(pane());
-    await scope.group('Beat 4').click();
+    await writer.clicks('Beat 4');
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
   });

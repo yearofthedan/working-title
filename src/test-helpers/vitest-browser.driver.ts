@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import { fieldsOn, linesOf, stepsOn, type PageScope } from './scope';
+import { clicking, drawn, linesOf, typing, type Driver } from './driver';
 import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
@@ -21,19 +21,20 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
-const treeOf = (element: Element): readonly string[] =>
-  linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(element)));
-
-export const browserScope = (render: () => Promise<void>): PageScope => ({
+export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   fresh: render,
   reopen: async () => {
     const main = document.querySelector('main');
     if (main !== null) await openTheApp(main);
   },
-  ...fieldsOn(browser.page),
-  ...stepsOn(browser.page),
   press: async (key) => {
     await browser.userEvent.keyboard(`{${key}}`);
   },
-  tree: async () => treeOf(browser.page.getByRole('main').element()),
+  click: clicking(browser.page),
+  type: typing(browser.page),
+  drawn: async () => drawn(),
+  tree: async () => {
+    const main = browser.page.getByRole('main').element();
+    return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main)));
+  },
 });

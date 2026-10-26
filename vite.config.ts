@@ -5,6 +5,7 @@ import { configDefaults, defineConfig } from 'vite-plus';
 const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
+export const documentSelectors = ['querySelector', 'querySelectorAll'];
 export const findsAnyOtherWay = [
   'getByText',
   'getByPlaceholder',
@@ -52,6 +53,8 @@ const restricted = (anyObject: string[], message: string) => [
   ...anyObject.map((property) => ({ property, message })),
   ...pageSelectorActions.map((property) => ({ object: 'page', property, message })),
 ];
+
+const theLanguageCallsTheDriver = 'The language calls the driver, and finds no element itself.';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -109,19 +112,33 @@ export default defineConfig({
             'error',
             ...restricted(
               [...findsByRoleOrLabel, ...findsAnyOtherWay],
-              'Find elements in the writer driver, e2e/writer.ts.',
+              'Find elements in a driver, src/test-helpers/*.driver.ts.',
             ),
           ],
         },
       },
       {
-        files: ['e2e/**/writer.ts', 'src/test-helpers/browser-scope.ts'],
+        files: ['**/*.dsl.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], theLanguageCallsTheDriver),
+            ...documentSelectors.map((property) => ({
+              object: 'document',
+              property,
+              message: theLanguageCallsTheDriver,
+            })),
+          ],
+        },
+      },
+      {
+        files: ['**/*.driver.ts', '**/test-helpers/driver.ts'],
         rules: {
           'no-restricted-properties': [
             'error',
             ...restricted(
               findsAnyOtherWay,
-              'The writer driver finds elements by role or label, as the writer does.',
+              'A driver finds elements by role or label, as the writer does.',
             ),
           ],
         },

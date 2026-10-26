@@ -58,3 +58,19 @@ count=$(cat "$work/count")
 }
 
 echo "every name of the $count tracked files follows the convention"
+
+: >"$work/phrases"
+git grep -l --cached 'StepAction' -- '*.ts' | while IFS= read -r file; do
+  case "$file" in
+  src/test-helpers/* | *.dsl.ts) continue ;;
+  esac
+  echo "$file" >>"$work/phrases"
+done
+
+if [ -s "$work/phrases" ]; then
+  cat "$work/phrases"
+  echo "A file that names StepAction holds step phrases, so it is a *.dsl.ts; src/test-helpers/ is the runner, which is no language." >&2
+  exit 1
+fi
+
+echo "every file naming StepAction is a *.dsl.ts, outside src/test-helpers/"

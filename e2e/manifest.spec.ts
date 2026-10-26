@@ -1,7 +1,7 @@
 import { expect, test } from './writer';
 
 test("the install splash uses the page's background colour", async ({ writer, page }) => {
-  await writer.opensTheApp();
+  await writer.opensANewProject();
   const { background_color } = await (await page.request.get('/manifest.webmanifest')).json();
   const [manifest, body] = await page.evaluate((colour) => {
     const normalised = document.createElement('div');
