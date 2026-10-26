@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
+import * as browser from 'vite-plus/test/browser';
 import { browserScope } from '../../test-helpers/browser-scope';
 import type { PageScope } from '../../test-helpers/scope';
 import { openTheApp, thePage } from '../../test-helpers/the-app';
@@ -97,6 +98,15 @@ describe('the focus page', () => {
     const field = document.querySelector('.card .facet textarea')!;
 
     expect(getComputedStyle(layer).color).toBe(getComputedStyle(field).color);
+  });
+
+  it('leaves the path separator out of what a step is called', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const [second] = document.querySelectorAll('header nav li + li');
+    expect(getComputedStyle(second!, '::before').content).toBe('"›" / ""');
   });
 });
 
@@ -411,6 +421,22 @@ describe('moving the focus', () => {
 
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
+  });
+
+  it('leaves the focus where it is when an arrow key is held with a modifier', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const held: boolean[] = [];
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight') held.push(event.altKey);
+    });
+
+    await browser.userEvent.keyboard('{Alt>}{ArrowRight}{/Alt}');
+
+    expect(held).toEqual([true]);
+    expect(nameOf(focused())).toBe('Beat 2');
   });
 
   it('moves the focus to a piece whose sentence is clicked, with the cursor in it', async () => {

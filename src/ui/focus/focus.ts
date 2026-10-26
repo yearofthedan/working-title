@@ -338,6 +338,7 @@ const onKeyDown = (event: KeyboardEvent): void => {
 
   const where = arrowKeys[event.key];
   if (where !== undefined) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
     move(st, where);
     return;

@@ -37,7 +37,7 @@ header nav ol {
 }
 
 header nav li + li::before {
-  content: '›';
+  content: '›' / '';
   margin-right: var(--space-2);
   color: var(--color-text-muted);
 }
