@@ -132,7 +132,7 @@ export default defineConfig({
         },
       },
       {
-        files: ['**/*.driver.ts', 'src/test-helpers/driver.ts'],
+        files: ['**/*.driver.ts', '**/test-helpers/driver.ts'],
         rules: {
           'no-restricted-properties': [
             'error',

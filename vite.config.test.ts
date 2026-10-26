@@ -43,6 +43,11 @@ beforeAll(() => {
     'driver-acting-on-a-locator/sample.driver.ts',
     "import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.getByRole('button').click();\n",
   );
+  write('finding/test-helpers/driver.ts', callingOnPage('getByText'));
+  write(
+    'acting/test-helpers/driver.ts',
+    "import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.getByRole('button').click();\n",
+  );
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
   write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
@@ -100,6 +105,18 @@ describe('the language', { timeout: 60_000 }, () => {
     expect(errorsIn(`reading-${call}.dsl.ts`)).toEqual([
       expect.stringContaining('finds no element'),
     ]);
+  });
+});
+
+describe('the driver contract', { timeout: 60_000 }, () => {
+  it('the driver contract calling page.getByText fails lint', () => {
+    expect(errorsIn('finding/test-helpers/driver.ts')).toEqual([
+      expect.stringContaining('by role or label'),
+    ]);
+  });
+
+  it('the driver contract finding by role passes lint', () => {
+    expect(errorsIn('acting/test-helpers/driver.ts')).toEqual([]);
   });
 });
 
