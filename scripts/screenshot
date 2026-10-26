@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Screenshot the built app at the widths the look criteria name.
+# help: Screenshot the built app at the widths the look criteria name, each with a piece in focus.
 
 set -eu
 
@@ -50,12 +50,14 @@ shot() {
   width=$1
   name=$2
   shift 2
-  playwright screenshot --viewport-size "$width, 900" --full-page "$@" http://localhost:4174 "$out/$name.png"
+  node "$root/scripts/_screenshot.mjs" "$width" "$out/$name.png" "$@"
 }
 
-shot 1440 new-project-1440
-shot 1100 new-project-1100
-shot 1440 long-sentences-1440 --load-storage "$sentences"
-shot 1100 long-sentences-1100 --load-storage "$sentences"
-shot 1440 eight-scenes-1440 --load-storage "$scenes"
-shot 1100 eight-scenes-1100 --load-storage "$scenes"
+shot 1440 story-1440 --load-storage "$sentences"
+shot 1100 story-1100 --load-storage "$sentences"
+shot 1440 beat-2-1440 --load-storage "$sentences" --click 'Beat 2'
+shot 1100 beat-2-1100 --load-storage "$sentences" --click 'Beat 2'
+shot 1440 eight-scenes-1440 --load-storage "$scenes" --click 'Beat 4'
+shot 1100 eight-scenes-1100 --load-storage "$scenes" --click 'Beat 4'
+shot 1440 scene-1440 --load-storage "$sentences" --click 'Beat 2' --click 'Scene 1'
+shot 1100 scene-1100 --load-storage "$sentences" --click 'Beat 2' --click 'Scene 1'

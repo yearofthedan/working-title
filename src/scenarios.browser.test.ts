@@ -1,13 +1,10 @@
 import { describe, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { projectStore } from './adapters/local-storage-project-store';
-import { openProject } from './application/project';
-import { snowflakeExtended } from './methods/snowflake-extended';
 import { browserScope } from './test-helpers/browser-scope';
 import type { RawGlob } from './test-helpers/raw-glob';
 import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner } from './test-helpers/play';
-import { renderFocus } from './ui/focus/focus';
+import { openTheApp, thePage } from './test-helpers/the-app';
 import { focusPageActions } from './ui/focus/writer';
 
 declare const __SCENARIO_APPROVE__: string;
@@ -20,10 +17,7 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 
 const theStoryOnScreen = async () => {
   localStorage.clear();
-  document.body.replaceChildren();
-  const main = document.createElement('main');
-  document.body.append(main);
-  renderFocus(main, await openProject(snowflakeExtended, projectStore()));
+  await openTheApp(await thePage(1440));
 };
 
 const runnerFor = (approving: boolean): Runner => {

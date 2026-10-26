@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test as base, type Locator, type Page } from '@playwright/test';
-import { fieldsOn, linesOf, type AppScope } from '../src/test-helpers/scope';
+import { fieldsOn, linesOf, stepsOn, type AppScope } from '../src/test-helpers/scope';
 
 export interface ContrastFinding {
   readonly target: string;
@@ -23,7 +23,14 @@ const writerOn = (page: Page): Writer => {
     reload: async () => {
       await page.reload();
     },
+    reopen: async () => {
+      await page.goto('/');
+    },
     ...fieldsOn(page),
+    ...stepsOn(page),
+    press: async (key) => {
+      await page.keyboard.press(key);
+    },
     tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
   };
 

@@ -1,5 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
-import { fieldsOn, linesOf, type PageScope } from './scope';
+import { fieldsOn, linesOf, stepsOn, type PageScope } from './scope';
+import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {
@@ -25,6 +26,14 @@ const treeOf = (element: Element): readonly string[] =>
 
 export const browserScope = (render: () => Promise<void>): PageScope => ({
   fresh: render,
+  reopen: async () => {
+    const main = document.querySelector('main');
+    if (main !== null) await openTheApp(main);
+  },
   ...fieldsOn(browser.page),
+  ...stepsOn(browser.page),
+  press: async (key) => {
+    await browser.userEvent.keyboard(`{${key}}`);
+  },
   tree: async () => treeOf(browser.page.getByRole('main').element()),
 });

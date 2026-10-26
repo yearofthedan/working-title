@@ -48,7 +48,14 @@ exit 0
 STUB
     fi
   done
-  printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\nexec "%s" "$@"\n' "$(command -v node)" >"$copy/node_modules/.bin/node"
+  printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/node"
+  cat >>"$copy/node_modules/.bin/node" <<'STUB'
+# shortcut: the copy serves nothing on 4174 and has no browser, so the script that takes the shots is recorded and not run, until a shot can be taken of a build the suite itself serves.
+case "$*" in
+*_screenshot.mjs*) exit 0 ;;
+esac
+STUB
+  printf 'exec "%s" "$@"\n' "$(command -v node)" >>"$copy/node_modules/.bin/node"
   chmod +x "$copy/node_modules/.bin/node"
   printf '#!/bin/sh\n' >"$copy/node_modules/.bin/curl"
   cat >>"$copy/node_modules/.bin/curl" <<'STUB'

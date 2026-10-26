@@ -11,37 +11,31 @@ Then the writer sees
     - heading "The story" [level=2]
     - text: One-sentence summary
     - textbox "One-sentence summary"
-    - list:
-      - listitem:
-        - group "Beat 1":
-          - heading "Beat 1" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 2":
-          - heading "Beat 2" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 3":
-          - heading "Beat 3" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 4":
-          - heading "Beat 4" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 5":
-          - heading "Beat 5" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
+  - group "Beat 1":
+    - heading "Beat 1" [level=3]:
+      - button "Beat 1"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 2":
+    - heading "Beat 2" [level=3]:
+      - button "Beat 2"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 3":
+    - heading "Beat 3" [level=3]:
+      - button "Beat 3"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 4":
+    - heading "Beat 4" [level=3]:
+      - button "Beat 4"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 5":
+    - heading "Beat 5" [level=3]:
+      - button "Beat 5"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
 ```
 
 ### Scenario: a beat's sentence survives a reload
@@ -56,35 +50,29 @@ Then the writer sees
     - heading "The story" [level=2]
     - text: One-sentence summary
     - textbox "One-sentence summary"
-    - list:
-      - listitem:
-        - group "Beat 1":
-          - heading "Beat 1" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 2":
-          - heading "Beat 2" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 3":
-          - heading "Beat 3" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 4":
-          - heading "Beat 4" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
-      - listitem:
-        - group "Beat 5":
-          - heading "Beat 5" [level=3]
-          - text: One-sentence summary
-          - textbox "One-sentence summary"
-          - button "Add a scene"
+  - group "Beat 1":
+    - heading "Beat 1" [level=3]:
+      - button "Beat 1"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 2":
+    - heading "Beat 2" [level=3]:
+      - button "Beat 2"
+    - text: One-sentence summary
+    - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
+  - group "Beat 3":
+    - heading "Beat 3" [level=3]:
+      - button "Beat 3"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 4":
+    - heading "Beat 4" [level=3]:
+      - button "Beat 4"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
+  - group "Beat 5":
+    - heading "Beat 5" [level=3]:
+      - button "Beat 5"
+    - text: One-sentence summary
+    - textbox "One-sentence summary"
 ```
