@@ -2,12 +2,20 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { findsAnyOtherWay, findsByRoleOrLabel, pageSelectorActions } from './vite.config';
+import {
+  documentSelectors,
+  findsAnyOtherWay,
+  findsByRoleOrLabel,
+  pageSelectorActions,
+} from './vite.config';
 
 const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
 
 const callingOnPage = (call: string) =>
   `import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.${call}('x');\n`;
+
+const readingTheDocument = (call: string) =>
+  `export const sample = () => document.${call}('main');\n`;
 
 let samples: string;
 const lintErrors = new Map<string, string[]>();
@@ -24,11 +32,15 @@ beforeAll(() => {
   };
   for (const call of calls) {
     write(`sample-${call}.ts`, callingOnPage(call));
-    write(`driver-${call}/writer.ts`, callingOnPage(call));
+    write(`driver-${call}/sample.driver.ts`, callingOnPage(call));
+    write(`language-${call}.dsl.ts`, callingOnPage(call));
+  }
+  for (const call of documentSelectors) {
+    write(`reading-${call}.dsl.ts`, readingTheDocument(call));
   }
   write('sample-no-locator.ts', callingOnPage('reload'));
   write(
-    'driver-acting-on-a-locator/writer.ts',
+    'driver-acting-on-a-locator/sample.driver.ts',
     "import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.getByRole('button').click();\n",
   );
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
@@ -50,7 +62,9 @@ afterAll(() => rmSync(samples, { recursive: true, force: true }));
 
 describe('e2e locators', { timeout: 60_000 }, () => {
   it.each(calls)('a spec calling page.%s fails lint, pointing to the driver', (call) => {
-    expect(errorsIn(`sample-${call}.ts`)).toEqual([expect.stringContaining('e2e/writer.ts')]);
+    expect(errorsIn(`sample-${call}.ts`)).toEqual([
+      expect.stringContaining('a driver, src/test-helpers/'),
+    ]);
   });
 
   it('a spec with no locator passes lint', () => {
@@ -58,21 +72,35 @@ describe('e2e locators', { timeout: 60_000 }, () => {
   });
 
   it.each(findsByRoleOrLabel)('the driver calling page.%s passes lint', (call) => {
-    expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([]);
+    expect(errorsIn(`driver-${call}/sample.driver.ts`)).toEqual([]);
   });
 
   it('the driver acting on a locator it found passes lint', () => {
-    expect(errorsIn('driver-acting-on-a-locator/writer.ts')).toEqual([]);
+    expect(errorsIn('driver-acting-on-a-locator/sample.driver.ts')).toEqual([]);
   });
 
   it.each([...findsAnyOtherWay, ...pageSelectorActions])(
     'the driver calling page.%s fails lint',
     (call) => {
-      expect(errorsIn(`driver-${call}/writer.ts`)).toEqual([
+      expect(errorsIn(`driver-${call}/sample.driver.ts`)).toEqual([
         expect.stringContaining('by role or label'),
       ]);
     },
   );
+});
+
+describe('the language', { timeout: 60_000 }, () => {
+  it.each(calls)('a language file calling page.%s fails lint', (call) => {
+    expect(errorsIn(`language-${call}.dsl.ts`)).toEqual([
+      expect.stringContaining('finds no element'),
+    ]);
+  });
+
+  it.each(documentSelectors)('a language file calling document.%s fails lint', (call) => {
+    expect(errorsIn(`reading-${call}.dsl.ts`)).toEqual([
+      expect.stringContaining('finds no element'),
+    ]);
+  });
 });
 
 describe('comments', { timeout: 60_000 }, () => {
