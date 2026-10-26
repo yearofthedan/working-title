@@ -34,7 +34,7 @@ After:
 
 ## Learned
 
-<!-- What would have saved time, or caught a mistake sooner? A lesson is a row in [docs/lessons.md](../docs/lessons.md); one found twice inside the window proposes a lesson pull request carrying the smallest fix: a check first, a rule second. A one-off fact stays here. -->
+<!-- What would have saved time, or caught a mistake sooner? Each one is also captured as an incident, as the [lessons skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/lessons/SKILL.md) says. -->
 
 ## For review
 
