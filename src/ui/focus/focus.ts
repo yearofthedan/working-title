@@ -257,13 +257,20 @@ const place = (st: State): void => {
   const focusWidth = widthOf(st, st.at);
 
   const focusHeight = focus.offsetHeight;
-  const top = st.main.clientHeight / 2 - focusHeight / 2;
+  const parent = parentId === undefined ? undefined : st.cards.get(parentId)!;
+  const header = document.querySelector('header');
+  const mainTop = st.main.getBoundingClientRect().top;
+  const belowHeader =
+    (header === null ? 0 : header.getBoundingClientRect().bottom) - mainTop + ROW_GAP;
+  const top = Math.max(
+    window.innerHeight / 2 - mainTop - focusHeight / 2,
+    belowHeader + (parent?.offsetHeight ?? 0),
+  );
 
   focus.style.left = `${centre - focusWidth / 2}px`;
   focus.style.top = `${top}px`;
 
-  if (parentId !== undefined) {
-    const parent = st.cards.get(parentId)!;
+  if (parentId !== undefined && parent !== undefined) {
     parent.style.left = `${centre - widthOf(st, parentId) / 2}px`;
     parent.style.top = `${top - ROW_GAP - parent.offsetHeight}px`;
   }

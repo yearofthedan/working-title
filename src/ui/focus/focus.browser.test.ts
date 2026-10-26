@@ -264,7 +264,7 @@ describe('the graph around the focus', () => {
   });
 
   it.each([1440, 1100])(
-    'centres the focus row in main, with the parent inside it, at %i px',
+    'centres the focus row on the window, with the parent inside it, at %i px',
     async (width) => {
       const scope = pageWith(0, width);
       await scope.fresh();
@@ -272,7 +272,7 @@ describe('the graph around the focus', () => {
 
       const bounds = pane().getBoundingClientRect();
       const box = focused().getBoundingClientRect();
-      expect(box.top + box.height / 2).toBeCloseTo(bounds.top + bounds.height / 2, 0);
+      expect(box.top + box.height / 2).toBeCloseTo(window.innerHeight / 2, 0);
 
       const parent = named('card', 'The story').getBoundingClientRect();
       expect(parent.top).toBeGreaterThanOrEqual(bounds.top);
