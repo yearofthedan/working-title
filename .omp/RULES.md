@@ -4,4 +4,4 @@ Every change follows the standards in `docs/standards/`, [indexed here](../docs/
 
 # Dated records stay as written
 
-A change across the repo, such as a find and replace, leaves dated records as they are: merged pull requests' bodies, decision records once Accepted, and each lesson's **Found in** list hold what was true when they were written.
+A change across the repo, such as a find and replace, leaves dated records as they are: merged pull requests' bodies and decision records once Accepted hold what was true when they were written.
