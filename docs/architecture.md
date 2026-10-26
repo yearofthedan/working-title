@@ -19,7 +19,7 @@ service worker ──► the built app, cached on the first load
 
 | Part | What it is | Where | Decided by |
 | --- | --- | --- | --- |
-| UI | What the writer sees and does, drawn in plain HTML and CSS with no framework. It calls only the application. | `src/ui/` | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) |
+| UI | What the writer sees and does, drawn in plain HTML and CSS with no framework. It arranges the graph around the piece in focus, which it holds in memory alone, and calls only the application. | `src/ui/` | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) |
 | Application | The use cases (focus, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. | `src/application/` | [ADR 2](adr/0002-hexagonal-layers.md) |
 | Domain | Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. | `src/domain/` | [ADR 2](adr/0002-hexagonal-layers.md) |
 | Method definition | Snowflake, extended, as data the engine reads. The code never names a method. | `src/methods/` | [ADR 5](adr/0005-method-as-data.md) |
@@ -47,8 +47,8 @@ Design size is about 300 pieces and 2,000 links.
 | Durability | A crash loses at most about 2 s of typing | [`your-words-survive-a-reload`](../e2e/your-words-survive-a-reload.approved.md) | Medium: a reload is checked, a crash mid-typing is not |
 | Disaster recovery | The folder mirror is at most about 10 s behind while typing | nothing yet | Low: the folder mirror is not built |
 | Typing | Every keystroke renders within one frame (16 ms) | nothing yet | Low: no test times a keystroke at the design size |
-| Movement | A focus or level change starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | [`src/ui/focus/focus.browser.test.ts`](../src/ui/focus/focus.browser.test.ts): its two tests over the 250 ms pan an add brings | Medium: those tests catch a pan that jumps or runs past 400 ms, and check it arrives in one step under reduced motion, on every run; nothing times a frame or a move at the design size, and a focus or level change is not built |
-| Motion | Motion meets WCAG 2.2 at AA, and stops when the writer's system asks for reduced motion (2.3.3), as the [motion standard](standards/motion.md) sets out | [`src/ui/focus/focus.browser.test.ts`](../src/ui/focus/focus.browser.test.ts): its test that the new scene arrives in one step under reduced motion | Low: that test covers the reduced-motion clause for the one motion the app has, the pan a new scene gets; the rest of the standard, no flash and motion only as short as the change allows, is not checked |
+| Movement | A focus or level change starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | nothing yet | Low: nothing times a move or a frame at the design size, and the motion a move brings is not built yet |
+| Motion | Motion meets WCAG 2.2 at AA, and stops when the writer's system asks for reduced motion (2.3.3), as the [motion standard](standards/motion.md) sets out | nothing yet | Low: the app moves nothing yet, so no clause of the standard is met or checked; the motion a move brings, and the check that refuses motion over 400 ms or under reduced motion, are the next planned pull request |
 | Data | Filtering and querying the whole project takes under 100 ms | nothing yet | Low: no test times a query at the design size |
 | Start-up | Usable within 2 s, and fully offline after the first load | [`e2e/offline.spec.ts`](../e2e/offline.spec.ts) | Medium: offline is checked, the 2 s is not |
 | Fidelity | Prose survives the round trip to Markdown and back unchanged | nothing yet | Low: the Markdown round trip is not built |

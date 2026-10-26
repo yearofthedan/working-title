@@ -21,14 +21,13 @@ How is the graph drawn?
 
 ## Decision
 
-The graph is nested HTML laid out by CSS. A piece is a `fieldset` holding its facets and, under them, the list of its children; each card is a box in a flex row, and the joins are pseudo-elements of that list. No framework and no layout library draw any of it.
+The graph is plain HTML and CSS: every piece is one `fieldset` holding its name and its facets, and the UI module writes each one a width, a position and a class for the part it plays around the focus. No framework and no layout library draw any of it.
 
-The accessibility tree decided it. React Flow wraps the graph in an `application` role and gives every piece an unnamed `group`, both against the markup standard, so it lost whatever it gains elsewhere. The movement target separates neither of the plain-HTML options: both are far inside 100 ms at the design size. Room for later needs then chose between them. The positioned option leads on panning and links across the tree, which need coordinates; the nested option leads on the next need, a beat's scenes, which arrive as markup with no positions to keep in step. The nested option won because panning and links across the tree are later stories, and moving to positions then keeps the markup and changes only the layout, where taking the positioned option now computes and keeps a position for every piece from this story on.
+The accessibility tree decided it. React Flow wraps the graph in an `application` role and gives every piece an unnamed `group`, both against the markup standard, so it lost whatever it gains elsewhere. The movement target separates neither of the plain-HTML options: both are far inside 100 ms at the design size. Room for later needs then separates neither: what the graph shows around the focus is a set of pieces the UI module already holds — the focus, its parent, its siblings and its children — so it keeps no coordinate in step with anything else, and a framework's own bundle and release schedule buy it nothing.
 
 ## Consequences
 
-- A level of the graph is markup and CSS: the beats of this story and the scenes of a later one arrive the same way.
-- Nothing computes a position, so no layout pass is kept in step with the tree. Panning and links across the tree are where CSS layout stops giving the graph what it needs; the positioned option supersedes this record there.
-- The joins are pseudo-elements: they hold no text and no role, so they are never in the tree a scenario records, and nothing finds them by name.
-- The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. The widths, the joins and the sideways scroll are not in the tree a scenario records, so no recorded scenario checks them.
+- A piece is a `fieldset` with a `legend` and its facets, the same at every level: the beats of this story and the scenes of a later one arrive the same way.
+- A move recomputes each piece's width, position and kind and writes them in place, so the arrangement is the UI module's alone: nothing about it is stored, and nothing is rebuilt to move the focus.
+- The graph's shape is checked: a piece that moves, renames or loses its group is refused by `./do check` until its approved file is re-approved. A width or a position is not in the tree a scenario records, so the browser test measures those.
 - Ruled out: a framework or layout library for the graph, and its bundle on the first load.

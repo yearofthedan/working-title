@@ -4,12 +4,6 @@ import { focusPageActions } from '../src/ui/focus/writer';
 
 export const journeyActions = (scope: AppScope): Record<string, StepAction> => ({
   ...focusPageActions(scope),
-  'a new project': async () => {
-    await scope.fresh();
-  },
-  'the writer opens the app': async () => {
-    await scope.fresh();
-  },
   'reloads the app': async () => {
     await scope.reload();
   },
