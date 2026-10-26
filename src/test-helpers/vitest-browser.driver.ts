@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import { clicking, linesOf, typing, type Drawn, type Driver } from './driver';
+import { clicking, drawn, linesOf, typing, type Driver } from './driver';
 import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
@@ -20,16 +20,6 @@ interface Aria {
 }
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
-
-const kinds = ['focus', 'card', 'chip', 'hidden'] as const;
-
-const drawn = (): readonly Drawn[] =>
-  [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
-    name: card.querySelector('h2, h3, h4')?.textContent ?? '',
-    kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
-    current: card.getAttribute('aria-current') === 'location',
-    box: card.getBoundingClientRect(),
-  }));
 
 export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   fresh: render,

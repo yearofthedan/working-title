@@ -21,6 +21,15 @@ export interface Drawn {
   readonly box: Box;
 }
 
+export const drawn = (): readonly Drawn[] =>
+  [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
+    name: card.querySelector('h2, h3, h4')?.textContent ?? '',
+    kind:
+      ['focus', 'card', 'chip', 'hidden'].find((kind) => card.classList.contains(kind)) ?? 'hidden',
+    current: card.getAttribute('aria-current') === 'location',
+    box: card.getBoundingClientRect(),
+  }));
+
 export interface Driver {
   fresh(): Promise<void>;
   reopen(): Promise<void>;
