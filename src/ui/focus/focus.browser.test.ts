@@ -335,6 +335,35 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('Scene 2');
   });
 
+  it('draws a chip sized to its name, with the name whole inside it', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 3').click();
+
+    const chip = named('chip', 'Beat 1');
+    const box = chip.getBoundingClientRect();
+    const name = chip.querySelector('h2, h3, h4')!.getBoundingClientRect();
+
+    expect(name.top).toBeGreaterThanOrEqual(box.top);
+    expect(name.bottom).toBeLessThanOrEqual(box.bottom);
+    expect(box.width).toBeLessThan(180);
+  });
+
+  it('keeps the add button inside the focus card', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const card = focused();
+    const body = card.querySelector('.facet')!.getBoundingClientRect();
+    const button = [...card.querySelectorAll('button')]
+      .find((one) => one.textContent === 'Add a scene')!
+      .getBoundingClientRect();
+
+    expect(button.top).toBeGreaterThanOrEqual(body.top);
+    expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+  });
+
   it('moves the focus with → from a sibling’s name button', async () => {
     const scope = pageWith();
     await scope.fresh();

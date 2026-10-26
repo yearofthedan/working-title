@@ -70,10 +70,12 @@ const shownAncestor = (st: State, id: string): Entry => {
   return entry;
 };
 
-const widthOf = (st: State, id: string): number =>
-  kindOf(st, id) === 'focus'
-    ? Math.min(FOCUS_WIDTH, st.main.clientWidth)
-    : (CARD_WIDTH[shownAncestor(st, id).level] ?? CARD_WIDTH.at(-1)!);
+const widthOf = (st: State, id: string): number => {
+  const kind = kindOf(st, id);
+  if (kind === 'focus') return Math.min(FOCUS_WIDTH, st.main.clientWidth);
+  if (kind === 'chip') return st.cards.get(id)!.offsetWidth;
+  return CARD_WIDTH[shownAncestor(st, id).level] ?? CARD_WIDTH.at(-1)!;
+};
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
   if (id !== st.at) {
@@ -160,7 +162,8 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
   const heading = document.createElement(`h${entryOf(st, piece.id)!.level + 2}`);
   heading.textContent = piece.name;
   name.append(heading);
-  card.append(name, ...piece.facets.map((facet) => field(piece.id, facet, st.focus.elaborate)));
+  const facets = piece.facets.map((facet) => field(piece.id, facet, st.focus.elaborate));
+  card.append(name, ...facets);
 
   if (piece.childKind !== undefined) {
     const button = document.createElement('button');
@@ -171,7 +174,7 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
       event.stopPropagation();
       void addUnder(st, piece.id);
     });
-    card.append(button);
+    (facets.at(-1) ?? card).append(button);
   }
 
   card.addEventListener('click', (event) => {
@@ -238,7 +241,7 @@ const place = (st: State): void => {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     card.className = kindOf(st, piece.id);
-    card.style.width = `${widthOf(st, piece.id)}px`;
+    card.style.width = card.classList.contains('chip') ? '' : `${widthOf(st, piece.id)}px`;
     if (piece.id === st.at) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
     for (const sentence of card.querySelectorAll('textarea')) {

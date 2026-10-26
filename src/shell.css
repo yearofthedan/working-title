@@ -130,8 +130,15 @@ main {
     outline-offset: var(--space-1);
   }
 
+  .chip {
+    padding: 0;
+  }
+
   .chip legend {
-    border-bottom: 1px solid var(--color-edge);
+    position: static;
+    height: auto;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-edge);
     border-radius: var(--space-2);
   }
 
@@ -231,8 +238,9 @@ main {
     outline-offset: var(--space-2);
   }
 
-  fieldset > button {
+  .facet button {
     display: none;
+    justify-self: start;
     margin-top: var(--space-2);
     padding: 0;
     border: none;
@@ -244,11 +252,11 @@ main {
     cursor: pointer;
   }
 
-  .focus > button {
+  .focus .facet button {
     display: block;
   }
 
-  fieldset > button:focus-visible {
+  .facet button:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: var(--space-1);
   }
