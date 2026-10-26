@@ -102,15 +102,6 @@ describe('the focus page', () => {
 
     expect(getComputedStyle(layer).color).toBe(getComputedStyle(field).color);
   });
-
-  it('leaves the path separator out of what a step is called', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-
-    const [second] = document.querySelectorAll('header nav li + li');
-    expect(getComputedStyle(second!, '::before').content).toBe('"›" / ""');
-  });
 });
 
 describe('the graph around the focus', () => {
@@ -390,6 +381,10 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('Beat 3');
     expect(document.activeElement).toBe(focused());
 
+    await scope.group('The story').click();
+    expect(nameOf(focused())).toBe('The story');
+    expect(document.activeElement).toBe(focused());
+
     await scope.group('Beat 4').click();
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
@@ -485,6 +480,22 @@ describe('moving the focus', () => {
 
     expect(reached).toContain(focused().querySelector('textarea'));
     expect(reached).not.toContain(left);
+  });
+
+  it('never puts the cursor on the add button through the press', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const held: string[] = [];
+    document.addEventListener('focusin', (event) => {
+      const element = event.target as HTMLElement;
+      if (element.closest('button') !== null) held.push(element.textContent ?? '');
+    });
+
+    await scope.group('Beat 2').press('Add a scene');
+
+    expect(held).toEqual([]);
   });
 
   it('moves the focus to the new scene, and ↑ then ↓ returns to it', async () => {

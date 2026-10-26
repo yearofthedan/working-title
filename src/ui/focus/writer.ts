@@ -88,11 +88,18 @@ const under = (focus: Drawn, names: readonly string[]): void => {
 };
 
 export const focusPageActions = (scope: PageScope): Record<string, StepAction> => {
-  const adding = async (beat: string): Promise<void> => {
-    const wanted = `group "${beat.toLowerCase()}"`;
-    const onGraph = (await scope.tree()).some((line) => line.toLowerCase().includes(wanted));
-    if (!onGraph) await scope.step('The story');
+  const shown = async (piece: string): Promise<boolean> => {
+    const wanted = `group "${piece.toLowerCase()}"`;
+    return (await scope.tree()).some((line) => line.toLowerCase().includes(wanted));
+  };
+
+  const reaching = async (beat: string): Promise<void> => {
+    if (!(await shown(beat))) await scope.step('The story');
     await scope.group(beat).click();
+  };
+
+  const adding = async (beat: string): Promise<void> => {
+    await reaching(beat);
     await scope.group(beat).press('Add a scene');
   };
 
@@ -116,8 +123,11 @@ export const focusPageActions = (scope: PageScope): Record<string, StepAction> =
       await adding(beat);
       await adding(beat);
     },
-    'types "{text}" as {scene}\'s list line under {beat}': ({ text, scene }) =>
-      scope.group(scene).field('List line').enter(text),
+    'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
+      await reaching(beat);
+      if (!(await shown(scene))) throw new Error(`${scene} is not under ${beat}`);
+      await scope.group(scene).field('List line').enter(text);
+    },
     'the story is in focus, with beats 1 to 5 under it': () => {
       under(inFocus('The story'), ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5']);
     },

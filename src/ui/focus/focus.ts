@@ -25,6 +25,8 @@ interface State {
   at: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, HTMLElement>;
+  entries: readonly Entry[];
+  byId: Map<string, Entry>;
 }
 
 let state: State | undefined;
@@ -42,11 +44,15 @@ const entriesOf = (st: State): readonly Entry[] => {
   return story === undefined ? [] : walked(story);
 };
 
-const entryOf = (st: State, id: string): Entry | undefined =>
-  entriesOf(st).find((entry) => entry.piece.id === id);
+const remember = (st: State): void => {
+  st.entries = entriesOf(st);
+  st.byId = new Map(st.entries.map((entry) => [entry.piece.id, entry]));
+};
+
+const entryOf = (st: State, id: string): Entry | undefined => st.byId.get(id);
 
 const childrenOf = (st: State, id: string): readonly Entry[] =>
-  entriesOf(st).filter((entry) => entry.parentId === id);
+  st.entries.filter((entry) => entry.parentId === id);
 
 const kindOf = (st: State, id: string): string => {
   const parent = entryOf(st, st.at)?.parentId;
@@ -226,7 +232,7 @@ const watch = (st: State): void => {
 };
 
 const place = (st: State): void => {
-  const pieces = entriesOf(st);
+  const pieces = st.entries;
 
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id);
@@ -310,9 +316,10 @@ const place = (st: State): void => {
 };
 
 const draw = (st: State): void => {
+  remember(st);
   st.cards.clear();
   st.wrapper.replaceChildren(
-    ...entriesOf(st).map(({ piece }) => {
+    ...st.entries.map(({ piece }) => {
       const card = pieceCard(st, piece);
       st.cards.set(piece.id, card);
       return card;
@@ -366,6 +373,15 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     listening = true;
     document.addEventListener('keydown', onKeyDown);
   }
-  state = { main, wrapper, focus, at: story.id, lastVisited: new Map(), cards: new Map() };
+  state = {
+    main,
+    wrapper,
+    focus,
+    at: story.id,
+    lastVisited: new Map(),
+    cards: new Map(),
+    entries: [],
+    byId: new Map(),
+  };
   draw(state);
 };
