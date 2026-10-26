@@ -341,11 +341,16 @@ describe('moving the focus', () => {
     await scope.group('Beat 3').click();
 
     const chip = named('chip', 'Beat 1');
-    const box = chip.getBoundingClientRect();
+    const legend = chip.querySelector('legend')!;
+    const box = legend.getBoundingClientRect();
+    const inside = {
+      top: box.top + legend.clientTop,
+      bottom: box.top + legend.clientTop + legend.clientHeight,
+    };
     const name = chip.querySelector('h2, h3, h4')!.getBoundingClientRect();
 
-    expect(name.top).toBeGreaterThanOrEqual(box.top);
-    expect(name.bottom).toBeLessThanOrEqual(box.bottom);
+    expect(name.top).toBeGreaterThanOrEqual(inside.top);
+    expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
     expect(box.width).toBeLessThan(180);
   });
 
