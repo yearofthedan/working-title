@@ -61,6 +61,14 @@ const drawnOn = (card: Element, sentence: string): number =>
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
+const laidOut = (): Promise<void> => {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => resolve());
+  });
+  return promise;
+};
+
 describe('the focus page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
     const scope = pageWith();
@@ -218,6 +226,37 @@ describe('the graph around the focus', () => {
     const current = [...document.querySelectorAll('main fieldset[aria-current="location"]')];
     expect(current).toEqual([focused()]);
     expect(nameOf(focused())).toBe('Beat 4');
+  });
+
+  it('keeps the focus card whole and centred when main narrows, with no move', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+
+    for (const width of [720, 320]) {
+      pane().style.width = `${width}px`;
+      await laidOut();
+
+      const box = focused().getBoundingClientRect();
+      const bounds = pane().getBoundingClientRect();
+      expect(box.left).toBeGreaterThanOrEqual(bounds.left);
+      expect(box.right).toBeLessThanOrEqual(bounds.right);
+      expect(centreOf(focused())).toBeCloseTo(centreOf(pane()), 0);
+    }
+  });
+
+  it('keeps the children under the focus card as its sentence grows while the writer types', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    const sentence =
+      'She rows out before first light with the chart weighted under a stone, and finds a buoy ringing a bell nobody hung there, its rope still wet from a hand that had no business tying it.';
+
+    await scope.group('The story').field('One-sentence summary').enter(sentence);
+    await laidOut();
+
+    const children = cards('card');
+    expect(children).toHaveLength(5);
+    const rowTop = Math.min(...children.map((card) => card.getBoundingClientRect().top));
+    expect(rowTop).toBeGreaterThanOrEqual(focused().getBoundingClientRect().bottom);
   });
 });
 

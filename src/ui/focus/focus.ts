@@ -19,6 +19,7 @@ interface Entry {
 }
 
 interface State {
+  readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
   focus: Focus;
   at: string;
@@ -28,6 +29,8 @@ interface State {
 
 let state: State | undefined;
 let listening = false;
+let watcher: ResizeObserver | undefined;
+let watching: HTMLElement | undefined;
 
 const walked = (piece: PieceView, level = 0, parentId?: string): Entry[] => [
   { piece, level, ...(parentId === undefined ? {} : { parentId }) },
@@ -63,7 +66,7 @@ const shownAncestor = (st: State, id: string): Entry => {
 
 const widthOf = (st: State, id: string): number =>
   kindOf(st, id) === 'focus'
-    ? FOCUS_WIDTH
+    ? Math.min(FOCUS_WIDTH, st.main.clientWidth)
     : (CARD_WIDTH[shownAncestor(st, id).level] ?? CARD_WIDTH.at(-1)!);
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
@@ -206,6 +209,19 @@ const pathNav = (st: State): void => {
   nav.replaceChildren(list);
 };
 
+const watch = (st: State): void => {
+  const focus = st.cards.get(st.at)!;
+  if (watcher !== undefined && watching === focus) return;
+  watcher?.disconnect();
+  watcher = new ResizeObserver(() => {
+    const current = state;
+    if (current !== undefined) place(current);
+  });
+  watcher.observe(st.main);
+  watcher.observe(focus);
+  watching = focus;
+};
+
 const place = (st: State): void => {
   const pieces = entriesOf(st);
 
@@ -223,6 +239,7 @@ const place = (st: State): void => {
   const centre = st.wrapper.clientWidth / 2;
   const parentId = entryOf(st, st.at)?.parentId;
   const focus = st.cards.get(st.at)!;
+  const focusWidth = widthOf(st, st.at);
 
   let top = 0;
   if (parentId !== undefined) {
@@ -232,7 +249,7 @@ const place = (st: State): void => {
     top = parent.offsetHeight + ROW_GAP;
   }
 
-  focus.style.left = `${centre - FOCUS_WIDTH / 2}px`;
+  focus.style.left = `${centre - focusWidth / 2}px`;
   focus.style.top = `${top}px`;
   const focusHeight = focus.offsetHeight;
   const below = top + focusHeight + ROW_GAP;
@@ -255,7 +272,7 @@ const place = (st: State): void => {
   if (sample !== undefined) {
     const chip = st.cards.get(sample.piece.id)!;
     const chipTop = top + (focusHeight - chip.offsetHeight) / 2;
-    let before = centre - FOCUS_WIDTH / 2 - GAP;
+    let before = centre - focusWidth / 2 - GAP;
     for (const entry of siblings.slice(0, here).reverse()) {
       const card = st.cards.get(entry.piece.id)!;
       before -= widthOf(st, entry.piece.id);
@@ -263,7 +280,7 @@ const place = (st: State): void => {
       card.style.top = `${chipTop}px`;
       before -= GAP;
     }
-    let after = centre + FOCUS_WIDTH / 2 + GAP;
+    let after = centre + focusWidth / 2 + GAP;
     for (const entry of siblings.slice(here + 1)) {
       const card = st.cards.get(entry.piece.id)!;
       card.style.left = `${after}px`;
@@ -282,6 +299,8 @@ const place = (st: State): void => {
     card.style.top = under.style.top;
     card.style.width = under.style.width;
   }
+
+  watch(st);
 };
 
 const draw = (st: State): void => {
@@ -339,6 +358,6 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     listening = true;
     document.addEventListener('keydown', onKeyDown);
   }
-  state = { wrapper, focus, at: story.id, lastVisited: new Map(), cards: new Map() };
+  state = { main, wrapper, focus, at: story.id, lastVisited: new Map(), cards: new Map() };
   draw(state);
 };
