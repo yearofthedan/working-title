@@ -280,6 +280,18 @@ describe('the graph around the focus', () => {
     },
   );
 
+  it('stops the focus row below the header when the window is too short to centre it', async () => {
+    const scope = pageWith(0, 400);
+    await scope.fresh();
+    await browser.page.viewport(400, 500);
+    await scope.group('Beat 2').click();
+
+    const header = document.querySelector('header')!.getBoundingClientRect();
+    const parent = named('card', 'The story').getBoundingClientRect();
+
+    expect(parent.top).toBeGreaterThanOrEqual(header.bottom);
+  });
+
   it('shows a card’s sentence small and in the interface font', async () => {
     const scope = pageWith();
     await scope.fresh();
