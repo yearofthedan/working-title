@@ -15,14 +15,14 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 | Layer | File | Holds |
 | --- | --- | --- |
-| Language | `src/ui/focus/focus.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase is one line calling it |
+| Language | `src/ui/focus/focus.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
 | Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
 | Protocol driver | `src/test-helpers/vitest-browser.driver.ts`, `src/test-helpers/playwright.driver.ts` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
 | Spec fixture | `e2e/writer.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver |
 
 - **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver or the contract: a test, another language file, a driver and `src/test-helpers/` are what may. `./do layers` refuses the rest.
 - **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
-- **Only a driver finds an element**, by role or label, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a call to any element-finding API in `e2e/`, in a browser test and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
+- **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a call to any element-finding API in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
 
 ## Levels and names
 
