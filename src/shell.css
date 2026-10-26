@@ -106,7 +106,7 @@ main {
     overflow: hidden;
   }
 
-  legend :is(h2, h3) {
+  legend :is(h2, h3, h4) {
     margin: 0;
     font-family: var(--font-interface);
     font-size: var(--text-interface);

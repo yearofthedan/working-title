@@ -9,7 +9,7 @@ And adds a scene under beat 4
 Then the writer sees
 - main:
   - group "The story":
-    - heading "The story" [level=3]:
+    - heading "The story" [level=2]:
       - button "The story"
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -23,12 +23,12 @@ Then the writer sees
     - heading "Beat 3" [level=3]:
       - button "Beat 3"
   - group "Beat 4":
-    - heading "Beat 4" [level=2]
+    - heading "Beat 4" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
   - group "Scene 1":
-    - heading "Scene 1" [level=3]:
+    - heading "Scene 1" [level=4]:
       - button "Scene 1"
     - text: List line
     - textbox "List line"
@@ -48,7 +48,7 @@ And the writer clicks beat 2
 Then the writer sees
 - main:
   - group "The story":
-    - heading "The story" [level=3]:
+    - heading "The story" [level=2]:
       - button "The story"
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -56,17 +56,17 @@ Then the writer sees
     - heading "Beat 1" [level=3]:
       - button "Beat 1"
   - group "Beat 2":
-    - heading "Beat 2" [level=2]
+    - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
   - group "Scene 1":
-    - heading "Scene 1" [level=3]:
+    - heading "Scene 1" [level=4]:
       - button "Scene 1"
     - text: List line
     - textbox "List line"
   - group "Scene 2":
-    - heading "Scene 2" [level=3]:
+    - heading "Scene 2" [level=4]:
       - button "Scene 2"
     - text: List line
     - textbox "List line": Maren bribes the harbourmaster for the log

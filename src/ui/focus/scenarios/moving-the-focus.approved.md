@@ -48,7 +48,7 @@ Then beat 2 is in focus, with the story above it and beats 1, 3, 4 and 5 beside 
 Then the writer sees
 - main:
   - group "The story":
-    - heading "The story" [level=3]:
+    - heading "The story" [level=2]:
       - button "The story"
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -56,7 +56,7 @@ Then the writer sees
     - heading "Beat 1" [level=3]:
       - button "Beat 1"
   - group "Beat 2":
-    - heading "Beat 2" [level=2]
+    - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
@@ -81,7 +81,7 @@ Then beat 3 is in focus, with beats 1, 2, 4 and 5 beside it
 Then the writer sees
 - main:
   - group "The story":
-    - heading "The story" [level=3]:
+    - heading "The story" [level=2]:
       - button "The story"
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -92,7 +92,7 @@ Then the writer sees
     - heading "Beat 2" [level=3]:
       - button "Beat 2"
   - group "Beat 3":
-    - heading "Beat 3" [level=2]
+    - heading "Beat 3" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
@@ -116,7 +116,7 @@ Then beat 2 is in focus, with scenes 1 and 2 under it
 Then the writer sees
 - main:
   - group "The story":
-    - heading "The story" [level=3]:
+    - heading "The story" [level=2]:
       - button "The story"
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -124,17 +124,17 @@ Then the writer sees
     - heading "Beat 1" [level=3]:
       - button "Beat 1"
   - group "Beat 2":
-    - heading "Beat 2" [level=2]
+    - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
   - group "Scene 1":
-    - heading "Scene 1" [level=3]:
+    - heading "Scene 1" [level=4]:
       - button "Scene 1"
     - text: List line
     - textbox "List line"
   - group "Scene 2":
-    - heading "Scene 2" [level=3]:
+    - heading "Scene 2" [level=4]:
       - button "Scene 2"
     - text: List line
     - textbox "List line"
@@ -167,10 +167,10 @@ Then the writer sees
     - text: One-sentence summary
     - textbox "One-sentence summary"
   - group "Scene 1":
-    - heading "Scene 1" [level=3]:
+    - heading "Scene 1" [level=4]:
       - button "Scene 1"
   - group "Scene 2":
-    - heading "Scene 2" [level=2]
+    - heading "Scene 2" [level=4]
     - text: List line
     - textbox "List line"
 ```

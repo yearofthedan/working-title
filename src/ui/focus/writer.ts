@@ -13,18 +13,20 @@ const arrows: Readonly<Record<string, string>> = {
 interface Drawn {
   readonly name: string;
   readonly kind: string;
+  readonly current: boolean;
   readonly box: DOMRect;
 }
 
 const drawn = (): readonly Drawn[] =>
   [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
-    name: card.querySelector('h2, h3')?.textContent ?? '',
+    name: card.querySelector('h2, h3, h4')?.textContent ?? '',
     kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
+    current: card.getAttribute('aria-current') === 'location',
     box: card.getBoundingClientRect(),
   }));
 
 const inFocus = (name: string): Drawn => {
-  const focused = drawn().filter((piece) => piece.kind === 'focus');
+  const focused = drawn().filter((piece) => piece.current);
   const [only] = focused;
   if (focused.length !== 1 || only?.name !== name) {
     throw new Error(`the piece in focus is ${only?.name ?? 'nothing'}, not ${name}`);

@@ -23,7 +23,7 @@ const cards = (kind: string): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>(`main fieldset.${kind}`),
 ];
 
-const nameOf = (card: HTMLElement): string => card.querySelector('h2, h3')!.textContent ?? '';
+const nameOf = (card: HTMLElement): string => card.querySelector('h2, h3, h4')!.textContent ?? '';
 
 const centreOf = (card: Element): number => {
   const box = card.getBoundingClientRect();
@@ -198,6 +198,26 @@ describe('the graph around the focus', () => {
       await scope.press('Tab');
       expect(document.activeElement?.closest('fieldset.hidden') ?? null).toBeNull();
     }
+  });
+
+  it("marks each piece's depth in its heading, and the focus with aria-current", async () => {
+    const scope = pageWith(2);
+    await scope.fresh();
+    await scope.group('Beat 4').click();
+
+    const level = (name: string): string =>
+      [...document.querySelectorAll<HTMLElement>('main fieldset')]
+        .find((card) => nameOf(card) === name)!
+        .querySelector('h2, h3, h4')!.tagName;
+
+    expect(level('The story')).toBe('H2');
+    expect(level('Beat 1')).toBe('H3');
+    expect(level('Beat 4')).toBe('H3');
+    expect(level('Scene 1')).toBe('H4');
+
+    const current = [...document.querySelectorAll('main fieldset[aria-current="location"]')];
+    expect(current).toEqual([focused()]);
+    expect(nameOf(focused())).toBe('Beat 4');
   });
 });
 
