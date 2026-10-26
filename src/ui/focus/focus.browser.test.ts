@@ -12,8 +12,11 @@ const pageWith = (scenes = 0, width = 1440): PageScope => {
     const main = await thePage(width);
     await openTheApp(main);
     if (scenes === 0) return;
-    await scope.group('Beat 4').click();
-    for (let at = 0; at < scenes; at += 1) await scope.group('Beat 4').press('Add a scene');
+    for (let at = 0; at < scenes; at += 1) {
+      await scope.group('Beat 4').click();
+      await scope.group('Beat 4').press('Add a scene');
+    }
+    await openTheApp(main);
   });
   return scope;
 };
@@ -483,6 +486,23 @@ describe('moving the focus', () => {
     expect(reached).toContain(focused().querySelector('textarea'));
     expect(reached).not.toContain(left);
   });
+
+  it('moves the focus to the new scene, and ↑ then ↓ returns to it', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+    await scope.group('Beat 2').press('Add a scene');
+
+    expect(nameOf(focused())).toBe('Scene 1');
+    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+
+    await scope.press('Escape');
+    await scope.press('ArrowUp');
+    expect(nameOf(focused())).toBe('Beat 2');
+
+    await scope.press('ArrowDown');
+    expect(nameOf(focused())).toBe('Scene 1');
+  });
 });
 
 describe('what a move leaves alone', () => {
@@ -521,15 +541,5 @@ describe('what a move leaves alone', () => {
     await scope.group('Beat 4').click();
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
-  });
-
-  it('keeps the focus on the piece, with the cursor in the new scene when one is added', async () => {
-    const scope = pageWith();
-    await scope.fresh();
-    await scope.group('Beat 2').click();
-    await scope.group('Beat 2').press('Add a scene');
-
-    expect(nameOf(focused())).toBe('Beat 2');
-    expect(document.activeElement).toBe(named('card', 'Scene 1').querySelector('textarea'));
   });
 });

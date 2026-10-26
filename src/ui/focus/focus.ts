@@ -161,7 +161,10 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
     button.type = 'button';
     button.textContent = `Add a ${piece.childKind.toLowerCase()}`;
     button.addEventListener('mousedown', (event) => event.preventDefault());
-    button.addEventListener('click', () => void addUnder(st, piece.id));
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      void addUnder(st, piece.id);
+    });
     card.append(button);
   }
 
@@ -323,7 +326,8 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   const { focus: next, added } = await st.focus.branch(pieceId);
   st.focus = next;
   draw(st);
-  st.cards.get(added)?.querySelector('textarea')?.focus({ preventScroll: true });
+  const into = st.cards.get(added)?.querySelector('textarea') ?? undefined;
+  goTo(st, added, into);
 };
 
 const onKeyDown = (event: KeyboardEvent): void => {

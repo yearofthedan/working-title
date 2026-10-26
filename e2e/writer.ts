@@ -23,6 +23,9 @@ const writerOn = (page: Page): Writer => {
     reload: async () => {
       await page.reload();
     },
+    reopen: async () => {
+      await page.goto('/');
+    },
     ...fieldsOn(page),
     ...stepsOn(page),
     press: async (key) => {

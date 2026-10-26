@@ -12,6 +12,7 @@ export interface Group {
 
 export interface PageScope {
   fresh(): Promise<void>;
+  reopen(): Promise<void>;
   field(label: string): Field;
   group(name: string): Group;
   press(key: string): Promise<void>;

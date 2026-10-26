@@ -89,6 +89,9 @@ const under = (focus: Drawn, names: readonly string[]): void => {
 
 export const focusPageActions = (scope: PageScope): Record<string, StepAction> => {
   const adding = async (beat: string): Promise<void> => {
+    const wanted = `group "${beat.toLowerCase()}"`;
+    const onGraph = (await scope.tree()).some((line) => line.toLowerCase().includes(wanted));
+    if (!onGraph) await scope.step('The story');
     await scope.group(beat).click();
     await scope.group(beat).press('Add a scene');
   };
@@ -103,6 +106,7 @@ export const focusPageActions = (scope: PageScope): Record<string, StepAction> =
       await scope.fresh();
       await adding(beat);
       await adding(beat);
+      await scope.reopen();
     },
     'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
       scope.group(piece).field(facet).enter(text),
