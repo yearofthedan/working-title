@@ -132,7 +132,7 @@ describe('the graph around the focus', () => {
   it('puts the parent straight above the focus and the children in a row under it', async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     const focus = focused();
     const parent = named('card', 'The story');
@@ -155,7 +155,7 @@ describe('the graph around the focus', () => {
   it('centres a row of eight scenes under the focus, inside main at 1440 px', async () => {
     const { driver, writer } = pageWith(8, 1440);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     expect(children).toHaveLength(8);
@@ -169,7 +169,7 @@ describe('the graph around the focus', () => {
   it('cuts a row of eight scenes off evenly at both edges at 1100 px', async () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     const bounds = pane().getBoundingClientRect();
@@ -182,7 +182,7 @@ describe('the graph around the focus', () => {
   it('puts the earlier siblings left of the focus and the later ones right, on its row', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
 
     const focus = focused();
     const box = focus.getBoundingClientRect();
@@ -200,7 +200,7 @@ describe('the graph around the focus', () => {
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
     const { driver, writer } = pageWith(8);
     await driver.fresh();
-    await writer.focuses('The story');
+    await writer.clicks('The story');
 
     expect(cards('hidden')).toHaveLength(8);
     expect((await driver.tree()).join('\n')).not.toContain('Scene');
@@ -214,7 +214,7 @@ describe('the graph around the focus', () => {
   it("marks each piece's depth in its heading, and the focus with aria-current", async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     const level = (name: string): string =>
       [...document.querySelectorAll<HTMLElement>('main fieldset')]
@@ -267,7 +267,7 @@ describe('the graph around the focus', () => {
     async (width) => {
       const { driver, writer } = pageWith(0, width);
       await driver.fresh();
-      await writer.focuses('Beat 2');
+      await writer.clicks('Beat 2');
 
       const bounds = pane().getBoundingClientRect();
       const box = focused().getBoundingClientRect();
@@ -283,7 +283,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(0, 400);
     await driver.fresh();
     await browser.page.viewport(400, 500);
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const header = document.querySelector('header')!.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
@@ -294,7 +294,7 @@ describe('the graph around the focus', () => {
   it('shows a card’s sentence small and in the interface font', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const card = named('card', 'The story');
     const sentence = getComputedStyle(card.querySelector('.shown')!);
@@ -308,7 +308,7 @@ describe('the graph around the focus', () => {
   it('draws a chip sized to its name, with the name whole inside it', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
 
     const chip = named('chip', 'Beat 1');
     const legend = chip.querySelector('legend')!;
@@ -327,7 +327,7 @@ describe('the graph around the focus', () => {
   it('keeps the add button inside the focus card', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const card = focused();
     const body = card.querySelector('.facet')!.getBoundingClientRect();
@@ -352,7 +352,7 @@ describe('moving the focus', () => {
   it('leaves the focus where it is when ↓ has no child to go to', async () => {
     const { driver, writer } = pageWith(1);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
     await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
 
@@ -363,7 +363,7 @@ describe('moving the focus', () => {
   it('leaves the focus on the first sibling when ← has nowhere to go', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 1');
+    await writer.clicks('Beat 1');
     await driver.press('ArrowLeft');
 
     expect(nameOf(focused())).toBe('Beat 1');
@@ -372,7 +372,7 @@ describe('moving the focus', () => {
   it('leaves the focus on the last sibling when → has nowhere to go', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 5');
+    await writer.clicks('Beat 5');
     await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 5');
@@ -381,7 +381,7 @@ describe('moving the focus', () => {
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     await driver.press('ArrowRight');
     expect(nameOf(focused())).toBe('Beat 3');
@@ -396,7 +396,7 @@ describe('moving the focus', () => {
   it('moves down to the first child, and then to the child last visited', async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
@@ -414,7 +414,7 @@ describe('moving the focus', () => {
   it('moves the focus with → from a sibling’s name button', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
 
     named('chip', 'Beat 1').querySelector('button')!.focus();
     await driver.press('ArrowRight');
@@ -426,7 +426,7 @@ describe('moving the focus', () => {
   it('moves the focus with ↓ from the add button', async () => {
     const { driver, writer } = pageWith(1);
     await driver.fresh();
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     const add = focused().querySelector('button')!;
     expect(add.textContent).toBe('Add a scene');
@@ -440,13 +440,13 @@ describe('moving the focus', () => {
   it('still presses a name button with Enter and with Space', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
 
     named('chip', 'Beat 1').querySelector('button')!.focus();
     await driver.press('Enter');
     expect(nameOf(focused())).toBe('Beat 1');
 
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
     named('chip', 'Beat 5').querySelector('button')!.focus();
     await driver.press('Space');
     expect(nameOf(focused())).toBe('Beat 5');
@@ -455,7 +455,7 @@ describe('moving the focus', () => {
   it('leaves the focus where it is while the cursor is in a sentence', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
     await driver.press('Enter');
     await driver.press('ArrowRight');
 
@@ -466,7 +466,7 @@ describe('moving the focus', () => {
   it('puts the cursor on the focus card with Esc, and the arrows then move the focus', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
     await driver.press('Enter');
     await driver.press('Escape');
 
@@ -480,7 +480,7 @@ describe('moving the focus', () => {
   it("puts the cursor in the focus card's sentence with Enter", async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
     await driver.press('Enter');
 
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
@@ -494,15 +494,15 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('Beat 1');
     expect(document.activeElement).toBe(focused());
 
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
     expect(nameOf(focused())).toBe('Beat 3');
     expect(document.activeElement).toBe(focused());
 
-    await writer.focuses('The story');
+    await writer.clicks('The story');
     expect(nameOf(focused())).toBe('The story');
     expect(document.activeElement).toBe(focused());
 
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
 
@@ -517,7 +517,7 @@ describe('moving the focus', () => {
   it('reaches every sibling with Tab, and Enter on one moves the focus there', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 3');
+    await writer.clicks('Beat 3');
 
     for (const card of [...cards('card'), ...cards('chip')]) {
       if (card === focused()) continue;
@@ -544,7 +544,7 @@ describe('moving the focus', () => {
   it('leaves the focus where it is when an arrow key is held with a modifier', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const held: boolean[] = [];
     document.addEventListener('keydown', (event) => {
@@ -592,7 +592,7 @@ describe('moving the focus', () => {
   it('tabs into the sentence of the piece it moved to, and not the one it left', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const left = named('card', 'The story').querySelector('textarea')!;
     const reached: Element[] = [];
@@ -608,7 +608,7 @@ describe('moving the focus', () => {
   it('never puts the cursor on the add button through the press', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
 
     const held: string[] = [];
     document.addEventListener('focusin', (event) => {
@@ -624,7 +624,7 @@ describe('moving the focus', () => {
   it('moves the focus to the new scene, and ↑ then ↓ returns to it', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
     await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
     expect(nameOf(focused())).toBe('Scene 1');
@@ -652,7 +652,7 @@ describe('what a move leaves alone', () => {
 
     await driver.press('ArrowRight');
     await driver.press('ArrowUp');
-    await writer.focuses('Beat 1');
+    await writer.clicks('Beat 1');
 
     expect(localStorage.getItem(stored)).toBe(before);
   });
@@ -660,7 +660,7 @@ describe('what a move leaves alone', () => {
   it('opens on the story when the page is drawn again', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    await writer.focuses('Beat 2');
+    await writer.clicks('Beat 2');
     expect(nameOf(focused())).toBe('Beat 2');
 
     await openTheApp(pane());
@@ -675,7 +675,7 @@ describe('what a move leaves alone', () => {
     await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
 
     await openTheApp(pane());
-    await writer.focuses('Beat 4');
+    await writer.clicks('Beat 4');
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
   });

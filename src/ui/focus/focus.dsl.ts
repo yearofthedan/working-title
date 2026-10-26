@@ -11,6 +11,7 @@ const arrows: Readonly<Record<string, string>> = {
 export interface Writer {
   opensANewProject(): Promise<void>;
   reopens(): Promise<void>;
+  clicks(piece: string): Promise<void>;
   focuses(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
@@ -32,16 +33,20 @@ const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
 export const writerOn = (driver: Driver): Writer => {
+  const clicking = (piece: string): Promise<void> =>
+    driver.click('heading', piece, { role: 'group', name: piece });
+
   const reaching = async (piece: string): Promise<void> => {
     if (!shows(await driver.tree(), piece)) {
       await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
     }
-    await driver.click('heading', piece, { role: 'group', name: piece });
+    await clicking(piece);
   };
 
   return {
     opensANewProject: () => driver.fresh(),
     reopens: () => driver.reopen(),
+    clicks: clicking,
     focuses: reaching,
     moves: (direction) => driver.press(arrows[direction] ?? direction),
     addsASceneUnder: async (beat) => {
@@ -128,7 +133,7 @@ export const focusSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
   'the story is on screen': () => writer.opensANewProject(),
-  'the writer clicks {piece}': ({ piece }) => writer.focuses(piece),
+  'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
   'a project with two scenes under {beat}': async ({ beat }) => {
     await writer.opensANewProject();

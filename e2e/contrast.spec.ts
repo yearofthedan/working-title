@@ -24,7 +24,6 @@ test("all text on the graph meets 4.5:1 contrast with a scene's long list line",
   writer,
 }) => {
   await writer.opensANewProject();
-  await writer.focuses('Beat 2');
   await writer.addsASceneUnder('Beat 2');
   await writer.types(longSentence, { piece: 'Scene 1', facet: 'List line' });
 
