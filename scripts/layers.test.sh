@@ -142,4 +142,18 @@ run_layers
 allowed "a test file and src/test-helpers/ reach a language file"
 not_out 'error' "nothing is reported where the scenario layers keep to themselves"
 
+write e2e/journey.dsl.ts "import type { StepAction } from '../src/test-helpers/steps';
+export const steps = (): StepAction => () => undefined;"
+run_layers
+refused "a journey language file that does not import the driver contract is refused"
+expect_out 'dsl-on-the-driver-contract: e2e/journey.dsl.ts' "the language file in e2e/ is named"
+
+write e2e/journey.dsl.ts "import type { Driver } from '../src/test-helpers/driver';
+export const journeyOn = (driver: Driver): Driver => driver;"
+write e2e/journey.spec.ts "import { journeyOn } from './journey.dsl';
+export const journey = journeyOn;"
+run_layers
+allowed "the journey language on the driver contract is allowed, and a spec reaches it"
+not_out 'error' "nothing is reported of e2e/ keeping to the contract"
+
 finish

@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, and any cycle, in the files given (src when none are). The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, any cycle, and a scenario file outside its layer, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
 
 set -eu
 
@@ -12,6 +12,9 @@ fi
 
 if [ "$#" -eq 0 ]; then
   set -- src
+  if [ -d e2e ]; then
+    set -- src e2e
+  fi
 fi
 
 exec depcruise --config "$root/.dependency-cruiser.mjs" --output-type err-long -- "$@"
