@@ -232,6 +232,9 @@ const place = (st: State): void => {
     card.style.width = `${widthOf(st, piece.id)}px`;
     if (piece.id === st.at) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
+    for (const sentence of card.querySelectorAll('textarea')) {
+      sentence.tabIndex = piece.id === st.at ? 0 : -1;
+    }
   }
 
   for (const { piece } of pieces) setHeading(st, piece);

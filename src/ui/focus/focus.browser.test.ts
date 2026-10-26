@@ -447,6 +447,42 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('Beat 2');
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
   });
+
+  it('never tabs into a sentence that is not the focus’s', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+
+    const strayed: string[] = [];
+    for (let at = 0; at < 20; at += 1) {
+      await scope.press('Tab');
+      const card = document.activeElement?.closest('fieldset') ?? null;
+      if (
+        card !== null &&
+        card !== focused() &&
+        document.activeElement instanceof HTMLTextAreaElement
+      ) {
+        strayed.push(nameOf(card as HTMLElement));
+      }
+    }
+
+    expect(strayed).toEqual([]);
+  });
+
+  it('tabs into the sentence of the piece it moved to, and not the one it left', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 2').click();
+
+    const left = named('card', 'The story').querySelector('textarea')!;
+    const reached: Element[] = [];
+    for (let at = 0; at < 20; at += 1) {
+      await scope.press('Tab');
+      reached.push(document.activeElement!);
+    }
+
+    expect(reached).toContain(focused().querySelector('textarea'));
+    expect(reached).not.toContain(left);
+  });
 });
 
 describe('what a move leaves alone', () => {
