@@ -327,6 +327,33 @@ describe('moving the focus', () => {
     expect(document.activeElement).toBe(focused());
   });
 
+  it('reaches every sibling with Tab, and Enter on one moves the focus there', async () => {
+    const scope = pageWith();
+    await scope.fresh();
+    await scope.group('Beat 3').click();
+
+    for (const card of [...cards('card'), ...cards('chip')]) {
+      if (card === focused()) continue;
+      expect(card.querySelector('button')).not.toBeNull();
+    }
+    expect(focused().querySelector('legend button')).toBeNull();
+
+    const reached: string[] = [];
+    for (let at = 0; at < 20 && reached.length < 4; at += 1) {
+      await scope.press('Tab');
+      const chip = document.activeElement?.closest('fieldset.chip') ?? null;
+      if (chip !== null) reached.push(nameOf(chip as HTMLElement));
+    }
+    expect([...reached].sort()).toEqual(['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5']);
+
+    const button = named('chip', 'Beat 4').querySelector('button')!;
+    button.focus();
+    await scope.press('Enter');
+
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(document.activeElement).toBe(focused());
+  });
+
   it('moves the focus to a piece whose sentence is clicked, with the cursor in it', async () => {
     const scope = pageWith();
     await scope.fresh();

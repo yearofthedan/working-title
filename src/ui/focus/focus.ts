@@ -97,6 +97,32 @@ const move = (st: State, where: 'up' | 'down' | 'left' | 'right'): void => {
   if (next !== undefined) goTo(st, next.piece.id);
 };
 
+const nameButton = (piece: PieceView): HTMLElement => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = piece.name;
+  return button;
+};
+
+const setHeading = (st: State, piece: PieceView): void => {
+  const focused = piece.id === st.at;
+  const tag = focused ? 'h2' : 'h3';
+  const card = st.cards.get(piece.id)!;
+  const found = card.querySelector('h2, h3');
+  const heading =
+    found !== null && found.tagName.toLowerCase() === tag ? found : document.createElement(tag);
+  if (heading !== found) found?.replaceWith(heading);
+  if (
+    (heading.querySelector('button') === null) === focused &&
+    heading.textContent === piece.name
+  ) {
+    return;
+  }
+  heading.replaceChildren(
+    ...(focused ? [document.createTextNode(piece.name)] : [nameButton(piece)]),
+  );
+};
+
 const field = (
   pieceId: string,
   { id, label, text }: FacetView,
@@ -195,15 +221,7 @@ const place = (st: State): void => {
     card.style.width = `${widthOf(st, piece.id)}px`;
   }
 
-  for (const { piece } of pieces) {
-    const heading = st.cards.get(piece.id)?.querySelector('h2, h3');
-    const tag = piece.id === st.at ? 'h2' : 'h3';
-    if (heading != null && heading.tagName.toLowerCase() !== tag) {
-      const next = document.createElement(tag);
-      next.textContent = heading.textContent;
-      heading.replaceWith(next);
-    }
-  }
+  for (const { piece } of pieces) setHeading(st, piece);
 
   const centre = st.wrapper.clientWidth / 2;
   const parentId = entryOf(st, st.at)?.parentId;

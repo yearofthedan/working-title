@@ -36,7 +36,10 @@ interface Found extends Clickable {
 
 interface Finds {
   getByLabel(text: RegExp): Found;
-  getByRole(role: 'group' | 'button' | 'heading', options: { name: RegExp }): Finds & Clickable;
+  getByRole(
+    role: 'group' | 'button' | 'heading' | 'navigation',
+    options: { name: RegExp },
+  ): Finds & Clickable;
 }
 
 const fieldIn = (within: Finds, label: string): Field => {
@@ -63,7 +66,11 @@ export const fieldsOn = (page: Finds): Pick<PageScope, 'field' | 'group'> => ({
 });
 
 export const stepsOn = (page: Finds): Pick<PageScope, 'step'> => ({
-  step: (name) => page.getByRole('button', { name: wholeNameAnyCase(name) }).click(),
+  step: (name) =>
+    page
+      .getByRole('navigation', { name: wholeNameAnyCase('Where you are') })
+      .getByRole('button', { name: wholeNameAnyCase(name) })
+      .click(),
 });
 
 export const linesOf = (tree: string): readonly string[] =>

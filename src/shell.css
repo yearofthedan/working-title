@@ -116,6 +116,20 @@ main {
     white-space: nowrap;
   }
 
+  legend button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  legend button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
   .chip legend {
     border-bottom: 1px solid var(--color-edge);
     border-radius: var(--space-2);
