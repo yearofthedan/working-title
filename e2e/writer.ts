@@ -1,52 +1,29 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test as base, type Locator, type Page } from '@playwright/test';
-import { fieldsOn, linesOf, stepsOn, type AppScope } from '../src/test-helpers/scope';
+import { expect, test as base, type Locator, type Page } from '@playwright/test';
+import { playwrightDriver } from '../src/test-helpers/playwright.driver';
+import { seesOn, type Sees } from '../src/ui/focus/focus.dsl';
+import { journeyOn, type Journey } from './journey.dsl';
 
 export interface ContrastFinding {
   readonly target: string;
   readonly message: string;
 }
 
-export interface Writer {
-  readonly scope: AppScope;
-  opensTheApp(): Promise<void>;
-  reloads(): Promise<void>;
+export interface Fixture extends Journey {
+  readonly sees: Sees;
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theAppsName: Locator;
 }
 
-const writerOn = (page: Page): Writer => {
-  const scope: AppScope = {
-    fresh: async () => {
-      await page.goto('/');
-    },
-    reload: async () => {
-      await page.reload();
-    },
-    reopen: async () => {
-      await page.goto('/');
-    },
-    ...fieldsOn(page),
-    ...stepsOn(page),
-    press: async (key) => {
-      await page.keyboard.press(key);
-    },
-    tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
-  };
+const fixtureOn = (page: Page): Fixture => {
+  const driver = playwrightDriver(page);
 
   return {
-    scope,
-
-    opensTheApp: async () => {
-      await page.goto('/');
-    },
-
-    reloads: async () => {
-      await page.reload();
-    },
+    ...journeyOn(driver),
+    sees: seesOn(driver),
 
     contrastViolations: async () => {
-      await page.getByRole('main').getByRole('group').first().waitFor();
+      expect(await driver.drawn(), 'the graph is drawn').not.toHaveLength(0);
       const { violations } = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
       return violations.flatMap((violation) =>
         violation.nodes.map((node) => ({
@@ -56,13 +33,13 @@ const writerOn = (page: Page): Writer => {
       );
     },
 
-    theAppsName: page.getByRole('heading', { name: 'working-title' }),
+    theAppsName: driver.theAppsName,
   };
 };
 
-export const test = base.extend<{ writer: Writer }>({
+export const test = base.extend<{ writer: Fixture }>({
   writer: async ({ page }, use) => {
-    await use(writerOn(page));
+    await use(fixtureOn(page));
   },
 });
 

@@ -1,8 +1,8 @@
 import type { BrowserContext, Page, Response } from '@playwright/test';
-import { expect, test, type Writer } from './writer';
+import { expect, test, type Fixture } from './writer';
 
-async function loadOnceThenGoOffline(writer: Writer, page: Page, context: BrowserContext) {
-  await writer.opensTheApp();
+async function loadOnceThenGoOffline(writer: Fixture, page: Page, context: BrowserContext) {
+  await writer.opensANewProject();
   await page.evaluate(() => navigator.serviceWorker.ready);
   await context.setOffline(true);
   const reachable = await page.evaluate(() =>

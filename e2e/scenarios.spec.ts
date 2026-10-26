@@ -3,7 +3,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readScenarioFile } from '../src/test-helpers/scenario-file';
 import { playScenarios, type Runner } from '../src/test-helpers/play';
-import { journeyActions } from './journey';
+import { journeySteps } from './journey.dsl';
 import { test } from './writer';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -19,7 +19,7 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
   test.describe(path, () => {
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       test(behaviour, async ({ writer }) => {
-        const tree = async () => writer.scope.tree();
+        const tree = async () => writer.sees.tree();
         const runner: Runner =
           approvingPath === ''
             ? { tree }
@@ -31,7 +31,7 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
                 },
               };
 
-        await playScenarios({ path, text }, runner, journeyActions(writer.scope), {
+        await playScenarios({ path, text }, runner, journeySteps(writer, writer.sees), {
           only: behaviour,
           ...(approvingPath === '' ? {} : { approve: true }),
         });
