@@ -14,7 +14,7 @@ mkdir -p "$project"
 
 write() {
   mkdir -p "$project/$(dirname "$1")"
-  printf 'x\n' >"$project/$1"
+  printf '%s\n' "${2:-x}" >"$project/$1"
 }
 
 stage() {
@@ -143,5 +143,39 @@ mkdir -p "$empty"
 names_in "$empty"
 expect_status 1 "a repository with nothing tracked is not a pass"
 expect_err 'no tracked file was read' "the failure says nothing was read"
+
+rm -rf "$project/odd" "$project/mx" "$project/docs/Untracked.md"
+stage
+names
+expect_status 0 "a tree whose names follow the convention passes, before the step phrases are read"
+
+write src/ui/focus/actions.ts "import type { StepAction } from '../../test-helpers/steps';
+export const actions: Record<string, StepAction> = {};"
+stage
+names
+expect_status 1 "a file naming StepAction outside a language file is refused"
+expect_out '^src/ui/focus/actions\.ts$' "the file that is not a language file is named"
+expect_err 'is a \*\.dsl\.ts' "the failure states the rule"
+
+rm "$project/src/ui/focus/actions.ts"
+write src/ui/focus/actions.dsl.ts "import type { StepAction } from '../../test-helpers/steps';
+export const actions: Record<string, StepAction> = {};"
+stage
+names
+expect_status 0 "a language file naming StepAction passes"
+expect_out 'every file naming StepAction is a \*\.dsl\.ts, outside src/test-helpers/' \
+  "a pass says the step phrases were read"
+
+write src/test-helpers/steps.ts 'export type StepAction = () => void;'
+write src/test-helpers/play.test.ts "import type { StepAction } from './steps';
+export const actions: Record<string, StepAction> = {};"
+stage
+names
+expect_status 0 "src/test-helpers/ names StepAction and passes"
+if grep -q '^src/test-helpers/steps\.ts$' "$work/out"; then
+  no "the runner is not named as a file in the wrong layer"
+else
+  ok "the runner is not named as a file in the wrong layer"
+fi
 
 finish
