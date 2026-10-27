@@ -37,6 +37,8 @@ Fill the rest of the template as its own comments say: they are the authority on
 
 **Each scenario is checked against the recorded ones.** Before writing a scenario, read the scenario files [the testing standard](../../../docs/standards/testing.md#approved-scenarios) keeps, and say for each scenario which recorded one it restates, changes or adds to, or that it is new. A restated scenario is cut. One that adds to or changes a recorded behaviour is written as it will read in that behaviour's file, and a change to a recorded scenario is a change to existing behaviour, shown to the builder as one. A story that changes only how recorded scenarios look names their files, whose recorded trees change, as its criteria, with a screenshot for what no tree records.
 
+**A change the writer sees is designed before it is drafted.** Where a rule changes what the writer sees or does, including how something appears, moves, scrolls or takes focus, work it out as [the designing-ux skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/designing-ux/SKILL.md) says before writing the rule.
+
 ## Check a draft already filed
 
 A filed draft without the `ready` label gets the same checks, against the template's own comments and the checks above. Before calling something a gap, read how the agreed stories and tasks handle it: what they share is the convention, and a draft that follows it passes, unless a template comment says otherwise. Show each proposed change to the builder, and edit the issue once they agree.
