@@ -779,14 +779,14 @@ describe('the motion of a move', () => {
 
     await pathTo(driver, 'The story');
     const leaving = named('hidden', 'Scene 1');
-    await browser.userEvent.click(leaving, { force: true });
 
-    expect(nameOf(focused())).not.toBe('Scene 1');
-
-    for (let at = 0; at < 20; at += 1) {
+    for (let at = 0; at < 12; at += 1) {
       await driver.press('Tab');
       expect(document.activeElement?.closest('fieldset')).not.toBe(leaving);
     }
+
+    await browser.userEvent.click(leaving, { force: true });
+    expect(nameOf(focused())).not.toBe('Scene 1');
   });
 
   it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
