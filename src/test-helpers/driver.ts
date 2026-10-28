@@ -21,6 +21,11 @@ export interface Drawn {
   readonly box: Box;
 }
 
+export const settled = async (): Promise<void> => {
+  void document.body.offsetWidth;
+  await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+};
+
 export const drawn = (): readonly Drawn[] =>
   [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
     name: card.querySelector('h2, h3, h4')?.textContent ?? '',

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import type { Driver } from '../../test-helpers/driver';
+import { settled, type Driver } from '../../test-helpers/driver';
 import { openTheApp, thePage } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { writerOn, type Writer } from './focus.dsl';
@@ -74,6 +74,64 @@ const laidOut = (): Promise<void> => {
   return promise;
 };
 
+const moving = (): readonly Animation[] => {
+  void document.body.offsetWidth;
+  return document.getAnimations();
+};
+
+const boxes = (): readonly string[] =>
+  [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => {
+    const box = card.getBoundingClientRect();
+    return `${nameOf(card)} ${box.left} ${box.top} ${box.width} ${box.height}`;
+  });
+
+const pathTo = (driver: Driver, piece: string): Promise<void> =>
+  driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
+
+const moves: ReadonlyArray<{
+  readonly what: string;
+  readonly play: (writer: Writer, driver: Driver) => Promise<void>;
+}> = [
+  {
+    what: 'a click on a card',
+    play: async (writer) => {
+      await writer.clicks('Beat 2');
+    },
+  },
+  {
+    what: 'a click on a chip',
+    play: async (writer) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await writer.clicks('Beat 5');
+    },
+  },
+  {
+    what: 'an arrow key',
+    play: async (writer, driver) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await driver.press('ArrowRight');
+    },
+  },
+  {
+    what: 'a step of the path',
+    play: async (writer, driver) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await pathTo(driver, 'The story');
+    },
+  },
+  {
+    what: 'adding a scene',
+    play: async (writer) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await writer.addsASceneUnder('Beat 2');
+    },
+  },
+];
+
 describe('the focus page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
     const { driver, writer } = pageWith();
@@ -121,6 +179,7 @@ describe('the graph around the focus', () => {
       'A widowed lighthouse keeper trades her last winter of fuel for a stranger\u2019s chart, then finds the chart leads back to the harbour where her husband\u2019s boat went down.',
       { piece: 'The story', facet: 'One-sentence summary' },
     );
+    await laidOut();
 
     const field = focused().querySelector('textarea')!;
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
@@ -133,6 +192,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const focus = focused();
     const parent = named('card', 'The story');
@@ -156,6 +216,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(8, 1440);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     expect(children).toHaveLength(8);
@@ -170,6 +231,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     const bounds = pane().getBoundingClientRect();
@@ -183,6 +245,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
+    await settled();
 
     const focus = focused();
     const box = focus.getBoundingClientRect();
@@ -268,6 +331,7 @@ describe('the graph around the focus', () => {
       const { driver, writer } = pageWith(0, width);
       await driver.fresh();
       await writer.clicks('Beat 2');
+      await settled();
 
       const bounds = pane().getBoundingClientRect();
       const box = focused().getBoundingClientRect();
@@ -284,6 +348,7 @@ describe('the graph around the focus', () => {
     await driver.fresh();
     await browser.page.viewport(400, 500);
     await writer.clicks('Beat 2');
+    await settled();
 
     const header = document.querySelector('header')!.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
@@ -309,6 +374,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
+    await settled();
 
     const chip = named('chip', 'Beat 1');
     const legend = chip.querySelector('legend')!;
@@ -328,6 +394,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
+    await settled();
 
     const card = focused();
     const body = card.querySelector('.facet')!.getBoundingClientRect();
@@ -678,5 +745,86 @@ describe('what a move leaves alone', () => {
     await writer.clicks('Beat 4');
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
+  });
+});
+
+describe('the motion of a move', () => {
+  it.each(moves)('keeps every animation of $what within 400 ms, easing out', async ({ play }) => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+
+    await play(writer, driver);
+    const animations = moving();
+
+    expect(animations.length).toBeGreaterThan(0);
+    for (const animation of animations) {
+      const timing = animation.effect!.getComputedTiming();
+      expect(timing.duration).toBeLessThanOrEqual(400);
+      expect(timing.easing).not.toBe('linear');
+    }
+  });
+
+  it('draws the page without moving anything', async () => {
+    const { driver } = pageWith(1);
+    await driver.fresh();
+
+    expect(moving()).toEqual([]);
+  });
+
+  it('keeps a piece leaving the graph out of reach while it fades', async () => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    await pathTo(driver, 'The story');
+    const leaving = named('hidden', 'Scene 1');
+    await browser.userEvent.click(leaving, { force: true });
+
+    expect(nameOf(focused())).not.toBe('Scene 1');
+
+    for (let at = 0; at < 20; at += 1) {
+      await driver.press('Tab');
+      expect(document.activeElement?.closest('fieldset')).not.toBe(leaving);
+    }
+  });
+
+  it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
+    const atRest = pageWith(1);
+    await atRest.driver.fresh();
+    await atRest.writer.clicks('Beat 2');
+    await settled();
+    pane().style.width = '720px';
+    await laidOut();
+    await settled();
+    const rest = boxes();
+
+    const partWay = pageWith(1);
+    await partWay.driver.fresh();
+    await partWay.writer.clicks('Beat 2');
+    pane().style.width = '720px';
+    await laidOut();
+    expect(moving().length).toBeGreaterThan(0);
+    await settled();
+    await laidOut();
+    await settled();
+
+    expect(boxes()).toEqual(rest);
+  });
+
+  describe('under reduced motion', () => {
+    afterEach(async () => {
+      await browser.commands.emulateReducedMotion('no-preference');
+    });
+
+    it.each(moves)('moves nothing for $what', async ({ play }) => {
+      const { driver, writer } = pageWith(1);
+      await browser.commands.emulateReducedMotion('reduce');
+      await driver.fresh();
+
+      await play(writer, driver);
+
+      expect(moving()).toEqual([]);
+    });
   });
 });

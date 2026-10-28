@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import { clicking, drawn, linesOf, typing, type Driver } from './driver';
+import { clicking, drawn, linesOf, settled, typing, type Driver } from './driver';
 import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
@@ -32,8 +32,12 @@ export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   },
   click: clicking(browser.page),
   type: typing(browser.page),
-  drawn: async () => drawn(),
+  drawn: async () => {
+    await settled();
+    return drawn();
+  },
   tree: async () => {
+    await settled();
     const main = browser.page.getByRole('main').element();
     return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main)));
   },

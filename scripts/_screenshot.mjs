@@ -30,6 +30,7 @@ for (const piece of clicks) {
   await page.getByRole('heading', { name: piece }).click();
 }
 await page.evaluate(() => document.fonts.ready);
+await page.evaluate(() => Promise.allSettled(document.getAnimations().map((one) => one.finished)));
 await page.mouse.move(0, 0);
 await page.screenshot({ path: file, fullPage: true });
 await browser.close();

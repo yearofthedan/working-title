@@ -26,4 +26,7 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --space-12: 3rem;
+
+  --move: 250ms;
+  --move-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }

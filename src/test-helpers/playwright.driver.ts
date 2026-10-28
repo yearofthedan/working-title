@@ -1,5 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-import { clicking, drawn, linesOf, typing, type ReloadingDriver } from './driver';
+import { clicking, drawn, linesOf, settled, typing, type ReloadingDriver } from './driver';
 
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theAppsName: Locator;
@@ -22,8 +22,12 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => ({
   type: typing(page),
   drawn: async () => {
     await page.getByRole('main').getByRole('group').first().waitFor();
+    await page.evaluate(settled);
     return page.evaluate(drawn);
   },
-  tree: async () => linesOf(await page.getByRole('main').ariaSnapshot()),
+  tree: async () => {
+    await page.evaluate(settled);
+    return linesOf(await page.getByRole('main').ariaSnapshot());
+  },
   theAppsName: page.getByRole('heading', { name: 'working-title' }),
 });
