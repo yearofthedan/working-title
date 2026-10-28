@@ -118,6 +118,13 @@ const stepInto = (before: Frame, now: Frame): number =>
     }),
   );
 
+const movedBy = (before: Frame, now: Frame, what: string): number => {
+  const was = before.boxes.get(what);
+  const is = now.boxes.get(what);
+  if (was === undefined || is === undefined) return 0;
+  return Math.max(Math.abs(is.left - was.left), Math.abs(is.top - was.top));
+};
+
 const arrivalStep = (frames: readonly Frame[]): number => {
   let last = 1;
   for (let at = 1; at < frames.length; at += 1) {
@@ -896,6 +903,30 @@ describe('the motion of a move', () => {
     const first = frames.find((frame) => frame.running > 0)!;
     expect(frames.some((frame) => frame.at > first.at + 270 && frame.running > 0)).toBe(true);
     expect(arrivalStep(frames)).toBeLessThan(10);
+  });
+
+  it('starts a second move part-way through the first without jumping a card', async () => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+
+    let pressed = 0;
+    const frames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await laidOut();
+      pressed = performance.now();
+      await driver.press('ArrowRight');
+      await settled();
+    });
+
+    const story = nameOf(named('card', 'The story'));
+    const before = frames.findLast((frame) => frame.at <= pressed)!;
+    const after = frames.find((frame) => frame.at > pressed)!;
+    const landing = frames.at(-1)!;
+
+    const step = movedBy(before, after, story);
+    const stillToGo = movedBy(before, landing, story);
+
+    expect(step).toBeLessThan(stillToGo / 2);
   });
 
   it('takes a click and a key while a move runs, each landing on the piece it aims at', async () => {

@@ -279,7 +279,8 @@ const place = (st: State): void => {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     const kind = kindOf(st, piece.id);
-    card.style.transitionProperty = kind === 'hidden' ? 'opacity, visibility' : 'opacity';
+    card.style.transitionProperty =
+      kind === 'hidden' ? 'left, top, opacity, visibility' : 'left, top, opacity';
     card.style.height = '';
     card.className = kind;
     card.inert = kind === 'hidden';
