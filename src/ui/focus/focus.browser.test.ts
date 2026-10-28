@@ -88,6 +88,68 @@ const boxes = (): readonly string[] =>
 const pathTo = (driver: Driver, piece: string): Promise<void> =>
   driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
 
+interface Frame {
+  readonly at: number;
+  readonly running: number;
+  readonly boxes: ReadonlyMap<string, DOMRect>;
+}
+
+const stepInto = (before: Frame, now: Frame): number =>
+  Math.max(
+    0,
+    ...[...new Set([...before.boxes.keys(), ...now.boxes.keys()])].map((what) => {
+      const was = before.boxes.get(what);
+      const is = now.boxes.get(what);
+      if (was === undefined || is === undefined) return 0;
+      return Math.max(
+        Math.abs(is.left - was.left),
+        Math.abs(is.top - was.top),
+        Math.abs(is.width - was.width),
+        Math.abs(is.height - was.height),
+      );
+    }),
+  );
+
+const arrivalStep = (frames: readonly Frame[]): number => {
+  let last = 1;
+  for (let at = 1; at < frames.length; at += 1) {
+    if (stepInto(frames[at - 1]!, frames[at]!) > 0.5) last = at;
+  }
+  return stepInto(frames[last - 1]!, frames[last]!);
+};
+
+const recorded = async (play: () => Promise<void>): Promise<readonly Frame[]> => {
+  const frames: Frame[] = [];
+  const { promise, resolve } = Promise.withResolvers<void>();
+  let sampling = true;
+  const tick = (): void => {
+    frames.push({
+      at: performance.now(),
+      running: moving().length,
+      boxes: new Map(
+        [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => [
+          nameOf(card),
+          card.getBoundingClientRect(),
+        ]),
+      ),
+    });
+    if (sampling) requestAnimationFrame(tick);
+    else resolve();
+  };
+  requestAnimationFrame(tick);
+  await play();
+  sampling = false;
+  await promise;
+  return frames;
+};
+
+const partWay = async (): Promise<void> => {
+  for (let frame = 0; frame < 12; frame += 1) {
+    await laidOut();
+    if (moving().some((animation) => Number(animation.currentTime ?? 0) > 100)) return;
+  }
+};
+
 const moves: ReadonlyArray<{
   readonly what: string;
   readonly play: (writer: Writer, driver: Driver) => Promise<void>;
@@ -810,6 +872,45 @@ describe('the motion of a move', () => {
     await settled();
 
     expect(boxes()).toEqual(rest);
+  });
+
+  it('keeps a move made during a move running, and comes to rest without a jump', async () => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+
+    const frames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await partWay();
+      await driver.press('ArrowRight');
+      await settled();
+    });
+
+    const first = frames.find((frame) => frame.running > 0)!;
+    expect(frames.some((frame) => frame.at > first.at + 270 && frame.running > 0)).toBe(true);
+    expect(arrivalStep(frames)).toBeLessThan(10);
+  });
+
+  it('takes a click and a key while a move runs, each landing on the piece it aims at', async () => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+
+    const landed: string[] = [];
+    let pressed = 0;
+    const frames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await partWay();
+      named('chip', 'Beat 5').click();
+      landed.push(nameOf(focused()));
+      await partWay();
+      pressed = performance.now();
+      await driver.press('ArrowLeft');
+      landed.push(nameOf(focused()));
+      await settled();
+    });
+
+    expect(landed).toEqual(['Beat 5', 'Beat 4']);
+    const after = frames.filter((frame) => frame.at > pressed && frame.running > 0);
+    expect((after.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
   });
 
   describe('under reduced motion', () => {

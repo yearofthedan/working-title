@@ -245,20 +245,22 @@ const watch = (st: State): void => {
   watcher = new ResizeObserver(() => {
     const current = state;
     if (current === undefined || replacing) return;
-    const running = current.wrapper.getAnimations({ subtree: true });
-    if (running.length === 0) {
-      place(current);
-      settle(current);
-      return;
-    }
     replacing = true;
-    void Promise.allSettled(running.map((animation) => animation.finished)).then(() => {
-      replacing = false;
-      if (state === current) {
-        place(current);
-        settle(current);
+    const placeWhenStill = (): void => {
+      const running = current.wrapper
+        .getAnimations({ subtree: true })
+        .filter((animation) => animation.playState === 'running');
+      if (running.length === 0) {
+        replacing = false;
+        if (state === current) {
+          place(current);
+          settle(current);
+        }
+        return;
       }
-    });
+      void Promise.allSettled(running.map((animation) => animation.finished)).then(placeWhenStill);
+    };
+    placeWhenStill();
   });
   watcher.observe(st.main);
   watcher.observe(focus);
