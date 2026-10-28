@@ -936,12 +936,16 @@ describe('the motion of a move', () => {
     const landed: string[] = [];
     let clicked = 0;
     let pressed = 0;
-    const frames = await recorded(async () => {
+    const clickFrames = await recorded(async () => {
       await writer.clicks('Beat 2');
       await partWay();
       clicked = performance.now();
       await browser.userEvent.click(named('chip', 'Beat 5'), { force: true });
       landed.push(nameOf(focused()));
+      await settled();
+    });
+    const keyFrames = await recorded(async () => {
+      await driver.press('ArrowLeft');
       await partWay();
       pressed = performance.now();
       await driver.press('ArrowLeft');
@@ -949,9 +953,9 @@ describe('the motion of a move', () => {
       await settled();
     });
 
-    expect(landed).toEqual(['Beat 5', 'Beat 4']);
-    const afterClick = frames.filter((frame) => frame.at > clicked && frame.running > 0);
-    const afterKey = frames.filter((frame) => frame.at > pressed && frame.running > 0);
+    expect(landed).toEqual(['Beat 5', 'Beat 3']);
+    const afterClick = clickFrames.filter((frame) => frame.at > clicked && frame.running > 0);
+    const afterKey = keyFrames.filter((frame) => frame.at > pressed && frame.running > 0);
     expect((afterClick.at(-1)?.at ?? clicked) - clicked).toBeGreaterThan(160);
     expect((afterKey.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
   });
