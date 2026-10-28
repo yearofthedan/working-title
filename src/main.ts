@@ -4,7 +4,7 @@ import { snowflakeExtended } from './methods/snowflake-extended';
 import { renderFocus } from './ui/focus/focus';
 
 export const main = async (main: HTMLElement) => {
-  renderFocus(main, await openProject(snowflakeExtended, projectStore()));
+  await renderFocus(main, await openProject(snowflakeExtended, projectStore()));
 };
 
 const element = document.querySelector('main');

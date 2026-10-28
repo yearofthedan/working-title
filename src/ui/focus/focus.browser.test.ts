@@ -1,50 +1,22 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import type { Driver } from '../../test-helpers/driver';
-import { openTheApp, thePage } from '../../test-helpers/the-app';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { writerOn, type Writer } from './focus.dsl';
+import { settled } from '../../test-helpers/driver';
+import {
+  cards,
+  focused,
+  laidOut,
+  named,
+  nameOf,
+  pageWith,
+  pane,
+} from '../../test-helpers/focus-page';
+import { openTheApp } from '../../test-helpers/the-app';
 
 const stored = 'working-title:project';
-
-const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
-  const driver = vitestBrowserDriver(async () => {
-    localStorage.clear();
-    const main = await thePage(width);
-    await openTheApp(main);
-    if (scenes === 0) return;
-    const writer = writerOn(driver);
-    for (let at = 0; at < scenes; at += 1) {
-      await writer.addsASceneUnder('Beat 4');
-    }
-    await openTheApp(main);
-  });
-  return { driver, writer: writerOn(driver) };
-};
-
-const pane = (): HTMLElement => document.querySelector('main')!;
-
-const cards = (kind: string): HTMLElement[] => [
-  ...document.querySelectorAll<HTMLElement>(`main fieldset.${kind}`),
-];
-
-const nameOf = (card: HTMLElement): string => card.querySelector('h2, h3, h4')!.textContent ?? '';
 
 const centreOf = (card: Element): number => {
   const box = card.getBoundingClientRect();
   return box.left + box.width / 2;
-};
-
-const focused = (): HTMLElement => {
-  const [card] = cards('focus');
-  if (card === undefined) throw new Error('no piece is drawn as the focus');
-  return card;
-};
-
-const named = (kind: string, name: string): HTMLElement => {
-  const card = cards(kind).find((one) => nameOf(one) === name);
-  if (card === undefined) throw new Error(`no piece named ${name} is drawn as a ${kind}`);
-  return card;
 };
 
 const visible = (element: Element): boolean => {
@@ -65,14 +37,6 @@ const drawnOn = (card: Element, sentence: string): number =>
   ).length;
 
 const theStory = "A widow hunts the man who sank her husband's ship";
-
-const laidOut = (): Promise<void> => {
-  const { promise, resolve } = Promise.withResolvers<void>();
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => resolve());
-  });
-  return promise;
-};
 
 describe('the focus page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
@@ -121,6 +85,7 @@ describe('the graph around the focus', () => {
       'A widowed lighthouse keeper trades her last winter of fuel for a stranger\u2019s chart, then finds the chart leads back to the harbour where her husband\u2019s boat went down.',
       { piece: 'The story', facet: 'One-sentence summary' },
     );
+    await laidOut();
 
     const field = focused().querySelector('textarea')!;
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
@@ -133,6 +98,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const focus = focused();
     const parent = named('card', 'The story');
@@ -156,6 +122,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(8, 1440);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     expect(children).toHaveLength(8);
@@ -170,6 +137,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await settled();
 
     const children = cards('card').filter((card) => card !== named('card', 'The story'));
     const bounds = pane().getBoundingClientRect();
@@ -183,6 +151,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
+    await settled();
 
     const focus = focused();
     const box = focus.getBoundingClientRect();
@@ -268,6 +237,7 @@ describe('the graph around the focus', () => {
       const { driver, writer } = pageWith(0, width);
       await driver.fresh();
       await writer.clicks('Beat 2');
+      await settled();
 
       const bounds = pane().getBoundingClientRect();
       const box = focused().getBoundingClientRect();
@@ -284,6 +254,7 @@ describe('the graph around the focus', () => {
     await driver.fresh();
     await browser.page.viewport(400, 500);
     await writer.clicks('Beat 2');
+    await settled();
 
     const header = document.querySelector('header')!.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
@@ -309,6 +280,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
+    await settled();
 
     const chip = named('chip', 'Beat 1');
     const legend = chip.querySelector('legend')!;
@@ -328,6 +300,7 @@ describe('the graph around the focus', () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
+    await settled();
 
     const card = focused();
     const body = card.querySelector('.facet')!.getBoundingClientRect();

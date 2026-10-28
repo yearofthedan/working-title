@@ -16,5 +16,5 @@ export const thePage = async (width: number): Promise<HTMLElement> => {
 };
 
 export const openTheApp = async (main: HTMLElement): Promise<void> => {
-  renderFocus(main, await openProject(snowflakeExtended, projectStore()));
+  await renderFocus(main, await openProject(snowflakeExtended, projectStore()));
 };

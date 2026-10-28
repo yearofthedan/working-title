@@ -85,10 +85,14 @@ main {
     padding: var(--name) 0 0;
     border: none;
     min-inline-size: 0;
+    translate: -50% -50%;
+    overflow: hidden;
   }
 
   fieldset.hidden {
     visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 
   legend {
@@ -210,7 +214,7 @@ main {
   }
 
   .focus .shown {
-    display: none;
+    opacity: 0;
   }
 
   .card .shown {
@@ -265,5 +269,22 @@ main {
   .facet button:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: var(--space-1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    fieldset {
+      transition:
+        left var(--move) var(--move-ease),
+        top var(--move) var(--move-ease),
+        width var(--move) var(--move-ease),
+        height var(--move) var(--move-ease),
+        opacity var(--move) var(--move-ease),
+        visibility var(--move);
+    }
+
+    .shown,
+    .facet textarea {
+      transition: opacity var(--move) var(--move-ease);
+    }
   }
 }

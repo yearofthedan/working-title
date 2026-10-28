@@ -70,10 +70,21 @@ const shownAncestor = (st: State, id: string): Entry => {
   return entry;
 };
 
+const chipWidth = (card: HTMLElement): number => {
+  const legend = getComputedStyle(card.querySelector('legend')!);
+  return (
+    card.querySelector('h2, h3, h4')!.scrollWidth +
+    parseFloat(legend.paddingLeft) +
+    parseFloat(legend.paddingRight) +
+    parseFloat(legend.borderLeftWidth) +
+    parseFloat(legend.borderRightWidth)
+  );
+};
+
 const widthOf = (st: State, id: string): number => {
   const kind = kindOf(st, id);
   if (kind === 'focus') return Math.min(FOCUS_WIDTH, st.main.clientWidth);
-  if (kind === 'chip') return st.cards.get(id)!.offsetWidth;
+  if (kind === 'chip') return chipWidth(st.cards.get(id)!);
   return CARD_WIDTH[shownAncestor(st, id).level] ?? CARD_WIDTH.at(-1)!;
 };
 
@@ -221,27 +232,58 @@ const pathNav = (st: State): void => {
   nav.replaceChildren(list);
 };
 
+const settle = (st: State): void => {
+  for (const animation of st.wrapper.getAnimations({ subtree: true })) animation.finish();
+};
+
+let replacing = false;
+
 const watch = (st: State): void => {
   const focus = st.cards.get(st.at)!;
   if (watcher !== undefined && watching === focus) return;
   watcher?.disconnect();
   watcher = new ResizeObserver(() => {
     const current = state;
-    if (current !== undefined) place(current);
+    if (current === undefined || replacing) return;
+    replacing = true;
+    const placeWhenStill = (): void => {
+      const running = current.wrapper
+        .getAnimations({ subtree: true })
+        .filter((animation) => animation.playState === 'running');
+      if (running.length === 0) {
+        replacing = false;
+        if (state === current) {
+          place(current);
+          settle(current);
+        }
+        return;
+      }
+      void Promise.allSettled(running.map((animation) => animation.finished)).then(placeWhenStill);
+    };
+    placeWhenStill();
   });
   watcher.observe(st.main);
   watcher.observe(focus);
+  for (const facet of focus.querySelectorAll('.facet')) watcher.observe(facet);
   watching = focus;
 };
 
 const place = (st: State): void => {
   const pieces = st.entries;
 
+  const was = new Map(
+    [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
+  );
+
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
-    card.className = kindOf(st, piece.id);
-    card.style.width = card.classList.contains('chip') ? '' : `${widthOf(st, piece.id)}px`;
+    const kind = kindOf(st, piece.id);
+    card.style.transitionProperty =
+      kind === 'hidden' ? 'left, top, opacity, visibility' : 'left, top, opacity';
+    card.style.height = '';
+    card.className = kind;
+    card.inert = kind === 'hidden';
     if (piece.id === st.at) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
     for (const sentence of card.querySelectorAll('textarea')) {
@@ -251,12 +293,32 @@ const place = (st: State): void => {
 
   for (const { piece } of pieces) setHeading(st, piece);
 
+  for (const { piece } of pieces) {
+    st.cards.get(piece.id)!.style.width = `${widthOf(st, piece.id)}px`;
+  }
+  const tall = new Map(pieces.map(({ piece }) => [piece.id, st.cards.get(piece.id)!.offsetHeight]));
+  const heightOf = (id: string): number => tall.get(id)!;
+
+  for (const { piece } of pieces) {
+    const card = st.cards.get(piece.id)!;
+    const from = was.get(piece.id)!;
+    card.style.width = `${from.w}px`;
+    card.style.height = `${from.h}px`;
+  }
+  void st.wrapper.offsetWidth;
+  for (const { piece } of pieces) {
+    const card = st.cards.get(piece.id)!;
+    card.style.transitionProperty = '';
+    card.style.width = `${widthOf(st, piece.id)}px`;
+    card.style.height = `${heightOf(piece.id)}px`;
+  }
+
   const centre = st.wrapper.clientWidth / 2;
   const parentId = entryOf(st, st.at)?.parentId;
   const focus = st.cards.get(st.at)!;
   const focusWidth = widthOf(st, st.at);
 
-  const focusHeight = focus.offsetHeight;
+  const focusHeight = heightOf(st.at);
   const parent = parentId === undefined ? undefined : st.cards.get(parentId)!;
   const header = document.querySelector('header');
   const mainTop = st.main.getBoundingClientRect().top;
@@ -264,7 +326,7 @@ const place = (st: State): void => {
     (header === null ? 0 : header.getBoundingClientRect().bottom) - mainTop + ROW_GAP;
   const top = Math.max(
     window.innerHeight / 2 - mainTop - focusHeight / 2,
-    belowHeader + (parent?.offsetHeight ?? 0),
+    belowHeader + (parentId === undefined ? 0 : heightOf(parentId)),
   );
 
   focus.style.left = `${centre - focusWidth / 2}px`;
@@ -272,7 +334,7 @@ const place = (st: State): void => {
 
   if (parentId !== undefined && parent !== undefined) {
     parent.style.left = `${centre - widthOf(st, parentId) / 2}px`;
-    parent.style.top = `${top - ROW_GAP - parent.offsetHeight}px`;
+    parent.style.top = `${top - ROW_GAP - heightOf(parentId)}px`;
   }
 
   const below = top + focusHeight + ROW_GAP;
@@ -293,8 +355,7 @@ const place = (st: State): void => {
   const here = siblings.findIndex((entry) => entry.piece.id === st.at);
   const sample = siblings.find((entry) => entry.piece.id !== st.at);
   if (sample !== undefined) {
-    const chip = st.cards.get(sample.piece.id)!;
-    const chipTop = top + (focusHeight - chip.offsetHeight) / 2;
+    const chipTop = top + (focusHeight - heightOf(sample.piece.id)) / 2;
     let before = centre - focusWidth / 2 - GAP;
     for (const entry of siblings.slice(0, here).reverse()) {
       const card = st.cards.get(entry.piece.id)!;
@@ -310,6 +371,13 @@ const place = (st: State): void => {
       card.style.top = `${chipTop}px`;
       after += widthOf(st, entry.piece.id) + GAP;
     }
+  }
+
+  for (const { piece } of pieces) {
+    if (kindOf(st, piece.id) === 'hidden') continue;
+    const card = st.cards.get(piece.id)!;
+    card.style.left = `${parseFloat(card.style.left) + widthOf(st, piece.id) / 2}px`;
+    card.style.top = `${parseFloat(card.style.top) + heightOf(piece.id) / 2}px`;
   }
 
   for (const { piece } of pieces) {
@@ -337,15 +405,27 @@ const draw = (st: State): void => {
     }),
   );
   place(st);
+  settle(st);
   pathNav(st);
 };
 
 const addUnder = async (st: State, pieceId: string): Promise<void> => {
   const { focus: next, added } = await st.focus.branch(pieceId);
   st.focus = next;
-  draw(st);
-  const into = st.cards.get(added)?.querySelector('textarea') ?? undefined;
-  goTo(st, added, into);
+  remember(st);
+  const entry = entryOf(st, added)!;
+  const card = pieceCard(st, entry.piece);
+  const under = entry.parentId === undefined ? undefined : st.cards.get(entry.parentId);
+  if (under !== undefined) {
+    card.style.left = under.style.left;
+    card.style.top = under.style.top;
+    card.style.width = under.style.width;
+  }
+  st.cards.set(added, card);
+  const after = st.entries.findIndex((one) => one.piece.id === added) + 1;
+  const following = st.entries[after];
+  st.wrapper.insertBefore(card, following === undefined ? null : st.cards.get(following.piece.id)!);
+  goTo(st, added, card.querySelector('textarea') ?? undefined);
 };
 
 const onKeyDown = (event: KeyboardEvent): void => {
@@ -373,7 +453,7 @@ const onKeyDown = (event: KeyboardEvent): void => {
   }
 };
 
-export const renderFocus = (main: HTMLElement, focus: Focus): void => {
+export const renderFocus = async (main: HTMLElement, focus: Focus): Promise<void> => {
   const [story] = focus.pieces;
   if (story === undefined) return;
   const wrapper = document.createElement('div');
@@ -383,7 +463,7 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     listening = true;
     document.addEventListener('keydown', onKeyDown);
   }
-  state = {
+  const st: State = {
     main,
     wrapper,
     focus,
@@ -393,5 +473,7 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     entries: [],
     byId: new Map(),
   };
-  draw(state);
+  state = st;
+  await document.fonts.ready;
+  if (state === st) draw(st);
 };

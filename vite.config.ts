@@ -58,6 +58,12 @@ const theLanguageCallsTheDriver = 'The language calls the driver, and finds no e
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
+declare module 'vite-plus/test/browser' {
+  interface BrowserCommands {
+    emulateReducedMotion(motion: 'reduce' | 'no-preference'): Promise<void>;
+  }
+}
+
 export default defineConfig({
   define: { __SCENARIO_APPROVE__: JSON.stringify(process.env.SCENARIO_APPROVE ?? '') },
   plugins: [

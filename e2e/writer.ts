@@ -13,6 +13,7 @@ export interface Fixture extends Journey {
   readonly sees: Sees;
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theAppsName: Locator;
+  opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
 const fixtureOn = (page: Page): Fixture => {
@@ -34,6 +35,7 @@ const fixtureOn = (page: Page): Fixture => {
     },
 
     theAppsName: driver.theAppsName,
+    opensWatchingTheGraph: () => driver.opensWatchingTheGraph(),
   };
 };
 
