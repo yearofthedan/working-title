@@ -88,6 +88,14 @@ const boxes = (): readonly string[] =>
 const pathTo = (driver: Driver, piece: string): Promise<void> =>
   driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
 
+const easesOut = (easing = ''): boolean => {
+  if (easing === 'ease-out') return true;
+  const curve = /^cubic-bezier\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)$/.exec(easing);
+  if (curve === null) return false;
+  const [, x1, y1, x2, y2] = curve.map(Number) as [number, number, number, number, number];
+  return y1 >= x1 && y2 >= x2 && (y1 > x1 || y2 > x2);
+};
+
 interface Frame {
   readonly at: number;
   readonly running: number;
@@ -821,8 +829,8 @@ describe('the motion of a move', () => {
     expect(animations.length).toBeGreaterThan(0);
     for (const animation of animations) {
       const timing = animation.effect!.getComputedTiming();
-      expect(timing.duration).toBeLessThanOrEqual(400);
-      expect(timing.easing).not.toBe('linear');
+      expect(timing.endTime).toBeLessThanOrEqual(400);
+      expect(easesOut(timing.easing)).toBe(true);
     }
   });
 
