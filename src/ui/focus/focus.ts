@@ -452,7 +452,7 @@ const onKeyDown = (event: KeyboardEvent): void => {
   }
 };
 
-export const renderFocus = (main: HTMLElement, focus: Focus): void => {
+export const renderFocus = async (main: HTMLElement, focus: Focus): Promise<void> => {
   const [story] = focus.pieces;
   if (story === undefined) return;
   const wrapper = document.createElement('div');
@@ -462,7 +462,7 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     listening = true;
     document.addEventListener('keydown', onKeyDown);
   }
-  state = {
+  const st: State = {
     main,
     wrapper,
     focus,
@@ -472,5 +472,7 @@ export const renderFocus = (main: HTMLElement, focus: Focus): void => {
     entries: [],
     byId: new Map(),
   };
-  draw(state);
+  state = st;
+  await document.fonts.ready;
+  if (state === st) draw(st);
 };
