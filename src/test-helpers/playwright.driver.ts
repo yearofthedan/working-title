@@ -3,6 +3,7 @@ import { clicking, drawn, linesOf, settled, typing, type ReloadingDriver } from 
 
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theAppsName: Locator;
+  opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
 export const playwrightDriver = (page: Page): PlaywrightDriver => ({
@@ -28,6 +29,39 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => ({
   tree: async () => {
     await page.evaluate(settled);
     return linesOf(await page.getByRole('main').ariaSnapshot());
+  },
+  opensWatchingTheGraph: async () => {
+    await page.addInitScript(() => {
+      const frames: string[] = [];
+      const sample = (): void => {
+        const cards = [...document.querySelectorAll<HTMLElement>('main fieldset')];
+        if (cards.length > 0) {
+          frames.push(
+            cards
+              .map((card) => {
+                const box = card.getBoundingClientRect();
+                return `${card.querySelector('h2, h3, h4')?.textContent ?? ''} ${box.left} ${box.top} ${box.width} ${box.height}`;
+              })
+              .join(' | '),
+          );
+          document.documentElement.dataset.graphFrames = frames.join('\n');
+        }
+        requestAnimationFrame(sample);
+      };
+      requestAnimationFrame(sample);
+    });
+    await page.goto('/');
+    return page.evaluate(async () => {
+      await document.fonts.ready;
+      const { promise, resolve } = Promise.withResolvers<void>();
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+      await promise;
+      return (document.documentElement.dataset.graphFrames ?? '')
+        .split('\n')
+        .filter((frame) => frame !== '');
+    });
   },
   theAppsName: page.getByRole('heading', { name: 'working-title' }),
 });
