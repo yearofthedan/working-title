@@ -929,16 +929,18 @@ describe('the motion of a move', () => {
     expect(step).toBeLessThan(stillToGo / 2);
   });
 
-  it('takes a click and a key while a move runs, each landing on the piece it aims at', async () => {
+  it('takes a click and a key while a move runs, each landing on the piece it aims at and running to its end', async () => {
     const { driver, writer } = pageWith(1);
     await driver.fresh();
 
     const landed: string[] = [];
+    let clicked = 0;
     let pressed = 0;
     const frames = await recorded(async () => {
       await writer.clicks('Beat 2');
       await partWay();
-      named('chip', 'Beat 5').click();
+      clicked = performance.now();
+      await browser.userEvent.click(named('chip', 'Beat 5'), { force: true });
       landed.push(nameOf(focused()));
       await partWay();
       pressed = performance.now();
@@ -948,8 +950,10 @@ describe('the motion of a move', () => {
     });
 
     expect(landed).toEqual(['Beat 5', 'Beat 4']);
-    const after = frames.filter((frame) => frame.at > pressed && frame.running > 0);
-    expect((after.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
+    const afterClick = frames.filter((frame) => frame.at > clicked && frame.running > 0);
+    const afterKey = frames.filter((frame) => frame.at > pressed && frame.running > 0);
+    expect((afterClick.at(-1)?.at ?? clicked) - clicked).toBeGreaterThan(160);
+    expect((afterKey.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
   });
 
   describe('under reduced motion', () => {
