@@ -76,6 +76,22 @@ expect_status 0 "setup succeeds when the Ponytail marketplace is already configu
 expect_no_call 'marketplace add DietrichGebert/ponytail' "setup does not re-add the Ponytail marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
 
+make_copy
+printf '#!/bin/sh\necho "weaver $*" >> "$OMP_LOG"\n' >"$copy/node_modules/.bin/weaver"
+chmod +x "$copy/node_modules/.bin/weaver"
+fresh
+run_copy setup
+expect_call "weaver skills install --dir $copy/.agents/skills --force" "setup installs weaver's skills into .agents/skills"
+
+rm "$copy/node_modules/.bin/weaver"
+mkdir -p "$work/tools"
+for tool in dirname grep cat; do ln -s "$(command -v "$tool")" "$work/tools/$tool"; done
+fresh
+status=0
+PATH="$work/bin:$work/tools" "$copy/do" setup >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "setup succeeds when weaver is not installed"
+expect_out 'weaver is not installed; skipped its skills' "setup says it skipped weaver's skills"
+
 mkdir -p "$work/nowhere"
 ln -s "$(command -v dirname)" "$work/nowhere/dirname"
 status=0

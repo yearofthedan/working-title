@@ -27,6 +27,8 @@ The words to use in code, tests, scenarios and UI:
 
 Once `pnpm install` has installed the dependencies, every task runs through `./do`, never the tools underneath: `./do` alone lists the tasks, each a file in `scripts/`. A new task is a new file there, never a script in `package.json`, which keeps only `prepare`: one file per task stays readable as tasks grow, where a `package.json` of scripts does not. A dependency is added with `./do add`, never `pnpm add`: it audits what the resolution brought in before anything is installed.
 
+weaver, whose skills `./do setup` installs into `.agents/skills/`, is a dev dependency and runs as `pnpm exec weaver …`: a bare `weaver` is on `PATH` only inside `./do`.
+
 ## How work lands
 
 - Never push to `main`: a change reaches it the way [commits and merges](docs/standards/commits.md) sets out.

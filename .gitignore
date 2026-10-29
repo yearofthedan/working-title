@@ -10,3 +10,4 @@ reports/
 screenshots/
 .stryker-tmp/
 .omp/agent-notes/
+.agents/skills/weaver-*/
