@@ -6,6 +6,14 @@ const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
+export const domGlobals = [
+  'document',
+  'window',
+  'getComputedStyle',
+  'requestAnimationFrame',
+  'ResizeObserver',
+  'localStorage',
+];
 export const findsAnyOtherWay = [
   'getByText',
   'getByPlaceholder',
@@ -55,6 +63,9 @@ const restricted = (anyObject: string[], message: string) => [
 ];
 
 const theLanguageCallsTheDriver = 'The language calls the driver, and finds no element itself.';
+const findsElementsInADriver = 'Find elements in a driver, src/test-helpers/*.driver.ts.';
+const theDomBelongsInADomFile =
+  'The DOM belongs in a *.dom.ts beside this one, which holds the logic.';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -112,16 +123,40 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: ['e2e/**', 'src/**/*.browser.test.ts'],
+        files: ['e2e/**'],
         rules: {
           'no-restricted-properties': [
             'error',
-            ...restricted(
-              [...findsByRoleOrLabel, ...findsAnyOtherWay],
-              'Find elements in a driver, src/test-helpers/*.driver.ts.',
-            ),
+            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+            ...documentSelectors.map((property) => ({
+              object: 'document',
+              property,
+              message: findsElementsInADriver,
+            })),
           ],
         },
+      },
+      {
+        files: ['src/**/*.browser.test.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+          ],
+        },
+      },
+      {
+        files: ['src/ui/**/*.ts'],
+        rules: {
+          'no-restricted-globals': [
+            'error',
+            ...domGlobals.map((name) => ({ name, message: theDomBelongsInADomFile })),
+          ],
+        },
+      },
+      {
+        files: ['src/ui/**/*.dom.ts', 'src/ui/**/*.test.ts'],
+        rules: { 'no-restricted-globals': 'off' },
       },
       {
         files: ['**/*.dsl.ts'],
