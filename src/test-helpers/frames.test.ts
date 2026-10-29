@@ -10,9 +10,14 @@ const frame = (boxes: Record<string, Box>): Frame => ({
 });
 
 describe('the step between two frames', () => {
-  it('is the largest change in left, top, width or height over every box', () => {
-    const before = frame({ a: box(0, 0, 10, 10), b: box(0, 0, 10, 10) });
-    const now = frame({ a: box(3, 0, 10, 10), b: box(0, 0, 17, 10) });
+  it.each([
+    ['left', box(-7)],
+    ['top', box(0, -7)],
+    ['width', box(0, 0, 3)],
+    ['height', box(0, 0, 10, 3)],
+  ])('is the largest change over every box, counting a change in %s either way', (_, moved) => {
+    const before = frame({ a: box(0), b: box(0) });
+    const now = frame({ a: moved, b: box(3) });
     expect(stepInto(before, now)).toBe(7);
   });
 
@@ -24,10 +29,10 @@ describe('the step between two frames', () => {
 });
 
 describe('how far a box moved', () => {
-  it('measures where the box is, not how big it is', () => {
-    const before = frame({ a: box(0, 0, 10, 10) });
-    const now = frame({ a: box(10, 0, 100, 50) });
-    expect(movedBy(before, now, 'a')).toBe(10);
+  it('measures where the box is, either way, not how big it is', () => {
+    const before = frame({ a: box(0) });
+    expect(movedBy(before, frame({ a: box(-10, 0, 100, 50) }), 'a')).toBe(10);
+    expect(movedBy(before, frame({ a: box(0, -10, 100, 50) }), 'a')).toBe(10);
   });
 
   it('is nothing when the box is drawn in only one of the two frames', () => {
@@ -40,7 +45,7 @@ describe('how far a box moved', () => {
 
 describe('the step a move arrived on', () => {
   it('is the last step over half a pixel, not the largest step', () => {
-    const frames = [0, 4, 4.25, 5.25].map((left) => frame({ a: box(left) }));
+    const frames = [0, 4, 5, 5.25].map((left) => frame({ a: box(left) }));
     expect(arrivalStep(frames)).toBe(1);
   });
 });
@@ -51,9 +56,11 @@ describe('whether an easing eases out', () => {
     expect(easesOut('cubic-bezier(0, 0, 0.58, 1)')).toBe(true);
   });
 
-  it('is false for linear, an ease-in curve, an empty string and a malformed curve', () => {
-    expect(easesOut('linear')).toBe(false);
+  it('is false for linear, ease-in, ease-in-out, a curve that ends slowing in, an empty string and a malformed curve', () => {
+    expect(easesOut('cubic-bezier(0, 0, 1, 1)')).toBe(false);
     expect(easesOut('cubic-bezier(0.42, 0, 1, 1)')).toBe(false);
+    expect(easesOut('cubic-bezier(0.42, 0, 0.58, 1)')).toBe(false);
+    expect(easesOut('cubic-bezier(0, 0.42, 1, 0.58)')).toBe(false);
     expect(easesOut('')).toBe(false);
     expect(easesOut('cubic-bezier(0.1, 0.2, 0.3)')).toBe(false);
   });
