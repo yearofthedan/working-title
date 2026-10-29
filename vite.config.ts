@@ -65,7 +65,7 @@ const restricted = (anyObject: string[], message: string) => [
 const theLanguageCallsTheDriver = 'The language calls the driver, and finds no element itself.';
 const findsElementsInADriver = 'Find elements in a driver, src/test-helpers/*.driver.ts.';
 const theDomBelongsInADomFile =
-  'The DOM belongs in a *.dom.ts beside this one, which holds the logic.';
+  'The DOM belongs in a *.dom.ts beside this one, which holds the logic (docs/standards/testing.md).';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -194,7 +194,12 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          exclude: [...configDefaults.exclude, 'e2e/**', '**/*.browser.test.ts'],
+          exclude: [
+            ...configDefaults.exclude,
+            'e2e/**',
+            '**/*.browser.test.ts',
+            'src/ui/lint-sample-*/**',
+          ],
         },
       },
       {

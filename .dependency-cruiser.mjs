@@ -40,7 +40,7 @@ export default {
       name: 'logic-not-on-the-dom',
       severity: 'error',
       comment:
-        'A plain file in src/ui/ holds the logic, and the code that touches the DOM is in a *.dom.ts beside it (docs/architecture.md).',
+        'A plain file in src/ui/ holds the logic, and the code that touches the DOM is in a *.dom.ts beside it (docs/standards/testing.md).',
       from: { path: '^src/ui/', pathNot: ['\\.dom\\.ts$', '\\.test\\.ts$'] },
       to: { path: '\\.dom\\.ts$' },
     },

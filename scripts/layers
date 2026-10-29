@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, any cycle, and a scenario file outside its layer, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, and a plain src/ui/ file importing a *.dom.ts, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
 
 set -eu
 

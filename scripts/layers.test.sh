@@ -163,7 +163,7 @@ run_layers
 refused "a plain file in src/ui/ importing a *.dom.ts is refused"
 expect_out 'logic-not-on-the-dom: src/ui/focus/graph.ts → src/ui/focus/focus.dom.ts' \
   "the two files it joins are named"
-expect_out 'architecture.md' "the refusal links where the convention is written"
+expect_out 'standards/testing.md' "the refusal links the standard"
 
 rm -f "$project/src/ui/focus/graph.ts"
 write src/ui/focus/cards.dom.ts "import { card } from './focus.dom';
