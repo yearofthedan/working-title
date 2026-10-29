@@ -8,8 +8,8 @@ const typing = 'types "{text}" as {scene}\'s list line under {beat}';
 const pageWithTwoScenesUnderBeat4 = () => {
   const driver = vitestBrowserDriver(async () => {
     localStorage.clear();
-    const main = await thePage(1440);
-    await openTheApp(main);
+    await thePage(1440);
+    await openTheApp();
     const writer = writerOn(driver);
     for (let at = 0; at < 2; at += 1) {
       await writer.addsASceneUnder('Beat 4');

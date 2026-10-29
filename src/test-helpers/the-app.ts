@@ -1,8 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import { projectStore } from '../adapters/local-storage-project-store';
-import { openProject } from '../application/project';
-import { snowflakeExtended } from '../methods/snowflake-extended';
-import { renderFocus } from '../ui/focus/focus.dom';
+import { startApp } from '../app';
 
 export const thePage = async (width: number): Promise<HTMLElement> => {
   await browser.page.viewport(width, 900);
@@ -15,6 +12,6 @@ export const thePage = async (width: number): Promise<HTMLElement> => {
   return main;
 };
 
-export const openTheApp = async (main: HTMLElement): Promise<void> => {
-  await renderFocus(main, await openProject(snowflakeExtended, projectStore()));
+export const openTheApp = async (): Promise<void> => {
+  await startApp(document);
 };
