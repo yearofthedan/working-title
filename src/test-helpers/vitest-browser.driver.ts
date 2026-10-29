@@ -24,8 +24,7 @@ const { utils } = browser as unknown as { utils: { aria: Aria } };
 export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   fresh: render,
   reopen: async () => {
-    const main = document.querySelector('main');
-    if (main !== null) await openTheApp(main);
+    await openTheApp();
   },
   press: async (key) => {
     await browser.userEvent.keyboard(`{${key}}`);

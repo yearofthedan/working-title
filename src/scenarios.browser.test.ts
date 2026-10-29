@@ -18,7 +18,8 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 
 const theStoryOnScreen = async () => {
   localStorage.clear();
-  await openTheApp(await thePage(1440));
+  await thePage(1440);
+  await openTheApp();
 };
 
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({

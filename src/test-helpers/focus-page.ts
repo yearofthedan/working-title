@@ -7,14 +7,14 @@ import { writerOn, type Writer } from '../ui/focus/focus.dsl';
 export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
   const driver = vitestBrowserDriver(async () => {
     localStorage.clear();
-    const main = await thePage(width);
-    await openTheApp(main);
+    await thePage(width);
+    await openTheApp();
     if (scenes === 0) return;
     const writer = writerOn(driver);
     for (let at = 0; at < scenes; at += 1) {
       await writer.addsASceneUnder('Beat 4');
     }
-    await openTheApp(main);
+    await openTheApp();
   });
   return { driver, writer: writerOn(driver) };
 };

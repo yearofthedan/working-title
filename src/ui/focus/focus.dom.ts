@@ -19,6 +19,7 @@ interface Entry {
 }
 
 interface State {
+  readonly header: HTMLElement;
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
   focus: Focus;
@@ -198,13 +199,11 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
 };
 
 const pathNav = (st: State): void => {
-  const header = document.querySelector('header');
-  if (header === null) return;
-  let nav = header.querySelector('nav');
+  let nav = st.header.querySelector('nav');
   if (nav === null) {
     nav = document.createElement('nav');
     nav.setAttribute('aria-label', 'Where you are');
-    header.append(nav);
+    st.header.append(nav);
   }
 
   const path: Entry[] = [];
@@ -320,10 +319,8 @@ const place = (st: State): void => {
 
   const focusHeight = heightOf(st.at);
   const parent = parentId === undefined ? undefined : st.cards.get(parentId)!;
-  const header = document.querySelector('header');
   const mainTop = st.main.getBoundingClientRect().top;
-  const belowHeader =
-    (header === null ? 0 : header.getBoundingClientRect().bottom) - mainTop + ROW_GAP;
+  const belowHeader = st.header.getBoundingClientRect().bottom - mainTop + ROW_GAP;
   const top = Math.max(
     window.innerHeight / 2 - mainTop - focusHeight / 2,
     belowHeader + (parentId === undefined ? 0 : heightOf(parentId)),
@@ -453,7 +450,10 @@ const onKeyDown = (event: KeyboardEvent): void => {
   }
 };
 
-export const renderFocus = async (main: HTMLElement, focus: Focus): Promise<void> => {
+export const renderFocus = async (
+  { header, main }: { header: HTMLElement; main: HTMLElement },
+  focus: Focus,
+): Promise<void> => {
   const [story] = focus.pieces;
   if (story === undefined) return;
   const wrapper = document.createElement('div');
@@ -464,6 +464,7 @@ export const renderFocus = async (main: HTMLElement, focus: Focus): Promise<void
     document.addEventListener('keydown', onKeyDown);
   }
   const st: State = {
+    header,
     main,
     wrapper,
     focus,

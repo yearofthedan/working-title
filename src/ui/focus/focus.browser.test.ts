@@ -249,14 +249,16 @@ describe('the graph around the focus', () => {
     },
   );
 
-  it('stops the focus row below the header when the window is too short to centre it', async () => {
+  it('stops the focus row below the header it was given when the window is too short to centre it', async () => {
     const { driver, writer } = pageWith(0, 400);
     await driver.fresh();
     await browser.page.viewport(400, 500);
+    const own = document.querySelector('header')!;
+    document.body.prepend(document.createElement('header'));
     await writer.clicks('Beat 2');
     await settled();
 
-    const header = document.querySelector('header')!.getBoundingClientRect();
+    const header = own.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
 
     expect(parent.top).toBeGreaterThanOrEqual(header.bottom);
@@ -314,6 +316,19 @@ describe('the graph around the focus', () => {
 });
 
 describe('moving the focus', () => {
+  it('writes the path into the header the graph was given, and no other header', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    const own = document.querySelector('header')!;
+    const other = document.createElement('header');
+    document.body.prepend(other);
+
+    await writer.clicks('Beat 2');
+
+    expect(own.querySelector('nav [aria-current="location"]')?.textContent).toBe('Beat 2');
+    expect(other.querySelector('nav')).toBeNull();
+  });
+
   it('leaves the focus on the story when ↑ has nowhere to go', async () => {
     const { driver } = pageWith();
     await driver.fresh();
@@ -636,7 +651,7 @@ describe('what a move leaves alone', () => {
     await writer.clicks('Beat 2');
     expect(nameOf(focused())).toBe('Beat 2');
 
-    await openTheApp(pane());
+    await openTheApp();
 
     expect(nameOf(focused())).toBe('The story');
   });
@@ -647,7 +662,7 @@ describe('what a move leaves alone', () => {
     const sentence = "Maren finds the ship's log";
     await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
 
-    await openTheApp(pane());
+    await openTheApp();
     await writer.clicks('Beat 4');
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
