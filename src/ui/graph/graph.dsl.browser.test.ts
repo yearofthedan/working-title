@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { openTheApp, thePage } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { focusSteps, seesOn, writerOn } from './focus.dsl';
+import { graphSteps, seesOn, writerOn } from './graph.dsl';
 
 const typing = 'types "{text}" as {scene}\'s list line under {beat}';
 
@@ -19,11 +19,11 @@ const pageWithTwoScenesUnderBeat4 = () => {
   return driver;
 };
 
-describe('the focus page actions', () => {
+describe('the graph page actions', () => {
   it('refuses a scene that is not under the beat named', async () => {
     const driver = pageWithTwoScenesUnderBeat4();
     await driver.fresh();
-    const type = focusSteps(writerOn(driver), seesOn(driver))[typing]!;
+    const type = graphSteps(writerOn(driver), seesOn(driver))[typing]!;
 
     await expect(
       Promise.resolve(type({ text: 'Maren rows out', scene: 'Scene 1', beat: 'Beat 2' })),

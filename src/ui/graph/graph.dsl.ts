@@ -129,7 +129,7 @@ export const seesOn = (driver: Driver): Sees => ({
   tree: () => driver.tree(),
 });
 
-export const focusSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
+export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
   'the story is on screen': () => writer.opensANewProject(),

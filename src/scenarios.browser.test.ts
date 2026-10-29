@@ -6,7 +6,7 @@ import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner } from './test-helpers/play';
 import { openTheApp, thePage } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
-import { focusSteps, seesOn, writerOn } from './ui/focus/focus.dsl';
+import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
 
 declare const __SCENARIO_APPROVE__: string;
 
@@ -46,7 +46,7 @@ for (const [key, text] of Object.entries(files)) {
         await playScenarios(
           { path, text },
           runnerFor(driver, approving),
-          focusSteps(writerOn(driver), seesOn(driver)),
+          graphSteps(writerOn(driver), seesOn(driver)),
           { only: behaviour, ...(approving ? { approve: true } : {}) },
         );
       });

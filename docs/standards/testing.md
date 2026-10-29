@@ -15,7 +15,7 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 | Layer | File | Holds |
 | --- | --- | --- |
-| Language | `src/ui/focus/focus.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
+| Language | `src/ui/graph/graph.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
 | Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
 | Protocol driver | `src/test-helpers/vitest-browser.driver.ts`, `src/test-helpers/playwright.driver.ts` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
 | Spec fixture | `e2e/writer.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver |

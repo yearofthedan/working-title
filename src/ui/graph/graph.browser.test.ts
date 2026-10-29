@@ -9,7 +9,7 @@ import {
   nameOf,
   pageWith,
   pane,
-} from '../../test-helpers/focus-page';
+} from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
 
 const stored = 'working-title:project';
@@ -38,7 +38,7 @@ const drawnOn = (card: Element, sentence: string): number =>
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
-describe('the focus page', () => {
+describe('the graph page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();

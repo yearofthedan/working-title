@@ -32,23 +32,23 @@ const item2Of = (pieces: readonly { readonly id: string }[]): { readonly id: str
 
 describe('opening a project', () => {
   it('lists the root and its children in order, named for what they are, each with an empty first facet', async () => {
-    const focus = await openProject(toyMethod, storeOf(), ids());
-    expect(focus.pieces.map(({ name }) => name)).toEqual(names);
-    expect(focus.pieces.map(({ facets }) => facets[0]?.text)).toEqual(names.map(() => ''));
+    const project = await openProject(toyMethod, storeOf(), ids());
+    expect(project.pieces.map(({ name }) => name)).toEqual(names);
+    expect(project.pieces.map(({ facets }) => facets[0]?.text)).toEqual(names.map(() => ''));
   });
 
   it('reads the text the root holds', async () => {
     const started = elaborate(newProject(toyMethod, ids()), 'id-1', 'note', 'a note');
-    const focus = await openProject(toyMethod, storeOf(started), ids());
-    expect(focus.pieces[0]?.facets[0]?.text).toBe('a note');
+    const project = await openProject(toyMethod, storeOf(started), ids());
+    expect(project.pieces[0]?.facets[0]?.text).toBe('a note');
   });
 
   it('lists the root first and its children by their order, however the store holds them', async () => {
     const started = newProject(toyMethod, ids());
     const shuffled = { ...started, pieces: [...started.pieces].reverse() };
-    const focus = await openProject(toyMethod, storeOf(shuffled), ids());
-    expect(focus.pieces.map(({ id }) => id)).toEqual(['id-1', 'id-2', 'id-3']);
-    expect(focus.pieces.map(({ name }) => name)).toEqual(names);
+    const project = await openProject(toyMethod, storeOf(shuffled), ids());
+    expect(project.pieces.map(({ id }) => id)).toEqual(['id-1', 'id-2', 'id-3']);
+    expect(project.pieces.map(({ name }) => name)).toEqual(names);
   });
 
   it('refuses to open where the store cannot read what it holds', async () => {
@@ -63,8 +63,8 @@ describe('opening a project', () => {
 
   it('saves the text typed into a child under the ids the app mints, leaving the root and the other child alone', async () => {
     const store = copyingStore();
-    const focus = await openProject(toyMethod, store);
-    await focus.elaborate(item2Of(focus.pieces).id, 'title', typed);
+    const project = await openProject(toyMethod, store);
+    await project.elaborate(item2Of(project.pieces).id, 'title', typed);
     expect(store.saved()?.pieces.map(({ facets }) => facets['title'] ?? '')).toEqual([
       '',
       '',
@@ -77,8 +77,8 @@ describe('opening a project', () => {
     const opened = await openProject(toyMethod, store, ids());
 
     const one = await opened.branch('id-2');
-    const two = await one.focus.branch('id-2');
-    const elsewhere = await two.focus.branch('id-3');
+    const two = await one.project.branch('id-2');
+    const elsewhere = await two.project.branch('id-3');
 
     expect([one.added, two.added, elsewhere.added]).toEqual(['id-4', 'id-5', 'id-6']);
     expect(store.saved()?.pieces).toEqual([
@@ -94,23 +94,23 @@ describe('opening a project', () => {
   it('lists the new pieces under their own parent, in order, numbered within that parent', async () => {
     const opened = await openProject(toyMethod, storeOf(), ids());
     const one = await opened.branch('id-2');
-    const two = await one.focus.branch('id-2');
-    const elsewhere = await two.focus.branch('id-3');
+    const two = await one.project.branch('id-2');
+    const elsewhere = await two.project.branch('id-3');
 
-    expect(two.focus.pieces.map(({ name }) => name)).toEqual(names);
-    expect(two.focus.pieces.map(({ children }) => children.map(({ name }) => name))).toEqual([
+    expect(two.project.pieces.map(({ name }) => name)).toEqual(names);
+    expect(two.project.pieces.map(({ children }) => children.map(({ name }) => name))).toEqual([
       ['Item 1', 'Item 2'],
       ['Child 1', 'Child 2'],
       [],
     ]);
-    expect(elsewhere.focus.pieces[2]?.children.map(({ name }) => name)).toEqual(['Child 1']);
-    expect(two.focus.pieces[1]?.children[0]).toEqual({
+    expect(elsewhere.project.pieces[2]?.children.map(({ name }) => name)).toEqual(['Child 1']);
+    expect(two.project.pieces[1]?.children[0]).toEqual({
       id: 'id-4',
       name: 'Child 1',
       facets: [{ id: 'note', label: 'Note', text: '' }],
       children: [],
     });
-    expect(two.focus.pieces.map(({ childKind }) => childKind)).toEqual([
+    expect(two.project.pieces.map(({ childKind }) => childKind)).toEqual([
       undefined,
       'Child',
       'Child',
