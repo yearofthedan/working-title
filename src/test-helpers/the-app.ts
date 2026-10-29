@@ -2,7 +2,7 @@ import * as browser from 'vite-plus/test/browser';
 import { projectStore } from '../adapters/local-storage-project-store';
 import { openProject } from '../application/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
-import { renderFocus } from '../ui/focus/focus';
+import { renderFocus } from '../ui/focus/focus.dom';
 
 export const thePage = async (width: number): Promise<HTMLElement> => {
   await browser.page.viewport(width, 900);
