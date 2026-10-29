@@ -19,7 +19,7 @@ const pageWithTwoScenesUnderBeat4 = () => {
   return driver;
 };
 
-describe('the focus page actions', () => {
+describe('the graph page actions', () => {
   it('refuses a scene that is not under the beat named', async () => {
     const driver = pageWithTwoScenesUnderBeat4();
     await driver.fresh();

@@ -35,7 +35,7 @@ const recording = (tree: readonly string[]) => {
   return { calls, driver };
 };
 
-describe('the focus language', () => {
+describe('the graph language', () => {
   it('clicks a piece where it is, without going to it through the path', async () => {
     const { calls, driver } = recording(storyInFocus);
     const click = graphSteps(writerOn(driver), seesOn(driver))['the writer clicks {piece}']!;
