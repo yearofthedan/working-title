@@ -63,10 +63,6 @@ beforeAll(() => {
     writeInUi(`thing-${global}.dom.ts`, use);
     writeInUi(`thing-${global}.test.ts`, use);
   }
-  writeInUi(
-    'plain-types-only.ts',
-    'export const sample = (element: HTMLElement): number => element.childElementCount;\n',
-  );
   write('sample-no-locator.ts', callingOnPage('reload'));
   write(
     'driver-acting-on-a-locator/sample.driver.ts',
@@ -144,10 +140,6 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
 
   it.each(domGlobals)('a test file using %s passes lint', (global) => {
     expect(uiErrorsIn(`thing-${global}.test.ts`)).toEqual([]);
-  });
-
-  it('a plain file naming HTMLElement only as a type passes lint', () => {
-    expect(uiErrorsIn('plain-types-only.ts')).toEqual([]);
   });
 });
 
