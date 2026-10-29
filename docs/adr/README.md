@@ -16,4 +16,3 @@ How to decide whether a decision needs a record, and how to write one: [the writ
 | [7](0007-playwright-for-browser-specs.md) | Playwright for the browser specs | Accepted |
 | [8](0008-story-scenarios-run-from-their-approved-files.md) | Story scenarios run from their approved files | Accepted |
 | [9](0009-graph-drawn-in-plain-html-and-css.md) | Graph drawn in plain HTML and CSS | Accepted |
-| [10](0010-a-move-animates-with-a-css-transition.md) | A move animates with a CSS transition | Proposed |
