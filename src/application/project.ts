@@ -24,10 +24,12 @@ export interface PieceView {
   readonly childKind?: string;
 }
 
-export interface Focus {
+export interface OpenProject {
   readonly pieces: readonly PieceView[];
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
-  readonly branch: (pieceId: string) => Promise<{ readonly focus: Focus; readonly added: string }>;
+  readonly branch: (
+    pieceId: string,
+  ) => Promise<{ readonly project: OpenProject; readonly added: string }>;
 }
 
 const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
@@ -67,11 +69,11 @@ export const openProject = async (
   method: Method,
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
-): Promise<Focus> => {
+): Promise<OpenProject> => {
   let project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
   const save = () => store.save(project);
 
-  const focusOf = (): Focus => ({
+  const projectOf = (): OpenProject => ({
     pieces: listed(project, method),
 
     elaborate: (pieceId, facetId, text) => {
@@ -85,9 +87,9 @@ export const openProject = async (
       const id = newId();
       project = withBranch(project, pieceId, kind, id);
       await save();
-      return { focus: focusOf(), added: id };
+      return { project: projectOf(), added: id };
     },
   });
 
-  return focusOf();
+  return projectOf();
 };

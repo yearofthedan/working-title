@@ -9,7 +9,7 @@ import {
   nameOf,
   pageWith,
   pane,
-} from '../../test-helpers/focus-page';
+} from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
 
 const stored = 'working-title:project';

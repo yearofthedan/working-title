@@ -2,7 +2,7 @@ import { type Driver } from './driver';
 import { type Frame } from './frames';
 import { openTheApp, thePage } from './the-app';
 import { vitestBrowserDriver } from './vitest-browser.driver';
-import { writerOn, type Writer } from '../ui/focus/focus.dsl';
+import { writerOn, type Writer } from '../ui/graph/graph.dsl';
 
 export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
   const driver = vitestBrowserDriver(async () => {

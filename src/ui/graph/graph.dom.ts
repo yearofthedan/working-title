@@ -1,4 +1,4 @@
-import type { FacetView, Focus, PieceView } from '../../application/project';
+import type { FacetView, OpenProject, PieceView } from '../../application/project';
 
 const FOCUS_WIDTH = 560;
 const CARD_WIDTH = [200, 180, 120];
@@ -22,8 +22,8 @@ interface State {
   readonly header: HTMLElement;
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
-  focus: Focus;
-  at: string;
+  project: OpenProject;
+  focus: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, HTMLElement>;
   entries: readonly Entry[];
@@ -41,7 +41,7 @@ const walked = (piece: PieceView, level = 0, parentId?: string): Entry[] => [
 ];
 
 const entriesOf = (st: State): readonly Entry[] => {
-  const [story] = st.focus.pieces;
+  const [story] = st.project.pieces;
   return story === undefined ? [] : walked(story);
 };
 
@@ -56,9 +56,9 @@ const childrenOf = (st: State, id: string): readonly Entry[] =>
   st.entries.filter((entry) => entry.parentId === id);
 
 const kindOf = (st: State, id: string): string => {
-  const parent = entryOf(st, st.at)?.parentId;
-  if (id === st.at) return 'focus';
-  if (id === parent || entryOf(st, id)?.parentId === st.at) return 'card';
+  const parent = entryOf(st, st.focus)?.parentId;
+  if (id === st.focus) return 'focus';
+  if (id === parent || entryOf(st, id)?.parentId === st.focus) return 'card';
   if (parent !== undefined && entryOf(st, id)?.parentId === parent) return 'chip';
   return 'hidden';
 };
@@ -90,10 +90,10 @@ const widthOf = (st: State, id: string): number => {
 };
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
-  if (id !== st.at) {
+  if (id !== st.focus) {
     const parent = entryOf(st, id)?.parentId;
     if (parent !== undefined) st.lastVisited.set(parent, id);
-    st.at = id;
+    st.focus = id;
     place(st);
     pathNav(st);
   }
@@ -101,21 +101,21 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
 };
 
 const move = (st: State, where: 'up' | 'down' | 'left' | 'right'): void => {
-  const parent = entryOf(st, st.at)?.parentId;
+  const parent = entryOf(st, st.focus)?.parentId;
   if (where === 'up') {
     if (parent !== undefined) goTo(st, parent);
     return;
   }
   if (where === 'down') {
-    const children = childrenOf(st, st.at);
-    const last = st.lastVisited.get(st.at);
+    const children = childrenOf(st, st.focus);
+    const last = st.lastVisited.get(st.focus);
     const child = children.find((entry) => entry.piece.id === last) ?? children.at(0);
     if (child !== undefined) goTo(st, child.piece.id);
     return;
   }
   if (parent === undefined) return;
   const siblings = childrenOf(st, parent);
-  const here = siblings.findIndex((entry) => entry.piece.id === st.at);
+  const here = siblings.findIndex((entry) => entry.piece.id === st.focus);
   const next = siblings[here + (where === 'left' ? -1 : 1)];
   if (next !== undefined) goTo(st, next.piece.id);
 };
@@ -128,7 +128,7 @@ const nameButton = (piece: PieceView): HTMLElement => {
 };
 
 const setHeading = (st: State, piece: PieceView): void => {
-  const focused = piece.id === st.at;
+  const focused = piece.id === st.focus;
   const heading = st.cards.get(piece.id)!.querySelector('h2, h3, h4')!;
   if (
     (heading.querySelector('button') === null) === focused &&
@@ -144,7 +144,7 @@ const setHeading = (st: State, piece: PieceView): void => {
 const field = (
   pieceId: string,
   { id, label, text }: FacetView,
-  elaborate: Focus['elaborate'],
+  elaborate: OpenProject['elaborate'],
 ): HTMLElement => {
   const wrapper = document.createElement('div');
   wrapper.className = 'facet';
@@ -174,7 +174,7 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
   const heading = document.createElement(`h${entryOf(st, piece.id)!.level + 2}`);
   heading.textContent = piece.name;
   name.append(heading);
-  const facets = piece.facets.map((facet) => field(piece.id, facet, st.focus.elaborate));
+  const facets = piece.facets.map((facet) => field(piece.id, facet, st.project.elaborate));
   card.append(name, ...facets);
 
   if (piece.childKind !== undefined) {
@@ -191,7 +191,7 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
 
   card.addEventListener('click', (event) => {
     const into = event.target instanceof HTMLTextAreaElement ? event.target : undefined;
-    if (piece.id === st.at && into === undefined) return;
+    if (piece.id === st.focus && into === undefined) return;
     goTo(st, piece.id, into);
   });
 
@@ -207,7 +207,7 @@ const pathNav = (st: State): void => {
   }
 
   const path: Entry[] = [];
-  let entry = entryOf(st, st.at);
+  let entry = entryOf(st, st.focus);
   while (entry !== undefined) {
     path.unshift(entry);
     entry = entry.parentId === undefined ? undefined : entryOf(st, entry.parentId);
@@ -216,7 +216,7 @@ const pathNav = (st: State): void => {
   const list = document.createElement('ol');
   for (const step of path) {
     const item = document.createElement('li');
-    if (step.piece.id === st.at) {
+    if (step.piece.id === st.focus) {
       item.setAttribute('aria-current', 'location');
       item.textContent = step.piece.name;
     } else {
@@ -238,7 +238,7 @@ const settle = (st: State): void => {
 let replacing = false;
 
 const watch = (st: State): void => {
-  const focus = st.cards.get(st.at)!;
+  const focus = st.cards.get(st.focus)!;
   if (watcher !== undefined && watching === focus) return;
   watcher?.disconnect();
   watcher = new ResizeObserver(() => {
@@ -283,10 +283,10 @@ const place = (st: State): void => {
     card.style.height = '';
     card.className = kind;
     card.inert = kind === 'hidden';
-    if (piece.id === st.at) card.setAttribute('aria-current', 'location');
+    if (piece.id === st.focus) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
     for (const sentence of card.querySelectorAll('textarea')) {
-      sentence.tabIndex = piece.id === st.at ? 0 : -1;
+      sentence.tabIndex = piece.id === st.focus ? 0 : -1;
     }
   }
 
@@ -313,11 +313,11 @@ const place = (st: State): void => {
   }
 
   const centre = st.wrapper.clientWidth / 2;
-  const parentId = entryOf(st, st.at)?.parentId;
-  const focus = st.cards.get(st.at)!;
-  const focusWidth = widthOf(st, st.at);
+  const parentId = entryOf(st, st.focus)?.parentId;
+  const focus = st.cards.get(st.focus)!;
+  const focusWidth = widthOf(st, st.focus);
 
-  const focusHeight = heightOf(st.at);
+  const focusHeight = heightOf(st.focus);
   const parent = parentId === undefined ? undefined : st.cards.get(parentId)!;
   const mainTop = st.main.getBoundingClientRect().top;
   const belowHeader = st.header.getBoundingClientRect().bottom - mainTop + ROW_GAP;
@@ -336,7 +336,7 @@ const place = (st: State): void => {
 
   const below = top + focusHeight + ROW_GAP;
 
-  const children = childrenOf(st, st.at);
+  const children = childrenOf(st, st.focus);
   const row =
     children.reduce((total, entry) => total + widthOf(st, entry.piece.id), 0) +
     GAP * (children.length - 1);
@@ -349,8 +349,8 @@ const place = (st: State): void => {
   }
 
   const siblings = parentId === undefined ? [] : childrenOf(st, parentId);
-  const here = siblings.findIndex((entry) => entry.piece.id === st.at);
-  const sample = siblings.find((entry) => entry.piece.id !== st.at);
+  const here = siblings.findIndex((entry) => entry.piece.id === st.focus);
+  const sample = siblings.find((entry) => entry.piece.id !== st.focus);
   if (sample !== undefined) {
     const chipTop = top + (focusHeight - heightOf(sample.piece.id)) / 2;
     let before = centre - focusWidth / 2 - GAP;
@@ -407,8 +407,8 @@ const draw = (st: State): void => {
 };
 
 const addUnder = async (st: State, pieceId: string): Promise<void> => {
-  const { focus: next, added } = await st.focus.branch(pieceId);
-  st.focus = next;
+  const { project, added } = await st.project.branch(pieceId);
+  st.project = project;
   remember(st);
   const entry = entryOf(st, added)!;
   const card = pieceCard(st, entry.piece);
@@ -433,7 +433,7 @@ const onKeyDown = (event: KeyboardEvent): void => {
   if (target instanceof HTMLTextAreaElement) {
     if (event.key !== 'Escape') return;
     event.preventDefault();
-    st.cards.get(st.at)?.focus({ preventScroll: true });
+    st.cards.get(st.focus)?.focus({ preventScroll: true });
     return;
   }
 
@@ -444,17 +444,17 @@ const onKeyDown = (event: KeyboardEvent): void => {
     move(st, where);
     return;
   }
-  if (event.key === 'Enter' && target === st.cards.get(st.at)) {
+  if (event.key === 'Enter' && target === st.cards.get(st.focus)) {
     event.preventDefault();
-    st.cards.get(st.at)?.querySelector('textarea')?.focus({ preventScroll: true });
+    st.cards.get(st.focus)?.querySelector('textarea')?.focus({ preventScroll: true });
   }
 };
 
-export const renderFocus = async (
+export const renderGraph = async (
   { header, main }: { header: HTMLElement; main: HTMLElement },
-  focus: Focus,
+  project: OpenProject,
 ): Promise<void> => {
-  const [story] = focus.pieces;
+  const [story] = project.pieces;
   if (story === undefined) return;
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
@@ -467,8 +467,8 @@ export const renderFocus = async (
     header,
     main,
     wrapper,
-    focus,
-    at: story.id,
+    project,
+    focus: story.id,
     lastVisited: new Map(),
     cards: new Map(),
     entries: [],
