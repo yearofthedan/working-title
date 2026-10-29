@@ -249,14 +249,16 @@ describe('the graph around the focus', () => {
     },
   );
 
-  it('stops the focus row below the header when the window is too short to centre it', async () => {
+  it('stops the focus row below the header it was given when the window is too short to centre it', async () => {
     const { driver, writer } = pageWith(0, 400);
     await driver.fresh();
     await browser.page.viewport(400, 500);
+    const own = document.querySelector('header')!;
+    document.body.prepend(document.createElement('header'));
     await writer.clicks('Beat 2');
     await settled();
 
-    const header = document.querySelector('header')!.getBoundingClientRect();
+    const header = own.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
 
     expect(parent.top).toBeGreaterThanOrEqual(header.bottom);

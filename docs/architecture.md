@@ -26,6 +26,7 @@ service worker ──► the built app, cached on the first load
 | Ports | What the application asks of storage. | `src/ports/` | [ADR 2](adr/0002-hexagonal-layers.md) |
 | Browser working copy | Where every change is saved first, so typing never waits on a file. | `src/adapters/` | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md) |
 | Folder mirror | The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. | not built yet | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md) |
+| Start-up | Finds the page's header and main, opens the project with the method and the browser working copy, and draws the graph. It sits outside the layers, so it may import each of them; the app and the browser tests both start through it. | `src/app.ts`, entered from `src/main.ts` | [ADR 2](adr/0002-hexagonal-layers.md) |
 | Service worker | Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. | `vite.config.ts` | [ADR 1](adr/0001-no-backend-in-v1.md) |
 | Development environment | The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds. | `scripts/`, `.omp/`, `.github/workflows/` | |
 
