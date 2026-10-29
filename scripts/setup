@@ -35,7 +35,7 @@ setup() {
   if command -v weaver >/dev/null 2>&1; then
     weaver skills install --dir "$root/.agents/skills" --force
   else
-    echo "weaver is not on your PATH; skipped its skills. Install it globally, then run ./do setup again."
+    echo "weaver is not installed; skipped its skills. Run pnpm install, then ./do setup again."
   fi
 }
 
