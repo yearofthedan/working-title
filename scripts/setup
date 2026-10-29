@@ -1,8 +1,9 @@
 #!/bin/sh
-# help: Install Ponytail and the dev-skills plugin, which the build work runs under, into your OMP.
+# help: Install Ponytail and the dev-skills plugin into your OMP, and weaver's skills into .agents/skills.
 
 set -eu
 
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 installed=
 
 install_plugin() {
@@ -30,6 +31,11 @@ setup() {
   install_plugin dev-skills dev-skills@snippets yearofthedan/snippets
   if [ -n "$installed" ]; then
     echo "Run /reload-plugins in an open OMP session to load it."
+  fi
+  if command -v weaver >/dev/null 2>&1; then
+    weaver skills install --dir "$root/.agents/skills" --force
+  else
+    echo "weaver is not on your PATH; skipped its skills. Install it globally, then run ./do setup again."
   fi
 }
 

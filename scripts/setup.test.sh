@@ -10,6 +10,8 @@ if [ "$1 $2" = "plugin list" ]; then cat "$OMP_LIST"; fi
 if [ "$1 $2" = "plugin marketplace" ] && [ "$3" = "list" ]; then cat "$OMP_MARKETPLACES"; fi
 STUB
 chmod +x "$work/bin/omp"
+printf '#!/bin/sh\necho "weaver $*" >> "$OMP_LOG"\n' >"$work/bin/weaver"
+chmod +x "$work/bin/weaver"
 OMP_LOG="$work/calls"
 OMP_LIST="$work/plugins.json"
 OMP_MARKETPLACES="$work/marketplaces"
@@ -75,6 +77,19 @@ run_do setup
 expect_status 0 "setup succeeds when the Ponytail marketplace is already configured"
 expect_no_call 'marketplace add DietrichGebert/ponytail' "setup does not re-add the Ponytail marketplace"
 expect_call 'plugin install ponytail@ponytail' "setup installs Ponytail"
+
+fresh
+run_do setup
+expect_call "weaver skills install --dir $root/.agents/skills --force" "setup installs weaver's skills into .agents/skills"
+
+rm "$work/bin/weaver"
+mkdir -p "$work/tools"
+for tool in dirname grep cat; do ln -s "$(command -v "$tool")" "$work/tools/$tool"; done
+fresh
+status=0
+PATH="$work/bin:$work/tools" "$root/do" setup >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "setup succeeds when weaver is not on PATH"
+expect_out 'weaver is not on your PATH; skipped its skills' "setup says it skipped weaver's skills"
 
 mkdir -p "$work/nowhere"
 ln -s "$(command -v dirname)" "$work/nowhere/dirname"
