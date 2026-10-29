@@ -9,8 +9,10 @@ import {
   nameOf,
   pageWith,
   pane,
+  recorded,
+  partWay,
 } from '../../test-helpers/focus-page';
-import { arrivalStep, easesOut, movedBy, partWay, recorded } from '../../test-helpers/frames';
+import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './focus.dsl';
 
 const boxes = (): readonly string[] =>
