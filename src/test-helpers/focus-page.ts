@@ -1,4 +1,5 @@
 import { type Driver } from './driver';
+import { type Frame } from './frames';
 import { openTheApp, thePage } from './the-app';
 import { vitestBrowserDriver } from './vitest-browser.driver';
 import { writerOn, type Writer } from '../ui/focus/focus.dsl';
@@ -50,4 +51,36 @@ export const laidOut = (): Promise<void> => {
 export const moving = (): readonly Animation[] => {
   void document.body.offsetWidth;
   return document.getAnimations();
+};
+
+export const recorded = async (play: () => Promise<void>): Promise<readonly Frame[]> => {
+  const frames: Frame[] = [];
+  const { promise, resolve } = Promise.withResolvers<void>();
+  let sampling = true;
+  const tick = (): void => {
+    frames.push({
+      at: performance.now(),
+      running: moving().length,
+      boxes: new Map(
+        [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => [
+          nameOf(card),
+          card.getBoundingClientRect(),
+        ]),
+      ),
+    });
+    if (sampling) requestAnimationFrame(tick);
+    else resolve();
+  };
+  requestAnimationFrame(tick);
+  await play();
+  sampling = false;
+  await promise;
+  return frames;
+};
+
+export const partWay = async (): Promise<void> => {
+  for (let frame = 0; frame < 12; frame += 1) {
+    await laidOut();
+    if (moving().some((animation) => Number(animation.currentTime ?? 0) > 100)) return;
+  }
 };
