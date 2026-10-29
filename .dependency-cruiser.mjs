@@ -37,6 +37,14 @@ export default {
       to: { path: '(\\.dsl\\.ts$|\\.driver\\.ts$|test-helpers/driver\\.ts$)' },
     },
     {
+      name: 'logic-not-on-the-dom',
+      severity: 'error',
+      comment:
+        'A plain file in src/ui/ holds the logic, and the code that touches the DOM is in a *.dom.ts beside it (docs/architecture.md).',
+      from: { path: '^src/ui/', pathNot: ['\\.dom\\.ts$', '\\.test\\.ts$'] },
+      to: { path: '\\.dom\\.ts$' },
+    },
+    {
       name: 'no-circular',
       severity: 'error',
       comment:
