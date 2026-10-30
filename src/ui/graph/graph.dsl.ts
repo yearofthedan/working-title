@@ -1,4 +1,4 @@
-import type { Drawn, Driver } from '../../test-helpers/driver';
+import type { DrawnCard, Driver } from '../../test-helpers/driver';
 import type { StepAction } from '../../test-helpers/steps';
 
 const arrows: Readonly<Record<string, string>> = {
@@ -57,7 +57,7 @@ export const writerOn = (driver: Driver): Writer => {
   };
 };
 
-const inFocus = (pieces: readonly Drawn[], name: string): Drawn => {
+const inFocus = (pieces: readonly DrawnCard[], name: string): DrawnCard => {
   const focused = pieces.filter((piece) => piece.current);
   const [only] = focused;
   if (focused.length !== 1 || only?.name !== name) {
@@ -72,14 +72,14 @@ const sameNames = (what: string, found: readonly string[], wanted: readonly stri
   }
 };
 
-const above = (pieces: readonly Drawn[], focus: Drawn, name: string): void => {
+const above = (pieces: readonly DrawnCard[], focus: DrawnCard, name: string): void => {
   const parent = pieces.find((piece) => piece.kind === 'card' && piece.name === name);
   if (parent === undefined || parent.box.bottom > focus.box.top) {
     throw new Error(`${name} is not on the graph above the focus`);
   }
 };
 
-const beside = (pieces: readonly Drawn[], focus: Drawn, names: readonly string[]): void => {
+const beside = (pieces: readonly DrawnCard[], focus: DrawnCard, names: readonly string[]): void => {
   const at = pieces.findIndex((piece) => piece.kind === 'focus');
   sameNames(
     'pieces beside the focus',
@@ -97,7 +97,7 @@ const beside = (pieces: readonly Drawn[], focus: Drawn, names: readonly string[]
   }
 };
 
-const under = (pieces: readonly Drawn[], focus: Drawn, names: readonly string[]): void => {
+const under = (pieces: readonly DrawnCard[], focus: DrawnCard, names: readonly string[]): void => {
   const children = pieces.filter(
     (piece) => piece.kind === 'card' && piece.box.top >= focus.box.bottom,
   );

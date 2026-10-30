@@ -1,4 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
+import { drawnKinds } from '../ui/graph/graph';
 import { clicking, drawn, linesOf, settled, typing, type Driver } from './driver';
 import { openTheApp } from './the-app';
 
@@ -33,7 +34,7 @@ export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   type: typing(browser.page),
   drawn: async () => {
     await settled();
-    return drawn();
+    return drawn(drawnKinds);
   },
   tree: async () => {
     await settled();

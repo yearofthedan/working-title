@@ -2,6 +2,7 @@ import { type Driver } from './driver';
 import { type Frame } from './frames';
 import { openTheApp, thePage } from './the-app';
 import { vitestBrowserDriver } from './vitest-browser.driver';
+import type { Drawn } from '../ui/graph/graph';
 import { writerOn, type Writer } from '../ui/graph/graph.dsl';
 
 export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
@@ -21,7 +22,7 @@ export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Wr
 
 export const pane = (): HTMLElement => document.querySelector('main')!;
 
-export const cards = (kind: string): HTMLElement[] => [
+export const cards = (kind: Drawn): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>(`main fieldset.${kind}`),
 ];
 
@@ -34,7 +35,7 @@ export const focused = (): HTMLElement => {
   return card;
 };
 
-export const named = (kind: string, name: string): HTMLElement => {
+export const named = (kind: Drawn, name: string): HTMLElement => {
   const card = cards(kind).find((one) => nameOf(one) === name);
   if (card === undefined) throw new Error(`no piece named ${name} is drawn as a ${kind}`);
   return card;

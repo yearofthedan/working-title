@@ -5,7 +5,8 @@ import { ids } from '../test-helpers/ids';
 import { toyMethod } from '../test-helpers/toy-method';
 import { openProject } from './project';
 
-const names = ['Root', 'Item 1', 'Item 2'];
+const rootName = 'Root';
+const names = ['Item 1', 'Item 2'];
 const typed = 'a title with "quotes" and a line\nbreak';
 
 const storeOf = (project?: StoredProject): ProjectStore => ({
@@ -24,8 +25,8 @@ const copyingStore = (): ProjectStore & { saved: () => Project | undefined } => 
   };
 };
 
-const item2Of = (pieces: readonly { readonly id: string }[]): { readonly id: string } => {
-  const item = pieces[2];
+const item2Of = (children: readonly { readonly id: string }[]): { readonly id: string } => {
+  const item = children[1];
   if (item === undefined) throw new Error('the project has no item 2');
   return item;
 };
@@ -33,22 +34,28 @@ const item2Of = (pieces: readonly { readonly id: string }[]): { readonly id: str
 describe('opening a project', () => {
   it('lists the root and its children in order, named for what they are, each with an empty first facet', async () => {
     const project = await openProject(toyMethod, storeOf(), ids());
-    expect(project.pieces.map(({ name }) => name)).toEqual(names);
-    expect(project.pieces.map(({ facets }) => facets[0]?.text)).toEqual(names.map(() => ''));
+    expect(project.root.name).toBe(rootName);
+    expect(project.root.children.map(({ name }) => name)).toEqual(names);
+    expect(project.root.facets[0]?.text).toBe('');
+    expect(project.root.children.map(({ facets }) => facets[0]?.text)).toEqual(['', '']);
   });
 
   it('reads the text the root holds', async () => {
     const started = elaborate(newProject(toyMethod, ids()), 'id-1', 'note', 'a note');
     const project = await openProject(toyMethod, storeOf(started), ids());
-    expect(project.pieces[0]?.facets[0]?.text).toBe('a note');
+    expect(project.root.facets[0]?.text).toBe('a note');
   });
 
   it('lists the root first and its children by their order, however the store holds them', async () => {
     const started = newProject(toyMethod, ids());
     const shuffled = { ...started, pieces: [...started.pieces].reverse() };
     const project = await openProject(toyMethod, storeOf(shuffled), ids());
-    expect(project.pieces.map(({ id }) => id)).toEqual(['id-1', 'id-2', 'id-3']);
-    expect(project.pieces.map(({ name }) => name)).toEqual(names);
+    expect(project.root.id).toBe('id-1');
+    expect(project.root.name).toBe(rootName);
+    expect(project.root.children.map(({ id, name }) => [id, name])).toEqual([
+      ['id-2', 'Item 1'],
+      ['id-3', 'Item 2'],
+    ]);
   });
 
   it('refuses to open where the store cannot read what it holds', async () => {
@@ -64,7 +71,7 @@ describe('opening a project', () => {
   it('saves the text typed into a child under the ids the app mints, leaving the root and the other child alone', async () => {
     const store = copyingStore();
     const project = await openProject(toyMethod, store);
-    await project.elaborate(item2Of(project.pieces).id, 'title', typed);
+    await project.elaborate(item2Of(project.root.children).id, 'title', typed);
     expect(store.saved()?.pieces.map(({ facets }) => facets['title'] ?? '')).toEqual([
       '',
       '',
@@ -97,33 +104,29 @@ describe('opening a project', () => {
     const two = await one.project.branch('id-2');
     const elsewhere = await two.project.branch('id-3');
 
-    expect(two.project.pieces.map(({ name }) => name)).toEqual(names);
-    expect(two.project.pieces.map(({ children }) => children.map(({ name }) => name))).toEqual([
-      ['Item 1', 'Item 2'],
-      ['Child 1', 'Child 2'],
-      [],
+    expect(two.project.root.children.map(({ name }) => name)).toEqual(names);
+    expect(
+      two.project.root.children.map(({ children }) => children.map(({ name }) => name)),
+    ).toEqual([['Child 1', 'Child 2'], []]);
+    expect(elsewhere.project.root.children[1]?.children.map(({ name }) => name)).toEqual([
+      'Child 1',
     ]);
-    expect(elsewhere.project.pieces[2]?.children.map(({ name }) => name)).toEqual(['Child 1']);
-    expect(two.project.pieces[1]?.children[0]).toEqual({
+    expect(two.project.root.children[0]?.children[0]).toEqual({
       id: 'id-4',
       name: 'Child 1',
       facets: [{ id: 'note', label: 'Note', text: '' }],
       children: [],
     });
-    expect(two.project.pieces.map(({ childKind }) => childKind)).toEqual([
-      undefined,
-      'Child',
-      'Child',
-    ]);
+    expect(two.project.root.children.map(({ childKind }) => childKind)).toEqual(['Child', 'Child']);
   });
 
   it('reads the text back on the next open', async () => {
     const store = copyingStore();
     const first = await openProject(toyMethod, store, ids());
-    await first.elaborate(item2Of(first.pieces).id, 'title', typed);
+    await first.elaborate(item2Of(first.root.children).id, 'title', typed);
 
     const reopened = await openProject(toyMethod, store, ids());
-    expect(reopened.pieces[2]?.facets[0]?.text).toBe(typed);
+    expect(reopened.root.children[1]?.facets[0]?.text).toBe(typed);
   });
 
   it('opens a version 1 save, its text kept and nothing under the pieces under the root', async () => {
@@ -135,8 +138,9 @@ describe('opening a project', () => {
 
     const opened = await openProject(toyMethod, storeOf(saved), ids());
 
-    expect(opened.pieces.map(({ name }) => name)).toEqual(names);
-    expect(opened.pieces[0]?.facets[0]?.text).toBe('the first');
-    expect(opened.pieces[0]?.children.flatMap(({ children: under }) => under)).toEqual([]);
+    expect(opened.root.name).toBe(rootName);
+    expect(opened.root.children.map(({ name }) => name)).toEqual(names);
+    expect(opened.root.facets[0]?.text).toBe('the first');
+    expect(opened.root.children.flatMap(({ children: under }) => under)).toEqual([]);
   });
 });
