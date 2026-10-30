@@ -14,7 +14,7 @@ const entryOf = (entries: readonly Entry[], id: string | undefined): Entry | und
   entries.find((entry) => entry.piece.id === id);
 
 export const treeOf = (root: PieceView, level = 0, parentId?: string): readonly Entry[] => [
-  { piece: root, level, ...(parentId === undefined ? {} : { parentId }) },
+  { piece: root, level, parentId },
   ...root.children.flatMap((child) => treeOf(child, level + 1, root.id)),
 ];
 
@@ -22,10 +22,10 @@ export const childrenOf = (entries: readonly Entry[], id: string): readonly Entr
   entries.filter((entry) => entry.parentId === id);
 
 export const drawnAs = (entries: readonly Entry[], focus: string, id: string): Drawn => {
-  const parent = entryOf(entries, focus)?.parentId;
+  const parent = entryOf(entries, focus)!.parentId;
   if (id === focus) return 'focus';
-  if (id === parent || entryOf(entries, id)?.parentId === focus) return 'card';
-  if (parent !== undefined && entryOf(entries, id)?.parentId === parent) return 'chip';
+  if (id === parent || entryOf(entries, id)!.parentId === focus) return 'card';
+  if (entryOf(entries, id)!.parentId === parent) return 'chip';
   return 'hidden';
 };
 
@@ -43,7 +43,7 @@ export const moveFrom = (
   where: 'up' | 'down' | 'left' | 'right',
   lastVisited: ReadonlyMap<string, string>,
 ): string | undefined => {
-  const parent = entryOf(entries, focus)?.parentId;
+  const parent = entryOf(entries, focus)!.parentId;
   if (where === 'up') return parent;
   if (where === 'down') {
     const children = childrenOf(entries, focus);

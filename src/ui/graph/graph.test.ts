@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
-import { drawnAs, moveFrom, pathTo, treeOf } from './graph';
+import { drawnAs, drawnKinds, moveFrom, pathTo, shownAncestor, treeOf } from './graph';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -67,6 +67,28 @@ describe('how a piece is drawn', () => {
       'hidden',
       'card',
     ]);
+  });
+
+  it('draws every piece as one of the kinds the driver reads back', () => {
+    const drawn = ['The story', 'Beat 1', 'Beat 2'].flatMap((focus) =>
+      entries.map(({ piece: { id } }) => drawnAs(entries, focus, id)),
+    );
+
+    expect(drawn.filter((kind) => !drawnKinds.includes(kind))).toEqual([]);
+  });
+});
+
+describe('the piece a hidden one is drawn under', () => {
+  it('reads a piece that is drawn as its own ancestor', () => {
+    expect(shownAncestor(entries, 'Beat 1', 'Beat 1').piece.id).toBe('Beat 1');
+  });
+
+  it('walks up from a hidden piece to the nearest piece that is drawn', () => {
+    expect(shownAncestor(entries, 'Beat 1', 'Scene 1').piece.id).toBe('Beat 2');
+  });
+
+  it('walks up to the story when even that is hidden', () => {
+    expect(shownAncestor(entries, 'Scene 1', 'Beat 1').piece.id).toBe('The story');
   });
 });
 
