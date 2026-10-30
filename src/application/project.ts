@@ -25,7 +25,7 @@ export interface PieceView {
 }
 
 export interface OpenProject {
-  readonly pieces: readonly PieceView[];
+  readonly root: PieceView;
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
   readonly branch: (
     pieceId: string,
@@ -43,7 +43,7 @@ const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
 };
 
 // shortcut: a child is named for its kind and its place, until the method's own names arrive with their guidance in #4.
-const listed = (project: Project, method: Method): readonly PieceView[] => {
+const listed = (project: Project, method: Method): PieceView => {
   const kinds = kindsOf(method);
 
   const listedUnder = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
@@ -61,8 +61,7 @@ const listed = (project: Project, method: Method): readonly PieceView[] => {
   });
 
   const root = project.pieces.find(({ parent }) => parent === null)!;
-  const story = listedUnder(root, method.rootKind, method.rootKind.label);
-  return [story, ...story.children];
+  return listedUnder(root, method.rootKind, method.rootKind.label);
 };
 
 export const openProject = async (
@@ -74,7 +73,7 @@ export const openProject = async (
   const save = () => store.save(project);
 
   const projectOf = (): OpenProject => ({
-    pieces: listed(project, method),
+    root: listed(project, method),
 
     elaborate: (pieceId, facetId, text) => {
       project = withFacet(project, pieceId, facetId, text);

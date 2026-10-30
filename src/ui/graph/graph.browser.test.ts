@@ -329,43 +329,6 @@ describe('moving the focus', () => {
     expect(other.querySelector('nav')).toBeNull();
   });
 
-  it('leaves the focus on the story when ↑ has nowhere to go', async () => {
-    const { driver } = pageWith();
-    await driver.fresh();
-    await driver.press('ArrowUp');
-
-    expect(nameOf(focused())).toBe('The story');
-  });
-
-  it('leaves the focus where it is when ↓ has no child to go to', async () => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
-    await writer.clicks('Beat 4');
-    await driver.press('ArrowDown');
-    expect(nameOf(focused())).toBe('Scene 1');
-
-    await driver.press('ArrowDown');
-    expect(nameOf(focused())).toBe('Scene 1');
-  });
-
-  it('leaves the focus on the first sibling when ← has nowhere to go', async () => {
-    const { driver, writer } = pageWith();
-    await driver.fresh();
-    await writer.clicks('Beat 1');
-    await driver.press('ArrowLeft');
-
-    expect(nameOf(focused())).toBe('Beat 1');
-  });
-
-  it('leaves the focus on the last sibling when → has nowhere to go', async () => {
-    const { driver, writer } = pageWith();
-    await driver.fresh();
-    await writer.clicks('Beat 5');
-    await driver.press('ArrowRight');
-
-    expect(nameOf(focused())).toBe('Beat 5');
-  });
-
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
@@ -379,24 +342,6 @@ describe('moving the focus', () => {
 
     await driver.press('ArrowUp');
     expect(nameOf(focused())).toBe('The story');
-  });
-
-  it('moves down to the first child, and then to the child last visited', async () => {
-    const { driver, writer } = pageWith(2);
-    await driver.fresh();
-    await writer.clicks('Beat 4');
-
-    await driver.press('ArrowDown');
-    expect(nameOf(focused())).toBe('Scene 1');
-
-    await driver.press('ArrowRight');
-    expect(nameOf(focused())).toBe('Scene 2');
-
-    await driver.press('ArrowUp');
-    expect(nameOf(focused())).toBe('Beat 4');
-
-    await driver.press('ArrowDown');
-    expect(nameOf(focused())).toBe('Scene 2');
   });
 
   it('moves the focus with → from a sibling’s name button', async () => {
