@@ -116,6 +116,10 @@ describe('where an arrow moves the focus', () => {
     expect(moveFrom(entries, 'Beat 1', 'left', nowhereVisited)).toBeUndefined();
     expect(moveFrom(entries, 'Beat 3', 'right', nowhereVisited)).toBeUndefined();
   });
+
+  it('goes nowhere before the graph is drawn, when there is no piece to move from', () => {
+    expect(moveFrom([], 'The story', 'up', nowhereVisited)).toBeUndefined();
+  });
 });
 
 describe('the path to a piece', () => {

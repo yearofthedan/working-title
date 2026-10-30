@@ -43,7 +43,7 @@ export const moveFrom = (
   where: 'up' | 'down' | 'left' | 'right',
   lastVisited: ReadonlyMap<string, string>,
 ): string | undefined => {
-  const parent = entryOf(entries, focus)!.parentId;
+  const parent = entryOf(entries, focus)?.parentId;
   if (where === 'up') return parent;
   if (where === 'down') {
     const children = childrenOf(entries, focus);
