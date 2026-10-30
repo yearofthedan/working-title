@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import { drawnKinds } from '../ui/graph/graph';
 import { clicking, drawn, linesOf, settled, typing, type ReloadingDriver } from './driver';
 
 export interface PlaywrightDriver extends ReloadingDriver {
@@ -24,7 +25,7 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => ({
   drawn: async () => {
     await page.getByRole('main').getByRole('group').first().waitFor();
     await page.evaluate(settled);
-    return page.evaluate(drawn);
+    return page.evaluate(drawn, drawnKinds);
   },
   tree: async () => {
     await page.evaluate(settled);

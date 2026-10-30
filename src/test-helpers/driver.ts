@@ -1,3 +1,5 @@
+import type { Drawn } from '../ui/graph/graph';
+
 export type Role = 'group' | 'button' | 'heading' | 'navigation' | 'textbox';
 
 export interface Within {
@@ -14,9 +16,9 @@ export interface Box {
   readonly height: number;
 }
 
-export interface Drawn {
+export interface DrawnCard {
   readonly name: string;
-  readonly kind: string;
+  readonly kind: Drawn;
   readonly current: boolean;
   readonly box: Box;
 }
@@ -26,11 +28,10 @@ export const settled = async (): Promise<void> => {
   await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
 };
 
-export const drawn = (): readonly Drawn[] =>
+export const drawn = (kinds: readonly Drawn[]): readonly DrawnCard[] =>
   [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
     name: card.querySelector('h2, h3, h4')?.textContent ?? '',
-    kind:
-      ['focus', 'card', 'chip', 'hidden'].find((kind) => card.classList.contains(kind)) ?? 'hidden',
+    kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
     current: card.getAttribute('aria-current') === 'location',
     box: card.getBoundingClientRect(),
   }));
@@ -42,7 +43,7 @@ export interface Driver {
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
   type(text: string, label: string, within: Within): Promise<void>;
-  drawn(): Promise<readonly Drawn[]>;
+  drawn(): Promise<readonly DrawnCard[]>;
   tree(): Promise<readonly string[]>;
 }
 
