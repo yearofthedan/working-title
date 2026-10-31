@@ -68,6 +68,31 @@ describe('a scenario file', () => {
     expect(scenarios[0]?.observed).toEqual(['- main:', '  - text: A toy']);
   });
 
+  it('reads a But after a Then as one more outcome', () => {
+    const { scenarios } = readScenarioFile(
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'When it runs',
+        'Then it moves',
+        'But it stays a toy',
+        '```',
+        '',
+      ].join('\n'),
+    );
+
+    expect(scenarios[0]?.steps.map((step) => step.keyword)).toEqual([
+      'Given',
+      'When',
+      'Then',
+      'But',
+    ]);
+  });
+
   it.each([
     ['nothing', [''], 'opens with "Rule: "'],
     ['a rule with no scenario', ['Rule: A toy rule.'], 'at least one scenario'],
@@ -102,6 +127,22 @@ describe('a scenario file', () => {
         '',
       ],
       'a Given after a When',
+    ],
+    [
+      'a But before any Then',
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'But it stays a toy',
+        'When it runs',
+        '```',
+        '',
+      ],
+      'a "but" follows a Then',
     ],
     [
       'a step after what was observed',

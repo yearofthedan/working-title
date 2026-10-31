@@ -1,4 +1,4 @@
-export type StepKeyword = 'Given' | 'When' | 'Then' | 'And';
+export type StepKeyword = 'Given' | 'When' | 'Then' | 'And' | 'But';
 
 export interface Step {
   readonly keyword: StepKeyword;
@@ -21,7 +21,7 @@ export interface ScenarioFile {
 const rank = { Given: 0, When: 1, Then: 2 } as const;
 const stepKeywords = Object.keys(rank) as (keyof typeof rank)[];
 
-const stepLine = /^(Given|When|Then|And) (.+)$/;
+const stepLine = /^(Given|When|Then|And|But) (.+)$/;
 const looksLikeAStep = new RegExp(`^(${stepKeywords.join('|')})\\b`, 'i');
 
 const oneLine = (what: string, line: string): string => {
@@ -39,7 +39,15 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
       if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
       return { keyword, phrase: oneLine('A step phrase', plain[2]) };
     }
-    const last = [...soFar].reverse().find((step) => step.keyword !== 'And');
+    const last = [...soFar]
+      .reverse()
+      .find((step) => step.keyword !== 'And' && step.keyword !== 'But');
+    if (keyword === 'But') {
+      if (last?.keyword !== 'Then') {
+        throw new Error(`Line ${at} is a "but" before any Then: a "but" follows a Then`);
+      }
+      return { keyword, phrase: oneLine('A step phrase', plain[2]) };
+    }
     if (last && rank[keyword] < rank[last.keyword as keyof typeof rank]) {
       throw new Error(
         `Line ${at} is a ${keyword} after a ${last.keyword}: a scenario reads Given, When, Then`,
