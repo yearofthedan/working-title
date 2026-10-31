@@ -46,7 +46,7 @@ The pull request that finishes the last unticked planned pull request says `Clos
 
 Before a planned pull request's first commit, set out its approach, grouped by the classes below, each with what you propose, and wait for the builder's yes. The approach goes in a message of its own, and nothing is built while it is unanswered: work that assumes an answer is a guess, and a part of it left as a clause inside a status report is not asked. A planned pull request that needs nothing settled in any class says so, and still waits. The plan stays titles: the approach is set out one planned pull request at a time, when that one starts. A question that needs a probe at this stage is probed as [Plan the pull requests](#plan-the-pull-requests) step 2 says.
 
-1. **Tooling and dependencies**, including a choice not to use one.
+1. **Tooling, dependencies and skills**: each of the repo's scripts, installed skills and tools that already does or enables part of this planned pull request, with what it covers, or `none`; and a choice not to add a dependency.
 2. **Architecture**: anything that changes [`docs/architecture.md`](../../../docs/architecture.md).
 3. **Decision records the planned pull request touches**: how it follows each one, and any you think is wrong for this case. A challenge names the record, what this planned pull request shows it missed, and what you would decide instead. A yes adds a superseding record to the plan, through the [writing-adrs skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/writing-adrs/SKILL.md), ahead of the planned pull request that depends on it.
 4. **Reading the issue**: how you read an acceptance criterion or a `Done when` line that allows more than one reading.
