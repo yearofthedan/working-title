@@ -11,7 +11,7 @@
 
 ## The layers
 
-A spec drives the app through the language, over a driver, so what it says is the writer's words and what it touches is one file. The code that plays a scenario sits in one of four layers:
+A spec drives the app through the language, over a driver, so what it says is the writer's words and what it touches is one file. The code that plays a scenario sits in one of five layers:
 
 | Layer | File | Holds |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ A spec drives the app through the language, over a driver, so what it says is th
 - **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver or the contract: a test, another language file, a driver and `src/test-helpers/` are what may. `./do layers` refuses the rest.
 - **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
 - **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a page's element-finding calls and `document.querySelector` and `document.querySelectorAll` in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
-- **A browser test finds elements as the writer does**, through the language and the driver: it touches the DOM directly only to build a page no writer can make, in `src/test-helpers/staging.ts`, and to read what no role exposes, such as a box or a computed style, through `src/test-helpers/measuring.ts`. Lint refuses anything else in a `*.browser.test.ts` — `querySelector`, `querySelectorAll`, `style` and `document` — and `vite.config.test.ts` shows each case failing.
+- **A browser test finds elements as the writer does**, through the language and the driver: it touches the DOM directly only to build a page no writer can make, in `src/test-helpers/staging.ts`, and to read what no role exposes, such as a box or a computed style, through `src/test-helpers/measuring.ts`.
 
 ## Levels and names
 

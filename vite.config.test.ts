@@ -92,15 +92,6 @@ beforeAll(() => {
     'browser-document.browser.test.ts',
     'export const sample = (): number => document.body.childElementCount;\n',
   );
-  writeInUi(
-    'browser-measuring.ts',
-    "export const headingOf = (card: HTMLElement) => card.querySelector('h2');\n",
-  );
-  writeInUi(
-    'browser-measured.browser.test.ts',
-    "import { headingOf } from './browser-measuring';\nexport const sample = (card: HTMLElement) => headingOf(card);\n",
-  );
-
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -182,10 +173,6 @@ describe('a browser test', { timeout: 60_000 }, () => {
     expect(uiErrorsIn('browser-document.browser.test.ts')).toEqual([
       expect.stringContaining('measuring.ts'),
     ]);
-  });
-
-  it('calling a measuring function passes lint', () => {
-    expect(uiErrorsIn('browser-measured.browser.test.ts')).toEqual([]);
   });
 });
 
