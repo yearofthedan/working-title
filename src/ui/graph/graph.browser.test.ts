@@ -94,76 +94,25 @@ describe('the graph around the focus', () => {
     );
   });
 
-  it('puts the parent straight above the focus and the children in a row under it', async () => {
+  it('puts the pieces hidden under a hidden story where the story is', async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
     await writer.clicks('Beat 4');
+    await writer.clicks('Scene 1');
     await settled();
 
-    const focus = focused();
-    const parent = named('card', 'The story');
-    expect(centreOf(parent)).toBeCloseTo(centreOf(focus), 0);
-    expect(parent.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-      focus.getBoundingClientRect().top,
-    );
-
-    const children = cards('card').filter((card) => card !== parent);
-    expect(children.map(nameOf)).toEqual(['Scene 1', 'Scene 2']);
-    expect(children[0]!.getBoundingClientRect().top).toBe(children[1]!.getBoundingClientRect().top);
-    expect(children[0]!.getBoundingClientRect().top).toBeGreaterThanOrEqual(
-      focus.getBoundingClientRect().bottom,
-    );
-    const row =
-      (children[0]!.getBoundingClientRect().left + children[1]!.getBoundingClientRect().right) / 2;
-    expect(row).toBeCloseTo(centreOf(focus), 0);
+    const story = named('hidden', 'The story').style;
+    const beat = named('hidden', 'Beat 1').style;
+    expect([beat.left, beat.top]).toEqual([story.left, story.top]);
   });
 
-  it('centres a row of eight scenes under the focus, inside main at 1440 px', async () => {
-    const { driver, writer } = pageWith(8, 1440);
+  it('draws a piece hidden under a chip at the chip’s width', async () => {
+    const { driver, writer } = pageWith(1);
     await driver.fresh();
-    await writer.clicks('Beat 4');
+    await writer.clicks('Beat 2');
     await settled();
 
-    const children = cards('card').filter((card) => card !== named('card', 'The story'));
-    expect(children).toHaveLength(8);
-    const bounds = pane().getBoundingClientRect();
-    const left = Math.min(...children.map((card) => card.getBoundingClientRect().left));
-    const right = Math.max(...children.map((card) => card.getBoundingClientRect().right));
-    expect(left).toBeGreaterThanOrEqual(bounds.left);
-    expect(right).toBeLessThanOrEqual(bounds.right);
-  });
-
-  it('cuts a row of eight scenes off evenly at both edges at 1100 px', async () => {
-    const { driver, writer } = pageWith(8, 1100);
-    await driver.fresh();
-    await writer.clicks('Beat 4');
-    await settled();
-
-    const children = cards('card').filter((card) => card !== named('card', 'The story'));
-    const bounds = pane().getBoundingClientRect();
-    const left = Math.min(...children.map((card) => card.getBoundingClientRect().left));
-    const right = Math.max(...children.map((card) => card.getBoundingClientRect().right));
-    expect(bounds.left - left).toBeGreaterThan(0);
-    expect(right - bounds.right).toBeCloseTo(bounds.left - left, 0);
-  });
-
-  it('puts the earlier siblings left of the focus and the later ones right, on its row', async () => {
-    const { driver, writer } = pageWith();
-    await driver.fresh();
-    await writer.clicks('Beat 3');
-    await settled();
-
-    const focus = focused();
-    const box = focus.getBoundingClientRect();
-    const chips = cards('chip');
-    expect(chips.map(nameOf)).toEqual(['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5']);
-
-    for (const [at, chip] of chips.entries()) {
-      const chipBox = chip.getBoundingClientRect();
-      expect(chipBox.top + chipBox.height / 2).toBeCloseTo(box.top + box.height / 2, 0);
-      if (at < 2) expect(chipBox.right).toBeLessThanOrEqual(box.left);
-      else expect(chipBox.left).toBeGreaterThanOrEqual(box.right);
-    }
+    expect(named('hidden', 'Scene 1').style.width).toBe(named('chip', 'Beat 4').style.width);
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {

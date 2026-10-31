@@ -1,10 +1,12 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import { childrenOf, drawnAs, moveFrom, pathTo, shownAncestor, treeOf, type Entry } from './graph';
-
-const FOCUS_WIDTH = 560;
-const CARD_WIDTH = [200, 180, 120];
-const GAP = 32;
-const ROW_GAP = 32;
+import { drawnAs, moveFrom, pathTo, shownAncestor, treeOf, type Entry } from './graph';
+import {
+  centresOf,
+  whileMeasuring,
+  widthOf as layoutWidthOf,
+  type Pane,
+  type Sizes,
+} from './layout';
 
 const arrowKeys: Readonly<Record<string, 'up' | 'down' | 'left' | 'right'>> = {
   ArrowUp: 'up',
@@ -47,11 +49,16 @@ const chipWidth = (card: HTMLElement): number => {
   );
 };
 
-const widthOf = (st: State, id: string): number => {
-  const kind = drawnAs(st.entries, st.focus, id);
-  if (kind === 'focus') return Math.min(FOCUS_WIDTH, st.main.clientWidth);
-  if (kind === 'chip') return chipWidth(st.cards.get(id)!);
-  return CARD_WIDTH[shownAncestor(st.entries, st.focus, id).level] ?? CARD_WIDTH.at(-1)!;
+const sizes: Sizes = { focus: 560, cards: [200, 180, 120], gap: 32 };
+
+const paneOf = (st: State): Pane => {
+  const mainTop = st.main.getBoundingClientRect().top;
+  return {
+    width: st.wrapper.clientWidth,
+    mainWidth: st.main.clientWidth,
+    middle: window.innerHeight / 2 - mainTop,
+    top: st.header.getBoundingClientRect().bottom - mainTop,
+  };
 };
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
@@ -208,6 +215,9 @@ const watch = (st: State): void => {
 
 const place = (st: State): void => {
   const pieces = st.entries;
+  const pane = paneOf(st);
+  const widthOf = (id: string): number =>
+    layoutWidthOf(st.entries, st.focus, id, pane, sizes, (chip) => chipWidth(st.cards.get(chip)!));
 
   const was = new Map(
     [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
@@ -217,8 +227,7 @@ const place = (st: State): void => {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     const kind = drawnAs(st.entries, st.focus, piece.id);
-    card.style.transitionProperty =
-      kind === 'hidden' ? 'left, top, opacity, visibility' : 'left, top, opacity';
+    card.style.transitionProperty = whileMeasuring(getComputedStyle(card).transitionProperty, kind);
     card.style.height = '';
     card.className = kind;
     card.inert = kind === 'hidden';
@@ -232,7 +241,7 @@ const place = (st: State): void => {
   for (const { piece } of pieces) setHeading(st, piece);
 
   for (const { piece } of pieces) {
-    st.cards.get(piece.id)!.style.width = `${widthOf(st, piece.id)}px`;
+    st.cards.get(piece.id)!.style.width = `${widthOf(piece.id)}px`;
   }
   const tall = new Map(pieces.map(({ piece }) => [piece.id, st.cards.get(piece.id)!.offsetHeight]));
   const heightOf = (id: string): number => tall.get(id)!;
@@ -247,81 +256,28 @@ const place = (st: State): void => {
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
     card.style.transitionProperty = '';
-    card.style.width = `${widthOf(st, piece.id)}px`;
+    card.style.width = `${widthOf(piece.id)}px`;
     card.style.height = `${heightOf(piece.id)}px`;
   }
 
-  const centre = st.wrapper.clientWidth / 2;
-  const parentId = entryOf(st, st.focus)?.parentId;
-  const focus = st.cards.get(st.focus)!;
-  const focusWidth = widthOf(st, st.focus);
-
-  const focusHeight = heightOf(st.focus);
-  const parent = parentId === undefined ? undefined : st.cards.get(parentId)!;
-  const mainTop = st.main.getBoundingClientRect().top;
-  const belowHeader = st.header.getBoundingClientRect().bottom - mainTop + ROW_GAP;
-  const top = Math.max(
-    window.innerHeight / 2 - mainTop - focusHeight / 2,
-    belowHeader + (parentId === undefined ? 0 : heightOf(parentId)),
+  const centres = centresOf(
+    st.entries,
+    st.focus,
+    (id) => ({ width: widthOf(id), height: heightOf(id) }),
+    pane,
+    sizes,
   );
-
-  focus.style.left = `${centre - focusWidth / 2}px`;
-  focus.style.top = `${top}px`;
-
-  if (parentId !== undefined && parent !== undefined) {
-    parent.style.left = `${centre - widthOf(st, parentId) / 2}px`;
-    parent.style.top = `${top - ROW_GAP - heightOf(parentId)}px`;
-  }
-
-  const below = top + focusHeight + ROW_GAP;
-
-  const children = childrenOf(st.entries, st.focus);
-  const row =
-    children.reduce((total, entry) => total + widthOf(st, entry.piece.id), 0) +
-    GAP * (children.length - 1);
-  let left = centre - row / 2;
-  for (const child of children) {
-    const card = st.cards.get(child.piece.id)!;
-    card.style.left = `${left}px`;
-    card.style.top = `${below}px`;
-    left += widthOf(st, child.piece.id) + GAP;
-  }
-
-  const siblings = parentId === undefined ? [] : childrenOf(st.entries, parentId);
-  const here = siblings.findIndex((entry) => entry.piece.id === st.focus);
-  const sample = siblings.find((entry) => entry.piece.id !== st.focus);
-  if (sample !== undefined) {
-    const chipTop = top + (focusHeight - heightOf(sample.piece.id)) / 2;
-    let before = centre - focusWidth / 2 - GAP;
-    for (const entry of siblings.slice(0, here).reverse()) {
-      const card = st.cards.get(entry.piece.id)!;
-      before -= widthOf(st, entry.piece.id);
-      card.style.left = `${before}px`;
-      card.style.top = `${chipTop}px`;
-      before -= GAP;
-    }
-    let after = centre + focusWidth / 2 + GAP;
-    for (const entry of siblings.slice(here + 1)) {
-      const card = st.cards.get(entry.piece.id)!;
-      card.style.left = `${after}px`;
-      card.style.top = `${chipTop}px`;
-      after += widthOf(st, entry.piece.id) + GAP;
-    }
-  }
-
   for (const { piece } of pieces) {
-    if (drawnAs(st.entries, st.focus, piece.id) === 'hidden') continue;
     const card = st.cards.get(piece.id)!;
-    card.style.left = `${parseFloat(card.style.left) + widthOf(st, piece.id) / 2}px`;
-    card.style.top = `${parseFloat(card.style.top) + heightOf(piece.id) / 2}px`;
-  }
-
-  for (const { piece } of pieces) {
+    const at = centres.get(piece.id);
+    if (at !== undefined) {
+      card.style.left = `${at.x}px`;
+      card.style.top = `${at.y}px`;
+    }
     if (drawnAs(st.entries, st.focus, piece.id) !== 'hidden') continue;
-    const ancestor = shownAncestor(st.entries, st.focus, piece.id);
-    if (ancestor.piece.id === piece.id) continue;
-    const under = st.cards.get(ancestor.piece.id)!;
-    const card = st.cards.get(piece.id)!;
+    const ancestor = shownAncestor(st.entries, st.focus, piece.id).piece.id;
+    if (ancestor === piece.id) continue;
+    const under = st.cards.get(ancestor)!;
     card.style.left = under.style.left;
     card.style.top = under.style.top;
     card.style.width = under.style.width;
