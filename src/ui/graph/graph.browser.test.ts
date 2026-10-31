@@ -332,6 +332,26 @@ describe('the rows of the graph', () => {
     expect(nameOf(focused())).toBe('Beat 4');
   });
 
+  it('gives a row back its place when the cursor leaves it', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+    const atRest = centreOf(named('card', 'Scene 1'));
+
+    await driver.press('Tab');
+    await settled();
+    expect(inMain(named('card', 'Scene 1'))).toBe(true);
+    expect(centreOf(named('card', 'Scene 1'))).not.toBeCloseTo(atRest, 0);
+
+    (document.activeElement as HTMLElement).blur();
+    await laidOut();
+    await settled();
+
+    expect(pane().contains(document.activeElement!)).toBe(false);
+    expect(centreOf(named('card', 'Scene 1'))).toBeCloseTo(atRest, 0);
+  });
+
   it('never puts the cursor on a piece outside main, with eight scenes in focus at 1100 px', async () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();

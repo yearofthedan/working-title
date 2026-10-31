@@ -526,6 +526,14 @@ const onFocusIn = (): void => {
   slide(st);
 };
 
+const onFocusOut = (): void => {
+  const st = state;
+  if (st === undefined) return;
+  void Promise.resolve().then(() => {
+    if (state === st) slide(st);
+  });
+};
+
 export const renderGraph = async (
   { header, main }: { header: HTMLElement; main: HTMLElement },
   project: OpenProject,
@@ -537,6 +545,7 @@ export const renderGraph = async (
     listening = true;
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
   }
   const st: State = {
     header,
