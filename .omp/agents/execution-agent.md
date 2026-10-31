@@ -48,7 +48,8 @@ Leave out what went as the brief said. The main session reads this file after yo
 Stop and return, without building further, when:
 
 - what to build is unclear: the brief allows more than one reading, or leaves out something you need;
-- the approach does not hold: following it would break a test, a rule in `AGENTS.md` or a standard, or the code is not as the brief describes.
+- the approach does not hold: following it would break a test, a rule in `AGENTS.md` or a standard, or the code is not as the brief describes;
+- a guard or a hook refuses a step and its cause is not something you can fix in your change: return the refusal word for word, and never run the step again by a route the guard does not see, such as `command git`, `sh -c` or `--no-verify`. A refusal that names something in your change, such as a lint error or a failing check, is fixed, and is not a reason to stop.
 
 Before returning, commit only work that passes `./do check`, write in your notes why you stopped, and say the same in your answer. Do not choose a reading or a new approach yourself: that is the builder's call, through the main session.
 
