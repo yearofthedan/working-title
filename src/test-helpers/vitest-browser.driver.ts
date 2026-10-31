@@ -1,4 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
+import { drawnKinds } from '../ui/graph/graph';
 import { clicking, drawn, linesOf, settled, typing, type Driver } from './driver';
 import { openTheApp } from './the-app';
 
@@ -24,8 +25,7 @@ const { utils } = browser as unknown as { utils: { aria: Aria } };
 export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   fresh: render,
   reopen: async () => {
-    const main = document.querySelector('main');
-    if (main !== null) await openTheApp(main);
+    await openTheApp();
   },
   press: async (key) => {
     await browser.userEvent.keyboard(`{${key}}`);
@@ -34,7 +34,7 @@ export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
   type: typing(browser.page),
   drawn: async () => {
     await settled();
-    return drawn();
+    return drawn(drawnKinds);
   },
   tree: async () => {
     await settled();

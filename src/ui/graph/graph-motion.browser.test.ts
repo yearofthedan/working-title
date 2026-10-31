@@ -9,9 +9,11 @@ import {
   nameOf,
   pageWith,
   pane,
-} from '../../test-helpers/focus-page';
-import { arrivalStep, easesOut, movedBy, partWay, recorded } from '../../test-helpers/frames';
-import { type Writer } from './focus.dsl';
+  recorded,
+  partWay,
+} from '../../test-helpers/graph-page';
+import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
+import { type Writer } from './graph.dsl';
 
 const boxes = (): readonly string[] =>
   [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => {

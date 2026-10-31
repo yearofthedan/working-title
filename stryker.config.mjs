@@ -5,10 +5,17 @@ export default {
   plugins: ['@stryker-mutator/vitest-runner'],
   testRunner: 'vitest',
   vitest: { configFile: 'stryker.vitest.config.ts' },
-  /* shortcut: the UI and the adapters are driven in a browser, which this runner cannot mutate, so
-     only the domain and the application are mutated; mutate them too once it can
+  /* shortcut: Stryker's Vitest runner cannot run browser mode, so a *.dom.ts and the adapters,
+     tested only there, are left out; mutate them too once it can
      (https://stryker-mutator.io/docs/stryker-js/vitest-runner#limitations). */
-  mutate: ['src/domain/**/*.ts', 'src/application/**/*.ts', '!src/**/*.test.ts'],
+  mutate: [
+    'src/domain/**/*.ts',
+    'src/application/**/*.ts',
+    'src/ui/**/*.ts',
+    '!src/**/*.dom.ts',
+    '!src/**/*.dsl.ts',
+    '!src/**/*.test.ts',
+  ],
   incremental: true,
   thresholds: { break: 90 },
   reporters: ['clear-text', 'html', 'json'],

@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Report the mutants the tests over the domain and the application let through.
+# help: Report the mutants the node tests leave in src/domain, src/application and the plain modules of src/ui.
 
 set -eu
 

@@ -1,9 +1,14 @@
-import { laidOut, moving, nameOf } from './focus-page';
+export interface Box {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+}
 
 export interface Frame {
   readonly at: number;
   readonly running: number;
-  readonly boxes: ReadonlyMap<string, DOMRect>;
+  readonly boxes: ReadonlyMap<string, Box>;
 }
 
 export const stepInto = (before: Frame, now: Frame): number =>
@@ -36,39 +41,6 @@ export const arrivalStep = (frames: readonly Frame[]): number => {
   }
   return stepInto(frames[last - 1]!, frames[last]!);
 };
-
-export const recorded = async (play: () => Promise<void>): Promise<readonly Frame[]> => {
-  const frames: Frame[] = [];
-  const { promise, resolve } = Promise.withResolvers<void>();
-  let sampling = true;
-  const tick = (): void => {
-    frames.push({
-      at: performance.now(),
-      running: moving().length,
-      boxes: new Map(
-        [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => [
-          nameOf(card),
-          card.getBoundingClientRect(),
-        ]),
-      ),
-    });
-    if (sampling) requestAnimationFrame(tick);
-    else resolve();
-  };
-  requestAnimationFrame(tick);
-  await play();
-  sampling = false;
-  await promise;
-  return frames;
-};
-
-export const partWay = async (): Promise<void> => {
-  for (let frame = 0; frame < 12; frame += 1) {
-    await laidOut();
-    if (moving().some((animation) => Number(animation.currentTime ?? 0) > 100)) return;
-  }
-};
-
 export const easesOut = (easing = ''): boolean => {
   if (easing === 'ease-out') return true;
   const curve = /^cubic-bezier\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)$/.exec(easing);

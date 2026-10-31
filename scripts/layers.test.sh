@@ -156,4 +156,22 @@ run_layers
 allowed "the journey language on the driver contract is allowed, and a spec reaches it"
 not_out 'error' "nothing is reported of e2e/ keeping to the contract"
 
+write src/ui/focus/focus.dom.ts "export const card = (): string => 'card';"
+write src/ui/focus/graph.ts "import { card } from './focus.dom';
+export const graph = card;"
+run_layers
+refused "a plain file in src/ui/ importing a *.dom.ts is refused"
+expect_out 'logic-not-on-the-dom: src/ui/focus/graph.ts → src/ui/focus/focus.dom.ts' \
+  "the two files it joins are named"
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+rm -f "$project/src/ui/focus/graph.ts"
+write src/ui/focus/cards.dom.ts "import { card } from './focus.dom';
+export const cards = card;"
+write src/ui/focus/graph.browser.test.ts "import { card } from './focus.dom';
+export const judge = card;"
+run_layers
+allowed "a *.dom.ts importing a *.dom.ts, and a browser test importing one, are allowed"
+not_out 'logic-not-on-the-dom' "the rule says nothing where the DOM is in a *.dom.ts"
+
 finish

@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
 import { playwrightDriver } from '../src/test-helpers/playwright.driver';
-import { seesOn, type Sees } from '../src/ui/focus/focus.dsl';
+import { seesOn, type Sees } from '../src/ui/graph/graph.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
 
 export interface ContrastFinding {

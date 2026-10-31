@@ -24,10 +24,12 @@ export interface PieceView {
   readonly childKind?: string;
 }
 
-export interface Focus {
-  readonly pieces: readonly PieceView[];
+export interface OpenProject {
+  readonly root: PieceView;
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
-  readonly branch: (pieceId: string) => Promise<{ readonly focus: Focus; readonly added: string }>;
+  readonly branch: (
+    pieceId: string,
+  ) => Promise<{ readonly project: OpenProject; readonly added: string }>;
 }
 
 const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
@@ -41,7 +43,7 @@ const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
 };
 
 // shortcut: a child is named for its kind and its place, until the method's own names arrive with their guidance in #4.
-const listed = (project: Project, method: Method): readonly PieceView[] => {
+const listed = (project: Project, method: Method): PieceView => {
   const kinds = kindsOf(method);
 
   const listedUnder = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
@@ -59,20 +61,19 @@ const listed = (project: Project, method: Method): readonly PieceView[] => {
   });
 
   const root = project.pieces.find(({ parent }) => parent === null)!;
-  const story = listedUnder(root, method.rootKind, method.rootKind.label);
-  return [story, ...story.children];
+  return listedUnder(root, method.rootKind, method.rootKind.label);
 };
 
 export const openProject = async (
   method: Method,
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
-): Promise<Focus> => {
+): Promise<OpenProject> => {
   let project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
   const save = () => store.save(project);
 
-  const focusOf = (): Focus => ({
-    pieces: listed(project, method),
+  const projectOf = (): OpenProject => ({
+    root: listed(project, method),
 
     elaborate: (pieceId, facetId, text) => {
       project = withFacet(project, pieceId, facetId, text);
@@ -85,9 +86,9 @@ export const openProject = async (
       const id = newId();
       project = withBranch(project, pieceId, kind, id);
       await save();
-      return { focus: focusOf(), added: id };
+      return { project: projectOf(), added: id };
     },
   });
 
-  return focusOf();
+  return projectOf();
 };

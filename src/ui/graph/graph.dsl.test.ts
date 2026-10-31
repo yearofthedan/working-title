@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { Driver } from '../../test-helpers/driver';
-import { focusSteps, seesOn, writerOn } from './focus.dsl';
+import { graphSteps, seesOn, writerOn } from './graph.dsl';
 
 const storyInFocus = [
   '- main:',
@@ -35,10 +35,10 @@ const recording = (tree: readonly string[]) => {
   return { calls, driver };
 };
 
-describe('the focus language', () => {
+describe('the graph language', () => {
   it('clicks a piece where it is, without going to it through the path', async () => {
     const { calls, driver } = recording(storyInFocus);
-    const click = focusSteps(writerOn(driver), seesOn(driver))['the writer clicks {piece}']!;
+    const click = graphSteps(writerOn(driver), seesOn(driver))['the writer clicks {piece}']!;
 
     await click({ piece: 'Scene 1' });
 
@@ -47,7 +47,7 @@ describe('the focus language', () => {
 
   it('goes to a piece first when adding a scene under it', async () => {
     const { calls, driver } = recording(storyInFocus);
-    const add = focusSteps(writerOn(driver), seesOn(driver))[
+    const add = graphSteps(writerOn(driver), seesOn(driver))[
       'the writer adds a scene under {beat}'
     ]!;
 

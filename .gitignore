@@ -5,6 +5,7 @@ dist/
 test-results/
 playwright-report/
 e2e/lint-sample-*/
+src/ui/lint-sample-*/
 lint-comments-sample-*/
 reports/
 screenshots/

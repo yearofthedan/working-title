@@ -15,19 +15,20 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 | Layer | File | Holds |
 | --- | --- | --- |
-| Language | `src/ui/focus/focus.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
+| Language | `src/ui/graph/graph.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
 | Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
 | Protocol driver | `src/test-helpers/vitest-browser.driver.ts`, `src/test-helpers/playwright.driver.ts` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
 | Spec fixture | `e2e/writer.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver |
 
 - **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver or the contract: a test, another language file, a driver and `src/test-helpers/` are what may. `./do layers` refuses the rest.
 - **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
-- **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a call to any element-finding API in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
+- **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a page's element-finding calls and `document.querySelector` and `document.querySelectorAll` in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
 
 ## Levels and names
 
 - **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
 - **Where a test lives follows from what it is about**: a journey through the whole built app is a scenario file in `e2e/`, played by Playwright; behaviour within one page is a scenario file in the page's `scenarios/` folder, played in Vitest browser mode; a logic contract is a `describe`/`it` test beside the code.
+- **Code in `src/ui/` that touches the DOM is in a `*.dom.ts` file**, and its logic is in a plain file beside it, with a `describe`/`it` test the node project runs. A plain file uses no DOM global and imports no `*.dom.ts`.
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
 - **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
 - **An assertion that cannot fail is not a test.** Where nothing the code could do would make it fail, it goes: it reads as a guard while checking nothing.
