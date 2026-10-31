@@ -1,6 +1,6 @@
 import type { Drawn } from '../ui/graph/graph';
 
-export type Role = 'group' | 'button' | 'heading' | 'navigation' | 'textbox';
+export type Role = 'group' | 'button' | 'heading' | 'main' | 'navigation' | 'textbox';
 
 export interface Within {
   readonly role: Role;
@@ -28,8 +28,8 @@ export const settled = async (): Promise<void> => {
   await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
 };
 
-export const drawn = (kinds: readonly Drawn[]): readonly DrawnCard[] =>
-  [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
+export const drawn = (kinds: readonly Drawn[], root: ParentNode = document): readonly DrawnCard[] =>
+  [...root.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
     name: card.querySelector('h2, h3, h4')?.textContent ?? '',
     kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
     current: card.getAttribute('aria-current') === 'location',
@@ -42,9 +42,14 @@ export interface Driver {
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
+  focus(role: Role, name: string, within?: Within): Promise<void>;
   type(text: string, label: string, within: Within): Promise<void>;
+  clickAway(): Promise<void>;
+  value(label: string, within: Within): Promise<string>;
+  cursorIn(label: string, within: Within): Promise<boolean>;
   drawn(): Promise<readonly DrawnCard[]>;
   tree(): Promise<readonly string[]>;
+  path(): Promise<string>;
 }
 
 export interface ReloadingDriver extends Driver {

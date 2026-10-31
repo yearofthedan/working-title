@@ -25,12 +25,11 @@ interface State {
   readonly cards: Map<string, HTMLElement>;
   entries: readonly Entry[];
   byId: Map<string, Entry>;
+  watcher: ResizeObserver | undefined;
+  watching: HTMLElement | undefined;
+  replacing: boolean;
 }
 
-let state: State | undefined;
-let listening = false;
-let watcher: ResizeObserver | undefined;
-let watching: HTMLElement | undefined;
 const remember = (st: State): void => {
   st.entries = treeOf(st.project.root);
   st.byId = new Map(st.entries.map((entry) => [entry.piece.id, entry]));
@@ -177,40 +176,39 @@ const pathNav = (st: State): void => {
   nav.replaceChildren(list);
 };
 
-const settle = (st: State): void => {
+const skipToEnd = (st: State): void => {
   for (const animation of st.wrapper.getAnimations({ subtree: true })) animation.finish();
 };
 
-let replacing = false;
-
 const watch = (st: State): void => {
   const focus = st.cards.get(st.focus)!;
-  if (watcher !== undefined && watching === focus) return;
-  watcher?.disconnect();
-  watcher = new ResizeObserver(() => {
-    const current = state;
-    if (current === undefined || replacing) return;
-    replacing = true;
+  if (st.watcher !== undefined && st.watching === focus) return;
+  st.watcher?.disconnect();
+  st.watcher = new ResizeObserver(() => {
+    if (st.replacing) return;
+    st.replacing = true;
     const placeWhenStill = (): void => {
-      const running = current.wrapper
+      if (!st.wrapper.isConnected) {
+        st.watcher?.disconnect();
+        return;
+      }
+      const running = st.wrapper
         .getAnimations({ subtree: true })
         .filter((animation) => animation.playState === 'running');
       if (running.length === 0) {
-        replacing = false;
-        if (state === current) {
-          place(current);
-          settle(current);
-        }
+        st.replacing = false;
+        place(st);
+        skipToEnd(st);
         return;
       }
       void Promise.allSettled(running.map((animation) => animation.finished)).then(placeWhenStill);
     };
     placeWhenStill();
   });
-  watcher.observe(st.main);
-  watcher.observe(focus);
-  for (const facet of focus.querySelectorAll('.facet')) watcher.observe(facet);
-  watching = focus;
+  st.watcher.observe(st.main);
+  st.watcher.observe(focus);
+  for (const facet of focus.querySelectorAll('.facet')) st.watcher.observe(facet);
+  st.watching = focus;
 };
 
 const place = (st: State): void => {
@@ -297,7 +295,7 @@ const draw = (st: State): void => {
     }),
   );
   place(st);
-  settle(st);
+  skipToEnd(st);
   pathNav(st);
 };
 
@@ -320,30 +318,38 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   goTo(st, added, card.querySelector('textarea') ?? undefined);
 };
 
-const onKeyDown = (event: KeyboardEvent): void => {
-  const st = state;
-  if (st === undefined) return;
-  const target = event.target;
+const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (!st.wrapper.isConnected) {
+      document.removeEventListener('keydown', onKeyDown);
+      st.watcher?.disconnect();
+      return;
+    }
+    const target = event.target;
+    const inside = target instanceof Element ? target.closest('main') : null;
+    if (inside !== null && inside !== st.main) return;
 
-  if (target instanceof HTMLTextAreaElement) {
-    if (event.key !== 'Escape') return;
-    event.preventDefault();
-    st.cards.get(st.focus)?.focus({ preventScroll: true });
-    return;
-  }
+    if (target instanceof HTMLTextAreaElement) {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      st.cards.get(st.focus)?.focus({ preventScroll: true });
+      return;
+    }
 
-  const where = arrowKeys[event.key];
-  if (where !== undefined) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-    event.preventDefault();
-    const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
-    if (to !== undefined) goTo(st, to);
-    return;
-  }
-  if (event.key === 'Enter' && target === st.cards.get(st.focus)) {
-    event.preventDefault();
-    st.cards.get(st.focus)?.querySelector('textarea')?.focus({ preventScroll: true });
-  }
+    const where = arrowKeys[event.key];
+    if (where !== undefined) {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      event.preventDefault();
+      const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
+      if (to !== undefined) goTo(st, to);
+      return;
+    }
+    if (event.key === 'Enter' && target === st.cards.get(st.focus)) {
+      event.preventDefault();
+      st.cards.get(st.focus)?.querySelector('textarea')?.focus({ preventScroll: true });
+    }
+  };
+  return onKeyDown;
 };
 
 export const renderGraph = async (
@@ -353,10 +359,6 @@ export const renderGraph = async (
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
-  if (!listening) {
-    listening = true;
-    document.addEventListener('keydown', onKeyDown);
-  }
   const st: State = {
     header,
     main,
@@ -367,8 +369,11 @@ export const renderGraph = async (
     cards: new Map(),
     entries: [],
     byId: new Map(),
+    watcher: undefined,
+    watching: undefined,
+    replacing: false,
   };
-  state = st;
+  document.addEventListener('keydown', keysOn(st));
   await document.fonts.ready;
-  if (state === st) draw(st);
+  if (st.wrapper.isConnected) draw(st);
 };

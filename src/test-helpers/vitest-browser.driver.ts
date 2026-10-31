@@ -1,6 +1,15 @@
 import * as browser from 'vite-plus/test/browser';
 import { drawnKinds } from '../ui/graph/graph';
-import { clicking, drawn, linesOf, settled, typing, type Driver } from './driver';
+import {
+  clicking,
+  drawn,
+  linesOf,
+  settled,
+  typing,
+  wholeNameAnyCase,
+  type Driver,
+  type Within,
+} from './driver';
 import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
@@ -22,23 +31,51 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
-export const vitestBrowserDriver = (render: () => Promise<void>): Driver => ({
-  fresh: render,
-  reopen: async () => {
-    await openTheApp();
-  },
-  press: async (key) => {
-    await browser.userEvent.keyboard(`{${key}}`);
-  },
-  click: clicking(browser.page),
-  type: typing(browser.page),
-  drawn: async () => {
-    await settled();
-    return drawn(drawnKinds);
-  },
-  tree: async () => {
-    await settled();
-    const main = browser.page.getByRole('main').element();
-    return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main)));
-  },
-});
+export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string): Driver => {
+  const main =
+    graph === undefined
+      ? browser.page.getByRole('main')
+      : browser.page.getByRole('main', { name: wholeNameAnyCase(graph) });
+  const within = graph === undefined ? browser.page : main;
+  const rootIn = (group?: Within) =>
+    group === undefined
+      ? within
+      : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
+  return {
+    fresh: render,
+    reopen: async () => {
+      await openTheApp();
+    },
+    press: async (key) => {
+      await browser.userEvent.keyboard(`{${key}}`);
+    },
+    click: clicking(within),
+    focus: async (role, name, group) => {
+      (
+        rootIn(group)
+          .getByRole(role, { name: wholeNameAnyCase(name) })
+          .element() as HTMLElement
+      ).focus();
+    },
+    type: typing(within),
+    clickAway: async () => {
+      await browser.userEvent.click(browser.page.getByRole('banner').first());
+    },
+    value: async (label, group) =>
+      (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
+        .value,
+    cursorIn: async (label, group) =>
+      rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() ===
+      document.activeElement,
+    drawn: async () => {
+      await settled();
+      return drawn(drawnKinds, graph === undefined ? document : main.element());
+    },
+    tree: async () => {
+      await settled();
+      return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())));
+    },
+    path: async () =>
+      browser.page.getByRole('navigation', { name: 'Where you are' }).element().textContent ?? '',
+  };
+};

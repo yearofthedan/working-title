@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import {
+  browserTestRefusals,
   documentSelectors,
   domGlobals,
   findsAnyOtherWay,
@@ -17,6 +18,12 @@ const callingOnPage = (call: string) =>
 
 const readingTheDocument = (call: string) =>
   `export const sample = () => document.${call}('main');\n`;
+
+const readingACard: Record<string, string> = {
+  querySelector: "export const sample = (card: HTMLElement) => card.querySelector('h2');\n",
+  querySelectorAll: "export const sample = (card: HTMLElement) => card.querySelectorAll('h2');\n",
+  style: 'export const sample = (card: HTMLElement) => card.style.width;\n',
+};
 
 const usingTheDom: Record<string, string> = {
   document: 'export const sample = (): unknown => document.body.childElementCount;\n',
@@ -62,6 +69,7 @@ beforeAll(() => {
     writeInUi(`plain-${global}.ts`, use);
     writeInUi(`thing-${global}.dom.ts`, use);
     writeInUi(`thing-${global}.test.ts`, use);
+    writeInUi(`thing-${global}.test-page.ts`, use);
   }
   write('sample-no-locator.ts', callingOnPage('reload'));
   write(
@@ -76,6 +84,15 @@ beforeAll(() => {
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
   write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
+  for (const property of browserTestRefusals) {
+    const use = readingACard[property];
+    if (use === undefined) throw new Error(`no sample reads a card with ${property}`);
+    writeInUi(`browser-${property}.browser.test.ts`, use);
+  }
+  writeInUi(
+    'browser-document.browser.test.ts',
+    'export const sample = (): number => document.body.childElementCount;\n',
+  );
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -140,6 +157,27 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
 
   it.each(domGlobals)('a test file using %s passes lint', (global) => {
     expect(uiErrorsIn(`thing-${global}.test.ts`)).toEqual([]);
+  });
+
+  it.each(domGlobals)('a test page using %s passes lint', (global) => {
+    expect(uiErrorsIn(`thing-${global}.test-page.ts`)).toEqual([]);
+  });
+});
+
+describe('a browser test', { timeout: 60_000 }, () => {
+  it.each(browserTestRefusals)(
+    'calling card.%s fails lint, pointing at the test page and staging',
+    (property) => {
+      expect(uiErrorsIn(`browser-${property}.browser.test.ts`)).toEqual([
+        expect.stringMatching(/test-page\.ts.*staging\.ts/),
+      ]);
+    },
+  );
+
+  it('reading document fails lint, pointing at the test page and staging', () => {
+    expect(uiErrorsIn('browser-document.browser.test.ts')).toEqual([
+      expect.stringMatching(/test-page\.ts.*staging\.ts/),
+    ]);
   });
 });
 
