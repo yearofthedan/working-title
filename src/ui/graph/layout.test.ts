@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
 import { treeOf } from './graph';
-import { centresOf, whileMeasuring, widthOf, type Pane, type Sizes } from './layout';
+import { centresOf, onScreen, whileMeasuring, widthOf, type Pane, type Sizes } from './layout';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -257,6 +257,23 @@ describe('where the pieces are centred', () => {
     expect(left).toBe(-42);
     expect(right).toBe(1142);
     expect(0 - left).toBe(right - 1100);
+  });
+});
+
+describe('whether a piece is on screen', () => {
+  const main = { width: 1000, height: 800 };
+
+  it('reads a box whose edge lies exactly on an edge of main as on screen', () => {
+    expect(onScreen({ x: 50, y: 50 }, { width: 100, height: 100 }, main)).toBe(true);
+    expect(onScreen({ x: 950, y: 750 }, { width: 100, height: 100 }, main)).toBe(true);
+    expect(onScreen({ x: 500, y: 400 }, { width: 1000, height: 800 }, main)).toBe(true);
+  });
+
+  it('reads a box one pixel over an edge as off screen', () => {
+    expect(onScreen({ x: 49, y: 50 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 951, y: 50 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 50, y: 49 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 50, y: 751 }, { width: 100, height: 100 }, main)).toBe(false);
   });
 });
 

@@ -77,6 +77,10 @@ main {
     inset: 0;
   }
 
+  [role='toolbar'] {
+    display: contents;
+  }
+
   fieldset {
     --name: var(--space-8);
     position: absolute;

@@ -41,6 +41,7 @@ The **core** terms below name things every method has. They are the only words i
 | Manuscript | All the prose, chapter by chapter: the novel as a reader would read it | |
 | Graph | The view of the pieces in their tree, each piece's children in order under it | |
 | Focus | The piece the writer is working on | |
+| Row | The pieces the graph shows side by side at one level around the focus: its parent, the focus and its siblings, or its children | |
 | Next move | Something the writer can do from the focus: a stage the method offers, or a move up or down a level | |
 | Capture | Add a piece outside the flow, linked to the focus from the start | |
 | Replan | Revisit the plan after drafting: the pieces upstream of the focus and the pieces linked to it | |
