@@ -90,7 +90,7 @@ A pull request whose work is done is handed over, not left in draft. The main se
 3. **Fill `Learned`**: what would have saved time, or caught a mistake sooner? Capture each one not captured already as an incident, as the [lessons skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/lessons/SKILL.md) says.
 4. **Fill the acceptance criteria table** and check the `For review` list: approved files listed, `docs/architecture.md` and an ADR updated or the architecture unchanged, and every new term in `docs/domain/ubiquitous-language.md`.
 5. **Fill `How to verify` and give it in the conversation**, as [working with the user](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/working-with-the-user.md) says of handing work over. For a change the writer sees, walk the steps yourself first, in the built app with the browser helper, and write down what you saw rather than what you expected.
-6. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names.
+6. **Mark the pull request ready for review with `./do ready <pr>`**, and fix each condition it names. Before any status report on a pushed pull request, run `./do ready --check <pr>`: it reads CI, the tree and the body, and marks nothing.
 
 ## Work found outside the issue
 
