@@ -11,6 +11,7 @@ import {
   pane,
 } from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
+import { startApp } from '../../app';
 
 const stored = 'working-title:project';
 
@@ -560,5 +561,56 @@ describe('what a move leaves alone', () => {
     await writer.clicks('Beat 4');
 
     expect(focused().querySelector('textarea')?.value).toBe(sentence);
+  });
+});
+
+describe('two graphs on one page', () => {
+  const cardOf = (main: HTMLElement, name: string): HTMLElement => {
+    const card = [...main.querySelectorAll<HTMLElement>('fieldset')].find(
+      (one) => nameOf(one) === name,
+    );
+    if (card === undefined) throw new Error(`no piece named ${name} is drawn here`);
+    return card;
+  };
+
+  const focusOn = (main: HTMLElement): string =>
+    nameOf(main.querySelector<HTMLElement>('fieldset[aria-current="location"]')!);
+
+  const secondGraph = async (): Promise<HTMLElement> => {
+    const page = document.createElement('div');
+    const header = document.createElement('header');
+    const main = document.createElement('main');
+    main.style.width = '1440px';
+    page.append(header, main);
+    document.body.append(page);
+    await startApp(page);
+    return main;
+  };
+
+  it('moves the focus of the graph the writer clicked, and leaves the other where it is', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.addsASceneUnder('Beat 2');
+    const second = await secondGraph();
+
+    const beat = cardOf(pane(), 'Beat 2');
+    await browser.userEvent.click(beat.querySelector('h2, h3, h4')!);
+    await driver.press('ArrowDown');
+
+    expect(focusOn(pane())).toBe('Scene 1');
+    expect(focusOn(second)).toBe('The story');
+  });
+
+  it('keeps working when the graph is drawn again on the same main', async () => {
+    const { driver } = pageWith();
+    await driver.fresh();
+
+    await openTheApp();
+    pane().style.width = '720px';
+    await laidOut();
+    await driver.press('ArrowDown');
+
+    expect(focusOn(pane())).toBe('Beat 1');
+    expect(pane().contains(document.activeElement)).toBe(true);
   });
 });
