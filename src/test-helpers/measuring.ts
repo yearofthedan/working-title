@@ -25,8 +25,9 @@ export const everyCard = (): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>('main fieldset'),
 ];
 
-export const currentCard = (): HTMLElement =>
-  document.querySelector<HTMLElement>('main fieldset[aria-current="location"]')!;
+export const currentCards = (): HTMLElement[] => [
+  ...document.querySelectorAll<HTMLElement>('main fieldset[aria-current="location"]'),
+];
 
 export const headingOf = (card: HTMLElement): HTMLElement =>
   card.querySelector<HTMLElement>('h2, h3, h4')!;

@@ -20,7 +20,7 @@ import {
   cursor,
   cursorIn,
   cursorIsInThePane,
-  currentCard,
+  currentCards,
   facetOf,
   focused,
   headingOf,
@@ -150,7 +150,7 @@ describe('the graph around the focus', () => {
     expect(headingOf(named('focus', 'Beat 4')).tagName).toBe('H3');
     expect(headingOf(named('card', 'Scene 1')).tagName).toBe('H4');
 
-    expect(currentCard()).toEqual(focused());
+    expect(currentCards()).toEqual([focused()]);
     expect(nameOf(focused())).toBe('Beat 4');
   });
 
