@@ -25,7 +25,6 @@ interface State {
   readonly cards: Map<string, HTMLElement>;
   entries: readonly Entry[];
   byId: Map<string, Entry>;
-  readonly sizes: Sizes;
 }
 
 let state: State | undefined;
@@ -50,19 +49,7 @@ const chipWidth = (card: HTMLElement): number => {
   );
 };
 
-const sizesOf = (): Sizes => {
-  const style = getComputedStyle(document.documentElement);
-  const token = (name: string): number => {
-    const value = parseFloat(style.getPropertyValue(name));
-    if (Number.isNaN(value)) throw new Error(`${name} is not a length`);
-    return value;
-  };
-  return {
-    focus: token('--graph-focus-width'),
-    cards: ['--graph-card-width-1', '--graph-card-width-2', '--graph-card-width-3'].map(token),
-    gap: token('--graph-gap'),
-  };
-};
+const sizes: Sizes = { focus: 560, cards: [200, 180, 120], gap: 32 };
 
 const paneOf = (st: State): Pane => {
   const mainTop = st.main.getBoundingClientRect().top;
@@ -230,9 +217,7 @@ const place = (st: State): void => {
   const pieces = st.entries;
   const pane = paneOf(st);
   const widthOf = (id: string): number =>
-    layoutWidthOf(st.entries, st.focus, id, pane, st.sizes, (chip) =>
-      chipWidth(st.cards.get(chip)!),
-    );
+    layoutWidthOf(st.entries, st.focus, id, pane, sizes, (chip) => chipWidth(st.cards.get(chip)!));
 
   const was = new Map(
     [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
@@ -280,7 +265,7 @@ const place = (st: State): void => {
     st.focus,
     (id) => ({ width: widthOf(id), height: heightOf(id) }),
     pane,
-    st.sizes,
+    sizes,
   );
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
@@ -382,7 +367,6 @@ export const renderGraph = async (
     cards: new Map(),
     entries: [],
     byId: new Map(),
-    sizes: sizesOf(),
   };
   state = st;
   await document.fonts.ready;

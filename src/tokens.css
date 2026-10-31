@@ -27,12 +27,6 @@
   --space-8: 2rem;
   --space-12: 3rem;
 
-  --graph-focus-width: 560px;
-  --graph-card-width-1: 200px;
-  --graph-card-width-2: 180px;
-  --graph-card-width-3: 120px;
-  --graph-gap: 32px;
-
   --move: 250ms;
   --move-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }

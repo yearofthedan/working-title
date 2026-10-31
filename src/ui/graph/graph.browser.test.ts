@@ -94,30 +94,6 @@ describe('the graph around the focus', () => {
     );
   });
 
-  it('moves the children’s row apart and resizes the cards when the tokens change', async () => {
-    const { driver } = pageWith();
-    await driver.fresh();
-
-    const gapBetween = (left: string, right: string): number =>
-      named('card', right).getBoundingClientRect().left -
-      named('card', left).getBoundingClientRect().right;
-    expect(gapBetween('Beat 1', 'Beat 2')).toBe(32);
-    expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(180);
-
-    const root = document.documentElement.style;
-    try {
-      root.setProperty('--graph-gap', '64px');
-      root.setProperty('--graph-card-width-2', '150px');
-      await openTheApp();
-
-      expect(gapBetween('Beat 1', 'Beat 2')).toBe(64);
-      expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(150);
-    } finally {
-      root.removeProperty('--graph-gap');
-      root.removeProperty('--graph-card-width-2');
-    }
-  });
-
   it('puts the pieces hidden under a hidden story where the story is', async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
