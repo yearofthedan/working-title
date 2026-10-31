@@ -269,6 +269,9 @@ const rowOf = (st: State, card: HTMLElement): Row | undefined => {
   return id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
 };
 
+const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
+  card.querySelector<HTMLElement>('legend button');
+
 const alongRow = (
   st: State,
   card: HTMLElement,
@@ -277,7 +280,8 @@ const alongRow = (
   const row = rowOf(st, card);
   const id = idOfCard(card);
   const to = row === undefined || id === undefined ? undefined : along(row, id, where, st.onScreen);
-  return to === undefined ? undefined : st.cards.get(to);
+  const next = to === undefined ? undefined : st.cards.get(to);
+  return next === undefined ? undefined : (nameButtonIn(next) ?? undefined);
 };
 
 const cursorInCard = (st: State): boolean => {
@@ -287,10 +291,10 @@ const cursorInCard = (st: State): boolean => {
 };
 
 const setFieldsTabIndex = (st: State): void => {
-  const card = st.cards.get(st.focus);
-  if (card === undefined) return;
-  const inside = cursorInCard(st);
-  for (const field of fieldsOf(card)) field.tabIndex = inside ? 0 : -1;
+  const inside = cursorInCard(st) ? st.focus : undefined;
+  for (const [id, card] of st.cards) {
+    for (const field of fieldsOf(card)) field.tabIndex = id === inside ? 0 : -1;
+  }
 };
 
 const setRoving = (st: State): void => {
@@ -301,7 +305,11 @@ const setRoving = (st: State): void => {
         : rowStop(row, st.onScreen, st.lastInRow.get(nameOfRow(row)));
     for (const id of row.ids) {
       const card = st.cards.get(id);
-      if (card !== undefined) card.tabIndex = id === stop ? 0 : -1;
+      if (card === undefined) continue;
+      const isStop = id === stop;
+      card.tabIndex = isStop && id === st.focus ? 0 : -1;
+      const button = nameButtonIn(card);
+      if (button !== null) button.tabIndex = isStop && id !== st.focus ? 0 : -1;
     }
   }
 };
@@ -320,6 +328,8 @@ const arrangeRows = (
     if (card === undefined) continue;
     card.tabIndex = -1;
     if (drawnAs(st.entries, st.focus, piece.id) === 'hidden') {
+      const button = nameButtonIn(card);
+      if (button !== null) button.tabIndex = -1;
       off.push(card);
       continue;
     }
@@ -480,7 +490,8 @@ const onKeyDown = (event: KeyboardEvent): void => {
   if (where !== undefined) {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
-    if (card !== null && card !== focusCard) {
+    const row = card === null ? undefined : rowOf(st, card);
+    if (card !== null && card !== focusCard && row?.ids.includes(st.focus) !== true) {
       if (where === 'up' || where === 'down') return;
       const to = alongRow(st, card, where);
       if (to !== undefined) to.focus({ preventScroll: true });
@@ -496,13 +507,6 @@ const onKeyDown = (event: KeyboardEvent): void => {
   if (target === focusCard) {
     event.preventDefault();
     focusCard?.querySelector('textarea')?.focus({ preventScroll: true });
-    return;
-  }
-
-  if (card !== null && card !== focusCard) {
-    event.preventDefault();
-    const id = idOfCard(card);
-    if (id !== undefined) goTo(st, id);
   }
 };
 

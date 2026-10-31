@@ -59,6 +59,12 @@ const offScreenCursor = (): string[] => {
 
 const shiftTab = (): Promise<void> => browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
 
+const nameButtonOf = (card: HTMLElement): HTMLElement => {
+  const button = card.querySelector<HTMLElement>('legend button');
+  if (button === null) throw new Error(`${nameOf(card)} is drawn without a name button`);
+  return button;
+};
+
 describe('the graph page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
     const { driver, writer } = pageWith();
@@ -363,19 +369,19 @@ describe('the rows of the graph', () => {
     expect(document.activeElement).toBe(focused());
 
     await driver.press('Tab');
-    expect(nameOf(document.activeElement as HTMLElement)).toBe('Scene 1');
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
 
     await driver.press('Tab');
     expect(pane().contains(document.activeElement!)).toBe(false);
 
     await shiftTab();
-    expect(nameOf(document.activeElement as HTMLElement)).toBe('Scene 1');
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
 
     await shiftTab();
     expect(document.activeElement).toBe(focused());
 
     await shiftTab();
-    expect(nameOf(document.activeElement as HTMLElement)).toBe('The story');
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'The story')));
 
     await shiftTab();
     expect(pane().contains(document.activeElement!)).toBe(false);
@@ -387,16 +393,16 @@ describe('the rows of the graph', () => {
     await writer.clicks('Beat 4');
 
     await driver.press('Tab');
-    expect(document.activeElement).toBe(named('card', 'Scene 1'));
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
 
     await driver.press('ArrowRight');
-    expect(document.activeElement).toBe(named('card', 'Scene 2'));
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 2')));
 
     await driver.press('ArrowRight');
-    expect(document.activeElement).toBe(named('card', 'Scene 2'));
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 2')));
 
     await driver.press('ArrowLeft');
-    expect(document.activeElement).toBe(named('card', 'Scene 1'));
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
 
     await driver.press('Enter');
     expect(nameOf(focused())).toBe('Scene 1');
@@ -447,7 +453,7 @@ describe('the rows of the graph', () => {
     await settled();
 
     await driver.press('Tab');
-    expect(nameOf(document.activeElement as HTMLElement)).toBe('Scene 1');
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
   });
 });
 
@@ -480,16 +486,18 @@ describe('moving the focus', () => {
     expect(nameOf(focused())).toBe('The story');
   });
 
-  it('moves the cursor along the row with → from a sibling’s name button, leaving the focus', async () => {
+  it('moves the focus with → from a sibling’s name button', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
 
-    named('chip', 'Beat 1').querySelector('button')!.focus();
+    const button = nameButtonOf(named('chip', 'Beat 1'));
+    button.focus();
+    expect(document.activeElement).toBe(button);
     await driver.press('ArrowRight');
 
-    expect(document.activeElement).toBe(named('chip', 'Beat 2'));
-    expect(nameOf(focused())).toBe('Beat 3');
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(document.activeElement).toBe(focused());
   });
 
   it('moves the focus with ↓ from the add button', async () => {
@@ -621,7 +629,7 @@ describe('moving the focus', () => {
     await writer.clicks('Scene 1');
 
     await shiftTab();
-    expect(document.activeElement).toBe(named('card', 'Beat 4'));
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Beat 4')));
 
     await driver.press('Enter');
     expect(nameOf(focused())).toBe('Beat 4');
@@ -729,6 +737,25 @@ describe('moving the focus', () => {
 
     await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
+  });
+
+  it('leaves the fields of the card it leaves out of the tab order, after adding a scene', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+
+    await driver.press('Enter');
+    await driver.press('Tab');
+    await driver.press('Enter');
+
+    expect(nameOf(focused())).toBe('Scene 1');
+    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+
+    const left = named('card', 'Beat 2');
+    expect(left.querySelector('textarea')!.tabIndex).toBe(-1);
+
+    await shiftTab();
+    expect(left.contains(document.activeElement!)).toBe(false);
   });
 });
 
