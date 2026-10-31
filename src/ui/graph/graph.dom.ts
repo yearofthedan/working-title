@@ -524,17 +524,11 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
   return onKeyDown;
 };
 
-const focusOn = (st: State): ((event: FocusEvent) => void) => {
-  const onFocusMove = (event: FocusEvent): void => {
+const focusOn = (st: State): (() => void) => {
+  const onFocusMove = (): void => {
     if (!st.wrapper.isConnected) {
       document.removeEventListener('focusin', onFocusMove);
       document.removeEventListener('focusout', onFocusMove);
-      return;
-    }
-    if (event.type === 'focusout') {
-      void Promise.resolve().then(() => {
-        if (st.wrapper.isConnected) slide(st);
-      });
       return;
     }
     setRoving(st);

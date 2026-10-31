@@ -835,6 +835,18 @@ describe('moving the focus', () => {
     expect(left.contains(atCursor())).toBe(false);
   });
 
+  it('takes the focus card’s fields out of the tab order when the cursor leaves with no focusin', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    expect(sentenceFieldOf(focused()).tabIndex).toBe(0);
+
+    blurTheCursor();
+
+    expect(sentenceFieldOf(focused()).tabIndex).toBe(-1);
+  });
+
   it('puts the cursor on the card the writer clicks, the current one or another', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
