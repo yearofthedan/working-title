@@ -1,5 +1,5 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import { drawnAs, moveFrom, pathTo, treeOf, type Entry } from './graph';
+import { drawnAs, moveFrom, pathTo, shownAncestor, treeOf, type Entry } from './graph';
 import {
   centresOf,
   whileMeasuring,
@@ -283,11 +283,16 @@ const place = (st: State): void => {
     st.sizes,
   );
   for (const { piece } of pieces) {
-    const at = centres.get(piece.id);
-    if (at === undefined) continue;
     const card = st.cards.get(piece.id)!;
-    card.style.left = `${at.x}px`;
-    card.style.top = `${at.y}px`;
+    const at = centres.get(piece.id);
+    if (at !== undefined) {
+      card.style.left = `${at.x}px`;
+      card.style.top = `${at.y}px`;
+      continue;
+    }
+    const under = st.cards.get(shownAncestor(st.entries, st.focus, piece.id).piece.id)!;
+    card.style.left = under.style.left;
+    card.style.top = under.style.top;
   }
 
   watch(st);

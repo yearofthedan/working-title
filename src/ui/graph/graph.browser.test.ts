@@ -94,7 +94,7 @@ describe('the graph around the focus', () => {
     );
   });
 
-  it('moves the children’s row apart by the difference when the gap token changes', async () => {
+  it('moves the children’s row apart and resizes the cards when the tokens change', async () => {
     const { driver } = pageWith();
     await driver.fresh();
 
@@ -102,13 +102,30 @@ describe('the graph around the focus', () => {
       named('card', right).getBoundingClientRect().left -
       named('card', left).getBoundingClientRect().right;
     expect(gapBetween('Beat 1', 'Beat 2')).toBe(32);
+    expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(180);
 
-    document.documentElement.style.setProperty('--graph-gap', '64px');
+    const root = document.documentElement.style;
+    root.setProperty('--graph-gap', '64px');
+    root.setProperty('--graph-card-width-2', '150px');
     await openTheApp();
 
     expect(gapBetween('Beat 1', 'Beat 2')).toBe(64);
+    expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(150);
 
-    document.documentElement.style.removeProperty('--graph-gap');
+    root.removeProperty('--graph-gap');
+    root.removeProperty('--graph-card-width-2');
+  });
+
+  it('puts the pieces hidden under a hidden story where the story is', async () => {
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await writer.clicks('Scene 1');
+    await settled();
+
+    const story = named('hidden', 'The story').style;
+    const beat = named('hidden', 'Beat 1').style;
+    expect([beat.left, beat.top]).toEqual([story.left, story.top]);
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {

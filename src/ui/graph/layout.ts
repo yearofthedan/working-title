@@ -24,7 +24,10 @@ export const widthOf = (
   const kind = drawnAs(entries, focus, id);
   if (kind === 'focus') return Math.min(sizes.focus, pane.mainWidth);
   if (kind === 'chip') return chipWidth(id);
-  return sizes.cards[shownAncestor(entries, focus, id).level] ?? sizes.cards.at(-1)!;
+  const ancestor = shownAncestor(entries, focus, id);
+  if (ancestor.piece.id !== id)
+    return widthOf(entries, focus, ancestor.piece.id, pane, sizes, chipWidth);
+  return sizes.cards[ancestor.level] ?? sizes.cards.at(-1)!;
 };
 
 export const centresOf = (
