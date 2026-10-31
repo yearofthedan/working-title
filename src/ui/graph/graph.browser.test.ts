@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled } from '../../test-helpers/driver';
+import { laidOut, pageWith } from '../../test-helpers/graph-page';
+import { openTheApp } from '../../test-helpers/the-app';
+import { narrowThePane, nothingFocused, twoGraphs } from '../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import {
   cards,
+  cursorIsInThePane,
   focused,
-  laidOut,
   named,
   nameOf,
-  pageWith,
   pane,
-} from '../../test-helpers/graph-page';
-import { openTheApp } from '../../test-helpers/the-app';
-import { startApp } from '../../app';
+} from '../../test-helpers/measuring';
 
 const stored = 'working-title:project';
 
@@ -565,52 +567,36 @@ describe('what a move leaves alone', () => {
 });
 
 describe('two graphs on one page', () => {
-  const cardOf = (main: HTMLElement, name: string): HTMLElement => {
-    const card = [...main.querySelectorAll<HTMLElement>('fieldset')].find(
-      (one) => nameOf(one) === name,
-    );
-    if (card === undefined) throw new Error(`no piece named ${name} is drawn here`);
-    return card;
-  };
-
-  const focusOn = (main: HTMLElement): string =>
-    nameOf(main.querySelector<HTMLElement>('fieldset[aria-current="location"]')!);
-
-  const secondGraph = async (): Promise<HTMLElement> => {
-    const page = document.createElement('div');
-    const header = document.createElement('header');
-    const main = document.createElement('main');
-    main.style.width = '1440px';
-    page.append(header, main);
-    document.body.append(page);
-    await startApp(page);
-    return main;
+  const onGraph = (name: string): { writer: Writer; sees: Sees } => {
+    const driver = vitestBrowserDriver(async () => {}, name);
+    return { writer: writerOn(driver), sees: seesOn(driver) };
   };
 
   it('moves the focus of the graph the writer clicked, and leaves the other where it is', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.addsASceneUnder('Beat 2');
-    const second = await secondGraph();
+    await twoGraphs();
+    const first = onGraph('First graph');
+    const second = onGraph('Second graph');
 
-    const beat = cardOf(pane(), 'Beat 2');
-    await browser.userEvent.click(beat.querySelector('h2, h3, h4')!);
-    await driver.press('ArrowDown');
+    await first.writer.clicks('Beat 2');
+    await first.writer.moves('↓');
 
-    expect(focusOn(pane())).toBe('Scene 1');
-    expect(focusOn(second)).toBe('The story');
+    await first.sees.focusIs('Scene 1');
+    await second.sees.focusIs('The story');
   });
 
   it('moves every graph when the key is pressed outside them', async () => {
     const { driver } = pageWith();
     await driver.fresh();
-    const second = await secondGraph();
+    await twoGraphs();
 
-    (document.activeElement as HTMLElement | null)?.blur();
+    nothingFocused();
     await driver.press('ArrowDown');
 
-    expect(focusOn(pane())).toBe('Beat 1');
-    expect(focusOn(second)).toBe('Beat 1');
+    await onGraph('First graph').sees.focusIs('Beat 1');
+    await onGraph('Second graph').sees.focusIs('Beat 1');
   });
 
   it('lets a graph drawn over stop answering keys', async () => {
@@ -618,22 +604,23 @@ describe('two graphs on one page', () => {
     await driver.fresh();
     await writer.clicks('Beat 3');
 
-    await openTheApp();
-    await driver.press('ArrowRight');
+    await driver.reopen();
+    await writer.moves('→');
 
-    expect(document.querySelector('header nav')?.textContent).toBe('The story');
+    await seesOn(driver).pathIs(['The story']);
   });
 
   it('keeps working when the graph is drawn again on the same main', async () => {
-    const { driver } = pageWith();
+    const { driver, writer } = pageWith();
+    const sees = seesOn(driver);
     await driver.fresh();
 
-    await openTheApp();
-    pane().style.width = '720px';
+    await driver.reopen();
+    narrowThePane(720);
     await laidOut();
-    await driver.press('ArrowDown');
+    await writer.moves('↓');
 
-    expect(focusOn(pane())).toBe('Beat 1');
-    expect(pane().contains(document.activeElement)).toBe(true);
+    await sees.focusIs('Beat 1');
+    expect(cursorIsInThePane()).toBe(true);
   });
 });

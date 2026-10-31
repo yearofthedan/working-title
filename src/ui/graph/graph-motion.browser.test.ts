@@ -1,19 +1,10 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Driver } from '../../test-helpers/driver';
-import {
-  focused,
-  laidOut,
-  moving,
-  named,
-  nameOf,
-  pageWith,
-  pane,
-  recorded,
-  partWay,
-} from '../../test-helpers/graph-page';
+import { laidOut, moving, pageWith, recorded, partWay } from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
+import { pane, nameOf, focused, named } from '../../test-helpers/measuring';
 
 const boxes = (): readonly string[] =>
   [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => {

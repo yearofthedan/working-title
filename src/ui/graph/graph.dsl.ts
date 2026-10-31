@@ -27,6 +27,7 @@ export interface Around {
 export interface Sees {
   focusIs(piece: string, around?: Around): Promise<void>;
   tree(): Promise<readonly string[]>;
+  pathIs(pieces: readonly string[]): Promise<void>;
 }
 
 const shows = (tree: readonly string[], piece: string): boolean =>
@@ -127,6 +128,12 @@ export const seesOn = (driver: Driver): Sees => ({
     if (around.under !== undefined) under(pieces, focus, around.under);
   },
   tree: () => driver.tree(),
+  pathIs: async (pieces) => {
+    const path = await driver.path();
+    if (path !== pieces.join('')) {
+      throw new Error(`the path reads ${path || 'nothing'}, not ${pieces.join(' › ')}`);
+    }
+  },
 });
 
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({

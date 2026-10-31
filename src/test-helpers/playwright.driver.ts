@@ -31,6 +31,8 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => ({
     await page.evaluate(settled);
     return linesOf(await page.getByRole('main').ariaSnapshot());
   },
+  path: async () =>
+    (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
   opensWatchingTheGraph: async () => {
     await page.addInitScript(() => {
       const frames: string[] = [];

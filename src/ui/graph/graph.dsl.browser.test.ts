@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { openTheApp, thePage } from '../../test-helpers/the-app';
+import { openTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn } from './graph.dsl';
+import { thePage } from '../../test-helpers/staging';
 
 const typing = 'types "{text}" as {scene}\'s list line under {beat}';
 

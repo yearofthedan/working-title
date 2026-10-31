@@ -4,9 +4,10 @@ import type { Driver } from './test-helpers/driver';
 import type { RawGlob } from './test-helpers/raw-glob';
 import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner } from './test-helpers/play';
-import { openTheApp, thePage } from './test-helpers/the-app';
+import { openTheApp } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
+import { thePage } from './test-helpers/staging';
 
 declare const __SCENARIO_APPROVE__: string;
 

@@ -31,6 +31,7 @@ const recording = (tree: readonly string[]) => {
     },
     drawn: async () => [],
     tree: async () => tree,
+    path: async () => '',
   };
   return { calls, driver };
 };
