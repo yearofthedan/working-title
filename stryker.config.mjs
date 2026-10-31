@@ -15,6 +15,7 @@ export default {
     '!src/**/*.dom.ts',
     '!src/**/*.dsl.ts',
     '!src/**/*.test.ts',
+    '!src/**/*.test-page.ts',
   ],
   incremental: true,
   thresholds: { break: 90 },

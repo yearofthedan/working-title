@@ -47,6 +47,12 @@ A filed draft without the `ready` label gets the same checks, against the templa
 
 Show the draft to the builder, in the conversation, before it exists as an issue. It is their story; the point of the draft is to be argued with.
 
-When they agree, file it with `gh issue create` from its template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
+The scenarios are agreed one at a time, each worded as the [scenarios standard](../../../docs/standards/scenarios.md) says:
+
+- **Each scenario is put to the builder in a message of its own**, and nothing is built on one while it is unanswered.
+- **Once the builder approves a scenario, it is written word for word into the draft straight away** — or into the issue, when it is already filed — before the next scenario is raised, so what they approved is what the file goes on to hold.
+- **A question the builder has not answered stays in the draft under an `Open questions` heading**, and a draft with open questions is not ready for the `ready` label.
+
+When every scenario is agreed and no question is open, file the draft with `gh issue create` from its template, add it as a sub-issue of its epic, and put it in the epic's milestone. Never file it first and describe it after.
 
 Agreement is theirs to give: add no `ready` label yourself, and start nothing until they do.

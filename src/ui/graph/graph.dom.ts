@@ -43,12 +43,11 @@ interface State {
   places: ReadonlyMap<string, Box>;
   entries: readonly Entry[];
   byId: Map<string, Entry>;
+  watcher: ResizeObserver | undefined;
+  watching: HTMLElement | undefined;
+  replacing: boolean;
 }
 
-let state: State | undefined;
-let listening = false;
-let watcher: ResizeObserver | undefined;
-let watching: HTMLElement | undefined;
 const remember = (st: State): void => {
   st.entries = treeOf(st.project.root);
   st.byId = new Map(st.entries.map((entry) => [entry.piece.id, entry]));
@@ -198,40 +197,39 @@ const pathNav = (st: State): void => {
   nav.replaceChildren(list);
 };
 
-const settle = (st: State): void => {
+const skipToEnd = (st: State): void => {
   for (const animation of st.wrapper.getAnimations({ subtree: true })) animation.finish();
 };
 
-let replacing = false;
-
 const watch = (st: State): void => {
   const focus = st.cards.get(st.focus)!;
-  if (watcher !== undefined && watching === focus) return;
-  watcher?.disconnect();
-  watcher = new ResizeObserver(() => {
-    const current = state;
-    if (current === undefined || replacing) return;
-    replacing = true;
+  if (st.watcher !== undefined && st.watching === focus) return;
+  st.watcher?.disconnect();
+  st.watcher = new ResizeObserver(() => {
+    if (st.replacing) return;
+    st.replacing = true;
     const placeWhenStill = (): void => {
-      const running = current.wrapper
+      if (!st.wrapper.isConnected) {
+        st.watcher?.disconnect();
+        return;
+      }
+      const running = st.wrapper
         .getAnimations({ subtree: true })
         .filter((animation) => animation.playState === 'running');
       if (running.length === 0) {
-        replacing = false;
-        if (state === current) {
-          place(current);
-          settle(current);
-        }
+        st.replacing = false;
+        place(st);
+        skipToEnd(st);
         return;
       }
       void Promise.allSettled(running.map((animation) => animation.finished)).then(placeWhenStill);
     };
     placeWhenStill();
   });
-  watcher.observe(st.main);
-  watcher.observe(focus);
-  for (const facet of focus.querySelectorAll('.facet')) watcher.observe(facet);
-  watching = focus;
+  st.watcher.observe(st.main);
+  st.watcher.observe(focus);
+  for (const facet of focus.querySelectorAll('.facet')) st.watcher.observe(facet);
+  st.watching = focus;
 };
 
 const rowElement = (st: State, row: Row): HTMLElement => {
@@ -445,7 +443,7 @@ const draw = (st: State): void => {
     }),
   );
   place(st);
-  settle(st);
+  skipToEnd(st);
   pathNav(st);
 };
 
@@ -466,72 +464,84 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   goTo(st, added, card.querySelector('textarea') ?? undefined);
 };
 
-const onKeyDown = (event: KeyboardEvent): void => {
-  const st = state;
-  if (st === undefined) return;
-  const target = event.target;
-  const card = target instanceof Element ? target.closest('fieldset') : null;
-  const focusCard = st.cards.get(st.focus);
-
-  if (card !== null && card === focusCard && target !== focusCard) {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      card.focus({ preventScroll: true });
+const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (!st.wrapper.isConnected) {
+      document.removeEventListener('keydown', onKeyDown);
+      st.watcher?.disconnect();
       return;
     }
-    if (event.key === 'Tab' && !event.shiftKey && target === fieldsOf(card).at(-1)) {
+    const target = event.target;
+    const inside = target instanceof Element ? target.closest('main') : null;
+    if (inside !== null && inside !== st.main) return;
+    const card = target instanceof Element ? target.closest('fieldset') : null;
+    const focusCard = st.cards.get(st.focus);
+
+    if (card !== null && card === focusCard && target !== focusCard) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        card.focus({ preventScroll: true });
+        return;
+      }
+      if (event.key === 'Tab' && !event.shiftKey && target === fieldsOf(card).at(-1)) {
+        event.preventDefault();
+        card.focus({ preventScroll: true });
+        return;
+      }
+    }
+
+    if (target instanceof HTMLTextAreaElement) {
+      if (event.key !== 'Escape') return;
       event.preventDefault();
-      card.focus({ preventScroll: true });
+      focusCard?.focus({ preventScroll: true });
       return;
     }
-  }
 
-  if (target instanceof HTMLTextAreaElement) {
-    if (event.key !== 'Escape') return;
-    event.preventDefault();
-    focusCard?.focus({ preventScroll: true });
-    return;
-  }
-
-  const where = arrowKeys[event.key];
-  if (where !== undefined) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-    event.preventDefault();
-    const row = card === null ? undefined : rowOf(st, card);
-    if (card !== null && card !== focusCard && row !== undefined && !row.ids.includes(st.focus)) {
-      if (where === 'up' || where === 'down') return;
-      const id = idOfCard(card);
-      const to = id === undefined ? undefined : along(row, id, where);
+    const where = arrowKeys[event.key];
+    if (where !== undefined) {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      event.preventDefault();
+      const row = card === null ? undefined : rowOf(st, card);
+      if (card !== null && card !== focusCard && row !== undefined && !row.ids.includes(st.focus)) {
+        if (where === 'up' || where === 'down') return;
+        const id = idOfCard(card);
+        const to = id === undefined ? undefined : along(row, id, where);
+        if (to !== undefined) goTo(st, to);
+        return;
+      }
+      const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
       if (to !== undefined) goTo(st, to);
       return;
     }
-    const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
-    if (to !== undefined) goTo(st, to);
-    return;
-  }
 
-  if (event.key !== 'Enter') return;
+    if (event.key !== 'Enter') return;
 
-  if (target === focusCard) {
-    event.preventDefault();
-    focusCard?.querySelector('textarea')?.focus({ preventScroll: true });
-  }
+    if (target === focusCard) {
+      event.preventDefault();
+      focusCard?.querySelector('textarea')?.focus({ preventScroll: true });
+    }
+  };
+  return onKeyDown;
 };
 
-const onFocusIn = (): void => {
-  const st = state;
-  if (st === undefined) return;
-  setRoving(st);
-  setFieldsTabIndex(st);
-  slide(st);
-};
-
-const onFocusOut = (): void => {
-  const st = state;
-  if (st === undefined) return;
-  void Promise.resolve().then(() => {
-    if (state === st) slide(st);
-  });
+const focusOn = (st: State): ((event: FocusEvent) => void) => {
+  const onFocusMove = (event: FocusEvent): void => {
+    if (!st.wrapper.isConnected) {
+      document.removeEventListener('focusin', onFocusMove);
+      document.removeEventListener('focusout', onFocusMove);
+      return;
+    }
+    if (event.type === 'focusout') {
+      void Promise.resolve().then(() => {
+        if (st.wrapper.isConnected) slide(st);
+      });
+      return;
+    }
+    setRoving(st);
+    setFieldsTabIndex(st);
+    slide(st);
+  };
+  return onFocusMove;
 };
 
 export const renderGraph = async (
@@ -541,12 +551,6 @@ export const renderGraph = async (
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
-  if (!listening) {
-    listening = true;
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('focusin', onFocusIn);
-    document.addEventListener('focusout', onFocusOut);
-  }
   const st: State = {
     header,
     main,
@@ -561,8 +565,14 @@ export const renderGraph = async (
     places: new Map(),
     entries: [],
     byId: new Map(),
+    watcher: undefined,
+    watching: undefined,
+    replacing: false,
   };
-  state = st;
+  document.addEventListener('keydown', keysOn(st));
+  const onFocusMove = focusOn(st);
+  document.addEventListener('focusin', onFocusMove);
+  document.addEventListener('focusout', onFocusMove);
   await document.fonts.ready;
-  if (state === st) draw(st);
+  if (st.wrapper.isConnected) draw(st);
 };
