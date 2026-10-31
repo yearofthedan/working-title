@@ -31,7 +31,7 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 - **A case is tested at the lowest level that can catch it.** A browser spec is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
 - **Where a test lives follows from what it is about**: a journey through the whole built app is a scenario file in `e2e/`, played by Playwright; behaviour within one page is a scenario file in the page's `scenarios/` folder, played in Vitest browser mode; a logic contract is a `describe`/`it` test beside the code.
-- **Code in `src/ui/` that touches the DOM is in a `*.dom.ts` file**, and its logic is in a plain file beside it, with a `describe`/`it` test the node project runs. A plain file uses no DOM global and imports no `*.dom.ts`.
+- **Code in `src/ui/` that touches the DOM is in a `*.dom.ts` file**, and its logic is in a plain file beside it, with a `describe`/`it` test the node project runs. A plain file uses no DOM global and imports no `*.dom.ts`. A component's `*.test-page.ts` is test code, and may use DOM globals.
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
 - **A browser spec is `test`**, named for the scenario it covers whole, because that name is the behaviour the writer sees.
 - **An assertion that cannot fail is not a test.** Where nothing the code could do would make it fail, it goes: it reads as a guard while checking nothing.

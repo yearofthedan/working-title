@@ -42,8 +42,6 @@ export const legendOf = (card: HTMLElement): HTMLElement => card.querySelector('
 
 export const facetOf = (card: HTMLElement): HTMLElement => card.querySelector('.facet')!;
 
-export const labelOf = (card: HTMLElement): HTMLElement => facetOf(card).querySelector('label')!;
-
 export const shownSentenceOf = (card: HTMLElement): HTMLElement => card.querySelector('.shown')!;
 
 export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
@@ -56,6 +54,8 @@ export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
   }
   return field;
 };
+
+export const labelOf = (card: HTMLElement): HTMLElement => sentenceFieldOf(card).labels![0]!;
 
 const buttonsIn = (card: HTMLElement): HTMLElement[] =>
   inThePage(browser.page.getByRole('button', { includeHidden: true }).elements()).filter((button) =>
@@ -108,15 +108,15 @@ const visible = (element: Element): boolean => {
 };
 
 export const timesDrawn = (card: HTMLElement, sentence: string): number =>
-  [...card.querySelectorAll('textarea')].filter(
-    (field) => field.value === sentence && visible(field),
+  inThePage(browser.page.getByRole('textbox', { includeHidden: true }).elements()).filter(
+    (field) =>
+      card.contains(field) &&
+      field instanceof HTMLTextAreaElement &&
+      field.value === sentence &&
+      visible(field),
   ).length +
-  [...card.querySelectorAll('*')].filter(
-    (element) =>
-      visible(element) &&
-      [...element.childNodes].some(
-        (node) => node.nodeType === Node.TEXT_NODE && node.textContent === sentence,
-      ),
+  inThePage(browser.page.getByText(sentence, { exact: true }).elements()).filter(
+    (element) => card.contains(element) && visible(element),
   ).length;
 
 export const altKeySeenFor = async (key: string, what: () => Promise<void>): Promise<boolean[]> => {
