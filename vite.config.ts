@@ -6,6 +6,7 @@ const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
+export const browserTestRefusals = ['querySelector', 'querySelectorAll', 'style'];
 export const domGlobals = [
   'document',
   'window',
@@ -66,6 +67,8 @@ const theLanguageCallsTheDriver = 'The language calls the driver, and finds no e
 const findsElementsInADriver = 'Find elements in a driver, src/test-helpers/*.driver.ts.';
 const theDomBelongsInADomFile =
   'The DOM belongs in a *.dom.ts beside this one, which holds the logic (docs/standards/testing.md).';
+const thePageIsStagedAndMeasured =
+  'Stage the page in src/test-helpers/staging.ts and read it in src/test-helpers/measuring.ts, or find the element through the driver (docs/standards/testing.md).';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -137,15 +140,6 @@ export default defineConfig({
         },
       },
       {
-        files: ['src/**/*.browser.test.ts'],
-        rules: {
-          'no-restricted-properties': [
-            'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
-          ],
-        },
-      },
-      {
         files: ['src/ui/**/*.ts'],
         rules: {
           'no-restricted-globals': [
@@ -157,6 +151,23 @@ export default defineConfig({
       {
         files: ['src/ui/**/*.dom.ts', 'src/ui/**/*.test.ts'],
         rules: { 'no-restricted-globals': 'off' },
+      },
+      {
+        files: ['src/**/*.browser.test.ts'],
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+            ...browserTestRefusals.map((property) => ({
+              property,
+              message: thePageIsStagedAndMeasured,
+            })),
+          ],
+          'no-restricted-globals': [
+            'error',
+            { name: 'document', message: thePageIsStagedAndMeasured },
+          ],
+        },
       },
       {
         files: ['**/*.dsl.ts'],
@@ -206,6 +217,7 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['**/*.browser.test.ts'],
+          exclude: ['src/ui/lint-sample-*/**'],
           setupFiles: ['src/shell.css'],
           ...(approving ? { api: { allowWrite: true } } : {}),
           browser: {
