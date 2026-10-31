@@ -143,40 +143,35 @@ describe('the rows around a piece', () => {
 describe('the piece a row stops on', () => {
   const beats = rowsAround(entries, 'Beat 2')[1]!;
 
-  it('stops on the piece last visited in the row, when it is on screen', () => {
-    expect(rowStop(beats, new Set(['Beat 1', 'Beat 3']), 'Beat 3')).toBe('Beat 3');
+  it('stops on the first piece of the row that can be brought on screen', () => {
+    expect(rowStop(beats, new Set(['Beat 1', 'Beat 2', 'Beat 3']))).toBe('Beat 1');
+    expect(rowStop(beats, new Set(['Beat 3']))).toBe('Beat 3');
   });
 
-  it('stops on the first piece on screen when the last visited is off it', () => {
-    expect(rowStop(beats, new Set(['Beat 1', 'Beat 3']), 'Beat 2')).toBe('Beat 1');
-    expect(rowStop(beats, new Set(['Beat 1', 'Beat 3']), undefined)).toBe('Beat 1');
-  });
-
-  it('stops nowhere when no piece in the row is on screen', () => {
-    expect(rowStop(beats, new Set(['Scene 1']), 'Beat 3')).toBeUndefined();
-    expect(rowStop(beats, new Set(), undefined)).toBeUndefined();
+  it('stops nowhere when no piece of the row can be brought on screen', () => {
+    expect(rowStop(beats, new Set(['Scene 1']))).toBeUndefined();
+    expect(rowStop(beats, new Set())).toBeUndefined();
   });
 });
 
 describe('where the cursor moves along a row', () => {
   const beats = rowsAround(entries, 'Beat 2')[1]!;
-  const onScreen = new Set(['Beat 1', 'Beat 3']);
 
-  it('walks to the next piece of the row that is on screen', () => {
-    expect(along(beats, 'Beat 1', 'right', onScreen)).toBe('Beat 3');
+  it('walks to the next piece of the row', () => {
+    expect(along(beats, 'Beat 1', 'right')).toBe('Beat 2');
   });
 
-  it('walks back to the last piece of the row that is on screen', () => {
-    expect(along(beats, 'Beat 3', 'left', onScreen)).toBe('Beat 1');
+  it('walks back to the previous piece of the row', () => {
+    expect(along(beats, 'Beat 3', 'left')).toBe('Beat 2');
   });
 
   it('moves nowhere at the end of the row', () => {
-    expect(along(beats, 'Beat 3', 'right', onScreen)).toBeUndefined();
-    expect(along(beats, 'Beat 1', 'left', onScreen)).toBeUndefined();
+    expect(along(beats, 'Beat 3', 'right')).toBeUndefined();
+    expect(along(beats, 'Beat 1', 'left')).toBeUndefined();
   });
 
   it('moves nowhere from a piece that is not in the row', () => {
-    expect(along(beats, 'Scene 1', 'left', new Set(['Beat 1', 'Scene 1']))).toBeUndefined();
+    expect(along(beats, 'Scene 1', 'left')).toBeUndefined();
   });
 });
 

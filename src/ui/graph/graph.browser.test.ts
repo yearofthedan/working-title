@@ -292,6 +292,46 @@ describe('the graph around the focus', () => {
 });
 
 describe('the rows of the graph', () => {
+  it('lands on the first piece of a row and slides it into view, without moving the focus', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    expect(inMain(named('card', 'Scene 1'))).toBe(false);
+    const scene1 = centreOf(named('card', 'Scene 1'));
+    const scene2 = centreOf(named('card', 'Scene 2'));
+    const beat4 = centreOf(focused());
+
+    await driver.press('Tab');
+    await settled();
+
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(inMain(named('card', 'Scene 1'))).toBe(true);
+    expect(centreOf(focused())).toBeCloseTo(beat4, 0);
+    expect(centreOf(named('card', 'Scene 2'))).toBeCloseTo(
+      scene2 + (centreOf(named('card', 'Scene 1')) - scene1),
+      0,
+    );
+  });
+
+  it('lands on the first piece of a row with Tab, whatever the cursor was last on in it', async () => {
+    const { driver, writer } = pageWith(8);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    nameButtonOf(named('card', 'Scene 5')).focus();
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 5')));
+    expect(nameOf(focused())).toBe('Beat 4');
+
+    focused().focus();
+    await driver.press('Tab');
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
+  });
+
   it('never puts the cursor on a piece outside main, with eight scenes in focus at 1100 px', async () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();
@@ -306,32 +346,40 @@ describe('the rows of the graph', () => {
       await settled();
       offScreen.push(...offScreenCursor());
     };
-
-    await check();
-    await shiftTab();
-    await check();
-    await driver.press('Tab');
-    await check();
-    await driver.press('Tab');
-    await check();
-
-    for (let at = 0; at < 7; at += 1) {
-      await driver.press('ArrowRight');
-      await check();
-    }
-
-    for (const key of ['Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']) {
+    const reached = new Set<string>();
+    const step = async (key: string): Promise<void> => {
       await driver.press(key);
       await check();
-    }
+      reached.add(nameOf(focused()));
+    };
+
+    await check();
+    await driver.press('Tab');
+    await check();
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
+
+    for (let at = 0; at < 9; at += 1) await step('ArrowRight');
+    for (let at = 0; at < 9; at += 1) await step('ArrowLeft');
+    await step('ArrowUp');
+    await step('ArrowDown');
 
     await shiftTab();
     await check();
-    await driver.press('Tab');
-    await driver.press('Tab');
+    await shiftTab();
     await check();
 
     expect(offScreen).toEqual([]);
+    expect([...reached].sort()).toEqual([
+      'Beat 4',
+      'Scene 1',
+      'Scene 2',
+      'Scene 3',
+      'Scene 4',
+      'Scene 5',
+      'Scene 6',
+      'Scene 7',
+      'Scene 8',
+    ]);
   });
 
   it('never puts the cursor on a piece outside main, in a fresh app at 770 px', async () => {
@@ -347,19 +395,34 @@ describe('the rows of the graph', () => {
       await settled();
       offScreen.push(...offScreenCursor());
     };
+    const reached = new Set<string>();
 
-    for (let at = 0; at < 8; at += 1) {
+    await check();
+    focused().focus();
+    await driver.press('Tab');
+    await check();
+    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Beat 1')));
+    expect(nameOf(focused())).toBe('The story');
+    expect(inMain(named('card', 'Beat 1'))).toBe(true);
+
+    for (let at = 0; at < 6; at += 1) {
+      await driver.press('ArrowRight');
       await check();
-      await driver.press('Tab');
+      reached.add(nameOf(focused()));
+    }
+    for (let at = 0; at < 6; at += 1) {
+      await driver.press('ArrowLeft');
+      await check();
+      reached.add(nameOf(focused()));
     }
 
-    focused().focus();
-    for (const key of ['ArrowLeft', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab']) {
+    for (const key of ['ArrowUp', 'ArrowDown', 'Enter', 'Tab']) {
       await driver.press(key);
       await check();
     }
 
     expect(offScreen).toEqual([]);
+    expect([...reached].sort()).toEqual(['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5']);
   });
 
   it('goes one stop per row with Tab, then out of the graph, and back with Shift+Tab', async () => {
@@ -387,25 +450,28 @@ describe('the rows of the graph', () => {
     expect(pane().contains(document.activeElement!)).toBe(false);
   });
 
-  it('moves the cursor along a row with ← →, and makes the piece it is on the focus with Enter', async () => {
+  it('makes the next and previous piece in a row the focus with ← →', async () => {
     const { driver, writer } = pageWith(2);
     await driver.fresh();
     await writer.clicks('Beat 4');
 
     await driver.press('Tab');
     expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
 
     await driver.press('ArrowRight');
-    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 2')));
-
-    await driver.press('ArrowRight');
-    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 2')));
+    expect(nameOf(focused())).toBe('Scene 2');
+    expect(document.activeElement).toBe(focused());
 
     await driver.press('ArrowLeft');
-    expect(document.activeElement).toBe(nameButtonOf(named('card', 'Scene 1')));
-
-    await driver.press('Enter');
     expect(nameOf(focused())).toBe('Scene 1');
+    expect(document.activeElement).toBe(focused());
+
+    await driver.press('ArrowRight');
+    expect(nameOf(focused())).toBe('Scene 2');
+
+    await driver.press('ArrowUp');
+    expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
   });
 
@@ -756,6 +822,21 @@ describe('moving the focus', () => {
 
     await shiftTab();
     expect(left.contains(document.activeElement!)).toBe(false);
+  });
+
+  it('puts the cursor on the card the writer clicks, the current one or another', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+
+    await browser.userEvent.click(focused().querySelector('legend')!);
+    expect(document.activeElement).toBe(focused());
+
+    await browser.userEvent.click(named('card', 'The story').querySelector('legend')!);
+    expect(nameOf(focused())).toBe('The story');
+    expect(document.activeElement).toBe(focused());
   });
 });
 

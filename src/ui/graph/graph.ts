@@ -74,25 +74,14 @@ export const rowsAround = (entries: readonly Entry[], focus: string): readonly R
   return rows;
 };
 
-export const rowStop = (
-  row: Row,
-  onScreen: ReadonlySet<string>,
-  last: string | undefined,
-): string | undefined =>
-  last !== undefined && row.ids.includes(last) && onScreen.has(last)
-    ? last
-    : row.ids.find((id) => onScreen.has(id));
+export const rowStop = (row: Row, showable: ReadonlySet<string>): string | undefined =>
+  row.ids.find((id) => showable.has(id));
 
-export const along = (
-  row: Row,
-  from: string,
-  where: 'left' | 'right',
-  onScreen: ReadonlySet<string>,
-): string | undefined => {
+export const along = (row: Row, from: string, where: 'left' | 'right'): string | undefined => {
   const at = row.ids.indexOf(from);
   if (at === -1) return undefined;
   const rest = where === 'left' ? row.ids.slice(0, at).reverse() : row.ids.slice(at + 1);
-  return rest.find((id) => onScreen.has(id));
+  return rest.at(0);
 };
 
 export const moveFrom = (

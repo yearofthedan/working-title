@@ -1,4 +1,4 @@
-Rule: Each row of the graph is one Tab stop, named in the method's words, the arrow keys move along it, and a piece off screen is never a stop.
+Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes the focus, the arrow keys make the next or previous piece in the row the focus, and a piece off screen is never a stop.
 
 ### Scenario: moving along a row and into it
 
@@ -6,6 +6,7 @@ Rule: Each row of the graph is one Tab stop, named in the method's words, the ar
 Given a project with two scenes under beat 2
 When the writer clicks beat 2
 And presses Tab
+Then beat 2 is in focus, with scenes 1 and 2 under it
 And presses →
 And presses ←
 And presses Enter

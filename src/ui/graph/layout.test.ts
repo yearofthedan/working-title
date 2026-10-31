@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
 import { treeOf } from './graph';
-import { centresOf, onScreen, whileMeasuring, widthOf, type Pane, type Sizes } from './layout';
+import {
+  centresOf,
+  onScreen,
+  slideFor,
+  whileMeasuring,
+  widthOf,
+  type Pane,
+  type Sizes,
+} from './layout';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -274,6 +282,33 @@ describe('whether a piece is on screen', () => {
     expect(onScreen({ x: 951, y: 50 }, { width: 100, height: 100 }, main)).toBe(false);
     expect(onScreen({ x: 50, y: 49 }, { width: 100, height: 100 }, main)).toBe(false);
     expect(onScreen({ x: 50, y: 751 }, { width: 100, height: 100 }, main)).toBe(false);
+  });
+});
+
+describe('the offset that brings a piece wholly inside main', () => {
+  const main = { width: 1000, height: 800 };
+  const size = { width: 120, height: 100 };
+
+  it('leaves a piece that is already on screen where it is', () => {
+    expect(slideFor({ x: 500, y: 400, ...size }, main)).toBe(0);
+    expect(slideFor({ x: 60, y: 400, ...size }, main)).toBe(0);
+    expect(slideFor({ x: 940, y: 400, ...size }, main)).toBe(0);
+  });
+
+  it('slides a piece over the left edge until its edge lies on main’s', () => {
+    expect(slideFor({ x: 10, y: 400, ...size }, main)).toBe(50);
+    expect(slideFor({ x: -60, y: 400, ...size }, main)).toBe(120);
+  });
+
+  it('slides a piece over the right edge back until its edge lies on main’s', () => {
+    expect(slideFor({ x: 990, y: 400, ...size }, main)).toBe(-50);
+    expect(slideFor({ x: 1060, y: 400, ...size }, main)).toBe(-120);
+  });
+
+  it('has no offset for a piece no slide can bring into view', () => {
+    expect(slideFor({ x: 500, y: 400, width: 1100, height: 100 }, main)).toBeUndefined();
+    expect(slideFor({ x: 500, y: 30, ...size }, main)).toBeUndefined();
+    expect(slideFor({ x: 500, y: 780, ...size }, main)).toBeUndefined();
   });
 });
 

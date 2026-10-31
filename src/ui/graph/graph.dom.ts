@@ -14,9 +14,10 @@ import {
 } from './graph';
 import {
   centresOf,
-  onScreen,
+  slideFor,
   whileMeasuring,
   widthOf as layoutWidthOf,
+  type Box,
   type Pane,
   type Sizes,
 } from './layout';
@@ -35,11 +36,11 @@ interface State {
   project: OpenProject;
   focus: string;
   readonly lastVisited: Map<string, string>;
-  readonly lastInRow: Map<string, string>;
   readonly cards: Map<string, HTMLElement>;
   readonly rowElements: Map<string, HTMLElement>;
   rows: readonly Row[];
-  onScreen: ReadonlySet<string>;
+  showable: ReadonlySet<string>;
+  places: ReadonlyMap<string, Box>;
   entries: readonly Entry[];
   byId: Map<string, Entry>;
 }
@@ -163,7 +164,6 @@ const pieceCard = (st: State, piece: PieceView): HTMLElement => {
 
   card.addEventListener('click', (event) => {
     const into = event.target instanceof HTMLTextAreaElement ? event.target : undefined;
-    if (piece.id === st.focus && into === undefined) return;
     goTo(st, piece.id, into);
   });
 
@@ -272,16 +272,24 @@ const rowOf = (st: State, card: HTMLElement): Row | undefined => {
 const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
   card.querySelector<HTMLElement>('legend button');
 
-const alongRow = (
-  st: State,
-  card: HTMLElement,
-  where: 'left' | 'right',
-): HTMLElement | undefined => {
-  const row = rowOf(st, card);
-  const id = idOfCard(card);
-  const to = row === undefined || id === undefined ? undefined : along(row, id, where, st.onScreen);
-  const next = to === undefined ? undefined : st.cards.get(to);
-  return next === undefined ? undefined : (nameButtonIn(next) ?? undefined);
+const cursorCard = (st: State): HTMLElement | null => {
+  const at = document.activeElement;
+  const card = at instanceof Element ? at.closest('fieldset') : null;
+  return card === null || card === st.cards.get(st.focus) ? null : card;
+};
+
+const slide = (st: State): void => {
+  const card = cursorCard(st);
+  const row = card === null ? undefined : rowOf(st, card);
+  const here = card === null ? undefined : st.places.get(idOfCard(card) ?? '');
+  const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
+  const offset = here === undefined ? 0 : (slideFor(here, pane) ?? 0);
+  for (const [id, box] of st.places) {
+    const target = st.cards.get(id);
+    if (target === undefined) continue;
+    const under = shownAncestor(st.entries, st.focus, id).piece.id;
+    target.style.left = `${box.x + (row?.ids.includes(under) === true ? offset : 0)}px`;
+  }
 };
 
 const cursorInCard = (st: State): boolean => {
@@ -299,10 +307,7 @@ const setFieldsTabIndex = (st: State): void => {
 
 const setRoving = (st: State): void => {
   for (const row of st.rows) {
-    const stop =
-      row.ids.includes(st.focus) && st.onScreen.has(st.focus)
-        ? st.focus
-        : rowStop(row, st.onScreen, st.lastInRow.get(nameOfRow(row)));
+    const stop = row.ids.includes(st.focus) ? st.focus : rowStop(row, st.showable);
     for (const id of row.ids) {
       const card = st.cards.get(id);
       if (card === undefined) continue;
@@ -314,14 +319,9 @@ const setRoving = (st: State): void => {
   }
 };
 
-const arrangeRows = (
-  st: State,
-  widths: (id: string) => number,
-  heights: (id: string) => number,
-  centres: ReadonlyMap<string, { x: number; y: number }>,
-): void => {
+const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
   const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
-  const onScreenIds = new Set<string>();
+  const showable = new Set<string>();
   const off: HTMLElement[] = [];
   for (const { piece } of st.entries) {
     const card = st.cards.get(piece.id);
@@ -333,11 +333,11 @@ const arrangeRows = (
       off.push(card);
       continue;
     }
-    const at = centres.get(piece.id);
-    const size = { width: widths(piece.id), height: heights(piece.id) };
-    if (at !== undefined && onScreen(at, size, pane)) onScreenIds.add(piece.id);
+    const box = places.get(piece.id);
+    if (box !== undefined && slideFor(box, pane) !== undefined) showable.add(piece.id);
   }
-  st.onScreen = onScreenIds;
+  st.showable = showable;
+  st.places = places;
   st.rows = rowsAround(st.entries, st.focus);
 
   keepOrder(st.wrapper, [...st.rows.map((row) => rowElement(st, row)), ...off]);
@@ -353,6 +353,7 @@ const arrangeRows = (
     st.rowElements.delete(name);
   }
   setRoving(st);
+  slide(st);
 };
 
 const place = (st: State): void => {
@@ -406,9 +407,15 @@ const place = (st: State): void => {
     pane,
     sizes,
   );
+  const places = new Map<string, Box>(
+    [...centres].map(([id, at]) => [
+      id,
+      { x: at.x, y: at.y, width: widthOf(id), height: heightOf(id) },
+    ]),
+  );
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
-    const at = centres.get(piece.id);
+    const at = places.get(piece.id);
     if (at !== undefined) {
       card.style.left = `${at.x}px`;
       card.style.top = `${at.y}px`;
@@ -422,7 +429,7 @@ const place = (st: State): void => {
     card.style.width = under.style.width;
   }
 
-  arrangeRows(st, widthOf, heightOf, centres);
+  arrangeRows(st, places);
   setFieldsTabIndex(st);
   watch(st);
 };
@@ -491,10 +498,11 @@ const onKeyDown = (event: KeyboardEvent): void => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
     const row = card === null ? undefined : rowOf(st, card);
-    if (card !== null && card !== focusCard && row?.ids.includes(st.focus) !== true) {
+    if (card !== null && card !== focusCard && row !== undefined && !row.ids.includes(st.focus)) {
       if (where === 'up' || where === 'down') return;
-      const to = alongRow(st, card, where);
-      if (to !== undefined) to.focus({ preventScroll: true });
+      const id = idOfCard(card);
+      const to = id === undefined ? undefined : along(row, id, where);
+      if (to !== undefined) goTo(st, to);
       return;
     }
     const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
@@ -510,18 +518,12 @@ const onKeyDown = (event: KeyboardEvent): void => {
   }
 };
 
-const onFocusIn = (event: FocusEvent): void => {
+const onFocusIn = (): void => {
   const st = state;
   if (st === undefined) return;
-  const target = event.target;
-  const card = target instanceof Element ? target.closest('fieldset') : null;
-  if (card !== null && card !== st.cards.get(st.focus)) {
-    const id = idOfCard(card);
-    const row = id === undefined ? undefined : st.rows.find((one) => one.ids.includes(id));
-    if (row !== undefined && id !== undefined) st.lastInRow.set(nameOfRow(row), id);
-  }
   setRoving(st);
   setFieldsTabIndex(st);
+  slide(st);
 };
 
 export const renderGraph = async (
@@ -543,11 +545,11 @@ export const renderGraph = async (
     project,
     focus: project.root.id,
     lastVisited: new Map(),
-    lastInRow: new Map(),
     cards: new Map(),
     rowElements: new Map(),
     rows: [],
-    onScreen: new Set(),
+    showable: new Set(),
+    places: new Map(),
     entries: [],
     byId: new Map(),
   };
