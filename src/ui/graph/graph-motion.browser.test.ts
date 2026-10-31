@@ -4,10 +4,11 @@ import { settled, type Driver } from '../../test-helpers/driver';
 import { laidOut, moving, pageWith, recorded, partWay } from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
-import { pane, nameOf, focused, named } from '../../test-helpers/measuring';
+import { cardAtCursor, everyCard, nameOf, focused, named } from '../../test-helpers/measuring';
+import { narrowThePane } from '../../test-helpers/staging';
 
 const boxes = (): readonly string[] =>
-  [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => {
+  everyCard().map((card) => {
     const box = card.getBoundingClientRect();
     return `${nameOf(card)} ${box.left} ${box.top} ${box.width} ${box.height}`;
   });
@@ -93,7 +94,7 @@ describe('the motion of a move', () => {
 
     for (let at = 0; at < 12; at += 1) {
       await driver.press('Tab');
-      expect(document.activeElement?.closest('fieldset')).not.toBe(leaving);
+      expect(cardAtCursor()).not.toBe(leaving);
     }
 
     await browser.userEvent.click(leaving, { force: true });
@@ -105,7 +106,7 @@ describe('the motion of a move', () => {
     await atRest.driver.fresh();
     await atRest.writer.clicks('Beat 2');
     await settled();
-    pane().style.width = '720px';
+    narrowThePane(720);
     await laidOut();
     await settled();
     const rest = boxes();
@@ -113,7 +114,7 @@ describe('the motion of a move', () => {
     const partWay = pageWith(1);
     await partWay.driver.fresh();
     await partWay.writer.clicks('Beat 2');
-    pane().style.width = '720px';
+    narrowThePane(720);
     await laidOut();
     expect(moving().length).toBeGreaterThan(0);
     await settled();

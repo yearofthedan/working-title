@@ -37,6 +37,13 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
       await browser.userEvent.keyboard(`{${key}}`);
     },
     click: clicking(within),
+    focus: async (role, name, group) => {
+      const root =
+        group === undefined
+          ? within
+          : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
+      (root.getByRole(role, { name: wholeNameAnyCase(name) }).element() as HTMLElement).focus();
+    },
     type: typing(within),
     drawn: async () => {
       await settled();

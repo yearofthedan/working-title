@@ -13,6 +13,7 @@ export interface Writer {
   reopens(): Promise<void>;
   clicks(piece: string): Promise<void>;
   focuses(piece: string): Promise<void>;
+  putsTheCursorOnNameButtonOf(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
@@ -49,6 +50,8 @@ export const writerOn = (driver: Driver): Writer => {
     reopens: () => driver.reopen(),
     clicks: clicking,
     focuses: reaching,
+    putsTheCursorOnNameButtonOf: (piece) =>
+      driver.focus('button', piece, { role: 'group', name: piece }),
     moves: (direction) => driver.press(arrows[direction] ?? direction),
     addsASceneUnder: async (beat) => {
       await reaching(beat);

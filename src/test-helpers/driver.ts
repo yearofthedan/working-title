@@ -42,6 +42,7 @@ export interface Driver {
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
+  focus(role: Role, name: string, within?: Within): Promise<void>;
   type(text: string, label: string, within: Within): Promise<void>;
   drawn(): Promise<readonly DrawnCard[]>;
   tree(): Promise<readonly string[]>;

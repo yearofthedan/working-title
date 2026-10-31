@@ -3,16 +3,40 @@ import * as browser from 'vite-plus/test/browser';
 import { settled } from '../../test-helpers/driver';
 import { laidOut, pageWith } from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
-import { narrowThePane, nothingFocused, twoGraphs } from '../../test-helpers/staging';
+import {
+  altKeySeenFor,
+  anExtraHeaderAbove,
+  buttonsFocused,
+  narrowThePane,
+  nothingFocused,
+  theViewport,
+  twoGraphs,
+} from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import {
+  addButtonOf,
   cards,
+  cursor,
+  cursorIn,
   cursorIsInThePane,
+  currentCard,
+  facetOf,
   focused,
+  headingOf,
+  labelOf,
+  legendOf,
+  nameButtonOf,
   named,
   nameOf,
+  navIn,
   pane,
+  pathIn,
+  sentenceCardAtCursor,
+  sentenceFieldOf,
+  shownSentenceOf,
+  styleOf,
+  timesDrawn,
 } from '../../test-helpers/measuring';
 
 const stored = 'working-title:project';
@@ -21,23 +45,6 @@ const centreOf = (card: Element): number => {
   const box = card.getBoundingClientRect();
   return box.left + box.width / 2;
 };
-
-const visible = (element: Element): boolean => {
-  const { display, opacity } = getComputedStyle(element);
-  return display !== 'none' && opacity !== '0' && element.getClientRects().length > 0;
-};
-
-const drawnOn = (card: Element, sentence: string): number =>
-  [...card.querySelectorAll('textarea')].filter(
-    (field) => field.value === sentence && visible(field),
-  ).length +
-  [...card.querySelectorAll('*')].filter(
-    (element) =>
-      visible(element) &&
-      [...element.childNodes].some(
-        (node) => node.nodeType === Node.TEXT_NODE && node.textContent === sentence,
-      ),
-  ).length;
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
@@ -58,15 +65,16 @@ describe('the graph page', () => {
     await driver.fresh();
     await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
 
-    expect(drawnOn(focused(), theStory)).toBe(1);
+    expect(timesDrawn(focused(), theStory)).toBe(1);
   });
 
   it("draws a card's sentence in the muted colour", async () => {
     const { driver } = pageWith();
     await driver.fresh();
 
-    const layer = document.querySelector('.card .facet .shown')!;
-    const label = document.querySelector('.card .facet label')!;
+    const card = named('card', 'Beat 1');
+    const layer = shownSentenceOf(card);
+    const label = labelOf(card);
 
     expect(getComputedStyle(layer).color).toBe(getComputedStyle(label).color);
   });
@@ -90,7 +98,7 @@ describe('the graph around the focus', () => {
     );
     await laidOut();
 
-    const field = focused().querySelector('textarea')!;
+    const field = sentenceFieldOf(focused());
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
     expect(focused().getBoundingClientRect().height).toBeGreaterThan(
       named('card', 'Beat 1').getBoundingClientRect().height,
@@ -104,8 +112,8 @@ describe('the graph around the focus', () => {
     await writer.clicks('Scene 1');
     await settled();
 
-    const story = named('hidden', 'The story').style;
-    const beat = named('hidden', 'Beat 1').style;
+    const story = styleOf(named('hidden', 'The story'));
+    const beat = styleOf(named('hidden', 'Beat 1'));
     expect([beat.left, beat.top]).toEqual([story.left, story.top]);
   });
 
@@ -115,7 +123,7 @@ describe('the graph around the focus', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    expect(named('hidden', 'Scene 1').style.width).toBe(named('chip', 'Beat 4').style.width);
+    expect(styleOf(named('hidden', 'Scene 1')).width).toBe(styleOf(named('chip', 'Beat 4')).width);
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
@@ -128,7 +136,7 @@ describe('the graph around the focus', () => {
 
     for (let at = 0; at < 12; at += 1) {
       await driver.press('Tab');
-      expect(document.activeElement?.closest('fieldset.hidden') ?? null).toBeNull();
+      expect(cursorIn('hidden')).toBeNull();
     }
   });
 
@@ -137,18 +145,12 @@ describe('the graph around the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 4');
 
-    const level = (name: string): string =>
-      [...document.querySelectorAll<HTMLElement>('main fieldset')]
-        .find((card) => nameOf(card) === name)!
-        .querySelector('h2, h3, h4')!.tagName;
+    expect(headingOf(named('card', 'The story')).tagName).toBe('H2');
+    expect(headingOf(named('chip', 'Beat 1')).tagName).toBe('H3');
+    expect(headingOf(named('focus', 'Beat 4')).tagName).toBe('H3');
+    expect(headingOf(named('card', 'Scene 1')).tagName).toBe('H4');
 
-    expect(level('The story')).toBe('H2');
-    expect(level('Beat 1')).toBe('H3');
-    expect(level('Beat 4')).toBe('H3');
-    expect(level('Scene 1')).toBe('H4');
-
-    const current = [...document.querySelectorAll('main fieldset[aria-current="location"]')];
-    expect(current).toEqual([focused()]);
+    expect(currentCard()).toEqual(focused());
     expect(nameOf(focused())).toBe('Beat 4');
   });
 
@@ -157,7 +159,7 @@ describe('the graph around the focus', () => {
     await driver.fresh();
 
     for (const width of [720, 320]) {
-      pane().style.width = `${width}px`;
+      narrowThePane(width);
       await laidOut();
 
       const box = focused().getBoundingClientRect();
@@ -204,13 +206,12 @@ describe('the graph around the focus', () => {
   it('stops the focus row below the header it was given when the window is too short to centre it', async () => {
     const { driver, writer } = pageWith(0, 400);
     await driver.fresh();
-    await browser.page.viewport(400, 500);
-    const own = document.querySelector('header')!;
-    document.body.prepend(document.createElement('header'));
+    await theViewport(400, 500);
+    const { given } = anExtraHeaderAbove();
     await writer.clicks('Beat 2');
     await settled();
 
-    const header = own.getBoundingClientRect();
+    const header = given.getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
 
     expect(parent.top).toBeGreaterThanOrEqual(header.bottom);
@@ -222,9 +223,9 @@ describe('the graph around the focus', () => {
     await writer.clicks('Beat 2');
 
     const card = named('card', 'The story');
-    const sentence = getComputedStyle(card.querySelector('.shown')!);
-    const name = getComputedStyle(card.querySelector('h2, h3, h4')!);
-    const focus = getComputedStyle(focused().querySelector('textarea')!);
+    const sentence = getComputedStyle(shownSentenceOf(card));
+    const name = getComputedStyle(headingOf(card));
+    const focus = getComputedStyle(sentenceFieldOf(focused()));
 
     expect(Number.parseFloat(sentence.fontSize)).toBeLessThan(Number.parseFloat(focus.fontSize));
     expect(sentence.fontFamily).toBe(name.fontFamily);
@@ -237,13 +238,13 @@ describe('the graph around the focus', () => {
     await settled();
 
     const chip = named('chip', 'Beat 1');
-    const legend = chip.querySelector('legend')!;
+    const legend = legendOf(chip);
     const box = legend.getBoundingClientRect();
     const inside = {
       top: box.top + legend.clientTop,
       bottom: box.top + legend.clientTop + legend.clientHeight,
     };
-    const name = chip.querySelector('h2, h3, h4')!.getBoundingClientRect();
+    const name = headingOf(chip).getBoundingClientRect();
 
     expect(name.top).toBeGreaterThanOrEqual(inside.top);
     expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
@@ -257,10 +258,8 @@ describe('the graph around the focus', () => {
     await settled();
 
     const card = focused();
-    const body = card.querySelector('.facet')!.getBoundingClientRect();
-    const button = [...card.querySelectorAll('button')]
-      .find((one) => one.textContent === 'Add a scene')!
-      .getBoundingClientRect();
+    const body = facetOf(card).getBoundingClientRect();
+    const button = addButtonOf(card).getBoundingClientRect();
 
     expect(button.top).toBeGreaterThanOrEqual(body.top);
     expect(button.bottom).toBeLessThanOrEqual(body.bottom);
@@ -271,14 +270,12 @@ describe('moving the focus', () => {
   it('writes the path into the header the graph was given, and no other header', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
-    const own = document.querySelector('header')!;
-    const other = document.createElement('header');
-    document.body.prepend(other);
+    const { given, extra } = anExtraHeaderAbove();
 
     await writer.clicks('Beat 2');
 
-    expect(own.querySelector('nav [aria-current="location"]')?.textContent).toBe('Beat 2');
-    expect(other.querySelector('nav')).toBeNull();
+    expect(pathIn(given)).toBe('Beat 2');
+    expect(navIn(extra)).toBeNull();
   });
 
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
@@ -301,11 +298,11 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 3');
 
-    named('chip', 'Beat 1').querySelector('button')!.focus();
+    await writer.putsTheCursorOnNameButtonOf('Beat 1');
     await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 4');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
   });
 
   it('moves the focus with ↓ from the add button', async () => {
@@ -313,13 +310,13 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 4');
 
-    const add = focused().querySelector('button')!;
+    const add = addButtonOf(focused());
     expect(add.textContent).toBe('Add a scene');
-    add.focus();
+    await driver.focus('button', 'Add a scene', { role: 'group', name: nameOf(focused()) });
     await driver.press('ArrowDown');
 
     expect(nameOf(focused())).toBe('Scene 1');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
   });
 
   it('still presses a name button with Enter and with Space', async () => {
@@ -327,12 +324,12 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 3');
 
-    named('chip', 'Beat 1').querySelector('button')!.focus();
+    await writer.putsTheCursorOnNameButtonOf('Beat 1');
     await driver.press('Enter');
     expect(nameOf(focused())).toBe('Beat 1');
 
     await writer.clicks('Beat 3');
-    named('chip', 'Beat 5').querySelector('button')!.focus();
+    await writer.putsTheCursorOnNameButtonOf('Beat 5');
     await driver.press('Space');
     expect(nameOf(focused())).toBe('Beat 5');
   });
@@ -345,7 +342,7 @@ describe('moving the focus', () => {
     await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 2');
-    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+    expect(cursor()).toBe(sentenceFieldOf(focused()));
   });
 
   it('puts the cursor on the focus card with Esc, and the arrows then move the focus', async () => {
@@ -355,7 +352,7 @@ describe('moving the focus', () => {
     await driver.press('Enter');
     await driver.press('Escape');
 
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
     expect(nameOf(focused())).toBe('Beat 2');
 
     await driver.press('ArrowRight');
@@ -368,7 +365,7 @@ describe('moving the focus', () => {
     await writer.clicks('Beat 2');
     await driver.press('Enter');
 
-    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+    expect(cursor()).toBe(sentenceFieldOf(focused()));
   });
 
   it('leaves the cursor on the new focus card after a key, a chip, a card and a path', async () => {
@@ -377,26 +374,26 @@ describe('moving the focus', () => {
 
     await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Beat 1');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
 
     await writer.clicks('Beat 3');
     expect(nameOf(focused())).toBe('Beat 3');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
 
     await writer.clicks('The story');
     expect(nameOf(focused())).toBe('The story');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
 
     await writer.clicks('Beat 4');
     expect(nameOf(focused())).toBe('Beat 4');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
 
     await driver.click('button', 'The story', {
       role: 'navigation',
       name: 'Where you are',
     });
     expect(nameOf(focused())).toBe('The story');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
   });
 
   it('reaches every sibling with Tab, and Enter on one moves the focus there', async () => {
@@ -406,24 +403,23 @@ describe('moving the focus', () => {
 
     for (const card of [...cards('card'), ...cards('chip')]) {
       if (card === focused()) continue;
-      expect(card.querySelector('button')).not.toBeNull();
+      expect(nameButtonOf(card)).not.toBeNull();
     }
-    expect(focused().querySelector('legend button')).toBeNull();
+    expect(nameButtonOf(focused())).toBeNull();
 
     const reached: string[] = [];
     for (let at = 0; at < 20 && reached.length < 4; at += 1) {
       await driver.press('Tab');
-      const chip = document.activeElement?.closest('fieldset.chip') ?? null;
-      if (chip !== null) reached.push(nameOf(chip as HTMLElement));
+      const chip = cursorIn('chip');
+      if (chip !== null) reached.push(nameOf(chip));
     }
     expect([...reached].sort()).toEqual(['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5']);
 
-    const button = named('chip', 'Beat 4').querySelector('button')!;
-    button.focus();
+    await writer.putsTheCursorOnNameButtonOf('Beat 4');
     await driver.press('Enter');
 
     expect(nameOf(focused())).toBe('Beat 4');
-    expect(document.activeElement).toBe(focused());
+    expect(cursor()).toBe(focused());
   });
 
   it('leaves the focus where it is when an arrow key is held with a modifier', async () => {
@@ -431,10 +427,7 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const held: boolean[] = [];
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight') held.push(event.altKey);
-    });
+    const held = altKeySeenFor('ArrowRight');
 
     await browser.userEvent.keyboard('{Alt>}{ArrowRight}{/Alt}');
 
@@ -451,7 +444,7 @@ describe('moving the focus', () => {
     });
 
     expect(nameOf(focused())).toBe('Beat 2');
-    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+    expect(cursor()).toBe(sentenceFieldOf(focused()));
   });
 
   it('never tabs into a sentence that is not the focus’s', async () => {
@@ -461,13 +454,9 @@ describe('moving the focus', () => {
     const strayed: string[] = [];
     for (let at = 0; at < 20; at += 1) {
       await driver.press('Tab');
-      const card = document.activeElement?.closest('fieldset') ?? null;
-      if (
-        card !== null &&
-        card !== focused() &&
-        document.activeElement instanceof HTMLTextAreaElement
-      ) {
-        strayed.push(nameOf(card as HTMLElement));
+      const card = sentenceCardAtCursor();
+      if (card !== null && card !== focused()) {
+        strayed.push(nameOf(card));
       }
     }
 
@@ -479,14 +468,14 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const left = named('card', 'The story').querySelector('textarea')!;
-    const reached: Element[] = [];
+    const left = sentenceFieldOf(named('card', 'The story'));
+    const reached: (Element | null)[] = [];
     for (let at = 0; at < 20; at += 1) {
       await driver.press('Tab');
-      reached.push(document.activeElement!);
+      reached.push(cursor());
     }
 
-    expect(reached).toContain(focused().querySelector('textarea'));
+    expect(reached).toContain(sentenceFieldOf(focused()));
     expect(reached).not.toContain(left);
   });
 
@@ -495,11 +484,7 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const held: string[] = [];
-    document.addEventListener('focusin', (event) => {
-      const element = event.target as HTMLElement;
-      if (element.closest('button') !== null) held.push(element.textContent ?? '');
-    });
+    const held = buttonsFocused();
 
     await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
@@ -513,7 +498,7 @@ describe('moving the focus', () => {
     await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
     expect(nameOf(focused())).toBe('Scene 1');
-    expect(document.activeElement).toBe(focused().querySelector('textarea'));
+    expect(cursor()).toBe(sentenceFieldOf(focused()));
 
     await driver.press('Escape');
     await driver.press('ArrowUp');
@@ -562,7 +547,7 @@ describe('what a move leaves alone', () => {
     await openTheApp();
     await writer.clicks('Beat 4');
 
-    expect(focused().querySelector('textarea')?.value).toBe(sentence);
+    expect(sentenceFieldOf(focused()).value).toBe(sentence);
   });
 });
 

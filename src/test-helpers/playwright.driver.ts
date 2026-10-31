@@ -1,6 +1,14 @@
 import { type Locator, type Page } from '@playwright/test';
 import { drawnKinds } from '../ui/graph/graph';
-import { clicking, drawn, linesOf, settled, typing, type ReloadingDriver } from './driver';
+import {
+  clicking,
+  drawn,
+  linesOf,
+  settled,
+  typing,
+  wholeNameAnyCase,
+  type ReloadingDriver,
+} from './driver';
 
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theAppsName: Locator;
@@ -21,6 +29,13 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => ({
     await page.keyboard.press(key);
   },
   click: clicking(page),
+  focus: async (role, name, within) => {
+    const root =
+      within === undefined
+        ? page
+        : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
+    await root.getByRole(role, { name: wholeNameAnyCase(name) }).focus();
+  },
   type: typing(page),
   drawn: async () => {
     await page.getByRole('main').getByRole('group').first().waitFor();
