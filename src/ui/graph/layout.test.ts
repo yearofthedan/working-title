@@ -140,6 +140,63 @@ describe('where the pieces are centred', () => {
     expect(centres.get('The story')).toEqual({ x: 720, y: 130 });
   });
 
+  it('holds the story below the header when it has no parent to clear', () => {
+    const centres = centresOf(
+      entries,
+      'The story',
+      measured(
+        {
+          'The story': 560,
+          'Beat 1': 180,
+          'Beat 2': 180,
+          'Beat 3': 180,
+          'Scene 1': 120,
+          'Scene 2': 120,
+          'Line 1': 120,
+        },
+        { 'The story': 200 },
+      ),
+      pane({ middle: 100 }),
+      sizes,
+    );
+
+    expect(centres.get('The story')).toEqual({ x: 720, y: 212 });
+    expect([...centres.keys()].sort()).toEqual([
+      'Beat 1',
+      'Beat 2',
+      'Beat 3',
+      'Line 1',
+      'Scene 1',
+      'Scene 2',
+      'The story',
+    ]);
+  });
+
+  it('centres the later siblings on the focus’s middle when it is the first of them', () => {
+    const centres = centresOf(
+      treeOf(fiveBeats),
+      'Beat 1',
+      measured(
+        {
+          'The story': 200,
+          'Beat 1': 560,
+          'Beat 2': 180,
+          'Beat 3': 180,
+          'Beat 4': 180,
+          'Beat 5': 180,
+        },
+        { 'The story': 100, 'Beat 1': 200, 'Beat 2': 40, 'Beat 3': 40, 'Beat 4': 40, 'Beat 5': 40 },
+      ),
+      pane(),
+      sizes,
+    );
+
+    expect(centres.get('Beat 2')).toEqual({ x: 1122, y: 450 });
+    expect(centres.get('Beat 3')).toEqual({ x: 1334, y: 450 });
+    expect(centres.get('Beat 4')).toEqual({ x: 1546, y: 450 });
+    expect(centres.get('Beat 5')).toEqual({ x: 1758, y: 450 });
+  });
+
   it('puts a hidden piece at its shown ancestor’s centre', () => {
     const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
 
