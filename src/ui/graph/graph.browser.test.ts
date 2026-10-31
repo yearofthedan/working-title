@@ -107,6 +107,8 @@ describe('the graph around the focus', () => {
     await openTheApp();
 
     expect(gapBetween('Beat 1', 'Beat 2')).toBe(64);
+
+    document.documentElement.style.removeProperty('--graph-gap');
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
