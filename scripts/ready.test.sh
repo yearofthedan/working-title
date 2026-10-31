@@ -288,4 +288,17 @@ status=0
 (cd "$repo" && "$root/do" ready) >"$work/out" 2>"$work/err" || status=$?
 expect_status 2 "asks for the pull request when none is named"
 
+passing
+status=0
+(cd "$repo" && "$root/do" ready --check 77) >"$work/out" 2>"$work/err" || status=$?
+expect_status 0 "--check passes when every condition holds"
+refused "--check"
+
+passing
+printf 'pass check\nfail mutate\n' >"$GH_CHECKS"
+status=0
+(cd "$repo" && "$root/do" ready --check 77) >"$work/out" 2>"$work/err" || status=$?
+expect_status 1 "--check refuses with a failing check"
+expect_err 'mutate' "--check names the failing check"
+
 finish

@@ -1,11 +1,17 @@
 #!/bin/sh
-# help: Mark a pull request ready for review when the tree, CI and the body back it.
+# help: Mark a pull request ready for review when the tree, CI and the body back it; with --check, report whether it would be, and mark nothing.
 
 set -eu
 
+check_only=
+if [ "${1:-}" = --check ]; then
+  check_only=1
+  shift
+fi
+
 pr=${1:-}
 if [ -z "$pr" ]; then
-  echo 'usage: ./do ready <pull request>' >&2
+  echo 'usage: ./do ready [--check] <pull request>' >&2
   exit 2
 fi
 
@@ -166,6 +172,11 @@ if [ -s "$work/failures" ]; then
   echo "Pull request $pr stays in draft:" >&2
   cat "$work/failures" >&2
   exit 1
+fi
+
+if [ -n "$check_only" ]; then
+  echo "Pull request $pr meets every condition."
+  exit 0
 fi
 
 gh pr ready "$pr"
