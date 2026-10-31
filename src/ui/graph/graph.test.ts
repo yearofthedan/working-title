@@ -1,18 +1,30 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
-import { drawnAs, drawnKinds, moveFrom, pathTo, shownAncestor, treeOf } from './graph';
+import {
+  along,
+  drawnAs,
+  drawnKinds,
+  moveFrom,
+  nameOfRow,
+  pathTo,
+  rowStop,
+  rowsAround,
+  shownAncestor,
+  treeOf,
+} from './graph';
 
-const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
+const piece = (name: string, children: readonly PieceView[] = [], plural?: string): PieceView => ({
   id: name,
   name,
   facets: [],
+  ...(plural === undefined ? {} : { plural }),
   children,
 });
 
 const story = piece('The story', [
-  piece('Beat 1'),
-  piece('Beat 2', [piece('Scene 1'), piece('Scene 2')]),
-  piece('Beat 3'),
+  piece('Beat 1', [], 'Beats'),
+  piece('Beat 2', [piece('Scene 1', [], 'Scenes'), piece('Scene 2', [], 'Scenes')], 'Beats'),
+  piece('Beat 3', [], 'Beats'),
 ]);
 
 const entries = treeOf(story);
@@ -89,6 +101,77 @@ describe('the piece a hidden one is drawn under', () => {
 
   it('walks up to the story when even that is hidden', () => {
     expect(shownAncestor(entries, 'Scene 1', 'Beat 1').piece.id).toBe('The story');
+  });
+});
+
+describe('the rows around a piece', () => {
+  it('reads the story alone, then the beats under it', () => {
+    expect(rowsAround(entries, 'The story')).toEqual([
+      { ids: ['The story'], named: 'The story' },
+      { ids: ['Beat 1', 'Beat 2', 'Beat 3'], named: 'Beats', under: 'The story' },
+    ]);
+  });
+
+  it('reads the parent, the focus with its siblings, then the children', () => {
+    expect(rowsAround(entries, 'Beat 2')).toEqual([
+      { ids: ['The story'], named: 'The story' },
+      { ids: ['Beat 1', 'Beat 2', 'Beat 3'], named: 'Beats', under: 'The story' },
+      { ids: ['Scene 1', 'Scene 2'], named: 'Scenes', under: 'Beat 2' },
+    ]);
+  });
+
+  it('leaves out the children’s row for a piece with no child', () => {
+    expect(rowsAround(entries, 'Scene 1')).toEqual([
+      { ids: ['Beat 2'], named: 'Beat 2' },
+      { ids: ['Scene 1', 'Scene 2'], named: 'Scenes', under: 'Beat 2' },
+    ]);
+  });
+
+  it('names each row the way the writer hears it', () => {
+    expect(rowsAround(entries, 'Beat 2').map(nameOfRow)).toEqual([
+      'The story',
+      'Beats under The story',
+      'Scenes under Beat 2',
+    ]);
+  });
+
+  it('reads no row before the graph is drawn, when there is no piece to stand around', () => {
+    expect(rowsAround([], 'The story')).toEqual([]);
+  });
+});
+
+describe('the piece a row stops on', () => {
+  const beats = rowsAround(entries, 'Beat 2')[1]!;
+
+  it('stops on the first piece of the row that can be brought on screen', () => {
+    expect(rowStop(beats, new Set(['Beat 1', 'Beat 2', 'Beat 3']))).toBe('Beat 1');
+    expect(rowStop(beats, new Set(['Beat 3']))).toBe('Beat 3');
+  });
+
+  it('stops nowhere when no piece of the row can be brought on screen', () => {
+    expect(rowStop(beats, new Set(['Scene 1']))).toBeUndefined();
+    expect(rowStop(beats, new Set())).toBeUndefined();
+  });
+});
+
+describe('where the cursor moves along a row', () => {
+  const beats = rowsAround(entries, 'Beat 2')[1]!;
+
+  it('walks to the next piece of the row', () => {
+    expect(along(beats, 'Beat 1', 'right')).toBe('Beat 2');
+  });
+
+  it('walks back to the previous piece of the row', () => {
+    expect(along(beats, 'Beat 3', 'left')).toBe('Beat 2');
+  });
+
+  it('moves nowhere at the end of the row', () => {
+    expect(along(beats, 'Beat 3', 'right')).toBeUndefined();
+    expect(along(beats, 'Beat 1', 'left')).toBeUndefined();
+  });
+
+  it('moves nowhere from a piece that is not in the row', () => {
+    expect(along(beats, 'Scene 1', 'left')).toBeUndefined();
   });
 });
 

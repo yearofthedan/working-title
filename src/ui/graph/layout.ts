@@ -92,6 +92,32 @@ export const centresOf = (
   return centres;
 };
 
+export const onScreen = (
+  centre: { readonly x: number; readonly y: number },
+  size: { readonly width: number; readonly height: number },
+  pane: { readonly width: number; readonly height: number },
+): boolean =>
+  centre.x - size.width / 2 >= 0 &&
+  centre.x + size.width / 2 <= pane.width &&
+  centre.y - size.height / 2 >= 0 &&
+  centre.y + size.height / 2 <= pane.height;
+
+export interface Box {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+export const slideFor = (
+  box: Box,
+  pane: { readonly width: number; readonly height: number },
+): number | undefined => {
+  const left = Math.min(Math.max(box.x - box.width / 2, 0), pane.width - box.width);
+  const at = { x: left + box.width / 2, y: box.y };
+  return onScreen(at, { width: box.width, height: box.height }, pane) ? at.x - box.x : undefined;
+};
+
 export const whileMeasuring = (transitioned: string, drawn: Drawn): string =>
   transitioned
     .split(', ')

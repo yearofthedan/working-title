@@ -15,6 +15,8 @@ import {
   addButtonIsFirst,
   addButtonOf,
   altKeySeenFor,
+  atCursor,
+  blurTheCursor,
   buttonsFocused,
   cardAtCursor,
   cards,
@@ -22,11 +24,13 @@ import {
   cursorIsInThePane,
   currentCards,
   facetOf,
+  firstFieldOf,
   focused,
   headingOf,
   labelOf,
   legendOf,
   named,
+  nameButtonOf,
   nameOf,
   navigationIn,
   pane,
@@ -44,6 +48,25 @@ const centreOf = (card: Element): number => {
 };
 
 const theStory = "A widow hunts the man who sank her husband's ship";
+
+const inMain = (element: Element): boolean => {
+  const box = element.getBoundingClientRect();
+  const bounds = pane().getBoundingClientRect();
+  return (
+    box.left >= bounds.left &&
+    box.right <= bounds.right &&
+    box.top >= bounds.top &&
+    box.bottom <= bounds.bottom
+  );
+};
+
+const offScreenCursor = (): string[] => {
+  const card = cardAtCursor();
+  if (card === null || inMain(card)) return [];
+  return [nameOf(card)];
+};
+
+const shiftTab = (): Promise<void> => browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
 
 describe('the graph page', () => {
   it('tells the application about every keystroke as it is typed', async () => {
@@ -265,6 +288,262 @@ describe('the graph around the focus', () => {
   });
 });
 
+describe('the rows of the graph', () => {
+  it('lands on the first piece of a row and slides it into view, without moving the focus', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    expect(inMain(named('card', 'Scene 1'))).toBe(false);
+    const scene1 = centreOf(named('card', 'Scene 1'));
+    const scene2 = centreOf(named('card', 'Scene 2'));
+    const beat4 = centreOf(focused());
+    const beat3 = centreOf(named('chip', 'Beat 3'));
+    const story = centreOf(named('card', 'The story'));
+
+    await driver.press('Tab');
+    await settled();
+
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(inMain(named('card', 'Scene 1'))).toBe(true);
+    expect(centreOf(focused())).toBeCloseTo(beat4, 0);
+    expect(centreOf(named('chip', 'Beat 3'))).toBeCloseTo(beat3, 0);
+    expect(centreOf(named('card', 'The story'))).toBeCloseTo(story, 0);
+    expect(centreOf(named('card', 'Scene 2'))).toBeCloseTo(
+      scene2 + (centreOf(named('card', 'Scene 1')) - scene1),
+      0,
+    );
+  });
+
+  it('lands on the first piece of a row with Tab, whatever the cursor was last on in it', async () => {
+    const { driver, writer } = pageWith(8);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    nameButtonOf(named('card', 'Scene 5')).focus();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 5')));
+    expect(nameOf(focused())).toBe('Beat 4');
+
+    focused().focus();
+    await driver.press('Tab');
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
+  });
+
+  it('gives a row back its place when the cursor leaves it', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+    const atRest = centreOf(named('card', 'Scene 1'));
+
+    await driver.press('Tab');
+    await settled();
+    expect(inMain(named('card', 'Scene 1'))).toBe(true);
+    expect(centreOf(named('card', 'Scene 1'))).not.toBeCloseTo(atRest, 0);
+
+    blurTheCursor();
+    await laidOut();
+    await settled();
+
+    expect(pane().contains(atCursor())).toBe(false);
+    expect(centreOf(named('card', 'Scene 1'))).toBeCloseTo(atRest, 0);
+  });
+
+  it('never puts the cursor on a piece outside main, with eight scenes in focus at 1100 px', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    expect(inMain(named('card', 'Scene 1'))).toBe(false);
+    expect(inMain(named('card', 'Scene 8'))).toBe(false);
+
+    const offScreen: string[] = [];
+    const check = async (): Promise<void> => {
+      await settled();
+      offScreen.push(...offScreenCursor());
+    };
+    const reached = new Set<string>();
+    const step = async (key: string): Promise<void> => {
+      await driver.press(key);
+      await check();
+      reached.add(nameOf(focused()));
+    };
+
+    await check();
+    await driver.press('Tab');
+    await check();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+
+    for (let at = 0; at < 9; at += 1) await step('ArrowRight');
+    for (let at = 0; at < 9; at += 1) await step('ArrowLeft');
+    await step('ArrowUp');
+    await step('ArrowDown');
+
+    await shiftTab();
+    await check();
+    await shiftTab();
+    await check();
+
+    expect(offScreen).toEqual([]);
+    expect([...reached].sort()).toEqual([
+      'Beat 4',
+      'Scene 1',
+      'Scene 2',
+      'Scene 3',
+      'Scene 4',
+      'Scene 5',
+      'Scene 6',
+      'Scene 7',
+      'Scene 8',
+    ]);
+  });
+
+  it('never puts the cursor on a piece outside main, in a fresh app at 770 px', async () => {
+    const { driver } = pageWith(0, 770);
+    await driver.fresh();
+    await settled();
+
+    expect(inMain(named('card', 'Beat 1'))).toBe(false);
+    expect(inMain(named('card', 'Beat 5'))).toBe(false);
+
+    const offScreen: string[] = [];
+    const check = async (): Promise<void> => {
+      await settled();
+      offScreen.push(...offScreenCursor());
+    };
+    const reached = new Set<string>();
+
+    await check();
+    focused().focus();
+    await driver.press('Tab');
+    await check();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Beat 1')));
+    expect(nameOf(focused())).toBe('The story');
+    expect(inMain(named('card', 'Beat 1'))).toBe(true);
+
+    for (let at = 0; at < 6; at += 1) {
+      await driver.press('ArrowRight');
+      await check();
+      reached.add(nameOf(focused()));
+    }
+    for (let at = 0; at < 6; at += 1) {
+      await driver.press('ArrowLeft');
+      await check();
+      reached.add(nameOf(focused()));
+    }
+
+    for (const key of ['ArrowUp', 'ArrowDown', 'Enter', 'Tab']) {
+      await driver.press(key);
+      await check();
+    }
+
+    expect(offScreen).toEqual([]);
+    expect([...reached].sort()).toEqual(['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5']);
+  });
+
+  it('goes one stop per row with Tab, then out of the graph, and back with Shift+Tab', async () => {
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    expect(atCursor()).toBe(focused());
+
+    await driver.press('Tab');
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+
+    await driver.press('Tab');
+    expect(pane().contains(atCursor())).toBe(false);
+
+    await shiftTab();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+
+    await shiftTab();
+    expect(atCursor()).toBe(focused());
+
+    await shiftTab();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'The story')));
+
+    await shiftTab();
+    expect(pane().contains(atCursor())).toBe(false);
+  });
+
+  it('makes the next and previous piece in a row the focus with ← →', async () => {
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+
+    await driver.press('Tab');
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    expect(nameOf(focused())).toBe('Beat 4');
+
+    await driver.press('ArrowRight');
+    expect(nameOf(focused())).toBe('Scene 2');
+    expect(atCursor()).toBe(focused());
+
+    await driver.press('ArrowLeft');
+    expect(nameOf(focused())).toBe('Scene 1');
+    expect(atCursor()).toBe(focused());
+
+    await driver.press('ArrowRight');
+    expect(nameOf(focused())).toBe('Scene 2');
+
+    await driver.press('ArrowUp');
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(atCursor()).toBe(focused());
+  });
+
+  it('goes into the focus card with Enter, and back to the card past its last field or with Esc', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+
+    await driver.press('Enter');
+    const field = sentenceFieldOf(focused());
+    expect(atCursor()).toBe(field);
+
+    await driver.press('Tab');
+    const add = addButtonOf(focused());
+    expect(atCursor()).toBe(add);
+
+    await driver.press('Tab');
+    expect(atCursor()).toBe(focused());
+    expect(field.tabIndex).toBe(-1);
+    expect(add.tabIndex).toBe(-1);
+
+    await driver.press('Enter');
+    expect(atCursor()).toBe(field);
+
+    await driver.press('Escape');
+    expect(atCursor()).toBe(focused());
+    expect(field.tabIndex).toBe(-1);
+  });
+
+  it('gives a row back its stop once a piece of it is on screen again', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+
+    narrowThePane(100);
+    await laidOut();
+    await settled();
+
+    await driver.press('Tab');
+    expect(pane().contains(atCursor())).toBe(false);
+
+    focused().focus();
+    narrowThePane(1440);
+    await laidOut();
+    await settled();
+
+    await driver.press('Tab');
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Scene 1')));
+  });
+});
+
 describe('moving the focus', () => {
   it('writes the path into the header the graph was given, and no other header', async () => {
     const { driver, sees, writer } = pageWith();
@@ -394,28 +673,47 @@ describe('moving the focus', () => {
     expect(cardAtCursor()).toBe(focused());
   });
 
-  it('reaches every sibling with Tab, and Enter on one moves the focus there', async () => {
+  it('leaves the siblings beside the focus out of the tab order, and moves the focus along them with the arrows', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 3');
 
-    for (const card of [...cards('card'), ...cards('chip')]) {
-      if (card === focused()) continue;
-      await writer.putsTheCursorOnNameButtonOf(nameOf(card));
+    const siblings = cards('chip');
+    expect(siblings).toHaveLength(4);
+    for (const chip of siblings) {
+      expect(chip.tabIndex).toBe(-1);
+      expect(nameButtonOf(chip).tabIndex).toBe(-1);
     }
-    await expect(writer.putsTheCursorOnNameButtonOf(nameOf(focused()))).rejects.toThrow();
+    expect(atCursor()).toBe(focused());
 
     const reached: string[] = [];
-    for (let at = 0; at < 20 && reached.length < 4; at += 1) {
+    for (let at = 0; at < 10; at += 1) {
       await driver.press('Tab');
       const chip = cursorIn('chip');
       if (chip !== null) reached.push(nameOf(chip));
     }
-    expect([...reached].sort()).toEqual(['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5']);
+    expect(reached).toEqual([]);
 
-    await writer.putsTheCursorOnNameButtonOf('Beat 4');
+    await writer.clicks('Beat 3');
+    await driver.press('ArrowRight');
+    expect(nameOf(focused())).toBe('Beat 4');
+    expect(atCursor()).toBe(focused());
+
+    await driver.press('ArrowLeft');
+    expect(nameOf(focused())).toBe('Beat 3');
+    expect(atCursor()).toBe(focused());
+  });
+
+  it('moves the focus to a piece another row stops on with Enter', async () => {
+    const { driver, writer } = pageWith(2);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await writer.clicks('Scene 1');
+
+    await shiftTab();
+    expect(atCursor()).toBe(nameButtonOf(named('card', 'Beat 4')));
+
     await driver.press('Enter');
-
     expect(nameOf(focused())).toBe('Beat 4');
     expect(cardAtCursor()).toBe(focused());
   });
@@ -465,13 +763,16 @@ describe('moving the focus', () => {
     expect(strayed).toEqual([]);
   });
 
-  it('tabs into the sentence of the piece it moved to, and not the one it left', async () => {
+  it('reaches the sentence of the piece it moved to with Enter, and not through the press', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
 
+    const left = sentenceFieldOf(named('card', 'The story'));
+    expect(left.tabIndex).toBe(-1);
+
     const reached: string[] = [];
-    for (let at = 0; at < 20; at += 1) {
+    for (let at = 0; at < 10; at += 1) {
       await driver.press('Tab');
       for (const piece of ['Beat 2', 'The story']) {
         const inSentence = await driver.cursorIn('One-sentence summary', {
@@ -482,8 +783,12 @@ describe('moving the focus', () => {
       }
     }
 
-    expect(reached).toContain('Beat 2');
-    expect(reached).not.toContain('The story');
+    expect(reached).toEqual([]);
+
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+
+    expect(atCursor()).toBe(sentenceFieldOf(focused()));
   });
 
   it('never puts the cursor on the add button through the press', async () => {
@@ -513,6 +818,52 @@ describe('moving the focus', () => {
 
     await driver.press('ArrowDown');
     expect(nameOf(focused())).toBe('Scene 1');
+  });
+
+  it('leaves the fields of the card it leaves out of the tab order, after adding a scene', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+
+    await driver.press('Enter');
+    await driver.press('Tab');
+    await driver.press('Enter');
+
+    expect(nameOf(focused())).toBe('Scene 1');
+    expect(atCursor()).toBe(firstFieldOf(focused()));
+
+    const left = named('card', 'Beat 2');
+    expect(sentenceFieldOf(left).tabIndex).toBe(-1);
+
+    await shiftTab();
+    expect(left.contains(atCursor())).toBe(false);
+  });
+
+  it('takes the focus card’s fields out of the tab order when the cursor leaves with no focusin', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    expect(sentenceFieldOf(focused()).tabIndex).toBe(0);
+
+    blurTheCursor();
+
+    expect(sentenceFieldOf(focused()).tabIndex).toBe(-1);
+  });
+
+  it('puts the cursor on the card the writer clicks, the current one or another', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await driver.press('Enter');
+    expect(atCursor()).toBe(sentenceFieldOf(focused()));
+
+    await browser.userEvent.click(legendOf(focused()));
+    expect(atCursor()).toBe(focused());
+
+    await browser.userEvent.click(legendOf(named('card', 'The story')));
+    expect(nameOf(focused())).toBe('The story');
+    expect(atCursor()).toBe(focused());
   });
 });
 

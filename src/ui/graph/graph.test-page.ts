@@ -55,6 +55,14 @@ export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
   return field;
 };
 
+export const firstFieldOf = (card: HTMLElement): HTMLElement => {
+  const field = inThePage(
+    browser.page.getByRole('textbox', { includeHidden: true }).elements(),
+  ).find((element) => card.contains(element));
+  if (field === undefined) throw new Error('the card has no field');
+  return field;
+};
+
 export const labelOf = (card: HTMLElement): HTMLElement => sentenceFieldOf(card).labels![0]!;
 
 const buttonsIn = (card: HTMLElement): HTMLElement[] =>
@@ -80,6 +88,18 @@ export const positionOf = (
   top: card.style.top,
   width: card.style.width,
 });
+
+export const nameButtonOf = (card: HTMLElement): HTMLElement => {
+  const button = buttonsIn(card).find((one) => headingOf(card).contains(one));
+  if (button === undefined) throw new Error(`${nameOf(card)} is drawn without a name button`);
+  return button;
+};
+
+export const atCursor = (): Element | null => document.activeElement;
+
+export const blurTheCursor = (): void => {
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+};
 
 export const cardAtCursor = (): HTMLElement | null =>
   everyCard().find((card) => card.contains(document.activeElement)) ?? null;

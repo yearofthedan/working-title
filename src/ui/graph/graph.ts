@@ -37,6 +37,53 @@ export const shownAncestor = (entries: readonly Entry[], focus: string, id: stri
   return entry;
 };
 
+export interface Row {
+  readonly ids: readonly string[];
+  readonly named: string;
+  readonly under?: string;
+}
+
+export const nameOfRow = (row: Row): string =>
+  row.under === undefined ? row.named : `${row.named} under ${row.under}`;
+
+export const rowsAround = (entries: readonly Entry[], focus: string): readonly Row[] => {
+  const entry = entryOf(entries, focus);
+  if (entry === undefined) return [];
+
+  const rows: Row[] = [];
+  const parent = entry.parentId === undefined ? undefined : entryOf(entries, entry.parentId);
+
+  if (parent !== undefined) rows.push({ ids: [parent.piece.id], named: parent.piece.name });
+
+  const siblings = parent === undefined ? [entry] : childrenOf(entries, parent.piece.id);
+  rows.push({
+    ids: siblings.map((sibling) => sibling.piece.id),
+    named: entry.piece.plural ?? entry.piece.name,
+    ...(parent === undefined ? {} : { under: parent.piece.name }),
+  });
+
+  const children = childrenOf(entries, focus);
+  if (children.length > 0) {
+    rows.push({
+      ids: children.map((child) => child.piece.id),
+      named: children[0]!.piece.plural ?? children[0]!.piece.name,
+      under: entry.piece.name,
+    });
+  }
+
+  return rows;
+};
+
+export const rowStop = (row: Row, showable: ReadonlySet<string>): string | undefined =>
+  row.ids.find((id) => showable.has(id));
+
+export const along = (row: Row, from: string, where: 'left' | 'right'): string | undefined => {
+  const at = row.ids.indexOf(from);
+  if (at === -1) return undefined;
+  const rest = where === 'left' ? row.ids.slice(0, at).reverse() : row.ids.slice(at + 1);
+  return rest.at(0);
+};
+
 export const moveFrom = (
   entries: readonly Entry[],
   focus: string,
