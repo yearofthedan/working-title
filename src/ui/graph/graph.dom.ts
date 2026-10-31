@@ -288,11 +288,14 @@ const place = (st: State): void => {
     if (at !== undefined) {
       card.style.left = `${at.x}px`;
       card.style.top = `${at.y}px`;
-      continue;
     }
-    const under = st.cards.get(shownAncestor(st.entries, st.focus, piece.id).piece.id)!;
+    if (drawnAs(st.entries, st.focus, piece.id) !== 'hidden') continue;
+    const ancestor = shownAncestor(st.entries, st.focus, piece.id).piece.id;
+    if (ancestor === piece.id) continue;
+    const under = st.cards.get(ancestor)!;
     card.style.left = under.style.left;
     card.style.top = under.style.top;
+    card.style.width = under.style.width;
   }
 
   watch(st);

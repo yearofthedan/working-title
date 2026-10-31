@@ -105,15 +105,17 @@ describe('the graph around the focus', () => {
     expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(180);
 
     const root = document.documentElement.style;
-    root.setProperty('--graph-gap', '64px');
-    root.setProperty('--graph-card-width-2', '150px');
-    await openTheApp();
+    try {
+      root.setProperty('--graph-gap', '64px');
+      root.setProperty('--graph-card-width-2', '150px');
+      await openTheApp();
 
-    expect(gapBetween('Beat 1', 'Beat 2')).toBe(64);
-    expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(150);
-
-    root.removeProperty('--graph-gap');
-    root.removeProperty('--graph-card-width-2');
+      expect(gapBetween('Beat 1', 'Beat 2')).toBe(64);
+      expect(named('card', 'Beat 1').getBoundingClientRect().width).toBe(150);
+    } finally {
+      root.removeProperty('--graph-gap');
+      root.removeProperty('--graph-card-width-2');
+    }
   });
 
   it('puts the pieces hidden under a hidden story where the story is', async () => {
@@ -126,6 +128,15 @@ describe('the graph around the focus', () => {
     const story = named('hidden', 'The story').style;
     const beat = named('hidden', 'Beat 1').style;
     expect([beat.left, beat.top]).toEqual([story.left, story.top]);
+  });
+
+  it('draws a piece hidden under a chip at the chip’s width', async () => {
+    const { driver, writer } = pageWith(1);
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await settled();
+
+    expect(named('hidden', 'Scene 1').style.width).toBe(named('chip', 'Beat 4').style.width);
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {

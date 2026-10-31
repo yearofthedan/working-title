@@ -101,9 +101,8 @@ describe('the width of a piece', () => {
     expect(widthOf(entries, 'Beat 2', 'Beat 1', pane(), sizes, chip)).toBe(137);
   });
 
-  it('gives a hidden piece its shown ancestor’s width, a card’s or a chip’s', () => {
-    expect(widthOf(entries, 'The story', 'Scene 1', pane(), sizes, chip)).toBe(180);
-    expect(widthOf(entries, 'Beat 1', 'Scene 1', pane(), sizes, chip)).toBe(137);
+  it('measures a hidden piece at the card width of its shown ancestor’s level', () => {
+    expect(widthOf(entries, 'Beat 1', 'Scene 1', pane(), sizes, chip)).toBe(180);
   });
 
   it('gives a hidden piece that is its own shown ancestor the width of its own level', () => {
