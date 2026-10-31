@@ -299,6 +299,8 @@ describe('the rows of the graph', () => {
     const scene1 = centreOf(named('card', 'Scene 1'));
     const scene2 = centreOf(named('card', 'Scene 2'));
     const beat4 = centreOf(focused());
+    const beat3 = centreOf(named('chip', 'Beat 3'));
+    const story = centreOf(named('card', 'The story'));
 
     await driver.press('Tab');
     await settled();
@@ -307,6 +309,8 @@ describe('the rows of the graph', () => {
     expect(nameOf(focused())).toBe('Beat 4');
     expect(inMain(named('card', 'Scene 1'))).toBe(true);
     expect(centreOf(focused())).toBeCloseTo(beat4, 0);
+    expect(centreOf(named('chip', 'Beat 3'))).toBeCloseTo(beat3, 0);
+    expect(centreOf(named('card', 'The story'))).toBeCloseTo(story, 0);
     expect(centreOf(named('card', 'Scene 2'))).toBeCloseTo(
       scene2 + (centreOf(named('card', 'Scene 1')) - scene1),
       0,
