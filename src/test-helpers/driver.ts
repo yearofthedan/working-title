@@ -44,6 +44,9 @@ export interface Driver {
   click(role: Role, name: string, within?: Within): Promise<void>;
   focus(role: Role, name: string, within?: Within): Promise<void>;
   type(text: string, label: string, within: Within): Promise<void>;
+  clickAway(): Promise<void>;
+  value(label: string, within: Within): Promise<string>;
+  cursorIn(label: string, within: Within): Promise<boolean>;
   drawn(): Promise<readonly DrawnCard[]>;
   tree(): Promise<readonly string[]>;
   path(): Promise<string>;

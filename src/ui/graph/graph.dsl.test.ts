@@ -33,6 +33,17 @@ const recording = (tree: readonly string[]) => {
     type: async (_text, label, within) => {
       calls.push(`type ${label} in "${within.name}"`);
     },
+    clickAway: async () => {
+      calls.push('clickAway');
+    },
+    value: async (label, within) => {
+      calls.push(`value ${label} in "${within.name}"`);
+      return '';
+    },
+    cursorIn: async (label, within) => {
+      calls.push(`cursorIn ${label} in "${within.name}"`);
+      return false;
+    },
     drawn: async () => [],
     tree: async () => tree,
     path: async () => '',

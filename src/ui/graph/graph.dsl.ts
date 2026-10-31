@@ -12,6 +12,7 @@ export interface Writer {
   opensANewProject(): Promise<void>;
   reopens(): Promise<void>;
   clicks(piece: string): Promise<void>;
+  clicksAwayFromTheGraph(): Promise<void>;
   focuses(piece: string): Promise<void>;
   putsTheCursorOnNameButtonOf(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
@@ -29,6 +30,7 @@ export interface Sees {
   focusIs(piece: string, around?: Around): Promise<void>;
   tree(): Promise<readonly string[]>;
   pathIs(pieces: readonly string[]): Promise<void>;
+  cursorIsIn(piece: string, facet: string): Promise<void>;
 }
 
 const shows = (tree: readonly string[], piece: string): boolean =>
@@ -49,6 +51,7 @@ export const writerOn = (driver: Driver): Writer => {
     opensANewProject: () => driver.fresh(),
     reopens: () => driver.reopen(),
     clicks: clicking,
+    clicksAwayFromTheGraph: () => driver.clickAway(),
     focuses: reaching,
     putsTheCursorOnNameButtonOf: (piece) =>
       driver.focus('button', piece, { role: 'group', name: piece }),
@@ -135,6 +138,11 @@ export const seesOn = (driver: Driver): Sees => ({
     const path = await driver.path();
     if (path !== pieces.join('')) {
       throw new Error(`the path reads ${path || 'nothing'}, not ${pieces.join(' › ')}`);
+    }
+  },
+  cursorIsIn: async (piece, facet) => {
+    if (!(await driver.cursorIn(facet, { role: 'group', name: piece }))) {
+      throw new Error(`the cursor is not in ${piece}'s ${facet}`);
     }
   },
 });

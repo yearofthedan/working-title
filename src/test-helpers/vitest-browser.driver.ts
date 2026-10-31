@@ -1,6 +1,15 @@
 import * as browser from 'vite-plus/test/browser';
 import { drawnKinds } from '../ui/graph/graph';
-import { clicking, drawn, linesOf, settled, typing, wholeNameAnyCase, type Driver } from './driver';
+import {
+  clicking,
+  drawn,
+  linesOf,
+  settled,
+  typing,
+  wholeNameAnyCase,
+  type Driver,
+  type Within,
+} from './driver';
 import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
@@ -28,6 +37,10 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
       ? browser.page.getByRole('main')
       : browser.page.getByRole('main', { name: wholeNameAnyCase(graph) });
   const within = graph === undefined ? browser.page : main;
+  const rootIn = (group?: Within) =>
+    group === undefined
+      ? within
+      : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
   return {
     fresh: render,
     reopen: async () => {
@@ -38,13 +51,22 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
     },
     click: clicking(within),
     focus: async (role, name, group) => {
-      const root =
-        group === undefined
-          ? within
-          : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
-      (root.getByRole(role, { name: wholeNameAnyCase(name) }).element() as HTMLElement).focus();
+      (
+        rootIn(group)
+          .getByRole(role, { name: wholeNameAnyCase(name) })
+          .element() as HTMLElement
+      ).focus();
     },
     type: typing(within),
+    clickAway: async () => {
+      await browser.userEvent.click(browser.page.getByRole('banner').first());
+    },
+    value: async (label, group) =>
+      (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
+        .value,
+    cursorIn: async (label, group) =>
+      rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() ===
+      document.activeElement,
     drawn: async () => {
       await settled();
       return drawn(drawnKinds, graph === undefined ? document : main.element());

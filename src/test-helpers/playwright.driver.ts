@@ -8,6 +8,7 @@ import {
   typing,
   wholeNameAnyCase,
   type ReloadingDriver,
+  type Within,
 } from './driver';
 
 export interface PlaywrightDriver extends ReloadingDriver {
@@ -15,71 +16,85 @@ export interface PlaywrightDriver extends ReloadingDriver {
   opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
-export const playwrightDriver = (page: Page): PlaywrightDriver => ({
-  fresh: async () => {
-    await page.goto('/');
-  },
-  reopen: async () => {
-    await page.goto('/');
-  },
-  reload: async () => {
-    await page.reload();
-  },
-  press: async (key) => {
-    await page.keyboard.press(key);
-  },
-  click: clicking(page),
-  focus: async (role, name, within) => {
-    const root =
-      within === undefined
-        ? page
-        : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
-    await root.getByRole(role, { name: wholeNameAnyCase(name) }).focus();
-  },
-  type: typing(page),
-  drawn: async () => {
-    await page.getByRole('main').getByRole('group').first().waitFor();
-    await page.evaluate(settled);
-    return page.evaluate(drawn, drawnKinds);
-  },
-  tree: async () => {
-    await page.evaluate(settled);
-    return linesOf(await page.getByRole('main').ariaSnapshot());
-  },
-  path: async () =>
-    (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
-  opensWatchingTheGraph: async () => {
-    await page.addInitScript(() => {
-      const frames: string[] = [];
-      const sample = (): void => {
-        const cards = [...document.querySelectorAll<HTMLElement>('main fieldset')];
-        if (cards.length > 0) {
-          frames.push(
-            cards
-              .map((card) => {
-                const box = card.getBoundingClientRect();
-                return `${card.querySelector('h2, h3, h4')?.textContent ?? ''} ${box.left} ${box.top} ${box.width} ${box.height}`;
-              })
-              .join(' | '),
-          );
-          document.documentElement.dataset.graphFrames = frames.join('\n');
-        }
+export const playwrightDriver = (page: Page): PlaywrightDriver => {
+  const rootIn = (within?: Within) =>
+    within === undefined
+      ? page
+      : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
+  return {
+    fresh: async () => {
+      await page.goto('/');
+    },
+    reopen: async () => {
+      await page.goto('/');
+    },
+    reload: async () => {
+      await page.reload();
+    },
+    press: async (key) => {
+      await page.keyboard.press(key);
+    },
+    click: clicking(page),
+    focus: async (role, name, within) => {
+      await rootIn(within)
+        .getByRole(role, { name: wholeNameAnyCase(name) })
+        .focus();
+    },
+    type: typing(page),
+    clickAway: async () => {
+      await page.mouse.click(0, 0);
+    },
+    value: async (label, within) =>
+      rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
+    cursorIn: async (label, within) =>
+      rootIn(within)
+        .getByLabel(wholeNameAnyCase(label))
+        .first()
+        .evaluate((field) => field === document.activeElement),
+    drawn: async () => {
+      await page.getByRole('main').getByRole('group').first().waitFor();
+      await page.evaluate(settled);
+      return page.evaluate(drawn, drawnKinds);
+    },
+    tree: async () => {
+      await page.evaluate(settled);
+      return linesOf(await page.getByRole('main').ariaSnapshot());
+    },
+    path: async () =>
+      (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
+    opensWatchingTheGraph: async () => {
+      await page.addInitScript(() => {
+        const frames: string[] = [];
+        const sample = (): void => {
+          const cards = [...document.querySelectorAll<HTMLElement>('main fieldset')];
+          if (cards.length > 0) {
+            frames.push(
+              cards
+                .map((card) => {
+                  const box = card.getBoundingClientRect();
+                  return `${card.querySelector('h2, h3, h4')?.textContent ?? ''} ${box.left} ${box.top} ${box.width} ${box.height}`;
+                })
+                .join(' | '),
+            );
+            document.documentElement.dataset.graphFrames = frames.join('\n');
+          }
+          requestAnimationFrame(sample);
+        };
         requestAnimationFrame(sample);
-      };
-      requestAnimationFrame(sample);
-    });
-    await page.goto('/');
-    return page.evaluate(async () => {
-      await document.fonts.ready;
-      const { promise, resolve } = Promise.withResolvers<void>();
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      );
-      await promise;
-      return (document.documentElement.dataset.graphFrames ?? '')
-        .split('\n')
-        .filter((frame) => frame !== '');
-    });
-  },
-  theAppsName: page.getByRole('heading', { name: 'working-title' }),
-});
+      });
+      await page.goto('/');
+      return page.evaluate(async () => {
+        await document.fonts.ready;
+        const { promise, resolve } = Promise.withResolvers<void>();
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+        await promise;
+        return (document.documentElement.dataset.graphFrames ?? '')
+          .split('\n')
+          .filter((frame) => frame !== '');
+      });
+    },
+    theAppsName: page.getByRole('heading', { name: 'working-title' }),
+  };
+};

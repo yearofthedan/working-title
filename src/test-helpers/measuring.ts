@@ -12,11 +12,6 @@ export const cursorIn = (kind: Drawn): HTMLElement | null =>
 export const cardAtCursor = (): HTMLElement | null =>
   document.activeElement?.closest<HTMLElement>('fieldset') ?? null;
 
-export const sentenceCardAtCursor = (): HTMLElement | null =>
-  document.activeElement instanceof HTMLTextAreaElement
-    ? document.activeElement.closest<HTMLElement>('fieldset')
-    : null;
-
 export const cards = (kind: Drawn): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>(`main fieldset.${kind}`),
 ];
@@ -36,8 +31,8 @@ export const nameOf = (card: HTMLElement): string => headingOf(card).textContent
 
 export const legendOf = (card: HTMLElement): HTMLElement => card.querySelector('legend')!;
 
-export const nameButtonOf = (card: HTMLElement): HTMLElement | null =>
-  card.querySelector<HTMLElement>('legend button');
+export const firstButtonOf = (card: HTMLElement): HTMLElement | null =>
+  card.querySelector<HTMLElement>('button');
 
 export const facetOf = (card: HTMLElement): HTMLElement =>
   card.querySelector<HTMLElement>('.facet')!;
@@ -91,4 +86,34 @@ export const named = (kind: Drawn, name: string): HTMLElement => {
   const card = cards(kind).find((one) => nameOf(one) === name);
   if (card === undefined) throw new Error(`no piece named ${name} is drawn as a ${kind}`);
   return card;
+};
+
+export const altKeySeenFor = async (key: string, what: () => Promise<void>): Promise<boolean[]> => {
+  const seen: boolean[] = [];
+  const watch = (event: KeyboardEvent): void => {
+    if (event.key === key) seen.push(event.altKey);
+  };
+  document.addEventListener('keydown', watch);
+  try {
+    await what();
+  } finally {
+    document.removeEventListener('keydown', watch);
+  }
+  return seen;
+};
+
+export const buttonsFocused = async (what: () => Promise<void>): Promise<string[]> => {
+  const focused: string[] = [];
+  const watch = (event: FocusEvent): void => {
+    if (event.target instanceof HTMLElement && event.target.closest('button') !== null) {
+      focused.push(event.target.textContent ?? '');
+    }
+  };
+  document.addEventListener('focusin', watch);
+  try {
+    await what();
+  } finally {
+    document.removeEventListener('focusin', watch);
+  }
+  return focused;
 };

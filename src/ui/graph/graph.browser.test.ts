@@ -4,11 +4,8 @@ import { settled } from '../../test-helpers/driver';
 import { laidOut, pageWith } from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
 import {
-  altKeySeenFor,
   anExtraHeaderAbove,
-  buttonsFocused,
   narrowThePane,
-  nothingFocused,
   theViewport,
   twoGraphs,
 } from '../../test-helpers/staging';
@@ -16,23 +13,24 @@ import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import {
   addButtonOf,
+  altKeySeenFor,
+  buttonsFocused,
   cards,
   cursor,
   cursorIn,
   cursorIsInThePane,
   currentCards,
   facetOf,
+  firstButtonOf,
   focused,
   headingOf,
   labelOf,
   legendOf,
-  nameButtonOf,
   named,
   nameOf,
   navIn,
   pane,
   pathIn,
-  sentenceCardAtCursor,
   sentenceFieldOf,
   shownSentenceOf,
   styleOf,
@@ -310,8 +308,7 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 4');
 
-    const add = addButtonOf(focused());
-    expect(add.textContent).toBe('Add a scene');
+    expect(firstButtonOf(focused())?.textContent).toBe('Add a scene');
     await driver.focus('button', 'Add a scene', { role: 'group', name: nameOf(focused()) });
     await driver.press('ArrowDown');
 
@@ -335,14 +332,14 @@ describe('moving the focus', () => {
   });
 
   it('leaves the focus where it is while the cursor is in a sentence', async () => {
-    const { driver, writer } = pageWith();
+    const { driver, sees, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
     await driver.press('ArrowRight');
 
     expect(nameOf(focused())).toBe('Beat 2');
-    expect(cursor()).toBe(sentenceFieldOf(focused()));
+    await sees.cursorIsIn(nameOf(focused()), 'One-sentence summary');
   });
 
   it('puts the cursor on the focus card with Esc, and the arrows then move the focus', async () => {
@@ -360,12 +357,12 @@ describe('moving the focus', () => {
   });
 
   it("puts the cursor in the focus card's sentence with Enter", async () => {
-    const { driver, writer } = pageWith();
+    const { driver, sees, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
 
-    expect(cursor()).toBe(sentenceFieldOf(focused()));
+    await sees.cursorIsIn(nameOf(focused()), 'One-sentence summary');
   });
 
   it('leaves the cursor on the new focus card after a key, a chip, a card and a path', async () => {
@@ -403,9 +400,9 @@ describe('moving the focus', () => {
 
     for (const card of [...cards('card'), ...cards('chip')]) {
       if (card === focused()) continue;
-      expect(nameButtonOf(card)).not.toBeNull();
+      await writer.putsTheCursorOnNameButtonOf(nameOf(card));
     }
-    expect(nameButtonOf(focused())).toBeNull();
+    await expect(writer.putsTheCursorOnNameButtonOf(nameOf(focused()))).rejects.toThrow();
 
     const reached: string[] = [];
     for (let at = 0; at < 20 && reached.length < 4; at += 1) {
@@ -427,16 +424,16 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const held = altKeySeenFor('ArrowRight');
-
-    await browser.userEvent.keyboard('{Alt>}{ArrowRight}{/Alt}');
+    const held = await altKeySeenFor('ArrowRight', () =>
+      browser.userEvent.keyboard('{Alt>}{ArrowRight}{/Alt}'),
+    );
 
     expect(held).toEqual([true]);
     expect(nameOf(focused())).toBe('Beat 2');
   });
 
   it('moves the focus to a piece whose sentence is clicked, with the cursor in it', async () => {
-    const { driver } = pageWith();
+    const { driver, sees } = pageWith();
     await driver.fresh();
     await driver.click('textbox', 'One-sentence summary', {
       role: 'group',
@@ -444,7 +441,7 @@ describe('moving the focus', () => {
     });
 
     expect(nameOf(focused())).toBe('Beat 2');
-    expect(cursor()).toBe(sentenceFieldOf(focused()));
+    await sees.cursorIsIn('Beat 2', 'One-sentence summary');
   });
 
   it('never tabs into a sentence that is not the focus’s', async () => {
@@ -454,9 +451,13 @@ describe('moving the focus', () => {
     const strayed: string[] = [];
     for (let at = 0; at < 20; at += 1) {
       await driver.press('Tab');
-      const card = sentenceCardAtCursor();
-      if (card !== null && card !== focused()) {
-        strayed.push(nameOf(card));
+      for (const card of [...cards('card'), ...cards('chip')]) {
+        const piece = nameOf(card);
+        const inSentence = await driver.cursorIn('One-sentence summary', {
+          role: 'group',
+          name: piece,
+        });
+        if (inSentence) strayed.push(piece);
       }
     }
 
@@ -468,15 +469,20 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const left = sentenceFieldOf(named('card', 'The story'));
-    const reached: (Element | null)[] = [];
+    const reached: string[] = [];
     for (let at = 0; at < 20; at += 1) {
       await driver.press('Tab');
-      reached.push(cursor());
+      for (const piece of ['Beat 2', 'The story']) {
+        const inSentence = await driver.cursorIn('One-sentence summary', {
+          role: 'group',
+          name: piece,
+        });
+        if (inSentence) reached.push(piece);
+      }
     }
 
-    expect(reached).toContain(sentenceFieldOf(focused()));
-    expect(reached).not.toContain(left);
+    expect(reached).toContain('Beat 2');
+    expect(reached).not.toContain('The story');
   });
 
   it('never puts the cursor on the add button through the press', async () => {
@@ -484,21 +490,21 @@ describe('moving the focus', () => {
     await driver.fresh();
     await writer.clicks('Beat 2');
 
-    const held = buttonsFocused();
-
-    await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
+    const held = await buttonsFocused(() =>
+      driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' }),
+    );
 
     expect(held).toEqual([]);
   });
 
   it('moves the focus to the new scene, and ↑ then ↓ returns to it', async () => {
-    const { driver, writer } = pageWith();
+    const { driver, sees, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
     await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
 
     expect(nameOf(focused())).toBe('Scene 1');
-    expect(cursor()).toBe(sentenceFieldOf(focused()));
+    await sees.cursorIsIn(nameOf(focused()), 'List line');
 
     await driver.press('Escape');
     await driver.press('ArrowUp');
@@ -547,7 +553,8 @@ describe('what a move leaves alone', () => {
     await openTheApp();
     await writer.clicks('Beat 4');
 
-    expect(sentenceFieldOf(focused()).value).toBe(sentence);
+    const held = await driver.value('One-sentence summary', { role: 'group', name: 'Beat 4' });
+    expect(held).toBe(sentence);
   });
 });
 
@@ -573,11 +580,11 @@ describe('two graphs on one page', () => {
   });
 
   it('moves every graph when the key is pressed outside them', async () => {
-    const { driver } = pageWith();
+    const { driver, writer } = pageWith();
     await driver.fresh();
     await twoGraphs();
 
-    nothingFocused();
+    await writer.clicksAwayFromTheGraph();
     await driver.press('ArrowDown');
 
     await onGraph('First graph').sees.focusIs('Beat 1');

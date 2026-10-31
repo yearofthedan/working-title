@@ -1,12 +1,15 @@
 import { type Driver } from './driver';
 import { type Frame } from './frames';
-import { nameOf } from './measuring';
+import { everyCard, nameOf } from './measuring';
 import { thePage } from './staging';
 import { openTheApp } from './the-app';
 import { vitestBrowserDriver } from './vitest-browser.driver';
-import { writerOn, type Writer } from '../ui/graph/graph.dsl';
+import { seesOn, writerOn, type Sees, type Writer } from '../ui/graph/graph.dsl';
 
-export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Writer } => {
+export const pageWith = (
+  scenes = 0,
+  width = 1440,
+): { driver: Driver; writer: Writer; sees: Sees } => {
   const driver = vitestBrowserDriver(async () => {
     localStorage.clear();
     await thePage(width);
@@ -18,7 +21,7 @@ export const pageWith = (scenes = 0, width = 1440): { driver: Driver; writer: Wr
     }
     await openTheApp();
   });
-  return { driver, writer: writerOn(driver) };
+  return { driver, writer: writerOn(driver), sees: seesOn(driver) };
 };
 export const laidOut = (): Promise<void> => {
   const { promise, resolve } = Promise.withResolvers<void>();
@@ -41,12 +44,7 @@ export const recorded = async (play: () => Promise<void>): Promise<readonly Fram
     frames.push({
       at: performance.now(),
       running: moving().length,
-      boxes: new Map(
-        [...document.querySelectorAll<HTMLElement>('main fieldset')].map((card) => [
-          nameOf(card),
-          card.getBoundingClientRect(),
-        ]),
-      ),
+      boxes: new Map(everyCard().map((card) => [nameOf(card), card.getBoundingClientRect()])),
     });
     if (sampling) requestAnimationFrame(tick);
     else resolve();
