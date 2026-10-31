@@ -1,4 +1,4 @@
-Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes the focus, the arrow keys make the next or previous piece in the row the focus, and a piece off screen is never a stop.
+Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes the focus, the arrow keys make the next or previous piece in the row the focus, and a row whose first piece is off screen slides it into view.
 
 ### Scenario: moving along a row and into it
 
