@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a commit on a story branch whose message has no Agent-Model: trailer.
+# help: Refuse a commit on a story branch whose subject lacks the issue number or whose message has no Agent-Model: trailer.
 
 set -eu
 
@@ -11,6 +11,15 @@ branch=$(git symbolic-ref --short -q HEAD || true)
 printf '%s\n' "$branch" | grep -Eq '^[0-9]+-' || exit 0
 
 git rev-parse -q --verify MERGE_HEAD >/dev/null && exit 0
+
+number=${branch%%-*}
+case $(sed -n 1p "$message") in
+"$number: "*) ;;
+*)
+  echo "commit refused: a commit on story branch $branch needs its subject to start with \"$number: \"; see docs/standards/commits.md" >&2
+  exit 1
+  ;;
+esac
 
 if git interpret-trailers --parse --no-divider "$message" | grep -q '^Agent-Model: *[^ ]'; then
   exit 0
