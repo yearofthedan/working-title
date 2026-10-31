@@ -37,7 +37,7 @@ const drawnOn = (card: Element, sentence: string): number =>
   ).length;
 
 const hangsOff = (element: Element): boolean => {
-  const box = element.getBoundingClientRect();
+  const box = (element.closest('fieldset') ?? element).getBoundingClientRect();
   const bounds = pane().getBoundingClientRect();
   return (
     box.left < bounds.left ||
@@ -362,6 +362,19 @@ describe('the tab order around pieces off the screen', () => {
     expect(
       stops.filter(hangsOff).map((element) => nameOf(element.closest<HTMLElement>('fieldset')!)),
     ).toEqual([]);
+  });
+
+  it('puts a piece back in the tab order once main is wide enough to show it', async () => {
+    const { driver } = pageWith(0, 770);
+    await driver.fresh();
+    const button = named('card', 'Beat 5').querySelector('button')!;
+    expect(button.tabIndex).toBe(-1);
+
+    pane().style.width = '1100px';
+    await laidOut();
+    await settled();
+
+    expect(button.tabIndex).toBe(0);
   });
 });
 
