@@ -69,6 +69,7 @@ beforeAll(() => {
     writeInUi(`plain-${global}.ts`, use);
     writeInUi(`thing-${global}.dom.ts`, use);
     writeInUi(`thing-${global}.test.ts`, use);
+    writeInUi(`thing-${global}.test-page.ts`, use);
   }
   write('sample-no-locator.ts', callingOnPage('reload'));
   write(
@@ -157,21 +158,25 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
   it.each(domGlobals)('a test file using %s passes lint', (global) => {
     expect(uiErrorsIn(`thing-${global}.test.ts`)).toEqual([]);
   });
+
+  it.each(domGlobals)('a test page using %s passes lint', (global) => {
+    expect(uiErrorsIn(`thing-${global}.test-page.ts`)).toEqual([]);
+  });
 });
 
 describe('a browser test', { timeout: 60_000 }, () => {
   it.each(browserTestRefusals)(
-    'calling card.%s fails lint, pointing at staging and measuring',
+    'calling card.%s fails lint, pointing at the test page and staging',
     (property) => {
       expect(uiErrorsIn(`browser-${property}.browser.test.ts`)).toEqual([
-        expect.stringContaining('measuring.ts'),
+        expect.stringMatching(/test-page\.ts.*staging\.ts/),
       ]);
     },
   );
 
-  it('reading document fails lint, pointing at staging and measuring', () => {
+  it('reading document fails lint, pointing at the test page and staging', () => {
     expect(uiErrorsIn('browser-document.browser.test.ts')).toEqual([
-      expect.stringContaining('measuring.ts'),
+      expect.stringMatching(/test-page\.ts.*staging\.ts/),
     ]);
   });
 });

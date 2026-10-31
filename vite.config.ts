@@ -67,8 +67,8 @@ const theLanguageCallsTheDriver = 'The language calls the driver, and finds no e
 const findsElementsInADriver = 'Find elements in a driver, src/test-helpers/*.driver.ts.';
 const theDomBelongsInADomFile =
   'The DOM belongs in a *.dom.ts beside this one, which holds the logic (docs/standards/testing.md).';
-const thePageIsStagedAndMeasured =
-  'Stage the page in src/test-helpers/staging.ts and read it in src/test-helpers/measuring.ts, or find the element through the driver (docs/standards/testing.md).';
+const theComponentHasATestPage =
+  'Reach the component’s markup through its *.test-page.ts beside its *.dom.ts, or stage the page in src/test-helpers/staging.ts (docs/standards/testing.md).';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -149,7 +149,7 @@ export default defineConfig({
         },
       },
       {
-        files: ['src/ui/**/*.dom.ts', 'src/ui/**/*.test.ts'],
+        files: ['src/ui/**/*.dom.ts', 'src/ui/**/*.test.ts', 'src/ui/**/*.test-page.ts'],
         rules: { 'no-restricted-globals': 'off' },
       },
       {
@@ -160,12 +160,12 @@ export default defineConfig({
             ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
             ...browserTestRefusals.map((property) => ({
               property,
-              message: thePageIsStagedAndMeasured,
+              message: theComponentHasATestPage,
             })),
           ],
           'no-restricted-globals': [
             'error',
-            { name: 'document', message: thePageIsStagedAndMeasured },
+            { name: 'document', message: theComponentHasATestPage },
           ],
         },
       },
