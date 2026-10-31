@@ -9,10 +9,10 @@ A scenario is a story's acceptance criteria in the writer's words, agreed one at
 
 - **Given sets up the world in the writer's words, in full sentences.** `Given a beat card is active with tab focus` is everything the steps after it need; `Given a new project`, then `And beat two is active`, describes the app before it says where the writer is in it.
 - **Given holds only what the behaviour depends on, and every piece the later steps name.** A scenario about the arrow keys names the row they walk: `Given two beats, the first active with tab focus`, because the second beat is the one `→` reaches.
-- **Given states the condition in the writer's terms, never how a test produces it.** `Given a beat has too many scenes to fit on one page (cutting off the first and last scenes)`; not `Given a beat with eight scenes`, which is the number a test happened to use, and not `its first scene is off screen`, which is the outcome the scenario exists to show.
+- **Given states the condition in the writer's terms, never how a test produces it.** `Given a beat has too many scenes to fit on one page (cutting off the first and last scenes)`; not `Given a beat with eight scenes`, which is the number a test happened to use, and not `its first scene is off screen`, which is a test's condition rather than the world that produces it.
 - **When is an action, and Then is an outcome.** `When the writer presses →`, `Then the second beat becomes active`. A further action under the `When` is an `And`, and a further outcome under the `Then` is an `And`: an action is never chained after a `Then`.
 - **A Then is a change the writer can tell apart, and that a run can show.** Not `Then the writer hears "Scene 2"`: what a run records is the tree, and what a screen reader says aloud is not in it. Nor a difference only the code has — the stop may be the piece's name button, but the step still reads `Then focus moves to the first scene`.
-- **A line about something staying as it was is a `But`,** and only where the writer would expect it to change: after tabbing, `But beat two stays active`, since moving the cursor is what they might take for having moved the piece.
+- **A line about something staying as it was is a `But`,** and only where the writer would expect it to change: after tabbing, `But beat two stays active`, since moving tab focus is what they might take for having moved the piece.
 - **No line repeats what another line already shows.**
 
 ## The words
