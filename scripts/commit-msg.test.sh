@@ -32,6 +32,13 @@ expect_err 'Agent-Model:' "the refusal names the trailer"
 commit -m '76: Change' --trailer 'Agent-Model: '
 expect_status 1 "a story-branch commit with an empty trailer is refused"
 
+commit -m 'Change' --trailer 'Agent-Model: anthropic/claude-opus-5-5'
+expect_status 1 "a story-branch commit without the issue number in its subject is refused"
+expect_err '76: ' "the refusal names the prefix"
+
+commit -m '7: Change' --trailer 'Agent-Model: anthropic/claude-opus-5-5'
+expect_status 1 "a subject leading with another issue's number is refused"
+
 commit -m '76: Change' --trailer 'Agent-Model: anthropic/claude-opus-5-5'
 expect_status 0 "a story-branch commit with the trailer is accepted"
 
