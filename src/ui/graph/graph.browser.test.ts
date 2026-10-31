@@ -601,6 +601,29 @@ describe('two graphs on one page', () => {
     expect(focusOn(second)).toBe('The story');
   });
 
+  it('moves every graph when the key is pressed outside them', async () => {
+    const { driver } = pageWith();
+    await driver.fresh();
+    const second = await secondGraph();
+
+    (document.activeElement as HTMLElement | null)?.blur();
+    await driver.press('ArrowDown');
+
+    expect(focusOn(pane())).toBe('Beat 1');
+    expect(focusOn(second)).toBe('Beat 1');
+  });
+
+  it('lets a graph drawn over stop answering keys', async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 3');
+
+    await openTheApp();
+    await driver.press('ArrowRight');
+
+    expect(document.querySelector('header nav')?.textContent).toBe('The story');
+  });
+
   it('keeps working when the graph is drawn again on the same main', async () => {
     const { driver } = pageWith();
     await driver.fresh();
