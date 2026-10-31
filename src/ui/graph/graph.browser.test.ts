@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { settled } from '../../test-helpers/driver';
+import { settled, type Driver } from '../../test-helpers/driver';
 import {
   cards,
   focused,
@@ -35,6 +35,28 @@ const drawnOn = (card: Element, sentence: string): number =>
         (node) => node.nodeType === Node.TEXT_NODE && node.textContent === sentence,
       ),
   ).length;
+
+const hangsOff = (element: Element): boolean => {
+  const box = element.getBoundingClientRect();
+  const bounds = pane().getBoundingClientRect();
+  return (
+    box.left < bounds.left ||
+    box.right > bounds.right ||
+    box.top < bounds.top ||
+    box.bottom > bounds.bottom
+  );
+};
+
+const tabStopsInMain = async (driver: Driver, times: number): Promise<readonly HTMLElement[]> => {
+  const stops: HTMLElement[] = [];
+  for (let at = 0; at < times; at += 1) {
+    await driver.press('Tab');
+    await laidOut();
+    const element = document.activeElement;
+    if (element instanceof HTMLElement && pane().contains(element)) stops.push(element);
+  }
+  return stops;
+};
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
@@ -312,6 +334,34 @@ describe('the graph around the focus', () => {
 
     expect(button.top).toBeGreaterThanOrEqual(body.top);
     expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+  });
+});
+
+describe('the tab order around pieces off the screen', () => {
+  it('takes the cursor to no piece outside main with eight scenes under the focus at 1100 px', async () => {
+    const { driver, writer } = pageWith(8, 1100);
+    await driver.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+    focused().focus();
+
+    const stops = await tabStopsInMain(driver, 40);
+    expect(stops.length).toBeGreaterThan(0);
+    expect(
+      stops.filter(hangsOff).map((element) => nameOf(element.closest<HTMLElement>('fieldset')!)),
+    ).toEqual([]);
+  });
+
+  it('takes the cursor to no piece outside main in a fresh app at 770 px', async () => {
+    const { driver } = pageWith(0, 770);
+    await driver.fresh();
+    focused().focus();
+
+    const stops = await tabStopsInMain(driver, 40);
+    expect(stops.length).toBeGreaterThan(0);
+    expect(
+      stops.filter(hangsOff).map((element) => nameOf(element.closest<HTMLElement>('fieldset')!)),
+    ).toEqual([]);
   });
 });
 

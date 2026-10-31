@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
-import { drawnAs, drawnKinds, moveFrom, pathTo, shownAncestor, treeOf } from './graph';
+import { drawnAs, drawnKinds, moveFrom, onScreen, pathTo, shownAncestor, treeOf } from './graph';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -129,5 +129,29 @@ describe('the path to a piece', () => {
 
   it('reads the story alone for the story itself', () => {
     expect(ids(pathTo(entries, 'The story'))).toEqual(['The story']);
+  });
+});
+
+describe('whether a piece is on screen', () => {
+  const main = { width: 1000, height: 800 };
+
+  it('holds a box sitting exactly on every edge', () => {
+    expect(onScreen({ left: 0, top: 0, width: 1000, height: 800 }, main)).toBe(true);
+  });
+
+  it('refuses a box 1 px over the left edge', () => {
+    expect(onScreen({ left: -1, top: 0, width: 100, height: 100 }, main)).toBe(false);
+  });
+
+  it('refuses a box 1 px over the right edge', () => {
+    expect(onScreen({ left: 901, top: 0, width: 100, height: 100 }, main)).toBe(false);
+  });
+
+  it('refuses a box 1 px over the top edge', () => {
+    expect(onScreen({ left: 0, top: -1, width: 100, height: 100 }, main)).toBe(false);
+  });
+
+  it('refuses a box 1 px over the bottom edge', () => {
+    expect(onScreen({ left: 0, top: 701, width: 100, height: 100 }, main)).toBe(false);
   });
 });

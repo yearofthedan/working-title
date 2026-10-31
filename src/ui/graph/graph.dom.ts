@@ -1,5 +1,14 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import { childrenOf, drawnAs, moveFrom, pathTo, shownAncestor, treeOf, type Entry } from './graph';
+import {
+  childrenOf,
+  drawnAs,
+  moveFrom,
+  onScreen,
+  pathTo,
+  shownAncestor,
+  treeOf,
+  type Entry,
+} from './graph';
 
 const FOCUS_WIDTH = 560;
 const CARD_WIDTH = [200, 180, 120];
@@ -325,6 +334,27 @@ const place = (st: State): void => {
     card.style.left = under.style.left;
     card.style.top = under.style.top;
     card.style.width = under.style.width;
+  }
+
+  const screen = { width: st.main.clientWidth, height: st.main.clientHeight };
+  for (const { piece } of pieces) {
+    if (drawnAs(st.entries, st.focus, piece.id) === 'hidden') continue;
+    const card = st.cards.get(piece.id)!;
+    const button = card.querySelector<HTMLElement>('legend button');
+    if (button === null) continue;
+    const width = widthOf(st, piece.id);
+    const height = heightOf(piece.id);
+    button.tabIndex = onScreen(
+      {
+        left: parseFloat(card.style.left) - width / 2,
+        top: parseFloat(card.style.top) - height / 2,
+        width,
+        height,
+      },
+      screen,
+    )
+      ? 0
+      : -1;
   }
 
   watch(st);

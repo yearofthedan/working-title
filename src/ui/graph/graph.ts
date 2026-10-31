@@ -65,3 +65,12 @@ export const pathTo = (entries: readonly Entry[], id: string): readonly Entry[] 
   }
   return path;
 };
+
+export const onScreen = (
+  box: { left: number; top: number; width: number; height: number },
+  main: { width: number; height: number },
+): boolean =>
+  box.left >= 0 &&
+  box.top >= 0 &&
+  box.left + box.width <= main.width &&
+  box.top + box.height <= main.height;
