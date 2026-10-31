@@ -590,9 +590,21 @@ describe('moving the focus', () => {
 
     const siblings = cards('chip');
     expect(siblings).toHaveLength(4);
-    for (const chip of siblings) expect(chip.tabIndex).toBe(-1);
+    for (const chip of siblings) {
+      expect(chip.tabIndex).toBe(-1);
+      expect(chip.querySelector('button')?.tabIndex).toBe(-1);
+    }
     expect(document.activeElement).toBe(focused());
 
+    const reached: string[] = [];
+    for (let at = 0; at < 10; at += 1) {
+      await driver.press('Tab');
+      const chip = document.activeElement?.closest('fieldset.chip') ?? null;
+      if (chip !== null) reached.push(nameOf(chip as HTMLElement));
+    }
+    expect(reached).toEqual([]);
+
+    await writer.clicks('Beat 3');
     await driver.press('ArrowRight');
     expect(nameOf(focused())).toBe('Beat 4');
     expect(document.activeElement).toBe(focused());
@@ -664,7 +676,7 @@ describe('moving the focus', () => {
     expect(strayed).toEqual([]);
   });
 
-  it('reaches the sentence of the piece it moved to with Enter, and not the one it left', async () => {
+  it('reaches the sentence of the piece it moved to with Enter, and not through the press', async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
@@ -672,10 +684,18 @@ describe('moving the focus', () => {
     const left = named('card', 'The story').querySelector('textarea')!;
     expect(left.tabIndex).toBe(-1);
 
+    const reached: Element[] = [];
+    for (let at = 0; at < 10; at += 1) {
+      await driver.press('Tab');
+      reached.push(document.activeElement!);
+    }
+    expect(reached).not.toContain(focused().querySelector('textarea'));
+    expect(reached).not.toContain(left);
+
+    await writer.clicks('Beat 2');
     await driver.press('Enter');
 
     expect(document.activeElement).toBe(focused().querySelector('textarea'));
-    expect(document.activeElement).not.toBe(left);
   });
 
   it('never puts the cursor on the add button through the press', async () => {
