@@ -67,7 +67,7 @@ const paneOf = (st: State): Pane => {
   };
 };
 
-const goTo = (st: State, id: string, into?: HTMLElement): void => {
+const moveTo = (st: State, id: string): void => {
   if (id !== st.current) {
     const parent = entryOf(st, id)?.parentId;
     if (parent !== undefined) st.lastVisited.set(parent, id);
@@ -75,6 +75,10 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
     place(st);
     pathNav(st);
   }
+};
+
+const goTo = (st: State, id: string, into?: HTMLElement): void => {
+  moveTo(st, id);
   if (into !== undefined) into.focus({ preventScroll: true });
   else st.cards.get(id)?.focus();
 };
@@ -359,7 +363,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   if (under !== undefined) card.startAt(under);
   st.cards.set(added, card);
   st.wrapper.append(card.element);
-  goTo(st, added);
+  moveTo(st, added);
   card.enter();
 };
 
