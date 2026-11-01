@@ -29,6 +29,7 @@ The **core** terms below name things every method has. They are the only words i
 | Flow | The method's stages in the order the writer meets them | |
 | Piece | One unit of the story the writer plans and writes. Its kind comes from the method | node, element |
 | Facet | One part of a piece the writer fills in, such as a one-sentence summary, a page, or the prose | layer, depth |
+| Long facet | A facet typed in the panel beside the graph, such as a paragraph, a page or the prose, rather than on the piece's card | |
 | Elaborate | Fill in the next facet of a piece | go deeper |
 | Branch | Add child pieces under a piece | |
 | Level | Where a piece sits in the tree. Up a level is its parent; down a level is its children | stage |

@@ -1,6 +1,7 @@
 export interface Facet {
   readonly id: string;
   readonly label: string;
+  readonly long?: boolean;
 }
 
 export interface PieceKind {

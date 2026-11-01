@@ -20,6 +20,7 @@ export interface PieceView {
   readonly id: string;
   readonly name: string;
   readonly facets: readonly FacetView[];
+  readonly longFacets: readonly FacetView[];
   readonly children: readonly PieceView[];
   readonly plural?: string;
   readonly childKind?: string;
@@ -50,7 +51,12 @@ const listed = (project: Project, method: Method): PieceView => {
   const listedUnder = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
     id: piece.id,
     name,
-    facets: kind.facets.map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
+    facets: kind.facets
+      .filter(({ long }) => long !== true)
+      .map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
+    longFacets: kind.facets
+      .filter(({ long }) => long === true)
+      .map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
     ...(kind.plural === undefined ? {} : { plural: kind.plural }),
     ...(kind.childKind === undefined ? {} : { childKind: kind.childKind.label }),
     children: project.pieces

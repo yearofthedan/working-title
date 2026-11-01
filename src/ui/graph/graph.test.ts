@@ -17,6 +17,7 @@ const piece = (name: string, children: readonly PieceView[] = [], plural?: strin
   id: name,
   name,
   facets: [],
+  longFacets: [],
   ...(plural === undefined ? {} : { plural }),
   children,
 });
