@@ -1,4 +1,4 @@
-Rule: the writer moves the current piece by clicking a piece or with the arrow keys (↑ to its parent, ↓ to a child, ← and → to its siblings), and the graph is arranged around the current piece: its parent above, its siblings beside it and its children below.
+Rule: the writer moves the current piece by clicking a piece's card or with the arrow keys (↑ to its parent, ↓ to a child, ← and → to the previous or next piece in the row, which becomes current with focus on its card), and the graph is arranged around the current piece: its parent above, its siblings beside it and its children below.
 
 ### Scenario: a new project opens with the story current
 
@@ -41,13 +41,37 @@ Then the writer sees
       - textbox "One-sentence summary"
 ```
 
-### Scenario: clicking a beat makes it current
+### Scenario: clicking a scene's card makes it current
 
 ```
-Given a new project
-When the writer clicks beat 2
-Then beat 2 is current, with the story above it and beats 1, 3, 4 and 5 beside it
-Then the writer sees
+Given a current beat with two scenes
+When the writer clicks the first scene's card
+Then the first scene becomes current
+And it has focus
+- main:
+  - toolbar "Beat 2":
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]:
+        - button "Beat 2"
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1":
+      - heading "Scene 1" [level=4]
+      - text: List line
+      - textbox "List line"
+    - group "Scene 2":
+      - heading "Scene 2" [level=4]:
+        - button "Scene 2"
+```
+
+### Scenario: → makes the next beat current
+
+```
+Given two beats, the first current with tab focus
+When the writer presses →
+Then the second beat becomes current
+And focus moves to its card
 - main:
   - toolbar "The story":
     - group "The story":
@@ -75,39 +99,29 @@ Then the writer sees
         - button "Beat 5"
 ```
 
-### Scenario: the arrow keys move across a level
+### Scenario: → in the scenes' row makes the next scene current
 
 ```
-Given a new project
-When the writer clicks beat 2
-And presses →
-Then beat 3 is current, with beats 1, 2, 4 and 5 beside it
-Then the writer sees
+Given a beat with two scenes, the beat current
+And focus on its first scene
+When the writer presses →
+Then the second scene becomes current
+And focus moves to its card
 - main:
-  - toolbar "The story":
-    - group "The story":
-      - heading "The story" [level=2]:
-        - button "The story"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-  - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
+  - toolbar "Beat 2":
     - group "Beat 2":
       - heading "Beat 2" [level=3]:
         - button "Beat 2"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
-      - button "Add a scene"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1":
+      - heading "Scene 1" [level=4]:
+        - button "Scene 1"
+    - group "Scene 2":
+      - heading "Scene 2" [level=4]
+      - text: List line
+      - textbox "List line"
 ```
 
 ### Scenario: stepping down to a scene and back up

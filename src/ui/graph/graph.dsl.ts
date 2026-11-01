@@ -1,11 +1,12 @@
 import type { DrawnCard, Driver } from '../../test-helpers/driver';
 import type { StepAction } from '../../test-helpers/steps';
 
-const arrows: Readonly<Record<string, string>> = {
+const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',
   '↓': 'ArrowDown',
   '←': 'ArrowLeft',
   '→': 'ArrowRight',
+  Esc: 'Escape',
 };
 
 export interface Writer {
@@ -16,6 +17,8 @@ export interface Writer {
   makesCurrent(piece: string): Promise<void>;
   putsTheCursorOnNameButtonOf(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
+  tabsForward(): Promise<void>;
+  tabsBackward(): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
@@ -31,17 +34,28 @@ export interface Sees {
   tree(): Promise<readonly string[]>;
   pathIs(pieces: readonly string[]): Promise<void>;
   cursorIsIn(piece: string, facet: string): Promise<void>;
+  cursorIsOnTheName(piece: string): Promise<void>;
+  cursorIsOnTheCard(): Promise<void>;
 }
+
+const pieces: Readonly<Record<string, string>> = {
+  'beat two': 'Beat 2',
+  "the first scene's card": 'Scene 1',
+};
+
+const pieceNamed = (words: string): string => pieces[words] ?? words;
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
 export const writerOn = (driver: Driver): Writer => {
-  const clicking = (piece: string): Promise<void> =>
-    driver.click('heading', piece, { role: 'group', name: piece });
+  const clicking = (piece: string): Promise<void> => {
+    const named = pieceNamed(piece);
+    return driver.click('heading', named, { role: 'group', name: named });
+  };
 
   const reaching = async (piece: string): Promise<void> => {
-    if (!shows(await driver.tree(), piece)) {
+    if (!shows(await driver.tree(), pieceNamed(piece))) {
       await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
     }
     await clicking(piece);
@@ -53,12 +67,17 @@ export const writerOn = (driver: Driver): Writer => {
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
     makesCurrent: reaching,
-    putsTheCursorOnNameButtonOf: (piece) =>
-      driver.focus('button', piece, { role: 'group', name: piece }),
-    moves: (direction) => driver.press(arrows[direction] ?? direction),
+    putsTheCursorOnNameButtonOf: (piece) => {
+      const named = pieceNamed(piece);
+      return driver.focus('button', named, { role: 'group', name: named });
+    },
+    moves: (direction) => driver.press(keys[direction] ?? direction),
+    tabsForward: () => driver.press('Tab'),
+    tabsBackward: () => driver.press('Shift+Tab'),
     addsASceneUnder: async (beat) => {
-      await reaching(beat);
-      await driver.click('button', 'Add a scene', { role: 'group', name: beat });
+      const named = pieceNamed(beat);
+      await reaching(named);
+      await driver.click('button', 'Add a scene', { role: 'group', name: named });
     },
     types: (text, at) => driver.type(text, at.facet, { role: 'group', name: at.piece }),
   };
@@ -155,6 +174,21 @@ export const seesOn = (driver: Driver): Sees => ({
       throw new Error(`the cursor is not in ${piece}'s ${facet}`);
     }
   },
+  cursorIsOnTheName: async (piece) => {
+    if (!(await driver.cursorIs('button', piece, { role: 'group', name: piece }))) {
+      throw new Error(`the cursor is not on ${piece}'s name`);
+    }
+  },
+  cursorIsOnTheCard: async () => {
+    const cards = (await driver.drawn()).filter((piece) => piece.current);
+    const [only] = cards;
+    if (cards.length !== 1 || only === undefined) {
+      throw new Error('the graph draws no one current piece');
+    }
+    if (!(await driver.cursorIs('group', only.name))) {
+      throw new Error(`the cursor is not on ${only.name}'s card`);
+    }
+  },
 });
 
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
@@ -163,12 +197,42 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the story is on screen': () => writer.opensANewProject(),
   'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
+  'the writer presses {key}': ({ key }) => writer.moves(key),
+  'the writer tabs forward': () => writer.tabsForward(),
+  'the writer tabs backward': () => writer.tabsBackward(),
   'a project with two scenes under {beat}': async ({ beat }) => {
     await writer.opensANewProject();
     await writer.addsASceneUnder(beat);
     await writer.addsASceneUnder(beat);
     await writer.reopens();
   },
+  'beat two is current with tab focus': () => writer.clicks('beat two'),
+  'a current beat with two scenes': async () => {
+    await writer.opensANewProject();
+    await writer.addsASceneUnder('Beat 2');
+    await writer.addsASceneUnder('Beat 2');
+    await writer.clicks('Beat 2');
+  },
+  'two beats, the first current with tab focus': async () => {
+    await writer.opensANewProject();
+    await writer.clicks('Beat 1');
+  },
+  'a beat with two scenes, the beat current': async () => {
+    await writer.opensANewProject();
+    await writer.addsASceneUnder('Beat 2');
+    await writer.addsASceneUnder('Beat 2');
+    await writer.clicks('Beat 2');
+  },
+  'focus on its first scene': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
+  'the first scene has focus': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
+  'focus moves to scene one under beat two': () => sees.cursorIsOnTheName('Scene 1'),
+  'focus moves to the story': () => sees.cursorIsOnTheName('The story'),
+  'focus moves to its card': () => sees.cursorIsOnTheCard(),
+  'it has focus': () => sees.cursorIsOnTheCard(),
+  'beat two stays current': () => sees.currentIs('Beat 2'),
+  'the first scene becomes current': () => sees.currentIs('Scene 1'),
+  'the second scene becomes current': () => sees.currentIs('Scene 2'),
+  'the second beat becomes current': () => sees.currentIs('Beat 2'),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
   'the writer adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),

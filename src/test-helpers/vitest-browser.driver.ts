@@ -47,7 +47,7 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
       await openTheApp();
     },
     press: async (key) => {
-      await browser.userEvent.keyboard(`{${key}}`);
+      await browser.userEvent.keyboard(key === 'Shift+Tab' ? '{Shift>}{Tab}{/Shift}' : `{${key}}`);
     },
     click: clicking(within),
     focus: async (role, name, group) => {

@@ -19,7 +19,10 @@ export interface CardSees {
 }
 
 export const cardWriterOn = (driver: Driver): CardWriter => ({
-  opensTheCard: () => driver.click('heading', beat, theCard),
+  opensTheCard: async () => {
+    await driver.fresh();
+    await driver.click('heading', beat, theCard);
+  },
   putsTheCursorInTheSummary: () => driver.focus('textbox', summary, theCard),
   putsTheCursorOnTheAction: () => driver.focus('button', action, theCard),
 });
@@ -29,17 +32,18 @@ const insistTheCursorIs = async (
   role: Role,
   name: string,
   where: string,
+  within?: Within,
 ): Promise<void> => {
-  if (!(await driver.cursorIs(role, name, theCard))) {
+  if (!(await driver.cursorIs(role, name, within))) {
     throw new Error(`the cursor is not ${where}`);
   }
 };
 
 export const cardSeesOn = (driver: Driver): CardSees => ({
   cursorIsInTheSummary: () =>
-    insistTheCursorIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`),
+    insistTheCursorIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard),
   cursorIsOnTheAction: () =>
-    insistTheCursorIs(driver, 'button', action, `on ${beat}'s "${action}"`),
+    insistTheCursorIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard),
   cursorIsOnTheCard: () => insistTheCursorIs(driver, 'group', beat, `on ${beat}'s card`),
 });
 

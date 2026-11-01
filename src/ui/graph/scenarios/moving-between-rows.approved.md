@@ -1,30 +1,95 @@
-Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes which piece is current, the arrow keys make the next or previous piece in the row current, and a row whose first piece is off screen slides it into view.
+Rule: Tabbing moves focus to the next or previous row's first piece, and never changes which piece is current.
 
-### Scenario: moving along a row and into it
+### Scenario: tabbing forward moves focus to the next row
 
 ```
-Given a project with two scenes under beat 2
-When the writer clicks beat 2
-And presses Tab
-Then beat 2 is current, with scenes 1 and 2 under it
-And presses →
-And presses ←
-And presses Enter
-Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
+Given a project with two scenes under beat two
+And beat two is current with tab focus
+When the writer tabs forward
+Then focus moves to scene one under beat two
+But beat two stays current
 Then the writer sees
 - main:
-  - toolbar "Beat 2":
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
+  - toolbar "The story":
+    - group "The story":
+      - heading "The story" [level=2]:
+        - button "The story"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+  - toolbar "Beats under The story":
+    - group "Beat 1":
+      - heading "Beat 1" [level=3]:
+        - button "Beat 1"
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+      - button "Add a scene"
+    - group "Beat 3":
+      - heading "Beat 3" [level=3]:
+        - button "Beat 3"
+    - group "Beat 4":
+      - heading "Beat 4" [level=3]:
+        - button "Beat 4"
+    - group "Beat 5":
+      - heading "Beat 5" [level=3]:
+        - button "Beat 5"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
-      - heading "Scene 1" [level=4]
+      - heading "Scene 1" [level=4]:
+        - button "Scene 1"
       - text: List line
       - textbox "List line"
     - group "Scene 2":
       - heading "Scene 2" [level=4]:
         - button "Scene 2"
+      - text: List line
+      - textbox "List line"
+```
+
+### Scenario: tabbing backward moves focus to the previous row
+
+```
+Given a project with two scenes under beat two
+And beat two is current with tab focus
+When the writer tabs backward
+Then focus moves to the story
+But beat two stays current
+Then the writer sees
+- main:
+  - toolbar "The story":
+    - group "The story":
+      - heading "The story" [level=2]:
+        - button "The story"
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+  - toolbar "Beats under The story":
+    - group "Beat 1":
+      - heading "Beat 1" [level=3]:
+        - button "Beat 1"
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+      - button "Add a scene"
+    - group "Beat 3":
+      - heading "Beat 3" [level=3]:
+        - button "Beat 3"
+    - group "Beat 4":
+      - heading "Beat 4" [level=3]:
+        - button "Beat 4"
+    - group "Beat 5":
+      - heading "Beat 5" [level=3]:
+        - button "Beat 5"
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1":
+      - heading "Scene 1" [level=4]:
+        - button "Scene 1"
+      - text: List line
+      - textbox "List line"
+    - group "Scene 2":
+      - heading "Scene 2" [level=4]:
+        - button "Scene 2"
+      - text: List line
+      - textbox "List line"
 ```
