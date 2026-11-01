@@ -10,7 +10,7 @@ Then focus moves to the one-sentence summary
   - group "Beat 2":
     - heading "Beat 2" [level=3]
     - text: One-sentence summary
-    - textbox "One-sentence summary"
+    - textbox "One-sentence summary" [active]
     - button "Add a scene"
 ```
 
@@ -25,7 +25,7 @@ Then focus moves to "Add a scene"
     - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
-    - button "Add a scene"
+    - button "Add a scene" [active]
 ```
 
 ### Scenario: tabbing forward from the card's last action returns to its first input
@@ -38,7 +38,7 @@ Then focus moves to the one-sentence summary
   - group "Beat 2":
     - heading "Beat 2" [level=3]
     - text: One-sentence summary
-    - textbox "One-sentence summary"
+    - textbox "One-sentence summary" [active]
     - button "Add a scene"
 ```
 
@@ -49,7 +49,7 @@ Given a beat card is current with focus in its one-sentence summary
 When the writer presses Esc
 Then focus moves to the card
 - main:
-  - group "Beat 2":
+  - group "Beat 2" [active]:
     - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
