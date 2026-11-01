@@ -501,7 +501,7 @@ describe('the rows of the graph', () => {
     expect(atCursor()).toBe(current());
   });
 
-  it("goes into the current piece's card with Enter, and back to the card past its last field or with Esc", async () => {
+  it("goes into the current piece's card with Enter, wraps inside it with Tab, and back to the card with Esc", async () => {
     const { driver, writer } = pageWith();
     await driver.fresh();
     await writer.clicks('Beat 2');
@@ -515,16 +515,18 @@ describe('the rows of the graph', () => {
     expect(atCursor()).toBe(add);
 
     await driver.press('Tab');
-    expect(atCursor()).toBe(current());
-    expect(field.tabIndex).toBe(-1);
-    expect(add.tabIndex).toBe(-1);
+    expect(atCursor()).toBe(field);
 
-    await driver.press('Enter');
+    await shiftTab();
+    expect(atCursor()).toBe(add);
+
+    await shiftTab();
     expect(atCursor()).toBe(field);
 
     await driver.press('Escape');
     expect(atCursor()).toBe(current());
     expect(field.tabIndex).toBe(-1);
+    expect(add.tabIndex).toBe(-1);
   });
 
   it('gives a row back its stop once a piece of it is on screen again', async () => {

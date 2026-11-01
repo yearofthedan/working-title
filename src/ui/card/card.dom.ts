@@ -84,10 +84,13 @@ const keysOnTheCard = (
       return;
     }
 
-    if (event.key !== 'Tab' || event.shiftKey || !current()) return;
-    if (at !== fieldsOf(card).at(-1)) return;
+    if (event.key !== 'Tab' || !current()) return;
+    const fields = fieldsOf(card);
+    const [first] = fields;
+    const last = fields.at(-1);
+    if (at !== (event.shiftKey ? first : last)) return;
     event.preventDefault();
-    card.focus({ preventScroll: true });
+    (event.shiftKey ? last : first)?.focus({ preventScroll: true });
   };
   return onKeyDown;
 };
