@@ -971,3 +971,41 @@ describe('two graphs on one page', () => {
     expect(focusIsInThePane()).toBe(true);
   });
 });
+
+describe('what a tree says about focus', () => {
+  it('marks the name button and the field that hold focus, and nothing once the focus leaves the graph', async () => {
+    const { driver, stage, writer } = pageWith(2);
+    await stage.fresh();
+    await writer.clicks('Beat 4');
+
+    const marked = async (): Promise<readonly string[]> => {
+      const lines = await driver.tree();
+      const at = lines.findIndex((line) => line.includes('[active]'));
+      const markedLine = at < 0 ? undefined : lines[at];
+      if (markedLine === undefined) return [];
+      const card =
+        lines
+          .slice(0, at)
+          .filter((line) => line.includes('group "'))
+          .at(-1) ?? '';
+      return [card.trim(), markedLine.trim()];
+    };
+
+    await driver.focus('button', 'Scene 2', { role: 'group', name: 'Scene 2' });
+    expect(await marked()).toEqual([]);
+
+    expect(await driver.focusIs('button', 'Scene 2', { role: 'group', name: 'Scene 2' })).toBe(
+      true,
+    );
+    expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
+
+    await driver.focus('textbox', 'List line', { role: 'group', name: 'Scene 1' });
+    expect(await driver.focusIs('textbox', 'List line', { role: 'group', name: 'Scene 1' })).toBe(
+      true,
+    );
+    expect(await marked()).toEqual(['- group "Scene 1":', '- textbox "List line" [active]']);
+
+    await driver.clickAway();
+    expect(await marked()).toEqual([]);
+  });
+});

@@ -36,7 +36,7 @@ But beat two stays current
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
-        - button "Scene 1"
+        - button "Scene 1" [active]
       - text: List line
       - textbox "List line"
     - group "Scene 2":
@@ -58,7 +58,7 @@ But beat two stays current
   - toolbar "The story":
     - group "The story":
       - heading "The story" [level=2]:
-        - button "The story"
+        - button "The story" [active]
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Beats under The story":
