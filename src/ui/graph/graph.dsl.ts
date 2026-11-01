@@ -1,11 +1,12 @@
 import type { DrawnCard, Driver } from '../../test-helpers/driver';
 import type { StepAction } from '../../test-helpers/steps';
 
-const arrows: Readonly<Record<string, string>> = {
+const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',
   '↓': 'ArrowDown',
   '←': 'ArrowLeft',
   '→': 'ArrowRight',
+  Esc: 'Escape',
 };
 
 export interface Writer {
@@ -13,9 +14,11 @@ export interface Writer {
   reopens(): Promise<void>;
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
-  focuses(piece: string): Promise<void>;
+  makesCurrent(piece: string): Promise<void>;
   putsTheCursorOnNameButtonOf(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
+  tabsForward(): Promise<void>;
+  tabsBackward(): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
@@ -27,21 +30,32 @@ export interface Around {
 }
 
 export interface Sees {
-  focusIs(piece: string, around?: Around): Promise<void>;
+  currentIs(piece: string, around?: Around): Promise<void>;
   tree(): Promise<readonly string[]>;
   pathIs(pieces: readonly string[]): Promise<void>;
   cursorIsIn(piece: string, facet: string): Promise<void>;
+  cursorIsOnTheName(piece: string): Promise<void>;
+  cursorIsOnTheCard(): Promise<void>;
 }
+
+const pieces: Readonly<Record<string, string>> = {
+  'beat two': 'Beat 2',
+  "the first scene's card": 'Scene 1',
+};
+
+const pieceNamed = (words: string): string => pieces[words] ?? words;
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
 export const writerOn = (driver: Driver): Writer => {
-  const clicking = (piece: string): Promise<void> =>
-    driver.click('heading', piece, { role: 'group', name: piece });
+  const clicking = (piece: string): Promise<void> => {
+    const named = pieceNamed(piece);
+    return driver.click('heading', named, { role: 'group', name: named });
+  };
 
   const reaching = async (piece: string): Promise<void> => {
-    if (!shows(await driver.tree(), piece)) {
+    if (!shows(await driver.tree(), pieceNamed(piece))) {
       await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
     }
     await clicking(piece);
@@ -52,23 +66,28 @@ export const writerOn = (driver: Driver): Writer => {
     reopens: () => driver.reopen(),
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
-    focuses: reaching,
-    putsTheCursorOnNameButtonOf: (piece) =>
-      driver.focus('button', piece, { role: 'group', name: piece }),
-    moves: (direction) => driver.press(arrows[direction] ?? direction),
+    makesCurrent: reaching,
+    putsTheCursorOnNameButtonOf: (piece) => {
+      const named = pieceNamed(piece);
+      return driver.focus('button', named, { role: 'group', name: named });
+    },
+    moves: (direction) => driver.press(keys[direction] ?? direction),
+    tabsForward: () => driver.press('Tab'),
+    tabsBackward: () => driver.press('Shift+Tab'),
     addsASceneUnder: async (beat) => {
-      await reaching(beat);
-      await driver.click('button', 'Add a scene', { role: 'group', name: beat });
+      const named = pieceNamed(beat);
+      await reaching(named);
+      await driver.click('button', 'Add a scene', { role: 'group', name: named });
     },
     types: (text, at) => driver.type(text, at.facet, { role: 'group', name: at.piece }),
   };
 };
 
-const inFocus = (pieces: readonly DrawnCard[], name: string): DrawnCard => {
-  const focused = pieces.filter((piece) => piece.current);
-  const [only] = focused;
-  if (focused.length !== 1 || only?.name !== name) {
-    throw new Error(`the piece in focus is ${only?.name ?? 'nothing'}, not ${name}`);
+const theCurrent = (pieces: readonly DrawnCard[], name: string): DrawnCard => {
+  const current = pieces.filter((piece) => piece.current);
+  const [only] = current;
+  if (current.length !== 1 || only?.name !== name) {
+    throw new Error(`the current piece is ${only?.name ?? 'nothing'}, not ${name}`);
   }
   return only;
 };
@@ -79,44 +98,54 @@ const sameNames = (what: string, found: readonly string[], wanted: readonly stri
   }
 };
 
-const above = (pieces: readonly DrawnCard[], focus: DrawnCard, name: string): void => {
+const above = (pieces: readonly DrawnCard[], current: DrawnCard, name: string): void => {
   const parent = pieces.find((piece) => piece.kind === 'card' && piece.name === name);
-  if (parent === undefined || parent.box.bottom > focus.box.top) {
-    throw new Error(`${name} is not on the graph above the focus`);
+  if (parent === undefined || parent.box.bottom > current.box.top) {
+    throw new Error(`${name} is not on the graph above the current piece`);
   }
 };
 
-const beside = (pieces: readonly DrawnCard[], focus: DrawnCard, names: readonly string[]): void => {
-  const at = pieces.findIndex((piece) => piece.kind === 'focus');
+const beside = (
+  pieces: readonly DrawnCard[],
+  current: DrawnCard,
+  names: readonly string[],
+): void => {
+  const at = pieces.findIndex((piece) => piece.kind === 'current');
   sameNames(
-    'pieces beside the focus',
+    'pieces beside the current piece',
     pieces.filter((piece) => piece.kind === 'chip').map((piece) => piece.name),
     names,
   );
   for (const [index, piece] of pieces.entries()) {
     if (piece.kind !== 'chip') continue;
-    if (Math.abs(piece.box.top + piece.box.height / 2 - focus.box.top - focus.box.height / 2) > 1) {
-      throw new Error(`${piece.name} is not on the focus's row`);
+    if (
+      Math.abs(piece.box.top + piece.box.height / 2 - current.box.top - current.box.height / 2) > 1
+    ) {
+      throw new Error(`${piece.name} is not on the current piece's row`);
     }
     const wrongSide =
-      index < at ? piece.box.right > focus.box.left : piece.box.left < focus.box.right;
-    if (wrongSide) throw new Error(`${piece.name} is on the wrong side of the focus`);
+      index < at ? piece.box.right > current.box.left : piece.box.left < current.box.right;
+    if (wrongSide) throw new Error(`${piece.name} is on the wrong side of the current piece`);
   }
 };
 
-const under = (pieces: readonly DrawnCard[], focus: DrawnCard, names: readonly string[]): void => {
+const under = (
+  pieces: readonly DrawnCard[],
+  current: DrawnCard,
+  names: readonly string[],
+): void => {
   const children = pieces.filter(
-    (piece) => piece.kind === 'card' && piece.box.top >= focus.box.bottom,
+    (piece) => piece.kind === 'card' && piece.box.top >= current.box.bottom,
   );
   sameNames(
-    'pieces under the focus',
+    'pieces under the current piece',
     children.map((piece) => piece.name),
     names,
   );
   for (const [at, child] of children.entries()) {
     const [first] = children;
     if (first !== undefined && Math.abs(child.box.top - first.box.top) > 1) {
-      throw new Error(`${child.name} is not in the row under the focus`);
+      throw new Error(`${child.name} is not in the row under the current piece`);
     }
     const before = children[at - 1];
     if (before !== undefined && child.box.left <= before.box.left) {
@@ -126,12 +155,12 @@ const under = (pieces: readonly DrawnCard[], focus: DrawnCard, names: readonly s
 };
 
 export const seesOn = (driver: Driver): Sees => ({
-  focusIs: async (piece, around = {}) => {
+  currentIs: async (piece, around = {}) => {
     const pieces = await driver.drawn();
-    const focus = inFocus(pieces, piece);
-    if (around.above !== undefined) above(pieces, focus, around.above);
-    if (around.beside !== undefined) beside(pieces, focus, around.beside);
-    if (around.under !== undefined) under(pieces, focus, around.under);
+    const current = theCurrent(pieces, piece);
+    if (around.above !== undefined) above(pieces, current, around.above);
+    if (around.beside !== undefined) beside(pieces, current, around.beside);
+    if (around.under !== undefined) under(pieces, current, around.under);
   },
   tree: () => driver.tree(),
   pathIs: async (pieces) => {
@@ -141,8 +170,23 @@ export const seesOn = (driver: Driver): Sees => ({
     }
   },
   cursorIsIn: async (piece, facet) => {
-    if (!(await driver.cursorIn(facet, { role: 'group', name: piece }))) {
+    if (!(await driver.cursorIs('textbox', facet, { role: 'group', name: piece }))) {
       throw new Error(`the cursor is not in ${piece}'s ${facet}`);
+    }
+  },
+  cursorIsOnTheName: async (piece) => {
+    if (!(await driver.cursorIs('button', piece, { role: 'group', name: piece }))) {
+      throw new Error(`the cursor is not on ${piece}'s name`);
+    }
+  },
+  cursorIsOnTheCard: async () => {
+    const cards = (await driver.drawn()).filter((piece) => piece.current);
+    const [only] = cards;
+    if (cards.length !== 1 || only === undefined) {
+      throw new Error('the graph draws no one current piece');
+    }
+    if (!(await driver.cursorIs('group', only.name))) {
+      throw new Error(`the cursor is not on ${only.name}'s card`);
     }
   },
 });
@@ -153,12 +197,42 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the story is on screen': () => writer.opensANewProject(),
   'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
+  'the writer presses {key}': ({ key }) => writer.moves(key),
+  'the writer tabs forward': () => writer.tabsForward(),
+  'the writer tabs backward': () => writer.tabsBackward(),
   'a project with two scenes under {beat}': async ({ beat }) => {
     await writer.opensANewProject();
     await writer.addsASceneUnder(beat);
     await writer.addsASceneUnder(beat);
     await writer.reopens();
   },
+  'beat two is current with tab focus': () => writer.clicks('beat two'),
+  'a current beat with two scenes': async () => {
+    await writer.opensANewProject();
+    await writer.addsASceneUnder('Beat 2');
+    await writer.addsASceneUnder('Beat 2');
+    await writer.clicks('Beat 2');
+  },
+  'two beats, the first current with tab focus': async () => {
+    await writer.opensANewProject();
+    await writer.clicks('Beat 1');
+  },
+  'a beat with two scenes, the beat current': async () => {
+    await writer.opensANewProject();
+    await writer.addsASceneUnder('Beat 2');
+    await writer.addsASceneUnder('Beat 2');
+    await writer.clicks('Beat 2');
+  },
+  'focus on its first scene': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
+  'the first scene has focus': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
+  'focus moves to scene one under beat two': () => sees.cursorIsOnTheName('Scene 1'),
+  'focus moves to the story': () => sees.cursorIsOnTheName('The story'),
+  'focus moves to its card': () => sees.cursorIsOnTheCard(),
+  'it has focus': () => sees.cursorIsOnTheCard(),
+  'beat two stays current': () => sees.currentIs('Beat 2'),
+  'the first scene becomes current': () => sees.currentIs('Scene 1'),
+  'the second scene becomes current': () => sees.currentIs('Scene 2'),
+  'the second beat becomes current': () => sees.currentIs('Beat 2'),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
   'the writer adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),
@@ -168,22 +242,22 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.addsASceneUnder(beat);
   },
   'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
-    await writer.focuses(beat);
+    await writer.makesCurrent(beat);
     if (!shows(await sees.tree(), scene)) throw new Error(`${scene} is not under ${beat}`);
     await writer.types(text, { piece: scene, facet: 'List line' });
   },
-  'the story is in focus, with beats 1 to 5 under it': () =>
-    sees.focusIs('The story', { under: ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'] }),
-  'beat 2 is in focus, with the story above it and beats 1, 3, 4 and 5 beside it': () =>
-    sees.focusIs('Beat 2', {
+  'the story is current, with beats 1 to 5 under it': () =>
+    sees.currentIs('The story', { under: ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'] }),
+  'beat 2 is current, with the story above it and beats 1, 3, 4 and 5 beside it': () =>
+    sees.currentIs('Beat 2', {
       above: 'The story',
       beside: ['Beat 1', 'Beat 3', 'Beat 4', 'Beat 5'],
     }),
-  'beat 3 is in focus, with beats 1, 2, 4 and 5 beside it': () =>
-    sees.focusIs('Beat 3', { beside: ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5'] }),
-  'scene 1 under beat 2 is in focus, with beat 2 above it and scene 2 beside it': () =>
-    sees.focusIs('Scene 1', { above: 'Beat 2', beside: ['Scene 2'] }),
-  'beat 2 is in focus, with scenes 1 and 2 under it': () =>
-    sees.focusIs('Beat 2', { under: ['Scene 1', 'Scene 2'] }),
-  'scene 2 under beat 2 is in focus': () => sees.focusIs('Scene 2'),
+  'beat 3 is current, with beats 1, 2, 4 and 5 beside it': () =>
+    sees.currentIs('Beat 3', { beside: ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5'] }),
+  'scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it': () =>
+    sees.currentIs('Scene 1', { above: 'Beat 2', beside: ['Scene 2'] }),
+  'beat 2 is current, with scenes 1 and 2 under it': () =>
+    sees.currentIs('Beat 2', { under: ['Scene 1', 'Scene 2'] }),
+  'scene 2 under beat 2 is current': () => sees.currentIs('Scene 2'),
 });

@@ -1,9 +1,24 @@
-import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import { drawnAs, moveFrom, pathTo, shownAncestor, treeOf, type Entry } from './graph';
+import type { OpenProject, PieceView } from '../../application/project';
+import { fieldsOf, nameButtonIn, pieceCard, setHeading } from '../card/card.dom';
+import {
+  along,
+  drawnAs,
+  moveFrom,
+  nameOfRow,
+  pathTo,
+  rowStop,
+  rowsAround,
+  shownAncestor,
+  treeOf,
+  type Entry,
+  type Row,
+} from './graph';
 import {
   centresOf,
+  slideFor,
   whileMeasuring,
   widthOf as layoutWidthOf,
+  type Box,
   type Pane,
   type Sizes,
 } from './layout';
@@ -20,9 +35,13 @@ interface State {
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
   project: OpenProject;
-  focus: string;
+  current: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, HTMLElement>;
+  readonly rowElements: Map<string, HTMLElement>;
+  rows: readonly Row[];
+  showable: ReadonlySet<string>;
+  places: ReadonlyMap<string, Box>;
   entries: readonly Entry[];
   byId: Map<string, Entry>;
   watcher: ResizeObserver | undefined;
@@ -48,7 +67,7 @@ const chipWidth = (card: HTMLElement): number => {
   );
 };
 
-const sizes: Sizes = { focus: 560, cards: [200, 180, 120], gap: 32 };
+const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
 
 const paneOf = (st: State): Pane => {
   const mainTop = st.main.getBoundingClientRect().top;
@@ -61,92 +80,23 @@ const paneOf = (st: State): Pane => {
 };
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
-  if (id !== st.focus) {
+  if (id !== st.current) {
     const parent = entryOf(st, id)?.parentId;
     if (parent !== undefined) st.lastVisited.set(parent, id);
-    st.focus = id;
+    st.current = id;
     place(st);
     pathNav(st);
   }
   (into ?? st.cards.get(id))?.focus({ preventScroll: true });
 };
-const nameButton = (piece: PieceView): HTMLElement => {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = piece.name;
-  return button;
-};
-
-const setHeading = (st: State, piece: PieceView): void => {
-  const focused = piece.id === st.focus;
-  const heading = st.cards.get(piece.id)!.querySelector('h2, h3, h4')!;
-  if (
-    (heading.querySelector('button') === null) === focused &&
-    heading.textContent === piece.name
-  ) {
-    return;
-  }
-  heading.replaceChildren(
-    ...(focused ? [document.createTextNode(piece.name)] : [nameButton(piece)]),
-  );
-};
-
-const field = (
-  pieceId: string,
-  { id, label, text }: FacetView,
-  elaborate: OpenProject['elaborate'],
-): HTMLElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'facet';
-  const fieldId = `facet-${pieceId}-${id}`;
-  const name = document.createElement('label');
-  name.htmlFor = fieldId;
-  name.textContent = label;
-  const input = document.createElement('textarea');
-  input.id = fieldId;
-  input.value = text;
-  const shown = document.createElement('div');
-  shown.className = 'shown';
-  shown.setAttribute('aria-hidden', 'true');
-  shown.textContent = text;
-  input.addEventListener('input', () => {
-    shown.textContent = input.value;
-    void elaborate(pieceId, id, input.value);
+const cardFor = (st: State, piece: PieceView): HTMLElement =>
+  pieceCard(piece, {
+    level: entryOf(st, piece.id)!.level,
+    current: () => st.current === piece.id,
+    elaborate: st.project.elaborate,
+    goTo: (into) => goTo(st, piece.id, into),
+    addChild: () => void addUnder(st, piece.id),
   });
-  wrapper.append(name, input, shown);
-  return wrapper;
-};
-
-const pieceCard = (st: State, piece: PieceView): HTMLElement => {
-  const card = document.createElement('fieldset');
-  card.tabIndex = -1;
-  const name = document.createElement('legend');
-  const heading = document.createElement(`h${entryOf(st, piece.id)!.level + 2}`);
-  heading.textContent = piece.name;
-  name.append(heading);
-  const facets = piece.facets.map((facet) => field(piece.id, facet, st.project.elaborate));
-  card.append(name, ...facets);
-
-  if (piece.childKind !== undefined) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = `Add a ${piece.childKind.toLowerCase()}`;
-    button.addEventListener('mousedown', (event) => event.preventDefault());
-    button.addEventListener('click', (event) => {
-      event.stopPropagation();
-      void addUnder(st, piece.id);
-    });
-    (facets.at(-1) ?? card).append(button);
-  }
-
-  card.addEventListener('click', (event) => {
-    const into = event.target instanceof HTMLTextAreaElement ? event.target : undefined;
-    if (piece.id === st.focus && into === undefined) return;
-    goTo(st, piece.id, into);
-  });
-
-  return card;
-};
 
 const pathNav = (st: State): void => {
   let nav = st.header.querySelector('nav');
@@ -156,12 +106,12 @@ const pathNav = (st: State): void => {
     st.header.append(nav);
   }
 
-  const path = pathTo(st.entries, st.focus);
+  const path = pathTo(st.entries, st.current);
 
   const list = document.createElement('ol');
   for (const step of path) {
     const item = document.createElement('li');
-    if (step.piece.id === st.focus) {
+    if (step.piece.id === st.current) {
       item.setAttribute('aria-current', 'location');
       item.textContent = step.piece.name;
     } else {
@@ -181,8 +131,8 @@ const skipToEnd = (st: State): void => {
 };
 
 const watch = (st: State): void => {
-  const focus = st.cards.get(st.focus)!;
-  if (st.watcher !== undefined && st.watching === focus) return;
+  const current = st.cards.get(st.current)!;
+  if (st.watcher !== undefined && st.watching === current) return;
   st.watcher?.disconnect();
   st.watcher = new ResizeObserver(() => {
     if (st.replacing) return;
@@ -206,16 +156,133 @@ const watch = (st: State): void => {
     placeWhenStill();
   });
   st.watcher.observe(st.main);
-  st.watcher.observe(focus);
-  for (const facet of focus.querySelectorAll('.facet')) st.watcher.observe(facet);
-  st.watching = focus;
+  st.watcher.observe(current);
+  for (const facet of current.querySelectorAll('.facet')) st.watcher.observe(facet);
+  st.watching = current;
+};
+
+const rowElement = (st: State, row: Row): HTMLElement => {
+  const name = nameOfRow(row);
+  let element = st.rowElements.get(name);
+  if (element === undefined) {
+    element = document.createElement('div');
+    element.setAttribute('role', 'toolbar');
+    st.rowElements.set(name, element);
+  }
+  element.setAttribute('aria-label', name);
+  return element;
+};
+
+const keepOrder = (container: HTMLElement, wanted: readonly HTMLElement[]): void => {
+  let at = container.firstElementChild;
+  for (const element of wanted) {
+    if (element === at) {
+      at = element.nextElementSibling;
+      continue;
+    }
+    if (element.isConnected && container.isConnected) container.moveBefore(element, at);
+    else container.insertBefore(element, at);
+  }
+};
+
+const idOfCard = (card: HTMLElement): string | undefined => card.dataset.piece;
+
+const rowOf = (st: State, card: HTMLElement): Row | undefined => {
+  const id = idOfCard(card);
+  return id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
+};
+
+const cursorCard = (st: State): HTMLElement | null => {
+  const at = document.activeElement;
+  const card = at instanceof Element ? at.closest('fieldset') : null;
+  return card === null || card === st.cards.get(st.current) ? null : card;
+};
+
+const slide = (st: State): void => {
+  const card = cursorCard(st);
+  const row = card === null ? undefined : rowOf(st, card);
+  const here = card === null ? undefined : st.places.get(idOfCard(card) ?? '');
+  const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
+  const offset = here === undefined ? 0 : (slideFor(here, pane) ?? 0);
+  for (const [id, box] of st.places) {
+    const target = st.cards.get(id);
+    if (target === undefined) continue;
+    const under = shownAncestor(st.entries, st.current, id).piece.id;
+    target.style.left = `${box.x + (row?.ids.includes(under) === true ? offset : 0)}px`;
+  }
+};
+
+const cursorInCard = (st: State): boolean => {
+  const card = st.cards.get(st.current);
+  const at = document.activeElement;
+  return card !== undefined && at !== null && at !== card && card.contains(at);
+};
+
+const setFieldsTabIndex = (st: State): void => {
+  const inside = cursorInCard(st) ? st.current : undefined;
+  for (const [id, card] of st.cards) {
+    for (const field of fieldsOf(card)) field.tabIndex = id === inside ? 0 : -1;
+  }
+};
+
+const setRoving = (st: State): void => {
+  for (const row of st.rows) {
+    const stop = row.ids.includes(st.current) ? st.current : rowStop(row, st.showable);
+    for (const id of row.ids) {
+      const card = st.cards.get(id);
+      if (card === undefined) continue;
+      const isStop = id === stop;
+      card.tabIndex = isStop && id === st.current ? 0 : -1;
+      const button = nameButtonIn(card);
+      if (button !== null) button.tabIndex = isStop && id !== st.current ? 0 : -1;
+    }
+  }
+};
+
+const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
+  const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
+  const showable = new Set<string>();
+  const off: HTMLElement[] = [];
+  for (const { piece } of st.entries) {
+    const card = st.cards.get(piece.id);
+    if (card === undefined) continue;
+    card.tabIndex = -1;
+    if (drawnAs(st.entries, st.current, piece.id) === 'hidden') {
+      const button = nameButtonIn(card);
+      if (button !== null) button.tabIndex = -1;
+      off.push(card);
+      continue;
+    }
+    const box = places.get(piece.id);
+    if (box !== undefined && slideFor(box, pane) !== undefined) showable.add(piece.id);
+  }
+  st.showable = showable;
+  st.places = places;
+  st.rows = rowsAround(st.entries, st.current);
+
+  keepOrder(st.wrapper, [...st.rows.map((row) => rowElement(st, row)), ...off]);
+  for (const row of st.rows) {
+    keepOrder(
+      rowElement(st, row),
+      row.ids.flatMap((id) => st.cards.get(id) ?? []),
+    );
+  }
+  for (const [name, element] of st.rowElements) {
+    if (st.rows.some((row) => nameOfRow(row) === name)) continue;
+    element.remove();
+    st.rowElements.delete(name);
+  }
+  setRoving(st);
+  slide(st);
 };
 
 const place = (st: State): void => {
   const pieces = st.entries;
   const pane = paneOf(st);
   const widthOf = (id: string): number =>
-    layoutWidthOf(st.entries, st.focus, id, pane, sizes, (chip) => chipWidth(st.cards.get(chip)!));
+    layoutWidthOf(st.entries, st.current, id, pane, sizes, (chip) =>
+      chipWidth(st.cards.get(chip)!),
+    );
 
   const was = new Map(
     [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
@@ -224,19 +291,18 @@ const place = (st: State): void => {
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
-    const kind = drawnAs(st.entries, st.focus, piece.id);
+    const kind = drawnAs(st.entries, st.current, piece.id);
     card.style.transitionProperty = whileMeasuring(getComputedStyle(card).transitionProperty, kind);
     card.style.height = '';
     card.className = kind;
     card.inert = kind === 'hidden';
-    if (piece.id === st.focus) card.setAttribute('aria-current', 'location');
+    if (piece.id === st.current) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
-    for (const sentence of card.querySelectorAll('textarea')) {
-      sentence.tabIndex = piece.id === st.focus ? 0 : -1;
-    }
   }
 
-  for (const { piece } of pieces) setHeading(st, piece);
+  for (const { piece } of pieces) {
+    setHeading(st.cards.get(piece.id)!, piece, piece.id === st.current);
+  }
 
   for (const { piece } of pieces) {
     st.cards.get(piece.id)!.style.width = `${widthOf(piece.id)}px`;
@@ -260,20 +326,26 @@ const place = (st: State): void => {
 
   const centres = centresOf(
     st.entries,
-    st.focus,
+    st.current,
     (id) => ({ width: widthOf(id), height: heightOf(id) }),
     pane,
     sizes,
   );
+  const places = new Map<string, Box>(
+    [...centres].map(([id, at]) => [
+      id,
+      { x: at.x, y: at.y, width: widthOf(id), height: heightOf(id) },
+    ]),
+  );
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
-    const at = centres.get(piece.id);
+    const at = places.get(piece.id);
     if (at !== undefined) {
       card.style.left = `${at.x}px`;
       card.style.top = `${at.y}px`;
     }
-    if (drawnAs(st.entries, st.focus, piece.id) !== 'hidden') continue;
-    const ancestor = shownAncestor(st.entries, st.focus, piece.id).piece.id;
+    if (drawnAs(st.entries, st.current, piece.id) !== 'hidden') continue;
+    const ancestor = shownAncestor(st.entries, st.current, piece.id).piece.id;
     if (ancestor === piece.id) continue;
     const under = st.cards.get(ancestor)!;
     card.style.left = under.style.left;
@@ -281,6 +353,8 @@ const place = (st: State): void => {
     card.style.width = under.style.width;
   }
 
+  arrangeRows(st, places);
+  setFieldsTabIndex(st);
   watch(st);
 };
 
@@ -289,7 +363,7 @@ const draw = (st: State): void => {
   st.cards.clear();
   st.wrapper.replaceChildren(
     ...st.entries.map(({ piece }) => {
-      const card = pieceCard(st, piece);
+      const card = cardFor(st, piece);
       st.cards.set(piece.id, card);
       return card;
     }),
@@ -304,7 +378,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   st.project = project;
   remember(st);
   const entry = entryOf(st, added)!;
-  const card = pieceCard(st, entry.piece);
+  const card = cardFor(st, entry.piece);
   const under = entry.parentId === undefined ? undefined : st.cards.get(entry.parentId);
   if (under !== undefined) {
     card.style.left = under.style.left;
@@ -312,9 +386,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
     card.style.width = under.style.width;
   }
   st.cards.set(added, card);
-  const after = st.entries.findIndex((one) => one.piece.id === added) + 1;
-  const following = st.entries[after];
-  st.wrapper.insertBefore(card, following === undefined ? null : st.cards.get(following.piece.id)!);
+  st.wrapper.append(card);
   goTo(st, added, card.querySelector('textarea') ?? undefined);
 };
 
@@ -328,28 +400,44 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     const target = event.target;
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
-
-    if (target instanceof HTMLTextAreaElement) {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      st.cards.get(st.focus)?.focus({ preventScroll: true });
-      return;
-    }
+    if (target instanceof HTMLTextAreaElement) return;
 
     const where = arrowKeys[event.key];
-    if (where !== undefined) {
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      event.preventDefault();
-      const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
+    if (where === undefined) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    const card = target instanceof Element ? target.closest('fieldset') : null;
+    const row = card === null ? undefined : rowOf(st, card);
+    if (
+      card !== null &&
+      card !== st.cards.get(st.current) &&
+      row !== undefined &&
+      !row.ids.includes(st.current)
+    ) {
+      if (where === 'up' || where === 'down') return;
+      const id = idOfCard(card);
+      const to = id === undefined ? undefined : along(row, id, where);
       if (to !== undefined) goTo(st, to);
       return;
     }
-    if (event.key === 'Enter' && target === st.cards.get(st.focus)) {
-      event.preventDefault();
-      st.cards.get(st.focus)?.querySelector('textarea')?.focus({ preventScroll: true });
-    }
+    const to = moveFrom(st.entries, st.current, where, st.lastVisited);
+    if (to !== undefined) goTo(st, to);
   };
   return onKeyDown;
+};
+
+const focusOn = (st: State): (() => void) => {
+  const onFocusMove = (): void => {
+    if (!st.wrapper.isConnected) {
+      document.removeEventListener('focusin', onFocusMove);
+      document.removeEventListener('focusout', onFocusMove);
+      return;
+    }
+    setRoving(st);
+    setFieldsTabIndex(st);
+    slide(st);
+  };
+  return onFocusMove;
 };
 
 export const renderGraph = async (
@@ -364,9 +452,13 @@ export const renderGraph = async (
     main,
     wrapper,
     project,
-    focus: project.root.id,
+    current: project.root.id,
     lastVisited: new Map(),
     cards: new Map(),
+    rowElements: new Map(),
+    rows: [],
+    showable: new Set(),
+    places: new Map(),
     entries: [],
     byId: new Map(),
     watcher: undefined,
@@ -374,6 +466,9 @@ export const renderGraph = async (
     replacing: false,
   };
   document.addEventListener('keydown', keysOn(st));
+  const onFocusMove = focusOn(st);
+  document.addEventListener('focusin', onFocusMove);
+  document.addEventListener('focusout', onFocusMove);
   await document.fonts.ready;
   if (st.wrapper.isConnected) draw(st);
 };

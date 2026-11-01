@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import type { Driver } from '../../test-helpers/driver';
 import { graphSteps, seesOn, writerOn } from './graph.dsl';
 
-const storyInFocus = [
+const storyDrawn = [
   '- main:',
   '  - group "The story":',
   '    - heading "The story" [level=2]',
@@ -40,8 +40,9 @@ const recording = (tree: readonly string[]) => {
       calls.push(`value ${label} in "${within.name}"`);
       return '';
     },
-    cursorIn: async (label, within) => {
-      calls.push(`cursorIn ${label} in "${within.name}"`);
+    cursorIs: async (role, name, within) => {
+      const root = within === undefined ? '' : ` in ${within.role} "${within.name}"`;
+      calls.push(`cursorIs ${role} "${name}"${root}`);
       return false;
     },
     drawn: async () => [],
@@ -53,7 +54,7 @@ const recording = (tree: readonly string[]) => {
 
 describe('the graph language', () => {
   it('clicks a piece where it is, without going to it through the path', async () => {
-    const { calls, driver } = recording(storyInFocus);
+    const { calls, driver } = recording(storyDrawn);
     const click = graphSteps(writerOn(driver), seesOn(driver))['the writer clicks {piece}']!;
 
     await click({ piece: 'Scene 1' });
@@ -62,7 +63,7 @@ describe('the graph language', () => {
   });
 
   it('goes to a piece first when adding a scene under it', async () => {
-    const { calls, driver } = recording(storyInFocus);
+    const { calls, driver } = recording(storyDrawn);
     const add = graphSteps(writerOn(driver), seesOn(driver))[
       'the writer adds a scene under {beat}'
     ]!;
@@ -78,7 +79,7 @@ describe('the graph language', () => {
   it('presses the path to a piece that is off the graph', async () => {
     const { calls, driver } = recording(['- main:']);
 
-    await writerOn(driver).focuses('The story');
+    await writerOn(driver).makesCurrent('The story');
 
     expect(calls).toEqual([
       'click button "The story" in navigation "Where you are"',

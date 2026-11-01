@@ -6,6 +6,7 @@ export interface Facet {
 export interface PieceKind {
   readonly id: string;
   readonly label: string;
+  readonly plural?: string;
   readonly facets: readonly Facet[];
   readonly childKind?: PieceKind;
 }

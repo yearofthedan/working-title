@@ -28,11 +28,11 @@ Movement between levels of abstraction is first-class. When you're working down 
 An idea to build from, not a locked design. A story that settles part of it says so in its criteria.
 
 - **Where a facet is typed.** Short facets, such as a one-sentence summary or a list line, are typed on the piece in the graph. Long facets, such as a paragraph, a page or prose, open in a panel beside the graph, which any piece can open and the writer can close at any time.
-- **Cards and chips.** The focus, its parent, its children and the pieces linked to it are cards; its siblings are chips showing their names. Each level has one card width: story 200 px, beat 180, scene 120, character and place 108. The name takes one line and the sentence two, then they are cut short. Every card is the same height, and a card being typed in grows downward only.
+- **Cards and chips.** The current piece, its parent, its children and the pieces linked to it are cards; its siblings are chips showing their names. Each level has one card width: story 200 px, beat 180, scene 120, character and place 108. The name takes one line and the sentence two, then they are cut short. Every card is the same height, and a card being typed in grows downward only.
 - **Stage word.** A word at a card's bottom right names the stage its piece has reached, such as Sentence, Page, List line or Prose. Whether that stage is done is not shown.
 - **Opening the panel.** An icon at a card's top right opens the panel beside. It always shows on a card whose piece has a page or prose, and elsewhere when the pointer is over the card or it has keyboard focus. It is lit while that piece's panel is open.
-- **Moving around.** The graph is arranged around the focus: its parent above it, its siblings beside it and its children below. The focus is the one card shown in full; its siblings are chips, earlier ones to the left and later ones to the right. Every other piece is off the graph, and moving the focus is how the writer moves: the graph neither pans nor shrinks to fit. A path beside the page's title names the pieces from the story down to the focus. The theme runs across the top. The cast and places sit in a band under the tree, which collapses when nothing in it is linked. Next moves are quiet text links in the panel.
-- **The pinned panel.** The panel beside the graph is pinned: it holds the piece the writer pinned and stays put while the focus moves.
+- **Moving around.** The graph is arranged around the current piece: its parent above it, its siblings beside it and its children below. The current piece is the one card shown in full; its siblings are chips, earlier ones to the left and later ones to the right. Every other piece is off the graph, and moving the current piece is how the writer moves: the graph never shrinks to fit, and moves only to bring into view what the writer reaches, which is the new current piece or the piece the cursor lands on in a row. A path beside the page's title names the pieces from the story down to the current piece. The theme runs across the top. The cast and places sit in a band under the tree, which collapses when nothing in it is linked. Next moves are quiet text links in the panel.
+- **The pinned panel.** The panel beside the graph is pinned: it holds the piece the writer pinned and stays put while the current piece moves.
 
 ## North star
 
@@ -70,11 +70,11 @@ While the writer is drafting, what they need comes to the page. Anything that ta
 
 **Rules out.** Dialogs over the prose. Leaving the page to file, name or sort something.
 
-### 3. Show what the focus needs
+### 3. Show what the current piece needs
 
-Each screen shows the piece in focus and what bears on it. Everything else is one step away.
+Each screen shows the current piece and what bears on it. Everything else is one step away.
 
-**Example.** Focused on a scene, the writer sees that scene's notes beside it. The novel's other notes stay in the one list.
+**Example.** With a scene current, the writer sees that scene's notes beside it. The novel's other notes stay in the one list.
 
 **Rules out.** Screens that show everything at once. Counts and badges on every piece.
 

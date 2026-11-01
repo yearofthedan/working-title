@@ -15,7 +15,7 @@ const pageWithTwoScenesUnderBeat4 = () => {
     for (let at = 0; at < 2; at += 1) {
       await writer.addsASceneUnder('Beat 4');
     }
-    await writer.focuses('Beat 4');
+    await writer.makesCurrent('Beat 4');
   });
   return driver;
 };

@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Screenshot the built app at the widths the look criteria name, each with a piece in focus.
+# help: Screenshot the built app at the widths the look criteria name, each with a piece current.
 
 set -eu
 
