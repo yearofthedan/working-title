@@ -270,6 +270,30 @@ main {
     display: block;
   }
 
+  .keys {
+    display: none;
+  }
+
+  .current .keys {
+    display: block;
+    visibility: hidden;
+    margin: var(--space-2) var(--space-4) 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .current:focus-visible .keys {
+    visibility: visible;
+  }
+
+  .keys kbd {
+    padding: 0 var(--space-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
   .facet button:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: var(--space-1);

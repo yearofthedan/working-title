@@ -6,12 +6,15 @@ import {
   addButtonOf,
   facetOf,
   headingOf,
+  holdsTheFocus,
   inertOf,
   labelOf,
+  legendOf,
   lookOf,
   marksCurrent,
   sentenceFieldOf,
   shownSentenceOf,
+  showsTheKeys,
   timesDrawn,
 } from './card.test-page';
 import { mountTheCard, theBeat } from './card.harness';
@@ -66,6 +69,33 @@ describe('the card mounted alone', () => {
 
     expect(button.top).toBeGreaterThanOrEqual(body.top);
     expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+  });
+
+  it('shows the keys on no other card', () => {
+    const card = mountTheCard('card');
+
+    expect(showsTheKeys(card.element)).toBe(false);
+  });
+
+  it('shows no keys when the pointer focused the card', async () => {
+    const card = mountTheCard('current');
+    card.placeAt(200, 400);
+
+    await browser.userEvent.click(legendOf(card.element));
+
+    expect(holdsTheFocus(card.element)).toBe(true);
+    expect(showsTheKeys(card.element)).toBe(false);
+  });
+
+  it('shows the keys without resizing the card', async () => {
+    const card = mountTheCard('current');
+    const unfocused = card.size();
+
+    await browser.userEvent.keyboard('{Tab}');
+
+    expect(holdsTheFocus(card.element)).toBe(true);
+    expect(showsTheKeys(card.element)).toBe(true);
+    expect(card.size()).toEqual(unfocused);
   });
 
   it('elaborates the field with its text on each keystroke', async () => {

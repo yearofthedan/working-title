@@ -15,6 +15,8 @@ export interface Fixture extends Journey {
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theAppsName: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
+  descriptionOfTheCard(piece: string): Promise<string>;
+  theKeysLine(): Promise<string>;
 }
 
 const openingOn = (page: Page): Opening => ({
@@ -28,13 +30,14 @@ const openingOn = (page: Page): Opening => ({
 
 const fixtureOn = (page: Page): Fixture => {
   const driver = playwrightDriver(page);
+  const reads = playwrightReads(page);
 
   return {
     ...journeyOn(driver, openingOn(page)),
-    sees: seesOn(driver, playwrightReads(page)),
+    sees: seesOn(driver, reads),
 
     contrastViolations: async () => {
-      expect(await playwrightReads(page).drawn(), 'the graph is drawn').not.toHaveLength(0);
+      expect(await reads.drawn(), 'the graph is drawn').not.toHaveLength(0);
       const { violations } = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
       return violations.flatMap((violation) =>
         violation.nodes.map((node) => ({
@@ -42,6 +45,24 @@ const fixtureOn = (page: Page): Fixture => {
           message: node.failureSummary ?? violation.help,
         })),
       );
+    },
+
+    descriptionOfTheCard: async (piece) => {
+      const client = await page.context().newCDPSession(page);
+      const { nodes } = await client.send('Accessibility.getFullAXTree');
+      await client.detach();
+      const node = nodes.find((one) => one.role?.value === 'group' && one.name?.value === piece);
+      if (node === undefined) throw new Error(`${piece}'s card is not in the accessibility tree`);
+      return node.description?.value ?? '';
+    },
+
+    theKeysLine: async () => {
+      const [card] = (await reads.drawn()).filter((piece) => piece.current);
+      if (card === undefined) throw new Error('the graph draws no current piece');
+      await driver.focus('group', card.name);
+      const line = (await driver.tree()).find((one) => one.trim().startsWith('- paragraph:'));
+      if (line === undefined) throw new Error(`${card.name}'s card prints no keys line`);
+      return line.trim();
     },
 
     theAppsName: driver.theAppsName,

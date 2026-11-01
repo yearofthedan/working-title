@@ -88,6 +88,7 @@ And focus moves to its card
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
 ### Scenario: → in the scenes' row makes the next scene current
@@ -113,6 +114,7 @@ And focus moves to its card
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
 ### Scenario: stepping down to a scene and back up
@@ -142,6 +144,7 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
@@ -182,4 +185,5 @@ Then the writer sees
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```

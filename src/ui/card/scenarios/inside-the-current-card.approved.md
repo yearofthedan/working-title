@@ -54,4 +54,5 @@ Then focus moves to the card
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
+    - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```

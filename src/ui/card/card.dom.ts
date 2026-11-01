@@ -85,6 +85,36 @@ const field = (
   return wrapper;
 };
 
+const cap = (key: string): HTMLElement => {
+  const element = document.createElement('kbd');
+  element.textContent = key;
+  return element;
+};
+
+const caps = (keys: readonly string[]): DocumentFragment => {
+  const fragment = document.createDocumentFragment();
+  keys.forEach((key, at) => {
+    if (at > 0) fragment.append(' ');
+    fragment.append(cap(key));
+  });
+  return fragment;
+};
+
+const hintParts = [
+  { keys: ['Enter'], after: ' to write · ' },
+  { keys: ['Tab'], after: ' for the next row · ' },
+  { keys: ['←', '→'], after: ' along the row · ' },
+  { keys: ['↑', '↓'], after: ' a level' },
+] as const;
+
+const keysHint = (piece: PieceView): HTMLElement => {
+  const hint = document.createElement('p');
+  hint.className = 'keys';
+  hint.id = `keys-${piece.id}`;
+  for (const { keys, after } of hintParts) hint.append(caps(keys), after);
+  return hint;
+};
+
 const keysOnTheCard = (card: Card, current: () => boolean): ((event: KeyboardEvent) => void) => {
   const onKeyDown = (event: KeyboardEvent): void => {
     const at = event.target;
@@ -132,6 +162,9 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
     (facets.at(-1) ?? element).append(button);
   }
 
+  const keys = keysHint(piece);
+  element.append(keys);
+
   element.addEventListener('click', (event) => {
     hooks.goTo(event.target instanceof HTMLTextAreaElement ? event.target : undefined);
   });
@@ -149,6 +182,8 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
       element.inert = as === 'hidden';
       if (as === 'current') element.setAttribute('aria-current', 'location');
       else element.removeAttribute('aria-current');
+      if (as === 'current') element.setAttribute('aria-describedby', keys.id);
+      else element.removeAttribute('aria-describedby');
     },
     reachCard: (on) => {
       element.tabIndex = on ? 0 : -1;
