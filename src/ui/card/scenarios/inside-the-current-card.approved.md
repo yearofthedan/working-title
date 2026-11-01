@@ -3,7 +3,7 @@ Rule: Inside the current card, tabbing moves focus only between the card's input
 ### Scenario: Enter moves focus into the current card
 
 ```
-Given a Beat card is current with tab focus
+Given a beat card is current with tab focus
 When the writer presses Enter
 Then focus moves to the one-sentence summary
 - main:
@@ -36,7 +36,7 @@ Then focus moves to the one-sentence summary
 ### Scenario: tabbing forward moves focus to the card's next action
 
 ```
-Given a Beat card is current with focus in its one-sentence summary
+Given a beat card is current with focus in its one-sentence summary
 When the writer tabs forward
 Then focus moves to "Add a scene"
 - main:
@@ -69,7 +69,7 @@ Then focus moves to "Add a scene"
 ### Scenario: tabbing forward from the card's last action returns to its first input
 
 ```
-Given a Beat card is current with focus on "Add a scene"
+Given a beat card is current with focus on "Add a scene"
 When the writer tabs forward
 Then focus moves to the one-sentence summary
 - main:
@@ -102,7 +102,7 @@ Then focus moves to the one-sentence summary
 ### Scenario: Esc moves focus back to the card
 
 ```
-Given a Beat card is current with focus in its one-sentence summary
+Given a beat card is current with focus in its one-sentence summary
 When the writer presses Esc
 Then focus moves to the card
 - main:

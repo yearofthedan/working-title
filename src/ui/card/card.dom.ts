@@ -78,7 +78,7 @@ const keysOnTheCard = (
       return;
     }
 
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && current()) {
       event.preventDefault();
       card.focus({ preventScroll: true });
       return;

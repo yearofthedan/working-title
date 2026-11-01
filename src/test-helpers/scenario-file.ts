@@ -152,7 +152,9 @@ export const readScenarioFile = (text: string): ScenarioFile => {
         steps.push(stepIn(line, steps, at));
         continue;
       }
-      const last = [...steps].reverse().find((step) => step.keyword !== 'And');
+      const last = [...steps]
+        .reverse()
+        .find((step) => step.keyword !== 'And' && step.keyword !== 'But');
       if (last?.keyword !== 'Then') {
         throw new Error(
           `Line ${at} is not a step, and only a Then is followed by what the runner observed: ${JSON.stringify(line)}`,

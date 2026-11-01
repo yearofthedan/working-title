@@ -93,6 +93,28 @@ describe('a scenario file', () => {
     ]);
   });
 
+  it('reads what was observed after a scenario that ends on a But', () => {
+    const { scenarios } = readScenarioFile(
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'When it runs',
+        'Then it moves',
+        'But it stays a toy',
+        '- main:',
+        '  - text: A toy',
+        '```',
+        '',
+      ].join('\n'),
+    );
+
+    expect(scenarios[0]?.observed).toEqual(['- main:', '  - text: A toy']);
+  });
+
   it.each([
     ['nothing', [''], 'opens with "Rule: "'],
     ['a rule with no scenario', ['Rule: A toy rule.'], 'at least one scenario'],

@@ -48,12 +48,12 @@ export const cardSeesOn = (driver: Driver): CardSees => ({
 });
 
 export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, StepAction> => ({
-  'a Beat card is current with tab focus': () => writer.opensTheCard(),
-  'a Beat card is current with focus in its one-sentence summary': async () => {
+  'a beat card is current with tab focus': () => writer.opensTheCard(),
+  'a beat card is current with focus in its one-sentence summary': async () => {
     await writer.opensTheCard();
     await writer.putsTheCursorInTheSummary();
   },
-  'a Beat card is current with focus on "Add a scene"': async () => {
+  'a beat card is current with focus on "Add a scene"': async () => {
     await writer.opensTheCard();
     await writer.putsTheCursorOnTheAction();
   },

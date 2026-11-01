@@ -8,7 +8,6 @@ And beat two is current with tab focus
 When the writer tabs forward
 Then focus moves to scene one under beat two
 But beat two stays current
-Then the writer sees
 - main:
   - toolbar "The story":
     - group "The story":
@@ -55,7 +54,6 @@ And beat two is current with tab focus
 When the writer tabs backward
 Then focus moves to the story
 But beat two stays current
-Then the writer sees
 - main:
   - toolbar "The story":
     - group "The story":

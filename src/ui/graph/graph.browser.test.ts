@@ -529,6 +529,17 @@ describe('the rows of the graph', () => {
     expect(add.tabIndex).toBe(-1);
   });
 
+  it("leaves the cursor on a row's stop when Esc is pressed there", async () => {
+    const { driver, writer } = pageWith();
+    await driver.fresh();
+    await writer.clicks('Beat 2');
+    await writer.putsTheCursorOnNameButtonOf('Beat 1');
+
+    await driver.press('Escape');
+
+    expect(atCursor()).toBe(nameButtonOf(named('chip', 'Beat 1')));
+  });
+
   it('gives a row back its stop once a piece of it is on screen again', async () => {
     const { driver, writer } = pageWith(8, 1100);
     await driver.fresh();
