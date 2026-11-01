@@ -1,4 +1,5 @@
-import type { FacetView, OpenProject, PieceView } from '../../application/project';
+import type { OpenProject, PieceView } from '../../application/project';
+import { fieldsOf, nameButtonIn, pieceCard, setHeading } from '../card/card.dom';
 import {
   along,
   drawnAs,
@@ -88,86 +89,14 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
   }
   (into ?? st.cards.get(id))?.focus({ preventScroll: true });
 };
-const nameButton = (piece: PieceView): HTMLElement => {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.tabIndex = -1;
-  button.textContent = piece.name;
-  return button;
-};
-
-const setHeading = (st: State, piece: PieceView): void => {
-  const current = piece.id === st.current;
-  const heading = st.cards.get(piece.id)!.querySelector('h2, h3, h4')!;
-  if (
-    (heading.querySelector('button') === null) === current &&
-    heading.textContent === piece.name
-  ) {
-    return;
-  }
-  heading.replaceChildren(
-    ...(current ? [document.createTextNode(piece.name)] : [nameButton(piece)]),
-  );
-};
-
-const field = (
-  pieceId: string,
-  { id, label, text }: FacetView,
-  elaborate: OpenProject['elaborate'],
-): HTMLElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'facet';
-  const fieldId = `facet-${pieceId}-${id}`;
-  const name = document.createElement('label');
-  name.htmlFor = fieldId;
-  name.textContent = label;
-  const input = document.createElement('textarea');
-  input.id = fieldId;
-  input.tabIndex = -1;
-  input.value = text;
-  const shown = document.createElement('div');
-  shown.className = 'shown';
-  shown.setAttribute('aria-hidden', 'true');
-  shown.textContent = text;
-  input.addEventListener('input', () => {
-    shown.textContent = input.value;
-    void elaborate(pieceId, id, input.value);
+const cardFor = (st: State, piece: PieceView): HTMLElement =>
+  pieceCard(piece, {
+    level: entryOf(st, piece.id)!.level,
+    current: () => st.current === piece.id,
+    elaborate: st.project.elaborate,
+    goTo: (into) => goTo(st, piece.id, into),
+    addChild: () => void addUnder(st, piece.id),
   });
-  wrapper.append(name, input, shown);
-  return wrapper;
-};
-
-const pieceCard = (st: State, piece: PieceView): HTMLElement => {
-  const card = document.createElement('fieldset');
-  card.tabIndex = -1;
-  card.dataset.piece = piece.id;
-  const name = document.createElement('legend');
-  const heading = document.createElement(`h${entryOf(st, piece.id)!.level + 2}`);
-  heading.textContent = piece.name;
-  name.append(heading);
-  const facets = piece.facets.map((facet) => field(piece.id, facet, st.project.elaborate));
-  card.append(name, ...facets);
-
-  if (piece.childKind !== undefined) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.tabIndex = -1;
-    button.textContent = `Add a ${piece.childKind.toLowerCase()}`;
-    button.addEventListener('mousedown', (event) => event.preventDefault());
-    button.addEventListener('click', (event) => {
-      event.stopPropagation();
-      void addUnder(st, piece.id);
-    });
-    (facets.at(-1) ?? card).append(button);
-  }
-
-  card.addEventListener('click', (event) => {
-    const into = event.target instanceof HTMLTextAreaElement ? event.target : undefined;
-    goTo(st, piece.id, into);
-  });
-
-  return card;
-};
 
 const pathNav = (st: State): void => {
   let nav = st.header.querySelector('nav');
@@ -258,17 +187,10 @@ const keepOrder = (container: HTMLElement, wanted: readonly HTMLElement[]): void
 
 const idOfCard = (card: HTMLElement): string | undefined => card.dataset.piece;
 
-const fieldsOf = (card: HTMLElement): readonly HTMLElement[] => [
-  ...card.querySelectorAll<HTMLElement>('textarea, .facet button'),
-];
-
 const rowOf = (st: State, card: HTMLElement): Row | undefined => {
   const id = idOfCard(card);
   return id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
 };
-
-const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
-  card.querySelector<HTMLElement>('legend button');
 
 const cursorCard = (st: State): HTMLElement | null => {
   const at = document.activeElement;
@@ -378,7 +300,9 @@ const place = (st: State): void => {
     else card.removeAttribute('aria-current');
   }
 
-  for (const { piece } of pieces) setHeading(st, piece);
+  for (const { piece } of pieces) {
+    setHeading(st.cards.get(piece.id)!, piece, piece.id === st.current);
+  }
 
   for (const { piece } of pieces) {
     st.cards.get(piece.id)!.style.width = `${widthOf(piece.id)}px`;
@@ -439,7 +363,7 @@ const draw = (st: State): void => {
   st.cards.clear();
   st.wrapper.replaceChildren(
     ...st.entries.map(({ piece }) => {
-      const card = pieceCard(st, piece);
+      const card = cardFor(st, piece);
       st.cards.set(piece.id, card);
       return card;
     }),
@@ -454,7 +378,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   st.project = project;
   remember(st);
   const entry = entryOf(st, added)!;
-  const card = pieceCard(st, entry.piece);
+  const card = cardFor(st, entry.piece);
   const under = entry.parentId === undefined ? undefined : st.cards.get(entry.parentId);
   if (under !== undefined) {
     card.style.left = under.style.left;
@@ -476,57 +400,28 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     const target = event.target;
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
-    const card = target instanceof Element ? target.closest('fieldset') : null;
-    const currentCard = st.cards.get(st.current);
-
-    if (card !== null && card === currentCard && target !== currentCard) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        card.focus({ preventScroll: true });
-        return;
-      }
-      if (event.key === 'Tab' && !event.shiftKey && target === fieldsOf(card).at(-1)) {
-        event.preventDefault();
-        card.focus({ preventScroll: true });
-        return;
-      }
-    }
-
-    if (target instanceof HTMLTextAreaElement) {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      currentCard?.focus({ preventScroll: true });
-      return;
-    }
+    if (target instanceof HTMLTextAreaElement) return;
 
     const where = arrowKeys[event.key];
-    if (where !== undefined) {
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      event.preventDefault();
-      const row = card === null ? undefined : rowOf(st, card);
-      if (
-        card !== null &&
-        card !== currentCard &&
-        row !== undefined &&
-        !row.ids.includes(st.current)
-      ) {
-        if (where === 'up' || where === 'down') return;
-        const id = idOfCard(card);
-        const to = id === undefined ? undefined : along(row, id, where);
-        if (to !== undefined) goTo(st, to);
-        return;
-      }
-      const to = moveFrom(st.entries, st.current, where, st.lastVisited);
+    if (where === undefined) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    const card = target instanceof Element ? target.closest('fieldset') : null;
+    const row = card === null ? undefined : rowOf(st, card);
+    if (
+      card !== null &&
+      card !== st.cards.get(st.current) &&
+      row !== undefined &&
+      !row.ids.includes(st.current)
+    ) {
+      if (where === 'up' || where === 'down') return;
+      const id = idOfCard(card);
+      const to = id === undefined ? undefined : along(row, id, where);
       if (to !== undefined) goTo(st, to);
       return;
     }
-
-    if (event.key !== 'Enter') return;
-
-    if (target === currentCard) {
-      event.preventDefault();
-      currentCard?.querySelector('textarea')?.focus({ preventScroll: true });
-    }
+    const to = moveFrom(st.entries, st.current, where, st.lastVisited);
+    if (to !== undefined) goTo(st, to);
   };
   return onKeyDown;
 };

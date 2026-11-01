@@ -46,11 +46,11 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
     },
     value: async (label, within) =>
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
-    cursorIn: async (label, within) =>
+    cursorIs: async (role, name, within) =>
       rootIn(within)
-        .getByLabel(wholeNameAnyCase(label))
+        .getByRole(role, { name: wholeNameAnyCase(name) })
         .first()
-        .evaluate((field) => field === document.activeElement),
+        .evaluate((element) => element === document.activeElement),
     drawn: async () => {
       await page.getByRole('main').getByRole('group').first().waitFor();
       await page.evaluate(settled);

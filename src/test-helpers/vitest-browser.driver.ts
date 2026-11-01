@@ -64,9 +64,11 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
     value: async (label, group) =>
       (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
         .value,
-    cursorIn: async (label, group) =>
-      rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() ===
-      document.activeElement,
+    cursorIs: async (role, name, group) =>
+      rootIn(group)
+        .getByRole(role, { name: wholeNameAnyCase(name) })
+        .first()
+        .element() === document.activeElement,
     drawn: async () => {
       await settled();
       return drawn(drawnKinds, graph === undefined ? document : main.element());

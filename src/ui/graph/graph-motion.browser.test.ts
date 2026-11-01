@@ -4,7 +4,8 @@ import { settled, type Driver } from '../../test-helpers/driver';
 import { laidOut, moving, pageWith, recorded, partWay } from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
-import { cardAtCursor, current, everyCard, nameOf, named } from './graph.test-page';
+import { nameOf } from '../card/card.test-page';
+import { cardAtCursor, current, everyCard, named } from './graph.test-page';
 import { narrowThePane } from '../../test-helpers/staging';
 
 const boxes = (): readonly string[] =>

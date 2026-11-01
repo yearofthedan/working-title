@@ -40,8 +40,9 @@ const recording = (tree: readonly string[]) => {
       calls.push(`value ${label} in "${within.name}"`);
       return '';
     },
-    cursorIn: async (label, within) => {
-      calls.push(`cursorIn ${label} in "${within.name}"`);
+    cursorIs: async (role, name, within) => {
+      const root = within === undefined ? '' : ` in ${within.role} "${within.name}"`;
+      calls.push(`cursorIs ${role} "${name}"${root}`);
       return false;
     },
     drawn: async () => [],

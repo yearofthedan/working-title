@@ -6,6 +6,7 @@ import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner } from './test-helpers/play';
 import { openTheApp } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
+import { cardSeesOn, cardSteps, cardWriterOn } from './ui/card/card.dsl';
 import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
 import { thePage } from './test-helpers/staging';
 
@@ -47,7 +48,10 @@ for (const [key, text] of Object.entries(files)) {
         await playScenarios(
           { path, text },
           runnerFor(driver, approving),
-          graphSteps(writerOn(driver), seesOn(driver)),
+          {
+            ...graphSteps(writerOn(driver), seesOn(driver)),
+            ...cardSteps(cardWriterOn(driver), cardSeesOn(driver)),
+          },
           { only: behaviour, ...(approving ? { approve: true } : {}) },
         );
       });

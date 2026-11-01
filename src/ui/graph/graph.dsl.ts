@@ -151,7 +151,7 @@ export const seesOn = (driver: Driver): Sees => ({
     }
   },
   cursorIsIn: async (piece, facet) => {
-    if (!(await driver.cursorIn(facet, { role: 'group', name: piece }))) {
+    if (!(await driver.cursorIs('textbox', facet, { role: 'group', name: piece }))) {
       throw new Error(`the cursor is not in ${piece}'s ${facet}`);
     }
   },

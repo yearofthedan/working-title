@@ -14,6 +14,19 @@ import { seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import {
   addButtonIsFirst,
   addButtonOf,
+  facetOf,
+  firstFieldOf,
+  headingOf,
+  labelOf,
+  legendOf,
+  nameButtonOf,
+  nameOf,
+  positionOf,
+  sentenceFieldOf,
+  shownSentenceOf,
+  timesDrawn,
+} from '../card/card.test-page';
+import {
   altKeySeenFor,
   atCursor,
   blurTheCursor,
@@ -23,21 +36,10 @@ import {
   cursorIn,
   cursorIsInThePane,
   currentCards,
-  facetOf,
-  firstFieldOf,
   current,
-  headingOf,
-  labelOf,
-  legendOf,
   named,
-  nameButtonOf,
-  nameOf,
   navigationIn,
   pane,
-  positionOf,
-  sentenceFieldOf,
-  shownSentenceOf,
-  timesDrawn,
 } from './graph.test-page';
 
 const stored = 'working-title:project';
@@ -755,7 +757,7 @@ describe('moving the current piece', () => {
       await driver.press('Tab');
       for (const card of [...cards('card'), ...cards('chip')]) {
         const piece = nameOf(card);
-        const inSentence = await driver.cursorIn('One-sentence summary', {
+        const inSentence = await driver.cursorIs('textbox', 'One-sentence summary', {
           role: 'group',
           name: piece,
         });
@@ -778,7 +780,7 @@ describe('moving the current piece', () => {
     for (let at = 0; at < 10; at += 1) {
       await driver.press('Tab');
       for (const piece of ['Beat 2', 'The story']) {
-        const inSentence = await driver.cursorIn('One-sentence summary', {
+        const inSentence = await driver.cursorIs('textbox', 'One-sentence summary', {
           role: 'group',
           name: piece,
         });

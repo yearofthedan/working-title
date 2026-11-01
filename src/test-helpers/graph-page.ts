@@ -1,6 +1,7 @@
 import { type Driver } from './driver';
 import { type Frame } from './frames';
-import { everyCard, nameOf } from '../ui/graph/graph.test-page';
+import { nameOf } from '../ui/card/card.test-page';
+import { everyCard } from '../ui/graph/graph.test-page';
 import { thePage } from './staging';
 import { openTheApp } from './the-app';
 import { vitestBrowserDriver } from './vitest-browser.driver';
