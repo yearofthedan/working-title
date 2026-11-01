@@ -1,4 +1,5 @@
 import type { DrawnCard, Driver, Opening, Reads } from '../../test-helpers/driver';
+import { seededProject, type Seed, type SeededProject } from '../../test-helpers/seed';
 import type { StepAction } from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
@@ -12,6 +13,7 @@ const keys: Readonly<Record<string, string>> = {
 export interface Writer {
   opensANewProject(): Promise<void>;
   reopens(): Promise<void>;
+  startsFrom(seed: Seed): Promise<void>;
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
@@ -48,7 +50,11 @@ const pieceNamed = (words: string): string => pieces[words] ?? words;
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
-export const writerOn = (driver: Driver, opening: Opening): Writer => {
+export const writerOn = (
+  driver: Driver,
+  opening: Opening,
+  startFrom?: (project: SeededProject) => Promise<void>,
+): Writer => {
   const clicking = (piece: string): Promise<void> => {
     const named = pieceNamed(piece);
     return driver.click('heading', named, { role: 'group', name: named });
@@ -64,6 +70,14 @@ export const writerOn = (driver: Driver, opening: Opening): Writer => {
   return {
     opensANewProject: () => opening.fresh(),
     reopens: () => opening.reopen(),
+    startsFrom: async (seed) => {
+      if (startFrom === undefined) {
+        throw new Error(
+          'Only the page tier starts a scenario from a seeded world: this writer was given no start from.',
+        );
+      }
+      await startFrom(seededProject(seed));
+    },
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
     makesCurrent: reaching,
@@ -191,6 +205,9 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => ({
   },
 });
 
+const twoBeats: Seed = { beats: 2 };
+const twoBeatsWithTwoScenes: Seed = { beats: 2, scenesUnder: { beat: 2, scenes: 2 } };
+
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
@@ -200,27 +217,18 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer presses {key}': ({ key }) => writer.moves(key),
   'the writer tabs forward': () => writer.tabsForward(),
   'the writer tabs backward': () => writer.tabsBackward(),
-  'a project with two scenes under {beat}': async ({ beat }) => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder(beat);
-    await writer.addsASceneUnder(beat);
-    await writer.reopens();
-  },
+  'a project with two scenes under {beat}': () => writer.startsFrom(twoBeatsWithTwoScenes),
   'beat two is current with tab focus': () => writer.clicks('beat two'),
   'a current beat with two scenes': async () => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder('Beat 2');
-    await writer.addsASceneUnder('Beat 2');
+    await writer.startsFrom(twoBeatsWithTwoScenes);
     await writer.clicks('Beat 2');
   },
   'two beats, the first current with tab focus': async () => {
-    await writer.opensANewProject();
+    await writer.startsFrom(twoBeats);
     await writer.clicks('Beat 1');
   },
   'a beat with two scenes, the beat current': async () => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder('Beat 2');
-    await writer.addsASceneUnder('Beat 2');
+    await writer.startsFrom(twoBeatsWithTwoScenes);
     await writer.clicks('Beat 2');
   },
   'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
