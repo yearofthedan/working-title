@@ -69,13 +69,8 @@ export const aProjectWithScenesUnder = async (
   scenes: number,
 ): Promise<SeededProject> => {
   const place = await placeOfBeat(beatName);
-  return aProject(
-    story(
-      ...Array.from({ length: place }, (_, at) =>
-        at === place - 1 ? beat(...Array.from({ length: scenes }, () => scene())) : beat(),
-      ),
-    ),
-  );
+  const under = beat(...Array.from({ length: scenes }, () => scene()));
+  return aProject(story(...Array.from({ length: place - 1 }, () => beat()), under));
 };
 
 export const storesTheProject = async (project: SeededProject): Promise<void> => {

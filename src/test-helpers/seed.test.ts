@@ -13,7 +13,7 @@ describe('a seeded project', () => {
     ]);
   });
 
-  it('holds a piece a beat or a scene carries', () => {
+  it('holds the facets a scene carries', () => {
     const facets = { 'list-line': 'Maren rows out' };
     const { pieces } = aProject(story(beat(scene({ facets }))));
 
