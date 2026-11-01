@@ -1,5 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
-import { fieldsOf, nameButtonIn, pieceCard, setHeading } from '../card/card.dom';
+import { pieceCard, type Card } from '../card/card.dom';
 import {
   along,
   drawnAs,
@@ -16,7 +16,6 @@ import {
 import {
   centresOf,
   slideFor,
-  whileMeasuring,
   widthOf as layoutWidthOf,
   type Box,
   type Pane,
@@ -37,7 +36,7 @@ interface State {
   project: OpenProject;
   current: string;
   readonly lastVisited: Map<string, string>;
-  readonly cards: Map<string, HTMLElement>;
+  readonly cards: Map<string, Card>;
   readonly rowElements: Map<string, HTMLElement>;
   rows: readonly Row[];
   showable: ReadonlySet<string>;
@@ -45,7 +44,7 @@ interface State {
   entries: readonly Entry[];
   byId: Map<string, Entry>;
   watcher: ResizeObserver | undefined;
-  watching: HTMLElement | undefined;
+  watching: Card | undefined;
   replacing: boolean;
 }
 
@@ -55,17 +54,6 @@ const remember = (st: State): void => {
 };
 
 const entryOf = (st: State, id: string): Entry | undefined => st.byId.get(id);
-
-const chipWidth = (card: HTMLElement): number => {
-  const legend = getComputedStyle(card.querySelector('legend')!);
-  return (
-    card.querySelector('h2, h3, h4')!.scrollWidth +
-    parseFloat(legend.paddingLeft) +
-    parseFloat(legend.paddingRight) +
-    parseFloat(legend.borderLeftWidth) +
-    parseFloat(legend.borderRightWidth)
-  );
-};
 
 const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
 
@@ -79,7 +67,7 @@ const paneOf = (st: State): Pane => {
   };
 };
 
-const goTo = (st: State, id: string, into?: HTMLElement): void => {
+const moveTo = (st: State, id: string): void => {
   if (id !== st.current) {
     const parent = entryOf(st, id)?.parentId;
     if (parent !== undefined) st.lastVisited.set(parent, id);
@@ -87,9 +75,14 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
     place(st);
     pathNav(st);
   }
-  (into ?? st.cards.get(id))?.focus({ preventScroll: true });
 };
-const cardFor = (st: State, piece: PieceView): HTMLElement =>
+
+const goTo = (st: State, id: string, into?: HTMLElement): void => {
+  moveTo(st, id);
+  if (into !== undefined) into.focus({ preventScroll: true });
+  else st.cards.get(id)?.focus();
+};
+const cardFor = (st: State, piece: PieceView): Card =>
   pieceCard(piece, {
     level: entryOf(st, piece.id)!.level,
     current: () => st.current === piece.id,
@@ -156,8 +149,7 @@ const watch = (st: State): void => {
     placeWhenStill();
   });
   st.watcher.observe(st.main);
-  st.watcher.observe(current);
-  for (const facet of current.querySelectorAll('.facet')) st.watcher.observe(facet);
+  current.observe(st.watcher);
   st.watching = current;
 };
 
@@ -185,44 +177,40 @@ const keepOrder = (container: HTMLElement, wanted: readonly HTMLElement[]): void
   }
 };
 
-const idOfCard = (card: HTMLElement): string | undefined => card.dataset.piece;
+const rowOf = (st: State, id: string | undefined): Row | undefined =>
+  id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
 
-const rowOf = (st: State, card: HTMLElement): Row | undefined => {
-  const id = idOfCard(card);
-  return id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
-};
-
-const cursorCard = (st: State): HTMLElement | null => {
+const cursorCard = (st: State): Card | null => {
   const at = document.activeElement;
-  const card = at instanceof Element ? at.closest('fieldset') : null;
-  return card === null || card === st.cards.get(st.current) ? null : card;
+  const element = at instanceof Element ? at.closest<HTMLElement>('fieldset') : null;
+  const card = element === null ? undefined : st.cards.get(element.dataset.piece ?? '');
+  return card === undefined || card === st.cards.get(st.current) ? null : card;
 };
 
 const slide = (st: State): void => {
   const card = cursorCard(st);
-  const row = card === null ? undefined : rowOf(st, card);
-  const here = card === null ? undefined : st.places.get(idOfCard(card) ?? '');
+  const id = card === null ? undefined : card.element.dataset.piece;
+  const row = rowOf(st, id);
+  const here = id === undefined ? undefined : st.places.get(id);
   const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
   const offset = here === undefined ? 0 : (slideFor(here, pane) ?? 0);
-  for (const [id, box] of st.places) {
-    const target = st.cards.get(id);
+  for (const [pieceId, box] of st.places) {
+    const target = st.cards.get(pieceId);
     if (target === undefined) continue;
-    const under = shownAncestor(st.entries, st.current, id).piece.id;
-    target.style.left = `${box.x + (row?.ids.includes(under) === true ? offset : 0)}px`;
+    const under = shownAncestor(st.entries, st.current, pieceId).piece.id;
+    target.slideTo(box.x + (row?.ids.includes(under) === true ? offset : 0));
   }
 };
 
 const cursorInCard = (st: State): boolean => {
   const card = st.cards.get(st.current);
   const at = document.activeElement;
-  return card !== undefined && at !== null && at !== card && card.contains(at);
+  return card !== undefined && at !== null && at !== card.element && card.contains(at);
 };
 
 const setFieldsTabIndex = (st: State): void => {
   const inside = cursorInCard(st) ? st.current : undefined;
-  for (const [id, card] of st.cards) {
-    for (const field of fieldsOf(card)) field.tabIndex = id === inside ? 0 : -1;
-  }
+  for (const [id, card] of st.cards) card.reachFields(id === inside);
 };
 
 const setRoving = (st: State): void => {
@@ -232,9 +220,8 @@ const setRoving = (st: State): void => {
       const card = st.cards.get(id);
       if (card === undefined) continue;
       const isStop = id === stop;
-      card.tabIndex = isStop && id === st.current ? 0 : -1;
-      const button = nameButtonIn(card);
-      if (button !== null) button.tabIndex = isStop && id !== st.current ? 0 : -1;
+      card.reachCard(isStop && id === st.current);
+      card.reachName(isStop && id !== st.current);
     }
   }
 };
@@ -242,14 +229,13 @@ const setRoving = (st: State): void => {
 const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
   const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
   const showable = new Set<string>();
-  const off: HTMLElement[] = [];
+  const off: Card[] = [];
   for (const { piece } of st.entries) {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
-    card.tabIndex = -1;
+    card.reachCard(false);
     if (drawnAs(st.entries, st.current, piece.id) === 'hidden') {
-      const button = nameButtonIn(card);
-      if (button !== null) button.tabIndex = -1;
+      card.reachName(false);
       off.push(card);
       continue;
     }
@@ -260,11 +246,14 @@ const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
   st.places = places;
   st.rows = rowsAround(st.entries, st.current);
 
-  keepOrder(st.wrapper, [...st.rows.map((row) => rowElement(st, row)), ...off]);
+  keepOrder(st.wrapper, [
+    ...st.rows.map((row) => rowElement(st, row)),
+    ...off.map((card) => card.element),
+  ]);
   for (const row of st.rows) {
     keepOrder(
       rowElement(st, row),
-      row.ids.flatMap((id) => st.cards.get(id) ?? []),
+      row.ids.flatMap((id) => st.cards.get(id)?.element ?? []),
     );
   }
   for (const [name, element] of st.rowElements) {
@@ -281,47 +270,44 @@ const place = (st: State): void => {
   const pane = paneOf(st);
   const widthOf = (id: string): number =>
     layoutWidthOf(st.entries, st.current, id, pane, sizes, (chip) =>
-      chipWidth(st.cards.get(chip)!),
+      st.cards.get(chip)!.minWidth(),
     );
 
-  const was = new Map(
-    [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
-  );
+  const was = new Map([...st.cards].map(([id, card]) => [id, card.size()]));
 
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     const kind = drawnAs(st.entries, st.current, piece.id);
-    card.style.transitionProperty = whileMeasuring(getComputedStyle(card).transitionProperty, kind);
-    card.style.height = '';
-    card.className = kind;
-    card.inert = kind === 'hidden';
-    if (piece.id === st.current) card.setAttribute('aria-current', 'location');
-    else card.removeAttribute('aria-current');
+    card.beforeMeasuring(kind === 'hidden');
+    card.element.className = kind;
+    card.element.inert = kind === 'hidden';
+    if (piece.id === st.current) card.element.setAttribute('aria-current', 'location');
+    else card.element.removeAttribute('aria-current');
   }
 
   for (const { piece } of pieces) {
-    setHeading(st.cards.get(piece.id)!, piece, piece.id === st.current);
+    st.cards.get(piece.id)!.show(piece, piece.id === st.current);
   }
 
   for (const { piece } of pieces) {
-    st.cards.get(piece.id)!.style.width = `${widthOf(piece.id)}px`;
+    st.cards.get(piece.id)!.setWidth(widthOf(piece.id));
   }
-  const tall = new Map(pieces.map(({ piece }) => [piece.id, st.cards.get(piece.id)!.offsetHeight]));
+  const tall = new Map(pieces.map(({ piece }) => [piece.id, st.cards.get(piece.id)!.size().h]));
   const heightOf = (id: string): number => tall.get(id)!;
 
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
     const from = was.get(piece.id)!;
-    card.style.width = `${from.w}px`;
-    card.style.height = `${from.h}px`;
+    card.setWidth(from.w);
+    card.setHeight(from.h);
   }
   void st.wrapper.offsetWidth;
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
-    card.style.transitionProperty = '';
-    card.style.width = `${widthOf(piece.id)}px`;
-    card.style.height = `${heightOf(piece.id)}px`;
+    card.afterMeasuring();
+    card.setWidth(widthOf(piece.id));
+    card.setHeight(heightOf(piece.id));
   }
 
   const centres = centresOf(
@@ -340,17 +326,11 @@ const place = (st: State): void => {
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
     const at = places.get(piece.id);
-    if (at !== undefined) {
-      card.style.left = `${at.x}px`;
-      card.style.top = `${at.y}px`;
-    }
+    if (at !== undefined) card.placeAt(at.x, at.y);
     if (drawnAs(st.entries, st.current, piece.id) !== 'hidden') continue;
     const ancestor = shownAncestor(st.entries, st.current, piece.id).piece.id;
     if (ancestor === piece.id) continue;
-    const under = st.cards.get(ancestor)!;
-    card.style.left = under.style.left;
-    card.style.top = under.style.top;
-    card.style.width = under.style.width;
+    card.startAt(st.cards.get(ancestor)!);
   }
 
   arrangeRows(st, places);
@@ -365,7 +345,7 @@ const draw = (st: State): void => {
     ...st.entries.map(({ piece }) => {
       const card = cardFor(st, piece);
       st.cards.set(piece.id, card);
-      return card;
+      return card.element;
     }),
   );
   place(st);
@@ -380,14 +360,11 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   const entry = entryOf(st, added)!;
   const card = cardFor(st, entry.piece);
   const under = entry.parentId === undefined ? undefined : st.cards.get(entry.parentId);
-  if (under !== undefined) {
-    card.style.left = under.style.left;
-    card.style.top = under.style.top;
-    card.style.width = under.style.width;
-  }
+  if (under !== undefined) card.startAt(under);
   st.cards.set(added, card);
-  st.wrapper.append(card);
-  goTo(st, added, card.querySelector('textarea') ?? undefined);
+  st.wrapper.append(card.element);
+  moveTo(st, added);
+  card.enter();
 };
 
 const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
@@ -406,16 +383,16 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     if (where === undefined) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
-    const card = target instanceof Element ? target.closest('fieldset') : null;
-    const row = card === null ? undefined : rowOf(st, card);
+    const element = target instanceof Element ? target.closest<HTMLElement>('fieldset') : null;
+    const row = element === null ? undefined : rowOf(st, element.dataset.piece);
     if (
-      card !== null &&
-      card !== st.cards.get(st.current) &&
+      element !== null &&
+      element !== st.cards.get(st.current)?.element &&
       row !== undefined &&
       !row.ids.includes(st.current)
     ) {
       if (where === 'up' || where === 'down') return;
-      const id = idOfCard(card);
+      const id = element.dataset.piece;
       const to = id === undefined ? undefined : along(row, id, where);
       if (to !== undefined) goTo(st, to);
       return;

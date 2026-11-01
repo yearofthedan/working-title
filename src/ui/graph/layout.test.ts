@@ -1,15 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
 import { treeOf } from './graph';
-import {
-  centresOf,
-  onScreen,
-  slideFor,
-  whileMeasuring,
-  widthOf,
-  type Pane,
-  type Sizes,
-} from './layout';
+import { centresOf, onScreen, slideFor, widthOf, type Pane, type Sizes } from './layout';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -309,18 +301,5 @@ describe('the offset that brings a piece wholly inside main', () => {
     expect(slideFor({ x: 500, y: 400, width: 1100, height: 100 }, main)).toBeUndefined();
     expect(slideFor({ x: 500, y: 30, ...size }, main)).toBeUndefined();
     expect(slideFor({ x: 500, y: 780, ...size }, main)).toBeUndefined();
-  });
-});
-
-describe('the transition a card is measured under', () => {
-  it('leaves out the width and the height, and keeps visibility for a hidden piece', () => {
-    const drawn = 'left, top, width, height, opacity, visibility';
-
-    expect(whileMeasuring(drawn, 'hidden')).toBe('left, top, opacity, visibility');
-    expect(whileMeasuring(drawn, 'card')).toBe('left, top, opacity');
-  });
-
-  it('gives back all, the computed value under reduced motion', () => {
-    expect(whileMeasuring('all', 'current')).toBe('all');
   });
 });
