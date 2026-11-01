@@ -15,7 +15,7 @@ export interface Fixture extends Journey {
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theAppsName: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
-  theKeysOnTheCard(piece: string): Promise<string>;
+  descriptionOfTheCard(piece: string): Promise<string>;
   theKeysLine(): Promise<string>;
 }
 
@@ -47,7 +47,7 @@ const fixtureOn = (page: Page): Fixture => {
       );
     },
 
-    theKeysOnTheCard: async (piece) => {
+    descriptionOfTheCard: async (piece) => {
       const client = await page.context().newCDPSession(page);
       const { nodes } = await client.send('Accessibility.getFullAXTree');
       await client.detach();

@@ -21,8 +21,8 @@ const theRecordedKeysLine = (): string => {
 test('a screen reader says the keys on the current card, and on no other', async ({ writer }) => {
   await writer.opensANewProject();
 
-  expect(await writer.theKeysOnTheCard('The story')).toBe(theKeys);
-  expect(await writer.theKeysOnTheCard('Beat 1')).toBe('');
+  expect(await writer.descriptionOfTheCard('The story')).toBe(theKeys);
+  expect(await writer.descriptionOfTheCard('Beat 1')).toBe('');
 });
 
 test('both runners record the same keys line', async ({ writer }) => {
