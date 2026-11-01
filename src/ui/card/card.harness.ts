@@ -6,6 +6,7 @@ export const theBeat: PieceView = {
   id: 'beat-2',
   name: 'Beat 2',
   facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary', text: '' }],
+  longFacets: [],
   children: [],
   childKind: 'Scene',
 };

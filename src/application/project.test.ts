@@ -46,6 +46,38 @@ describe('opening a project', () => {
     expect(project.root.facets[0]?.text).toBe('a note');
   });
 
+  it('lists the long facets apart from the ones the card draws', async () => {
+    const project = await openProject(toyMethod, storeOf(), ids());
+    const [item] = project.root.children;
+    expect(item?.facets.map(({ id }) => id)).toEqual(['title', 'note']);
+    expect(item?.longFacets).toEqual([{ id: 'body', label: 'Body', text: '' }]);
+  });
+
+  it('opens a save made before the long facet existed with its text empty', async () => {
+    const saved: Project = {
+      method: 'toy',
+      version: 1,
+      pieces: [
+        { id: 'id-1', kind: 'root', parent: null, order: 0, facets: {} },
+        { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: { title: 'the first' } },
+      ],
+    };
+
+    const project = await openProject(toyMethod, storeOf(saved), ids());
+
+    expect(project.root.children[0]?.longFacets[0]?.text).toBe('');
+  });
+
+  it('saves the text typed into a long facet and reads it back on the next open', async () => {
+    const store = copyingStore();
+    const first = await openProject(toyMethod, store, ids());
+    await first.elaborate(item2Of(first.root.children).id, 'body', typed);
+
+    const reopened = await openProject(toyMethod, store, ids());
+
+    expect(reopened.root.children[1]?.longFacets[0]?.text).toBe(typed);
+  });
+
   it('lists the root first and its children by their order, however the store holds them', async () => {
     const started = newProject(toyMethod, ids());
     const shuffled = { ...started, pieces: [...started.pieces].reverse() };
@@ -115,6 +147,7 @@ describe('opening a project', () => {
       id: 'id-4',
       name: 'Child 1',
       facets: [{ id: 'note', label: 'Note', text: '' }],
+      longFacets: [],
       children: [],
     });
     expect(two.project.root.children.map(({ childKind }) => childKind)).toEqual(['Child', 'Child']);

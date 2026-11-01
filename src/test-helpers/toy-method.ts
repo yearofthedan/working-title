@@ -11,6 +11,7 @@ export const toyMethod: Method = {
       facets: [
         { id: 'title', label: 'Title' },
         { id: 'note', label: 'Note' },
+        { id: 'body', label: 'Body', long: true },
       ],
       childKind: { id: 'child', label: 'Child', facets: [{ id: 'note', label: 'Note' }] },
     },

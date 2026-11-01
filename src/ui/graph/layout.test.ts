@@ -7,6 +7,7 @@ const piece = (name: string, children: readonly PieceView[] = []): PieceView => 
   id: name,
   name,
   facets: [],
+  longFacets: [],
   children,
 });
 
