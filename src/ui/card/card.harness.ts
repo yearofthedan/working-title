@@ -1,8 +1,6 @@
 import type { OpenProject, PieceView } from '../../application/project';
-import type { Driver } from '../../test-helpers/driver';
 import type { CardLook } from './card';
 import { pieceCard, type Card } from './card.dom';
-import { cardSeesOn, cardSteps, cardWriterOn } from './card.dsl';
 
 export const theBeat: PieceView = {
   id: 'beat-2',
@@ -37,16 +35,6 @@ export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
   return card;
 };
 
-export interface ScenarioTier {
-  readonly stage: () => Promise<void>;
-  readonly steps: (driver: Driver) => ReturnType<typeof cardSteps>;
-}
-
-const stageTheCard = async (): Promise<void> => {
+export const stageTheCard = async (): Promise<void> => {
   mountTheCard('current').focus();
-};
-
-export const theCardTier: ScenarioTier = {
-  stage: stageTheCard,
-  steps: (driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
 };

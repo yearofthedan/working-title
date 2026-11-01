@@ -4,12 +4,13 @@ import type { Driver } from './test-helpers/driver';
 import { readsOnThePage } from './test-helpers/graph-page';
 import type { RawGlob } from './test-helpers/raw-glob';
 import { readScenarioFile } from './test-helpers/scenario-file';
-import { playScenarios, type Runner } from './test-helpers/play';
-import { thePage } from './test-helpers/staging';
+import { playScenarios, type Runner, type ScenarioTier } from './test-helpers/play';
 import { openTheApp } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
-import { theCardTier, type ScenarioTier } from './ui/card/card.scenarios';
+import { cardSeesOn, cardSteps, cardWriterOn } from './ui/card/card.dsl';
+import { stageTheCard } from './ui/card/card.harness';
 import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
+import { stageTheGraph } from './ui/graph/graph.harness';
 
 declare const __SCENARIO_APPROVE__: string;
 
@@ -19,23 +20,22 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
   eager: true,
 });
 
-const opensTheApp = async (): Promise<void> => {
-  localStorage.clear();
-  await thePage(1440);
-  await openTheApp();
+const cardTier: ScenarioTier = {
+  stage: stageTheCard,
+  steps: (driver: Driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
 };
 
 const graphTier: ScenarioTier = {
-  stage: opensTheApp,
+  stage: stageTheGraph,
   steps: (driver: Driver) =>
     graphSteps(
-      writerOn(driver, { fresh: opensTheApp, reopen: openTheApp }),
+      writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }),
       seesOn(driver, readsOnThePage()),
     ),
 };
 
 const tiers: Readonly<Record<string, ScenarioTier>> = {
-  'src/ui/card/': theCardTier,
+  'src/ui/card/': cardTier,
   'src/ui/graph/': graphTier,
 };
 

@@ -153,7 +153,7 @@ export default defineConfig({
           'src/ui/**/*.dom.ts',
           'src/ui/**/*.test.ts',
           'src/ui/**/*.test-page.ts',
-          'src/ui/**/*.scenarios.ts',
+          'src/ui/**/*.harness.ts',
         ],
         rules: { 'no-restricted-globals': 'off' },
       },

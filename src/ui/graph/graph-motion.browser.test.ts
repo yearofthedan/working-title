@@ -4,13 +4,13 @@ import { settled, type Driver } from '../../test-helpers/driver';
 import {
   laidOut,
   moving,
-  pageWith,
   recorded,
   partWay,
   startedTransitions,
 } from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
+import { pageWith } from './graph.harness';
 import { nameOf } from '../card/card.test-page';
 import { cardAtFocus, current, everyCard, named } from './graph.test-page';
 import { narrowThePane } from '../../test-helpers/staging';

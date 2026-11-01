@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { addASceneUnder, readsOnThePage } from '../../test-helpers/graph-page';
+import { readsOnThePage } from '../../test-helpers/graph-page';
 import type { Opening } from '../../test-helpers/driver';
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn } from './graph.dsl';
+import { addASceneUnder } from './graph.harness';
 
 const typing = 'types "{text}" as {scene}\'s list line under {beat}';
 

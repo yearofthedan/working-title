@@ -14,7 +14,7 @@ import {
   shownSentenceOf,
   timesDrawn,
 } from './card.test-page';
-import { mountTheCard, theBeat } from './card.scenarios';
+import { mountTheCard, theBeat } from './card.harness';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
 

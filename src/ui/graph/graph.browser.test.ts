@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Opening } from '../../test-helpers/driver';
-import { graphOn, laidOut, pageWith } from '../../test-helpers/graph-page';
+import { laidOut } from '../../test-helpers/graph-page';
 import { openTheApp } from '../../test-helpers/the-app';
 import {
   anExtraHeaderAbove,
@@ -10,6 +10,7 @@ import {
   twoGraphs,
 } from '../../test-helpers/staging';
 import { type Sees, type Writer } from './graph.dsl';
+import { graphOn, pageWith } from './graph.harness';
 import {
   addButtonIsFirst,
   addButtonOf,
@@ -509,6 +510,22 @@ describe('the rows of the graph', () => {
     await driver.press('Escape');
 
     expect(atFocus()).toBe(nameButtonOf(named('chip', 'Beat 1')));
+  });
+
+  it("takes the current piece's card's field and its add button out of reach once Esc returns to it", async () => {
+    const { driver, stage, writer } = pageWith();
+    await stage.fresh();
+    await writer.clicks('Beat 2');
+
+    await driver.press('Enter');
+    const field = sentenceFieldOf(current());
+    expect(atFocus()).toBe(field);
+
+    await driver.press('Escape');
+
+    expect(atFocus()).toBe(current());
+    expect(field.tabIndex).toBe(-1);
+    expect(addButtonOf(current()).tabIndex).toBe(-1);
   });
 
   it('gives a row back its stop once a piece of it is on screen again', async () => {
