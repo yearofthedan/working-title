@@ -71,9 +71,24 @@ export const nameButtonOf = (card: HTMLElement): HTMLElement => {
 };
 
 const visible = (element: Element): boolean => {
-  const { display, opacity } = getComputedStyle(element);
-  return display !== 'none' && opacity !== '0' && element.getClientRects().length > 0;
+  const { display, opacity, visibility } = getComputedStyle(element);
+  return (
+    display !== 'none' &&
+    opacity !== '0' &&
+    visibility !== 'hidden' &&
+    element.getClientRects().length > 0
+  );
 };
+
+export const keysOf = (card: HTMLElement): HTMLElement => {
+  const hint = card.querySelector<HTMLElement>('.keys');
+  if (hint === null) throw new Error('the card draws no keys line');
+  return hint;
+};
+
+export const showsTheKeys = (card: HTMLElement): boolean => visible(keysOf(card));
+
+export const holdsTheFocus = (card: HTMLElement): boolean => card === document.activeElement;
 
 export const timesDrawn = (card: HTMLElement, sentence: string): number =>
   inThePage(browser.page.getByRole('textbox', { includeHidden: true }).elements()).filter(
