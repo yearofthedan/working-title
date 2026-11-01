@@ -1,6 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/driver';
 import { readsIn, readsOnThePage } from '../../test-helpers/graph-page';
+import { storesTheProject, type SeededProject } from '../../test-helpers/seed';
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
@@ -9,6 +10,13 @@ import { seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 export const stageTheGraph = async (): Promise<void> => {
   localStorage.clear();
   await thePage(1440);
+  await openTheApp();
+};
+
+export const stageTheSeededGraph = async (project: SeededProject): Promise<void> => {
+  localStorage.clear();
+  await thePage(1440);
+  await storesTheProject(project);
   await openTheApp();
 };
 

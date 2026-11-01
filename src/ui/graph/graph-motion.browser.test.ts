@@ -117,14 +117,13 @@ describe('the motion of a move', () => {
     await settled();
 
     await pathTo(driver, 'The story');
-    const leaving = named('hidden', 'Scene 1');
 
     for (let at = 0; at < 12; at += 1) {
       await driver.press('Tab');
-      expect(cardAtFocus()).not.toBe(leaving);
+      expect(cardAtFocus()).not.toBe(named('hidden', 'Scene 1'));
     }
 
-    await browser.userEvent.click(leaving, { force: true });
+    await browser.userEvent.click(named('hidden', 'Scene 1'), { force: true });
     expect(nameOf(current())).not.toBe('Scene 1');
   });
 

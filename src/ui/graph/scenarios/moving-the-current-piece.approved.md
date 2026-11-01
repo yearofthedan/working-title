@@ -88,15 +88,6 @@ And focus moves to its card
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
 ```
 
 ### Scenario: → in the scenes' row makes the next scene current
@@ -151,15 +142,6 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
