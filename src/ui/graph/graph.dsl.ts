@@ -1,5 +1,10 @@
 import type { DrawnCard, Driver, Opening, Reads } from '../../test-helpers/driver';
-import { seededProject, type Seed, type SeededProject } from '../../test-helpers/seed';
+import {
+  aProjectWithScenesUnder,
+  seededProject,
+  type Seed,
+  type SeededProject,
+} from '../../test-helpers/seed';
 import type { StepAction } from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
@@ -13,7 +18,7 @@ const keys: Readonly<Record<string, string>> = {
 export interface Writer {
   opensANewProject(): Promise<void>;
   reopens(): Promise<void>;
-  startsFrom(seed: Seed): Promise<void>;
+  startsFrom(project: SeededProject): Promise<void>;
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
@@ -42,6 +47,7 @@ export interface Sees {
 
 const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
+  'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
 };
 
@@ -70,13 +76,13 @@ export const writerOn = (
   return {
     opensANewProject: () => opening.fresh(),
     reopens: () => opening.reopen(),
-    startsFrom: async (seed) => {
+    startsFrom: async (project) => {
       if (startFrom === undefined) {
         throw new Error(
           'Only the page tier starts a scenario from a seeded world: this writer was given no start from.',
         );
       }
-      await startFrom(seededProject(seed));
+      await startFrom(project);
     },
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
@@ -206,7 +212,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => ({
 });
 
 const twoBeats: Seed = { beats: 2 };
-const twoBeatsWithTwoScenes: Seed = { beats: 2, scenesUnder: { beat: 2, scenes: 2 } };
+const theSecondBeat = 'Beat 2';
 
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
   'a new project': () => writer.opensANewProject(),
@@ -217,19 +223,20 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer presses {key}': ({ key }) => writer.moves(key),
   'the writer tabs forward': () => writer.tabsForward(),
   'the writer tabs backward': () => writer.tabsBackward(),
-  'a project with two scenes under {beat}': () => writer.startsFrom(twoBeatsWithTwoScenes),
+  'a project with two scenes under {beat}': async ({ beat }) =>
+    writer.startsFrom(await aProjectWithScenesUnder(pieceNamed(beat), 2)),
   'beat two is current with tab focus': () => writer.clicks('beat two'),
   'a current beat with two scenes': async () => {
-    await writer.startsFrom(twoBeatsWithTwoScenes);
-    await writer.clicks('Beat 2');
+    await writer.startsFrom(await aProjectWithScenesUnder(theSecondBeat, 2));
+    await writer.clicks(theSecondBeat);
   },
   'two beats, the first current with tab focus': async () => {
-    await writer.startsFrom(twoBeats);
+    await writer.startsFrom(seededProject(twoBeats));
     await writer.clicks('Beat 1');
   },
   'a beat with two scenes, the beat current': async () => {
-    await writer.startsFrom(twoBeatsWithTwoScenes);
-    await writer.clicks('Beat 2');
+    await writer.startsFrom(await aProjectWithScenesUnder(theSecondBeat, 2));
+    await writer.clicks(theSecondBeat);
   },
   'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
   'the first scene has focus': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),

@@ -1,6 +1,8 @@
 import { projectStore } from '../adapters/local-storage-project-store';
+import { openProject } from '../application/project';
 import { branch, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
+import type { ProjectStore } from '../ports/project-store';
 import { ids } from './ids';
 
 export interface Seed {
@@ -32,6 +34,31 @@ export const seededProject = (seed: Seed): SeededProject => {
     project = branch(project, parent.id, kind, newId());
   }
   return project;
+};
+
+const inMemory = (): ProjectStore => {
+  let held: Project | undefined;
+  return {
+    load: async () => held,
+    save: async (project) => {
+      held = project;
+    },
+  };
+};
+
+const placeOfBeat = async (beat: string): Promise<number> => {
+  const { root } = await openProject(snowflakeExtended, inMemory());
+  const place = root.children.findIndex((child) => child.name === beat) + 1;
+  if (place === 0) throw new Error(`a project has no ${beat}`);
+  return place;
+};
+
+export const aProjectWithScenesUnder = async (
+  beat: string,
+  scenes: number,
+): Promise<SeededProject> => {
+  const place = await placeOfBeat(beat);
+  return seededProject({ beats: place, scenesUnder: { beat: place, scenes } });
 };
 
 export const storesTheProject = async (project: SeededProject): Promise<void> => {

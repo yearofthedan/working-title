@@ -119,10 +119,18 @@ describe('a seeded Given', () => {
   };
 
   it('starts from the beats the words name, with the scenes under the beat they name', async () => {
-    expect(await played('a project with two scenes under {beat}', { beat: 'beat two' })).toEqual({
-      calls: [],
-      worlds: [aBeatWithTwoScenes],
-    });
+    for (const beat of ['beat two', 'beat 2']) {
+      expect(await played('a project with two scenes under {beat}', { beat })).toEqual({
+        calls: [],
+        worlds: [aBeatWithTwoScenes],
+      });
+    }
+  });
+
+  it('refuses a beat a project has none of', async () => {
+    await expect(
+      played('a project with two scenes under {beat}', { beat: 'beat nine' }),
+    ).rejects.toThrow('a project has no beat nine');
   });
 
   it('starts from two beats and makes the first current', async () => {
