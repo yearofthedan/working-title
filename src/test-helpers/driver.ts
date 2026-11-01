@@ -116,6 +116,7 @@ export interface Focus {
 }
 
 export const focusedIn = (root: Element): Focus | undefined => {
+  // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
   const roles: Readonly<Record<string, string>> = {
     BUTTON: 'button',
     FIELDSET: 'group',
@@ -150,9 +151,13 @@ export const focusedIn = (root: Element): Focus | undefined => {
   };
 
   const at = document.activeElement;
-  if (at === null || !root.contains(at)) return undefined;
+  if (at === null || at === root || !root.contains(at)) return undefined;
   const element = named(at);
-  if (element === undefined) return undefined;
+  if (element === undefined) {
+    throw new Error(
+      `the focus is on <${at.tagName.toLowerCase()}> inside main, whose role or name this reader cannot read: name it in focusedIn`,
+    );
+  }
   for (
     let above = at.parentElement;
     above !== null && above !== root;
@@ -181,7 +186,7 @@ export const markingFocus = (
   if (focus === undefined) return lines;
   const enclosing: (Named | undefined)[] = [];
   let marked = false;
-  return lines.map((line) => {
+  const markedLines = lines.map((line) => {
     const level = (line.length - line.trimStart().length) / 2;
     const here = namedOn(line);
     const inside = enclosing.filter((at, depth) => depth < level && at !== undefined).at(-1);
@@ -191,4 +196,12 @@ export const markingFocus = (
     marked = true;
     return line.replace(/^(\s*- [\w-]+ "[^"]*")/, '$1 [active]');
   });
+  if (!marked) {
+    const inside =
+      focus.inside === undefined ? '' : ` in ${focus.inside.role} "${focus.inside.name}"`;
+    throw new Error(
+      `no line reads ${focus.element.role} "${focus.element.name}"${inside}, so a tree holding focus would print as one that does not`,
+    );
+  }
+  return markedLines;
 };

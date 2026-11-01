@@ -978,14 +978,24 @@ describe('what a tree says about focus', () => {
     await stage.fresh();
     await writer.clicks('Beat 4');
 
-    const marked = async (): Promise<readonly string[]> =>
-      (await driver.tree()).filter((line) => line.includes('[active]')).map((line) => line.trim());
+    const marked = async (): Promise<readonly string[]> => {
+      const lines = await driver.tree();
+      const at = lines.findIndex((line) => line.includes('[active]'));
+      const markedLine = at < 0 ? undefined : lines[at];
+      if (markedLine === undefined) return [];
+      const card =
+        lines
+          .slice(0, at)
+          .filter((line) => line.includes('group "'))
+          .at(-1) ?? '';
+      return [card.trim(), markedLine.trim()];
+    };
 
     await driver.focus('button', 'Scene 2', { role: 'group', name: 'Scene 2' });
-    expect(await marked()).toEqual(['- button "Scene 2" [active]']);
+    expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
 
     await driver.focus('textbox', 'List line', { role: 'group', name: 'Scene 1' });
-    expect(await marked()).toEqual(['- textbox "List line" [active]']);
+    expect(await marked()).toEqual(['- group "Scene 1":', '- textbox "List line" [active]']);
 
     await driver.clickAway();
     expect(await marked()).toEqual([]);
