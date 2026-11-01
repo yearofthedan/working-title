@@ -3,28 +3,35 @@ import { aProjectWithScenesUnder, seededProject } from './seed';
 
 describe('a seeded project', () => {
   it('holds the beats the seed names, in their place', () => {
-    const { pieces } = seededProject({ beats: 2 });
+    const { pieces } = seededProject({ beats: [{}, {}, {}] });
 
     expect(pieces.map(({ kind, order }) => `${kind} ${order}`)).toEqual([
       'story 0',
       'beat 0',
       'beat 1',
+      'beat 2',
     ]);
   });
 
-  it('puts the scenes under the beat the seed names, one after another', () => {
-    const { pieces } = seededProject({ beats: 2, scenesUnder: { beat: 2, scenes: 2 } });
+  it('puts a beat its scenes, one after another, and no scenes under the others', () => {
+    const { pieces } = seededProject({ beats: [{}, { scenes: 2 }, {}] });
     const scenes = pieces.filter(({ kind }) => kind === 'scene');
-    const under = pieces[2]!;
 
+    expect(pieces.map(({ kind }) => kind)).toEqual([
+      'story',
+      'beat',
+      'beat',
+      'beat',
+      'scene',
+      'scene',
+    ]);
     expect(scenes.map(({ order }) => order)).toEqual([0, 1]);
-    expect(scenes.map(({ parent }) => parent)).toEqual([under.id, under.id]);
+    expect(scenes.map(({ parent }) => parent)).toEqual([pieces[2]!.id, pieces[2]!.id]);
   });
 
   it('refuses a seed whose world cannot hold what it asks for', () => {
-    expect(() => seededProject({ beats: 6 })).toThrow('a project starts with 5 beats, not 6');
-    expect(() => seededProject({ beats: 2, scenesUnder: { beat: 3, scenes: 1 } })).toThrow(
-      '2 beats leaves no beat 3 to put scenes under',
+    expect(() => seededProject({ beats: [{}, {}, {}, {}, {}, {}] })).toThrow(
+      'a project starts with 5 beats, not 6',
     );
   });
 

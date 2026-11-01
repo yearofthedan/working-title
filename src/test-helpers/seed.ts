@@ -5,35 +5,36 @@ import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from './ids';
 
+export interface SeededBeat {
+  readonly scenes?: number;
+}
+
 export interface Seed {
-  readonly beats: number;
-  readonly scenesUnder?: { readonly beat: number; readonly scenes: number };
+  readonly beats: readonly SeededBeat[];
 }
 
 export type SeededProject = Project;
 
-export const seededProject = (seed: Seed): SeededProject => {
+export const seededProject = ({ beats }: Seed): SeededProject => {
   const newId = ids();
   const started = newProject(snowflakeExtended, newId);
   const [root, ...starts] = started.pieces;
-  if (seed.beats > starts.length) {
-    throw new Error(`a project starts with ${starts.length} beats, not ${seed.beats}`);
+  if (beats.length > starts.length) {
+    throw new Error(`a project starts with ${starts.length} beats, not ${beats.length}`);
   }
-  const kept = starts.slice(0, seed.beats);
-  let project: SeededProject = { ...started, pieces: [root, ...kept] };
 
-  const under = seed.scenesUnder;
-  if (under === undefined) return project;
-
-  const parent = kept[under.beat - 1];
-  if (parent === undefined) {
-    throw new Error(`${seed.beats} beats leaves no beat ${under.beat} to put scenes under`);
-  }
-  const kind = snowflakeExtended.startingChildren.kind.childKind!;
-  for (let at = 0; at < under.scenes; at += 1) {
-    project = branch(project, parent.id, kind, newId());
-  }
-  return project;
+  const kept = starts.slice(0, beats.length);
+  const sceneKind = snowflakeExtended.startingChildren.kind.childKind!;
+  return beats.reduce<SeededProject>(
+    (project, { scenes = 0 }, at) => {
+      let under = project;
+      for (let scene = 0; scene < scenes; scene += 1) {
+        under = branch(under, kept[at]!.id, sceneKind, newId());
+      }
+      return under;
+    },
+    { ...started, pieces: [root, ...kept] },
+  );
 };
 
 const inMemory = (): ProjectStore => {
@@ -58,7 +59,9 @@ export const aProjectWithScenesUnder = async (
   scenes: number,
 ): Promise<SeededProject> => {
   const place = await placeOfBeat(beat);
-  return seededProject({ beats: place, scenesUnder: { beat: place, scenes } });
+  return seededProject({
+    beats: Array.from({ length: place }, (_, at) => (at === place - 1 ? { scenes } : {})),
+  });
 };
 
 export const storesTheProject = async (project: SeededProject): Promise<void> => {

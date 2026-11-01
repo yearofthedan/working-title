@@ -211,7 +211,8 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => ({
   },
 });
 
-const twoBeats: Seed = { beats: 2 };
+const twoBeats: Seed = { beats: [{}, {}] };
+const aBeatWithTwoScenes: Seed = { beats: [{}, { scenes: 2 }] };
 const theSecondBeat = 'Beat 2';
 
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
@@ -227,7 +228,7 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     writer.startsFrom(await aProjectWithScenesUnder(pieceNamed(beat), 2)),
   'beat two is current with tab focus': () => writer.clicks('beat two'),
   'a current beat with two scenes': async () => {
-    await writer.startsFrom(await aProjectWithScenesUnder(theSecondBeat, 2));
+    await writer.startsFrom(seededProject(aBeatWithTwoScenes));
     await writer.clicks(theSecondBeat);
   },
   'two beats, the first current with tab focus': async () => {
@@ -235,7 +236,7 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.clicks('Beat 1');
   },
   'a beat with two scenes, the beat current': async () => {
-    await writer.startsFrom(await aProjectWithScenesUnder(theSecondBeat, 2));
+    await writer.startsFrom(seededProject(aBeatWithTwoScenes));
     await writer.clicks(theSecondBeat);
   },
   'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
