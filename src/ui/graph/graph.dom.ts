@@ -275,7 +275,7 @@ const place = (st: State): void => {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     const kind = drawnAs(st.entries, st.current, piece.id);
-    card.beforeMeasuring(kind);
+    card.beforeMeasuring(kind === 'hidden');
     card.element.className = kind;
     card.element.inert = kind === 'hidden';
     if (piece.id === st.current) card.element.setAttribute('aria-current', 'location');

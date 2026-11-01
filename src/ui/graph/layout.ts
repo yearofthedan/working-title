@@ -1,4 +1,4 @@
-import { childrenOf, drawnAs, shownAncestor, type Drawn, type Entry } from './graph';
+import { childrenOf, drawnAs, shownAncestor, type Entry } from './graph';
 
 export interface Sizes {
   readonly current: number;
@@ -117,14 +117,3 @@ export const slideFor = (
   const at = { x: left + box.width / 2, y: box.y };
   return onScreen(at, { width: box.width, height: box.height }, pane) ? at.x - box.x : undefined;
 };
-
-export const whileMeasuring = (transitioned: string, drawn: Drawn): string =>
-  transitioned
-    .split(', ')
-    .filter(
-      (property) =>
-        property !== 'width' &&
-        property !== 'height' &&
-        (drawn === 'hidden' || property !== 'visibility'),
-    )
-    .join(', ');

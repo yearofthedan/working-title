@@ -1,6 +1,5 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import type { Drawn } from '../graph/graph';
-import { whileMeasuring } from '../graph/layout';
+import { whileMeasuring } from '../transition';
 
 interface CardHooks {
   readonly level: number;
@@ -27,7 +26,7 @@ export interface Card {
   startAt(other: Card): void;
   focus(): void;
   contains(node: Node | null): boolean;
-  beforeMeasuring(kind: Drawn): void;
+  beforeMeasuring(hidden: boolean): void;
   afterMeasuring(): void;
 }
 
@@ -192,10 +191,10 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
     },
     focus: () => element.focus({ preventScroll: true }),
     contains: (node) => element.contains(node),
-    beforeMeasuring: (kind) => {
+    beforeMeasuring: (hidden) => {
       element.style.transitionProperty = whileMeasuring(
         getComputedStyle(element).transitionProperty,
-        kind,
+        hidden,
       );
       element.style.height = '';
     },
