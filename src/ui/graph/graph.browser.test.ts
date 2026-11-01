@@ -971,3 +971,23 @@ describe('two graphs on one page', () => {
     expect(focusIsInThePane()).toBe(true);
   });
 });
+
+describe('what a tree says about focus', () => {
+  it('marks the name button and the field that hold focus, and nothing once the focus leaves the graph', async () => {
+    const { driver, stage, writer } = pageWith(2);
+    await stage.fresh();
+    await writer.clicks('Beat 4');
+
+    const marked = async (): Promise<readonly string[]> =>
+      (await driver.tree()).filter((line) => line.includes('[active]')).map((line) => line.trim());
+
+    await driver.focus('button', 'Scene 2', { role: 'group', name: 'Scene 2' });
+    expect(await marked()).toEqual(['- button "Scene 2" [active]']);
+
+    await driver.focus('textbox', 'List line', { role: 'group', name: 'Scene 1' });
+    expect(await marked()).toEqual(['- textbox "List line" [active]']);
+
+    await driver.clickAway();
+    expect(await marked()).toEqual([]);
+  });
+});

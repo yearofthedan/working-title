@@ -3,7 +3,9 @@ import { cardLooks } from '../ui/card/card';
 import {
   clicking,
   drawn,
+  focusedIn,
   linesOf,
+  markingFocus,
   settled,
   typing,
   wholeNameAnyCase,
@@ -58,7 +60,8 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
         .evaluate((element) => element === document.activeElement),
     tree: async () => {
       await page.evaluate(settled);
-      return linesOf(await page.getByRole('main').ariaSnapshot());
+      const focus = await page.evaluate(focusedIn, await page.getByRole('main').elementHandle());
+      return markingFocus(linesOf(await page.getByRole('main').ariaSnapshot()), focus);
     },
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {

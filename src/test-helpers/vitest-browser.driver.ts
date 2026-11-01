@@ -1,7 +1,9 @@
 import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
+  focusedIn,
   linesOf,
+  markingFocus,
   settled,
   typing,
   wholeNameAnyCase,
@@ -64,7 +66,10 @@ export const vitestBrowserDriver = (graph?: string): Driver => {
         .element() === document.activeElement,
     tree: async () => {
       await settled();
-      return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())));
+      return markingFocus(
+        linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element()))),
+        focusedIn(main.element()),
+      );
     },
   };
 };
