@@ -9,12 +9,12 @@ const theRecordedKeysLine = (): string => {
   const recorded = readFileSync(
     join(
       dirname(fileURLToPath(import.meta.url)),
-      '../src/ui/card/scenarios/the-keys-on-the-current-card.approved.md',
+      '../src/ui/card/scenarios/inside-the-current-card.approved.md',
     ),
     'utf8',
   );
   const line = recorded.split('\n').find((one) => one.includes('- paragraph:'));
-  if (line === undefined) throw new Error('the approved keys scenario records no keys line');
+  if (line === undefined) throw new Error('no approved card scenario records a keys line');
   return line.trim();
 };
 
