@@ -1,4 +1,12 @@
 import type { DrawnCard, Driver, Opening, Reads } from '../../test-helpers/driver';
+import {
+  aProject,
+  aProjectWithScenesUnder,
+  beat,
+  scene,
+  story,
+  type SeededProject,
+} from '../../test-helpers/seed';
 import type { StepAction } from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
@@ -12,6 +20,7 @@ const keys: Readonly<Record<string, string>> = {
 export interface Writer {
   opensANewProject(): Promise<void>;
   reopens(): Promise<void>;
+  startsFrom(project: SeededProject): Promise<void>;
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
@@ -40,6 +49,7 @@ export interface Sees {
 
 const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
+  'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
 };
 
@@ -48,7 +58,11 @@ const pieceNamed = (words: string): string => pieces[words] ?? words;
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
-export const writerOn = (driver: Driver, opening: Opening): Writer => {
+export const writerOn = (
+  driver: Driver,
+  opening: Opening,
+  startFrom?: (project: SeededProject) => Promise<void>,
+): Writer => {
   const clicking = (piece: string): Promise<void> => {
     const named = pieceNamed(piece);
     return driver.click('heading', named, { role: 'group', name: named });
@@ -64,6 +78,14 @@ export const writerOn = (driver: Driver, opening: Opening): Writer => {
   return {
     opensANewProject: () => opening.fresh(),
     reopens: () => opening.reopen(),
+    startsFrom: async (project) => {
+      if (startFrom === undefined) {
+        throw new Error(
+          'Only the page tier starts a scenario from a seeded world: this writer was given no start from.',
+        );
+      }
+      await startFrom(project);
+    },
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
     makesCurrent: reaching,
@@ -191,6 +213,10 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => ({
   },
 });
 
+const twoBeats = story(beat(), beat());
+const aBeatWithTwoScenes = story(beat(), beat(scene(), scene()));
+const theSecondBeat = 'Beat 2';
+
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
@@ -200,28 +226,20 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer presses {key}': ({ key }) => writer.moves(key),
   'the writer tabs forward': () => writer.tabsForward(),
   'the writer tabs backward': () => writer.tabsBackward(),
-  'a project with two scenes under {beat}': async ({ beat }) => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder(beat);
-    await writer.addsASceneUnder(beat);
-    await writer.reopens();
-  },
+  'a project with two scenes under {beat}': async ({ beat: name }) =>
+    writer.startsFrom(await aProjectWithScenesUnder(pieceNamed(name), 2)),
   'beat two is current with tab focus': () => writer.clicks('beat two'),
   'a current beat with two scenes': async () => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder('Beat 2');
-    await writer.addsASceneUnder('Beat 2');
-    await writer.clicks('Beat 2');
+    await writer.startsFrom(aProject(aBeatWithTwoScenes));
+    await writer.clicks(theSecondBeat);
   },
   'two beats, the first current with tab focus': async () => {
-    await writer.opensANewProject();
+    await writer.startsFrom(aProject(twoBeats));
     await writer.clicks('Beat 1');
   },
   'a beat with two scenes, the beat current': async () => {
-    await writer.opensANewProject();
-    await writer.addsASceneUnder('Beat 2');
-    await writer.addsASceneUnder('Beat 2');
-    await writer.clicks('Beat 2');
+    await writer.startsFrom(aProject(aBeatWithTwoScenes));
+    await writer.clicks(theSecondBeat);
   },
   'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
   'the first scene has focus': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),

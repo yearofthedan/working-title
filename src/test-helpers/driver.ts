@@ -104,3 +104,128 @@ export const typing =
 
 export const linesOf = (tree: string): readonly string[] =>
   tree.replace(/^\n/, '').replace(/\n$/, '').split('\n');
+
+export interface Named {
+  readonly role: string;
+  readonly name: string;
+}
+
+export interface Focus {
+  readonly element: Named;
+  readonly inside: Named | undefined;
+}
+
+export const focusedIn = (root: Element): Focus | undefined => {
+  // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
+  const roles: Readonly<Record<string, string>> = {
+    BUTTON: 'button',
+    FIELDSET: 'group',
+    H1: 'heading',
+    H2: 'heading',
+    H3: 'heading',
+    H4: 'heading',
+    H5: 'heading',
+    H6: 'heading',
+    MAIN: 'main',
+    NAV: 'navigation',
+    TEXTAREA: 'textbox',
+  };
+
+  const named = (element: Element): Named | undefined => {
+    const role = element.getAttribute('role') ?? roles[element.tagName];
+    if (role === undefined) return undefined;
+    const label = element.getAttribute('aria-label');
+    const legend = [...element.children].find((child) => child.tagName === 'LEGEND');
+    const labels =
+      element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement
+        ? element.labels
+        : null;
+    const name = (
+      label ??
+      legend?.textContent ??
+      labels?.[0]?.textContent ??
+      element.textContent ??
+      ''
+    ).trim();
+    return name === '' ? undefined : { role, name };
+  };
+
+  const at = document.activeElement;
+  if (at === null || at === root || !root.contains(at)) return undefined;
+  const element = named(at);
+  if (element === undefined) {
+    throw new Error(
+      `the focus is on <${at.tagName.toLowerCase()}> inside main, whose role or name this reader cannot read: name it in focusedIn`,
+    );
+  }
+  for (
+    let above = at.parentElement;
+    above !== null && above !== root;
+    above = above.parentElement
+  ) {
+    const inside = named(above);
+    if (inside !== undefined) return { element, inside };
+  }
+  return { element, inside: undefined };
+};
+
+const namedOn = (line: string): Named | undefined => {
+  const found = /^\s*- ([\w-]+) "([^"]*)"/.exec(line);
+  return found === null ? undefined : { role: found[1], name: found[2] };
+};
+
+const same = (found: Named | undefined, wanted: Named | undefined): boolean =>
+  found === undefined || wanted === undefined
+    ? found === undefined && wanted === undefined
+    : found.role === wanted.role && found.name === wanted.name;
+
+export const markingFocus = (
+  lines: readonly string[],
+  focus: Focus | undefined,
+): readonly string[] => {
+  if (focus === undefined) return lines;
+  const enclosing: (Named | undefined)[] = [];
+  let marked = false;
+  const markedLines = lines.map((line) => {
+    const level = (line.length - line.trimStart().length) / 2;
+    const here = namedOn(line);
+    const inside = enclosing.filter((at, depth) => depth < level && at !== undefined).at(-1);
+    enclosing.length = level;
+    enclosing[level] = here;
+    if (marked || !same(here, focus.element) || !same(inside, focus.inside)) return line;
+    marked = true;
+    return line.replace(/^(\s*- [\w-]+ "[^"]*")/, '$1 [active]');
+  });
+  if (!marked) {
+    const inside =
+      focus.inside === undefined ? '' : ` in ${focus.inside.role} "${focus.inside.name}"`;
+    throw new Error(
+      `no line reads ${focus.element.role} "${focus.element.name}"${inside}, so a tree holding focus would print as one that does not`,
+    );
+  }
+  return markedLines;
+};
+
+export interface FocusAssertions {
+  noted(): boolean;
+  note(): void;
+}
+
+export const focusAssertions = (): FocusAssertions => {
+  let noted = false;
+  return {
+    noted: () => noted,
+    note: () => {
+      noted = true;
+    },
+  };
+};
+
+export const markingFocusWhenAsserted = async (
+  assertions: FocusAssertions,
+  printed: () => Promise<string>,
+  focused: () => Promise<Focus | undefined>,
+): Promise<readonly string[]> => {
+  const lines = linesOf(await printed());
+  return assertions.noted() ? markingFocus(lines, await focused()) : lines;
+};

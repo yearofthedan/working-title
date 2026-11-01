@@ -10,7 +10,7 @@ import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
 import { cardSeesOn, cardSteps, cardWriterOn } from './ui/card/card.dsl';
 import { stageTheCard } from './ui/card/card.harness';
 import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
-import { stageTheGraph } from './ui/graph/graph.harness';
+import { stageTheGraph, stageTheSeededGraph } from './ui/graph/graph.harness';
 
 declare const __SCENARIO_APPROVE__: string;
 
@@ -29,7 +29,7 @@ const graphTier: ScenarioTier = {
   stage: stageTheGraph,
   steps: (driver: Driver) =>
     graphSteps(
-      writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }),
+      writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }, stageTheSeededGraph),
       seesOn(driver, readsOnThePage()),
     ),
 };

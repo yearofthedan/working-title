@@ -56,7 +56,7 @@ And it has focus
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Scenes under Beat 2":
-    - group "Scene 1":
+    - group "Scene 1" [active]:
       - heading "Scene 1" [level=4]
       - text: List line
       - textbox "List line"
@@ -83,21 +83,12 @@ And focus moves to its card
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [active]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
 ```
 
 ### Scenario: → in the scenes' row makes the next scene current
@@ -119,7 +110,7 @@ And focus moves to its card
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
-    - group "Scene 2":
+    - group "Scene 2" [active]:
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"
@@ -135,6 +126,7 @@ And presses ↓
 Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
 And presses ↑
 Then beat 2 is current, with scenes 1 and 2 under it
+And focus moves to its card
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -147,21 +139,12 @@ Then the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [active]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
@@ -185,6 +168,7 @@ And presses →
 And presses ↑
 And presses ↓
 Then scene 2 under beat 2 is current
+And focus moves to its card
 Then the writer sees
 - main:
   - toolbar "Beat 2":
@@ -197,7 +181,7 @@ Then the writer sees
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
-    - group "Scene 2":
+    - group "Scene 2" [active]:
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"

@@ -1,7 +1,9 @@
 import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
-  linesOf,
+  focusAssertions,
+  focusedIn,
+  markingFocusWhenAsserted,
   settled,
   typing,
   wholeNameAnyCase,
@@ -38,6 +40,7 @@ export const vitestBrowserDriver = (graph?: string): Driver => {
     group === undefined
       ? within
       : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
+  const assertions = focusAssertions();
   return {
     press: async (key) => {
       await browser.userEvent.keyboard(key === 'Shift+Tab' ? '{Shift>}{Tab}{/Shift}' : `{${key}}`);
@@ -57,14 +60,22 @@ export const vitestBrowserDriver = (graph?: string): Driver => {
     value: async (label, group) =>
       (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
         .value,
-    focusIs: async (role, name, group) =>
-      rootIn(group)
-        .getByRole(role, { name: wholeNameAnyCase(name) })
-        .first()
-        .element() === document.activeElement,
+    focusIs: async (role, name, group) => {
+      assertions.note();
+      return (
+        rootIn(group)
+          .getByRole(role, { name: wholeNameAnyCase(name) })
+          .first()
+          .element() === document.activeElement
+      );
+    },
     tree: async () => {
       await settled();
-      return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())));
+      return markingFocusWhenAsserted(
+        assertions,
+        async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())),
+        async () => focusedIn(main.element()),
+      );
     },
   };
 };
