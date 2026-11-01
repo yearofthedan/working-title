@@ -1,6 +1,8 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
+import type { Drawn } from '../graph/graph';
+import { whileMeasuring } from '../graph/layout';
 
-export interface CardHooks {
+interface CardHooks {
   readonly level: number;
   readonly current: () => boolean;
   readonly elaborate: OpenProject['elaborate'];
@@ -8,14 +10,35 @@ export interface CardHooks {
   readonly addChild: () => void;
 }
 
-export const fieldsOf = (card: HTMLElement): readonly HTMLElement[] => [
+export interface Card {
+  readonly element: HTMLElement;
+  show(piece: PieceView, current: boolean): void;
+  reachCard(on: boolean): void;
+  reachFields(on: boolean): void;
+  reachName(on: boolean): void;
+  enter(): void;
+  minWidth(): number;
+  observe(watcher: ResizeObserver): void;
+  placeAt(x: number, y: number): void;
+  slideTo(x: number): void;
+  setWidth(px: number): void;
+  setHeight(px: number | undefined): void;
+  size(): { w: number; h: number };
+  startAt(other: Card): void;
+  focus(): void;
+  contains(node: Node | null): boolean;
+  beforeMeasuring(kind: Drawn): void;
+  afterMeasuring(): void;
+}
+
+const fieldsOf = (card: HTMLElement): readonly HTMLElement[] => [
   ...card.querySelectorAll<HTMLElement>('textarea, .facet button'),
 ];
 
-export const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
+const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
   card.querySelector<HTMLElement>('legend button');
 
-export const nameButton = (piece: PieceView): HTMLElement => {
+const nameButton = (piece: PieceView): HTMLElement => {
   const button = document.createElement('button');
   button.type = 'button';
   button.tabIndex = -1;
@@ -23,7 +46,7 @@ export const nameButton = (piece: PieceView): HTMLElement => {
   return button;
 };
 
-export const setHeading = (card: HTMLElement, piece: PieceView, current: boolean): void => {
+const setHeading = (card: HTMLElement, piece: PieceView, current: boolean): void => {
   const heading = card.querySelector('h2, h3, h4')!;
   if (
     (heading.querySelector('button') === null) === current &&
@@ -63,29 +86,26 @@ const field = (
   return wrapper;
 };
 
-const keysOnTheCard = (
-  card: HTMLElement,
-  current: () => boolean,
-): ((event: KeyboardEvent) => void) => {
+const keysOnTheCard = (card: Card, current: () => boolean): ((event: KeyboardEvent) => void) => {
   const onKeyDown = (event: KeyboardEvent): void => {
     const at = event.target;
     if (!(at instanceof HTMLElement) || !card.contains(at)) return;
 
-    if (at === card) {
+    if (at === card.element) {
       if (event.key !== 'Enter' || !current()) return;
       event.preventDefault();
-      card.querySelector('textarea')?.focus({ preventScroll: true });
+      card.enter();
       return;
     }
 
     if (event.key === 'Escape' && current()) {
       event.preventDefault();
-      card.focus({ preventScroll: true });
+      card.focus();
       return;
     }
 
     if (event.key !== 'Tab' || !current()) return;
-    const fields = fieldsOf(card);
+    const fields = fieldsOf(card.element);
     const [first] = fields;
     const last = fields.at(-1);
     if (at !== (event.shiftKey ? first : last)) return;
@@ -95,16 +115,16 @@ const keysOnTheCard = (
   return onKeyDown;
 };
 
-export const pieceCard = (piece: PieceView, hooks: CardHooks): HTMLElement => {
-  const card = document.createElement('fieldset');
-  card.tabIndex = -1;
-  card.dataset.piece = piece.id;
-  const name = document.createElement('legend');
+export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
+  const element = document.createElement('fieldset');
+  element.tabIndex = -1;
+  element.dataset.piece = piece.id;
+  const legend = document.createElement('legend');
   const heading = document.createElement(`h${hooks.level + 2}`);
   heading.textContent = piece.name;
-  name.append(heading);
+  legend.append(heading);
   const facets = piece.facets.map((facet) => field(piece.id, facet, hooks.elaborate));
-  card.append(name, ...facets);
+  element.append(legend, ...facets);
 
   if (piece.childKind !== undefined) {
     const button = document.createElement('button');
@@ -116,13 +136,73 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): HTMLElement => {
       event.stopPropagation();
       hooks.addChild();
     });
-    (facets.at(-1) ?? card).append(button);
+    (facets.at(-1) ?? element).append(button);
   }
 
-  card.addEventListener('click', (event) => {
+  element.addEventListener('click', (event) => {
     hooks.goTo(event.target instanceof HTMLTextAreaElement ? event.target : undefined);
   });
-  card.addEventListener('keydown', keysOnTheCard(card, hooks.current));
 
+  const card: Card = {
+    element,
+    show: (shown, current) => setHeading(element, shown, current),
+    reachCard: (on) => {
+      element.tabIndex = on ? 0 : -1;
+    },
+    reachFields: (on) => {
+      for (const one of fieldsOf(element)) one.tabIndex = on ? 0 : -1;
+    },
+    reachName: (on) => {
+      const button = nameButtonIn(element);
+      if (button !== null) button.tabIndex = on ? 0 : -1;
+    },
+    enter: () => element.querySelector('textarea')?.focus({ preventScroll: true }),
+    minWidth: () => {
+      const style = getComputedStyle(legend);
+      return (
+        heading.scrollWidth +
+        parseFloat(style.paddingLeft) +
+        parseFloat(style.paddingRight) +
+        parseFloat(style.borderLeftWidth) +
+        parseFloat(style.borderRightWidth)
+      );
+    },
+    observe: (watcher) => {
+      watcher.observe(element);
+      for (const facet of element.querySelectorAll('.facet')) watcher.observe(facet);
+    },
+    placeAt: (x, y) => {
+      element.style.left = `${x}px`;
+      element.style.top = `${y}px`;
+    },
+    slideTo: (x) => {
+      element.style.left = `${x}px`;
+    },
+    setWidth: (px) => {
+      element.style.width = `${px}px`;
+    },
+    setHeight: (px) => {
+      element.style.height = px === undefined ? '' : `${px}px`;
+    },
+    size: () => ({ w: element.offsetWidth, h: element.offsetHeight }),
+    startAt: (other) => {
+      element.style.left = other.element.style.left;
+      element.style.top = other.element.style.top;
+      element.style.width = other.element.style.width;
+    },
+    focus: () => element.focus({ preventScroll: true }),
+    contains: (node) => element.contains(node),
+    beforeMeasuring: (kind) => {
+      element.style.transitionProperty = whileMeasuring(
+        getComputedStyle(element).transitionProperty,
+        kind,
+      );
+      element.style.height = '';
+    },
+    afterMeasuring: () => {
+      element.style.transitionProperty = '';
+    },
+  };
+  element.addEventListener('keydown', keysOnTheCard(card, hooks.current));
   return card;
 };
