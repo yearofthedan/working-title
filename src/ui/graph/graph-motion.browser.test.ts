@@ -1,11 +1,18 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Driver } from '../../test-helpers/driver';
-import { laidOut, moving, pageWith, recorded, partWay } from '../../test-helpers/graph-page';
+import {
+  laidOut,
+  moving,
+  recorded,
+  partWay,
+  startedTransitions,
+} from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
+import { pageWith } from './graph.harness';
 import { nameOf } from '../card/card.test-page';
-import { cardAtCursor, current, everyCard, named } from './graph.test-page';
+import { cardAtFocus, current, everyCard, named } from './graph.test-page';
 import { narrowThePane } from '../../test-helpers/staging';
 
 const boxes = (): readonly string[] =>
@@ -63,8 +70,8 @@ const moves: ReadonlyArray<{
 
 describe('the motion of a move', () => {
   it.each(moves)('keeps every animation of $what within 400 ms, easing out', async ({ play }) => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
+    const { driver, stage, writer } = pageWith(1);
+    await stage.fresh();
 
     await play(writer, driver);
     const animations = moving();
@@ -78,15 +85,34 @@ describe('the motion of a move', () => {
   });
 
   it('draws the page without moving anything', async () => {
-    const { driver } = pageWith(1);
-    await driver.fresh();
+    const { stage } = pageWith(1);
+    await stage.fresh();
 
     expect(moving()).toEqual([]);
   });
 
+  it('changes a card’s look without starting a transition of its own, ending at a fresh draw’s size', async () => {
+    const atRest = pageWith(1);
+    await atRest.stage.fresh();
+    await atRest.writer.addsASceneUnder('Beat 4');
+    await settled();
+    const rest = boxes();
+
+    const moved = pageWith(1);
+    await moved.stage.fresh();
+    await moved.writer.addsASceneUnder('Beat 4');
+    const started = startedTransitions();
+    await settled();
+    await laidOut();
+    await settled();
+
+    expect(started.filter(({ easing }) => !easesOut(easing))).toEqual([]);
+    expect(boxes()).toEqual(rest);
+  });
+
   it('keeps a piece leaving the graph out of reach while it fades', async () => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
+    const { driver, stage, writer } = pageWith(1);
+    await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
 
@@ -95,7 +121,7 @@ describe('the motion of a move', () => {
 
     for (let at = 0; at < 12; at += 1) {
       await driver.press('Tab');
-      expect(cardAtCursor()).not.toBe(leaving);
+      expect(cardAtFocus()).not.toBe(leaving);
     }
 
     await browser.userEvent.click(leaving, { force: true });
@@ -104,7 +130,7 @@ describe('the motion of a move', () => {
 
   it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
     const atRest = pageWith(1);
-    await atRest.driver.fresh();
+    await atRest.stage.fresh();
     await atRest.writer.clicks('Beat 2');
     await settled();
     narrowThePane(720);
@@ -113,7 +139,7 @@ describe('the motion of a move', () => {
     const rest = boxes();
 
     const partWay = pageWith(1);
-    await partWay.driver.fresh();
+    await partWay.stage.fresh();
     await partWay.writer.clicks('Beat 2');
     narrowThePane(720);
     await laidOut();
@@ -126,8 +152,8 @@ describe('the motion of a move', () => {
   });
 
   it('keeps a move made during a move running, and comes to rest without a jump', async () => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
+    const { driver, stage, writer } = pageWith(1);
+    await stage.fresh();
 
     const frames = await recorded(async () => {
       await writer.clicks('Beat 2');
@@ -142,8 +168,8 @@ describe('the motion of a move', () => {
   });
 
   it('starts a second move part-way through the first without jumping a card', async () => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
+    const { driver, stage, writer } = pageWith(1);
+    await stage.fresh();
 
     let pressed = 0;
     const frames = await recorded(async () => {
@@ -166,8 +192,8 @@ describe('the motion of a move', () => {
   });
 
   it('takes a click and a key while a move runs, each landing on the piece it aims at and running to its end', async () => {
-    const { driver, writer } = pageWith(1);
-    await driver.fresh();
+    const { driver, stage, writer } = pageWith(1);
+    await stage.fresh();
 
     const landed: string[] = [];
     let clicked = 0;
@@ -202,9 +228,9 @@ describe('the motion of a move', () => {
     });
 
     it.each(moves)('moves nothing for $what', async ({ play }) => {
-      const { driver, writer } = pageWith(1);
+      const { driver, stage, writer } = pageWith(1);
       await browser.commands.emulateReducedMotion('reduce');
-      await driver.fresh();
+      await stage.fresh();
 
       await play(writer, driver);
 

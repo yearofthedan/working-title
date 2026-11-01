@@ -1,4 +1,4 @@
-import type { Drawn } from '../ui/graph/graph';
+import type { CardLook } from '../ui/card/card';
 
 export type Role = 'group' | 'button' | 'heading' | 'main' | 'navigation' | 'textbox';
 
@@ -18,9 +18,19 @@ export interface Box {
 
 export interface DrawnCard {
   readonly name: string;
-  readonly kind: Drawn;
+  readonly kind: CardLook;
   readonly current: boolean;
   readonly box: Box;
+}
+
+export interface Opening {
+  fresh(): Promise<void>;
+  reopen(): Promise<void>;
+}
+
+export interface Reads {
+  drawn(): Promise<readonly DrawnCard[]>;
+  path(): Promise<string>;
 }
 
 export const settled = async (): Promise<void> => {
@@ -28,7 +38,10 @@ export const settled = async (): Promise<void> => {
   await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
 };
 
-export const drawn = (kinds: readonly Drawn[], root: ParentNode = document): readonly DrawnCard[] =>
+export const drawn = (
+  kinds: readonly CardLook[],
+  root: ParentNode = document,
+): readonly DrawnCard[] =>
   [...root.querySelectorAll<HTMLElement>('main fieldset')].map((card) => ({
     name: card.querySelector('h2, h3, h4')?.textContent ?? '',
     kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
@@ -37,8 +50,6 @@ export const drawn = (kinds: readonly Drawn[], root: ParentNode = document): rea
   }));
 
 export interface Driver {
-  fresh(): Promise<void>;
-  reopen(): Promise<void>;
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
@@ -46,10 +57,8 @@ export interface Driver {
   type(text: string, label: string, within: Within): Promise<void>;
   clickAway(): Promise<void>;
   value(label: string, within: Within): Promise<string>;
-  cursorIs(role: Role, name: string, within?: Within): Promise<boolean>;
-  drawn(): Promise<readonly DrawnCard[]>;
+  focusIs(role: Role, name: string, within?: Within): Promise<boolean>;
   tree(): Promise<readonly string[]>;
-  path(): Promise<string>;
 }
 
 export interface ReloadingDriver extends Driver {

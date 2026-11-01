@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
-import { playwrightDriver } from '../src/test-helpers/playwright.driver';
+import type { Opening } from '../src/test-helpers/driver';
+import { playwrightDriver, playwrightReads } from '../src/test-helpers/playwright.driver';
 import { seesOn, type Sees } from '../src/ui/graph/graph.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
 
@@ -16,15 +17,24 @@ export interface Fixture extends Journey {
   opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
+const openingOn = (page: Page): Opening => ({
+  fresh: async () => {
+    await page.goto('/');
+  },
+  reopen: async () => {
+    await page.goto('/');
+  },
+});
+
 const fixtureOn = (page: Page): Fixture => {
   const driver = playwrightDriver(page);
 
   return {
-    ...journeyOn(driver),
-    sees: seesOn(driver),
+    ...journeyOn(driver, openingOn(page)),
+    sees: seesOn(driver, playwrightReads(page)),
 
     contrastViolations: async () => {
-      expect(await driver.drawn(), 'the graph is drawn').not.toHaveLength(0);
+      expect(await playwrightReads(page).drawn(), 'the graph is drawn').not.toHaveLength(0);
       const { violations } = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
       return violations.flatMap((violation) =>
         violation.nodes.map((node) => ({

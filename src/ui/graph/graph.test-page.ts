@@ -1,14 +1,14 @@
 import * as browser from 'vite-plus/test/browser';
 import { inThePage, nameOf } from '../card/card.test-page';
-import { drawnKinds, type Drawn } from './graph';
+import { cardLooks, type CardLook } from '../card/card';
 
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());
 
-const kindOf = (card: HTMLElement): Drawn | undefined =>
-  drawnKinds.find((kind) => card.classList.contains(kind));
+const kindOf = (card: HTMLElement): CardLook | undefined =>
+  cardLooks.find((kind) => card.classList.contains(kind));
 
-export const cards = (kind: Drawn): HTMLElement[] =>
+export const cards = (kind: CardLook): HTMLElement[] =>
   everyCard().filter((card) => kindOf(card) === kind);
 
 export const current = (): HTMLElement => {
@@ -17,7 +17,7 @@ export const current = (): HTMLElement => {
   return card;
 };
 
-export const named = (kind: Drawn, name: string): HTMLElement => {
+export const named = (kind: CardLook, name: string): HTMLElement => {
   const card = everyCard().find((one) => kindOf(one) === kind && nameOf(one) === name);
   if (card === undefined) throw new Error(`no piece named ${name} is drawn as a ${kind}`);
   return card;
@@ -26,17 +26,17 @@ export const named = (kind: Drawn, name: string): HTMLElement => {
 export const currentCards = (): HTMLElement[] =>
   everyCard().filter((card) => card.getAttribute('aria-current') === 'location');
 
-export const atCursor = (): Element | null => document.activeElement;
+export const atFocus = (): Element | null => document.activeElement;
 
-export const blurTheCursor = (): void => {
+export const blurTheFocus = (): void => {
   if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 };
 
-export const cardAtCursor = (): HTMLElement | null =>
+export const cardAtFocus = (): HTMLElement | null =>
   everyCard().find((card) => card.contains(document.activeElement)) ?? null;
 
-export const cursorIn = (kind: Drawn): HTMLElement | null => {
-  const card = cardAtCursor();
+export const focusIn = (kind: CardLook): HTMLElement | null => {
+  const card = cardAtFocus();
   return card !== null && kindOf(card) === kind ? card : null;
 };
 
@@ -46,7 +46,7 @@ export const pane = (): HTMLElement => {
   return main;
 };
 
-export const cursorIsInThePane = (): boolean => pane().contains(document.activeElement);
+export const focusIsInThePane = (): boolean => pane().contains(document.activeElement);
 
 export const navigationIn = (header: HTMLElement): HTMLElement | null =>
   inThePage(browser.page.getByRole('navigation', { includeHidden: true }).elements()).find(

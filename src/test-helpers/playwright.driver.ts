@@ -1,5 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-import { drawnKinds } from '../ui/graph/graph';
+import { cardLooks } from '../ui/card/card';
 import {
   clicking,
   drawn,
@@ -7,6 +7,7 @@ import {
   settled,
   typing,
   wholeNameAnyCase,
+  type Reads,
   type ReloadingDriver,
   type Within,
 } from './driver';
@@ -16,18 +17,22 @@ export interface PlaywrightDriver extends ReloadingDriver {
   opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
+export const playwrightReads = (page: Page): Reads => ({
+  drawn: async () => {
+    await page.getByRole('main').getByRole('group').first().waitFor();
+    await page.evaluate(settled);
+    return page.evaluate(drawn, cardLooks);
+  },
+  path: async () =>
+    (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
+});
+
 export const playwrightDriver = (page: Page): PlaywrightDriver => {
   const rootIn = (within?: Within) =>
     within === undefined
       ? page
       : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
   return {
-    fresh: async () => {
-      await page.goto('/');
-    },
-    reopen: async () => {
-      await page.goto('/');
-    },
     reload: async () => {
       await page.reload();
     },
@@ -46,22 +51,15 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
     },
     value: async (label, within) =>
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
-    cursorIs: async (role, name, within) =>
+    focusIs: async (role, name, within) =>
       rootIn(within)
         .getByRole(role, { name: wholeNameAnyCase(name) })
         .first()
         .evaluate((element) => element === document.activeElement),
-    drawn: async () => {
-      await page.getByRole('main').getByRole('group').first().waitFor();
-      await page.evaluate(settled);
-      return page.evaluate(drawn, drawnKinds);
-    },
     tree: async () => {
       await page.evaluate(settled);
       return linesOf(await page.getByRole('main').ariaSnapshot());
     },
-    path: async () =>
-      (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {
         const frames: string[] = [];

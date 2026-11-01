@@ -149,7 +149,12 @@ export default defineConfig({
         },
       },
       {
-        files: ['src/ui/**/*.dom.ts', 'src/ui/**/*.test.ts', 'src/ui/**/*.test-page.ts'],
+        files: [
+          'src/ui/**/*.dom.ts',
+          'src/ui/**/*.test.ts',
+          'src/ui/**/*.test-page.ts',
+          'src/ui/**/*.harness.ts',
+        ],
         rules: { 'no-restricted-globals': 'off' },
       },
       {

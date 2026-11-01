@@ -1,4 +1,4 @@
-import type { DrawnCard, Driver } from '../../test-helpers/driver';
+import type { DrawnCard, Driver, Opening, Reads } from '../../test-helpers/driver';
 import type { StepAction } from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
@@ -15,7 +15,7 @@ export interface Writer {
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
-  putsTheCursorOnNameButtonOf(piece: string): Promise<void>;
+  putsTheFocusOnNameButtonOf(piece: string): Promise<void>;
   moves(direction: string): Promise<void>;
   tabsForward(): Promise<void>;
   tabsBackward(): Promise<void>;
@@ -33,9 +33,9 @@ export interface Sees {
   currentIs(piece: string, around?: Around): Promise<void>;
   tree(): Promise<readonly string[]>;
   pathIs(pieces: readonly string[]): Promise<void>;
-  cursorIsIn(piece: string, facet: string): Promise<void>;
-  cursorIsOnTheName(piece: string): Promise<void>;
-  cursorIsOnTheCard(): Promise<void>;
+  focusIsIn(piece: string, facet: string): Promise<void>;
+  focusIsOnTheName(piece: string): Promise<void>;
+  focusIsOnTheCard(): Promise<void>;
 }
 
 const pieces: Readonly<Record<string, string>> = {
@@ -48,7 +48,7 @@ const pieceNamed = (words: string): string => pieces[words] ?? words;
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
-export const writerOn = (driver: Driver): Writer => {
+export const writerOn = (driver: Driver, opening: Opening): Writer => {
   const clicking = (piece: string): Promise<void> => {
     const named = pieceNamed(piece);
     return driver.click('heading', named, { role: 'group', name: named });
@@ -62,12 +62,12 @@ export const writerOn = (driver: Driver): Writer => {
   };
 
   return {
-    opensANewProject: () => driver.fresh(),
-    reopens: () => driver.reopen(),
+    opensANewProject: () => opening.fresh(),
+    reopens: () => opening.reopen(),
     clicks: clicking,
     clicksAwayFromTheGraph: () => driver.clickAway(),
     makesCurrent: reaching,
-    putsTheCursorOnNameButtonOf: (piece) => {
+    putsTheFocusOnNameButtonOf: (piece) => {
       const named = pieceNamed(piece);
       return driver.focus('button', named, { role: 'group', name: named });
     },
@@ -154,9 +154,9 @@ const under = (
   }
 };
 
-export const seesOn = (driver: Driver): Sees => ({
+export const seesOn = (driver: Driver, reads: Reads): Sees => ({
   currentIs: async (piece, around = {}) => {
-    const pieces = await driver.drawn();
+    const pieces = await reads.drawn();
     const current = theCurrent(pieces, piece);
     if (around.above !== undefined) above(pieces, current, around.above);
     if (around.beside !== undefined) beside(pieces, current, around.beside);
@@ -164,29 +164,29 @@ export const seesOn = (driver: Driver): Sees => ({
   },
   tree: () => driver.tree(),
   pathIs: async (pieces) => {
-    const path = await driver.path();
+    const path = await reads.path();
     if (path !== pieces.join('')) {
       throw new Error(`the path reads ${path || 'nothing'}, not ${pieces.join(' › ')}`);
     }
   },
-  cursorIsIn: async (piece, facet) => {
-    if (!(await driver.cursorIs('textbox', facet, { role: 'group', name: piece }))) {
-      throw new Error(`the cursor is not in ${piece}'s ${facet}`);
+  focusIsIn: async (piece, facet) => {
+    if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
+      throw new Error(`the focus is not in ${piece}'s ${facet}`);
     }
   },
-  cursorIsOnTheName: async (piece) => {
-    if (!(await driver.cursorIs('button', piece, { role: 'group', name: piece }))) {
-      throw new Error(`the cursor is not on ${piece}'s name`);
+  focusIsOnTheName: async (piece) => {
+    if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
+      throw new Error(`the focus is not on ${piece}'s name`);
     }
   },
-  cursorIsOnTheCard: async () => {
-    const cards = (await driver.drawn()).filter((piece) => piece.current);
+  focusIsOnTheCard: async () => {
+    const cards = (await reads.drawn()).filter((piece) => piece.current);
     const [only] = cards;
     if (cards.length !== 1 || only === undefined) {
       throw new Error('the graph draws no one current piece');
     }
-    if (!(await driver.cursorIs('group', only.name))) {
-      throw new Error(`the cursor is not on ${only.name}'s card`);
+    if (!(await driver.focusIs('group', only.name))) {
+      throw new Error(`the focus is not on ${only.name}'s card`);
     }
   },
 });
@@ -223,12 +223,12 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.addsASceneUnder('Beat 2');
     await writer.clicks('Beat 2');
   },
-  'focus on its first scene': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
-  'the first scene has focus': () => writer.putsTheCursorOnNameButtonOf('Scene 1'),
-  'focus moves to scene one under beat two': () => sees.cursorIsOnTheName('Scene 1'),
-  'focus moves to the story': () => sees.cursorIsOnTheName('The story'),
-  'focus moves to its card': () => sees.cursorIsOnTheCard(),
-  'it has focus': () => sees.cursorIsOnTheCard(),
+  'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
+  'the first scene has focus': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
+  'focus moves to scene one under beat two': () => sees.focusIsOnTheName('Scene 1'),
+  'focus moves to the story': () => sees.focusIsOnTheName('The story'),
+  'focus moves to its card': () => sees.focusIsOnTheCard(),
+  'it has focus': () => sees.focusIsOnTheCard(),
   'beat two stays current': () => sees.currentIs('Beat 2'),
   'the first scene becomes current': () => sees.currentIs('Scene 1'),
   'the second scene becomes current': () => sees.currentIs('Scene 2'),
