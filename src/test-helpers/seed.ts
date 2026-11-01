@@ -13,16 +13,23 @@ export type SeededProject = Project;
 export const seededProject = (seed: Seed): SeededProject => {
   const newId = ids();
   const started = newProject(snowflakeExtended, newId);
-  const [root, ...beats] = started.pieces;
-  const kept = beats.slice(0, seed.beats);
+  const [root, ...starts] = started.pieces;
+  if (seed.beats > starts.length) {
+    throw new Error(`a project starts with ${starts.length} beats, not ${seed.beats}`);
+  }
+  const kept = starts.slice(0, seed.beats);
   let project: SeededProject = { ...started, pieces: [root, ...kept] };
 
   const under = seed.scenesUnder;
   if (under === undefined) return project;
 
+  const parent = kept[under.beat - 1];
+  if (parent === undefined) {
+    throw new Error(`${seed.beats} beats leaves no beat ${under.beat} to put scenes under`);
+  }
   const kind = snowflakeExtended.startingChildren.kind.childKind!;
   for (let at = 0; at < under.scenes; at += 1) {
-    project = branch(project, kept[under.beat - 1].id, kind, newId());
+    project = branch(project, parent.id, kind, newId());
   }
   return project;
 };

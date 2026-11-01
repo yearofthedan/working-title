@@ -96,28 +96,50 @@ describe('the graph language', () => {
   });
 });
 
+const shapeOf = (project: SeededProject): readonly string[] =>
+  project.pieces.map((piece) => {
+    const parent = project.pieces.findIndex((other) => other.id === piece.parent);
+    return `${piece.kind} ${piece.order} ${piece.parent === null ? 'root' : parent}`;
+  });
+
+const twoBeats = ['story 0 root', 'beat 0 0', 'beat 1 0'];
+const aBeatWithTwoScenes = [...twoBeats, 'scene 0 2', 'scene 1 2'];
+
 describe('a seeded Given', () => {
-  it('starts from a project of the beats the words name, with the scenes under the beat they name', async () => {
-    const { driver, opening, reads, startFrom, started } = recording(storyDrawn);
-    const step = graphSteps(writerOn(driver, opening, startFrom), seesOn(driver, reads))[
-      'a project with two scenes under {beat}'
-    ]!;
+  const played = async (
+    phrase: string,
+    vars: Record<string, string> = {},
+  ): Promise<{ calls: readonly string[]; worlds: readonly (readonly string[])[] }> => {
+    const { calls, driver, opening, reads, startFrom, started } = recording(storyDrawn);
+    const step = graphSteps(writerOn(driver, opening, startFrom), seesOn(driver, reads))[phrase]!;
 
-    await step({ beat: 'beat two' });
+    await step(vars);
 
-    expect(started).toEqual([
-      {
-        method: 'snowflake-extended',
-        version: 2,
-        pieces: [
-          { id: 'id-1', kind: 'story', parent: null, order: 0, facets: {} },
-          { id: 'id-2', kind: 'beat', parent: 'id-1', order: 0, facets: {} },
-          { id: 'id-3', kind: 'beat', parent: 'id-1', order: 1, facets: {} },
-          { id: 'id-7', kind: 'scene', parent: 'id-3', order: 0, facets: {} },
-          { id: 'id-8', kind: 'scene', parent: 'id-3', order: 1, facets: {} },
-        ],
-      },
-    ]);
+    return { calls, worlds: started.map(shapeOf) };
+  };
+
+  it('starts from the beats the words name, with the scenes under the beat they name', async () => {
+    expect(await played('a project with two scenes under {beat}', { beat: 'beat two' })).toEqual({
+      calls: [],
+      worlds: [aBeatWithTwoScenes],
+    });
+  });
+
+  it('starts from two beats and makes the first current', async () => {
+    expect(await played('two beats, the first current with tab focus')).toEqual({
+      calls: ['click heading "Beat 1" in group "Beat 1"'],
+      worlds: [twoBeats],
+    });
+  });
+
+  it('starts from a beat with two scenes and makes the beat current', async () => {
+    const clicks = ['click heading "Beat 2" in group "Beat 2"'];
+    for (const phrase of [
+      'a current beat with two scenes',
+      'a beat with two scenes, the beat current',
+    ]) {
+      expect(await played(phrase)).toEqual({ calls: clicks, worlds: [aBeatWithTwoScenes] });
+    }
   });
 
   it('refuses when the writer was given no way to start from a seeded project', async () => {
