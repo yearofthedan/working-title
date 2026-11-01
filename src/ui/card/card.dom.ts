@@ -1,5 +1,6 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
 import { whileMeasuring } from '../transition';
+import { keyOnTheCard, type CardLook } from './card';
 
 interface CardHooks {
   readonly level: number;
@@ -11,7 +12,7 @@ interface CardHooks {
 
 export interface Card {
   readonly element: HTMLElement;
-  show(piece: PieceView, current: boolean): void;
+  settle(piece: PieceView, as: CardLook): void;
   reachCard(on: boolean): void;
   reachFields(on: boolean): void;
   reachName(on: boolean): void;
@@ -26,7 +27,6 @@ export interface Card {
   startAt(other: Card): void;
   focus(): void;
   contains(node: Node | null): boolean;
-  beforeMeasuring(hidden: boolean): void;
   afterMeasuring(): void;
 }
 
@@ -90,26 +90,20 @@ const keysOnTheCard = (card: Card, current: () => boolean): ((event: KeyboardEve
     const at = event.target;
     if (!(at instanceof HTMLElement) || !card.contains(at)) return;
 
-    if (at === card.element) {
-      if (event.key !== 'Enter' || !current()) return;
-      event.preventDefault();
-      card.enter();
-      return;
-    }
-
-    if (event.key === 'Escape' && current()) {
-      event.preventDefault();
-      card.focus();
-      return;
-    }
-
-    if (event.key !== 'Tab' || !current()) return;
-    const fields = fieldsOf(card.element);
-    const [first] = fields;
-    const last = fields.at(-1);
-    if (at !== (event.shiftKey ? first : last)) return;
+    const stops = fieldsOf(card.element);
+    const move = keyOnTheCard({
+      current: current(),
+      at: at === card.element ? 'card' : 'field',
+      key: event.key,
+      shift: event.shiftKey,
+      where: stops.indexOf(at),
+      stops: stops.length,
+    });
+    if (move === 'none') return;
     event.preventDefault();
-    (event.shiftKey ? last : first)?.focus({ preventScroll: true });
+    if (move === 'enter') card.enter();
+    else if (move === 'back') card.focus();
+    else (move === 'first' ? stops[0] : stops.at(-1))?.focus({ preventScroll: true });
   };
   return onKeyDown;
 };
@@ -144,7 +138,18 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
 
   const card: Card = {
     element,
-    show: (shown, current) => setHeading(element, shown, current),
+    settle: (piece, as) => {
+      setHeading(element, piece, as === 'current');
+      element.style.transitionProperty = whileMeasuring(
+        getComputedStyle(element).transitionProperty,
+        as === 'hidden',
+      );
+      element.style.height = '';
+      element.className = as;
+      element.inert = as === 'hidden';
+      if (as === 'current') element.setAttribute('aria-current', 'location');
+      else element.removeAttribute('aria-current');
+    },
     reachCard: (on) => {
       element.tabIndex = on ? 0 : -1;
     },
@@ -191,13 +196,6 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
     },
     focus: () => element.focus({ preventScroll: true }),
     contains: (node) => element.contains(node),
-    beforeMeasuring: (hidden) => {
-      element.style.transitionProperty = whileMeasuring(
-        getComputedStyle(element).transitionProperty,
-        hidden,
-      );
-      element.style.height = '';
-    },
     afterMeasuring: () => {
       element.style.transitionProperty = '';
     },

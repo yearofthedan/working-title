@@ -86,3 +86,10 @@ export const timesDrawn = (card: HTMLElement, sentence: string): number =>
   inThePage(browser.page.getByText(sentence, { exact: true }).elements()).filter(
     (element) => card.contains(element) && visible(element),
   ).length;
+
+export const lookOf = (card: HTMLElement): string => card.className;
+
+export const inertOf = (card: HTMLElement): boolean => card.inert;
+
+export const marksCurrent = (card: HTMLElement): boolean =>
+  card.getAttribute('aria-current') === 'location';

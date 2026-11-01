@@ -1,8 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
-import { drawnKinds } from '../ui/graph/graph';
 import {
   clicking,
-  drawn,
   linesOf,
   settled,
   typing,
@@ -10,7 +8,6 @@ import {
   type Driver,
   type Within,
 } from './driver';
-import { openTheApp } from './the-app';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {
@@ -31,7 +28,7 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
-export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string): Driver => {
+export const vitestBrowserDriver = (graph?: string): Driver => {
   const main =
     graph === undefined
       ? browser.page.getByRole('main')
@@ -42,10 +39,6 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
       ? within
       : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
   return {
-    fresh: render,
-    reopen: async () => {
-      await openTheApp();
-    },
     press: async (key) => {
       await browser.userEvent.keyboard(key === 'Shift+Tab' ? '{Shift>}{Tab}{/Shift}' : `{${key}}`);
     },
@@ -64,20 +57,14 @@ export const vitestBrowserDriver = (render: () => Promise<void>, graph?: string)
     value: async (label, group) =>
       (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
         .value,
-    cursorIs: async (role, name, group) =>
+    focusIs: async (role, name, group) =>
       rootIn(group)
         .getByRole(role, { name: wholeNameAnyCase(name) })
         .first()
         .element() === document.activeElement,
-    drawn: async () => {
-      await settled();
-      return drawn(drawnKinds, graph === undefined ? document : main.element());
-    },
     tree: async () => {
       await settled();
       return linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())));
     },
-    path: async () =>
-      browser.page.getByRole('navigation', { name: 'Where you are' }).element().textContent ?? '',
   };
 };

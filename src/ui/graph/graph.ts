@@ -1,14 +1,11 @@
 import type { PieceView } from '../../application/project';
+import type { CardLook } from '../card/card';
 
 export interface Entry {
   readonly piece: PieceView;
   readonly level: number;
   readonly parentId?: string;
 }
-
-export type Drawn = 'current' | 'card' | 'chip' | 'hidden';
-
-export const drawnKinds: readonly Drawn[] = ['current', 'card', 'chip', 'hidden'];
 
 const entryOf = (entries: readonly Entry[], id: string | undefined): Entry | undefined =>
   entries.find((entry) => entry.piece.id === id);
@@ -21,7 +18,7 @@ export const treeOf = (root: PieceView, level = 0, parentId?: string): readonly 
 export const childrenOf = (entries: readonly Entry[], id: string): readonly Entry[] =>
   entries.filter((entry) => entry.parentId === id);
 
-export const drawnAs = (entries: readonly Entry[], current: string, id: string): Drawn => {
+export const drawnAs = (entries: readonly Entry[], current: string, id: string): CardLook => {
   const parent = entryOf(entries, current)!.parentId;
   if (id === current) return 'current';
   if (id === parent || entryOf(entries, id)!.parentId === current) return 'card';

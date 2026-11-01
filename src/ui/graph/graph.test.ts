@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
+import { cardLooks } from '../card/card';
 import {
   along,
   drawnAs,
-  drawnKinds,
   moveFrom,
   nameOfRow,
   pathTo,
@@ -86,7 +86,7 @@ describe('how a piece is drawn', () => {
       entries.map(({ piece: { id } }) => drawnAs(entries, current, id)),
     );
 
-    expect(drawn.filter((kind) => !drawnKinds.includes(kind))).toEqual([]);
+    expect(drawn.filter((kind) => !cardLooks.includes(kind))).toEqual([]);
   });
 });
 

@@ -32,7 +32,13 @@ export default {
         'The scenario layers are reached by a test, another language file, a driver and src/test-helpers/, and by nothing else the app is made of (docs/standards/testing.md).',
       from: {
         path: '^src/',
-        pathNot: ['\\.test\\.ts$', '\\.dsl\\.ts$', '\\.driver\\.ts$', '^src/test-helpers/'],
+        pathNot: [
+          '\\.test\\.ts$',
+          '\\.dsl\\.ts$',
+          '\\.driver\\.ts$',
+          '\\.scenarios\\.ts$',
+          '^src/test-helpers/',
+        ],
       },
       to: { path: '(\\.dsl\\.ts$|\\.driver\\.ts$|test-helpers/driver\\.ts$)' },
     },
@@ -41,7 +47,7 @@ export default {
       severity: 'error',
       comment:
         'A plain file in src/ui/ holds the logic, and the code that touches the DOM is in a *.dom.ts beside it (docs/standards/testing.md).',
-      from: { path: '^src/ui/', pathNot: ['\\.dom\\.ts$', '\\.test\\.ts$'] },
+      from: { path: '^src/ui/', pathNot: ['\\.dom\\.ts$', '\\.test\\.ts$', '\\.scenarios\\.ts$'] },
       to: { path: '\\.dom\\.ts$' },
     },
     {

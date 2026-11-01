@@ -8,56 +8,62 @@ const action = 'Add a scene';
 
 export interface CardWriter {
   opensTheCard(): Promise<void>;
-  putsTheCursorInTheSummary(): Promise<void>;
-  putsTheCursorOnTheAction(): Promise<void>;
+  putsTheFocusInTheSummary(): Promise<void>;
+  putsTheFocusOnTheAction(): Promise<void>;
+  presses(key: string): Promise<void>;
+  tabsForward(): Promise<void>;
+  tabsBackward(): Promise<void>;
 }
 
 export interface CardSees {
-  cursorIsInTheSummary(): Promise<void>;
-  cursorIsOnTheAction(): Promise<void>;
-  cursorIsOnTheCard(): Promise<void>;
+  focusIsInTheSummary(): Promise<void>;
+  focusIsOnTheAction(): Promise<void>;
+  focusIsOnTheCard(): Promise<void>;
 }
 
-export const cardWriterOn = (driver: Driver): CardWriter => ({
-  opensTheCard: async () => {
-    await driver.fresh();
-    await driver.click('heading', beat, theCard);
-  },
-  putsTheCursorInTheSummary: () => driver.focus('textbox', summary, theCard),
-  putsTheCursorOnTheAction: () => driver.focus('button', action, theCard),
+export const cardWriterOn = (driver: Driver, stage: () => Promise<void>): CardWriter => ({
+  opensTheCard: stage,
+  putsTheFocusInTheSummary: () => driver.focus('textbox', summary, theCard),
+  putsTheFocusOnTheAction: () => driver.focus('button', action, theCard),
+  presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
+  tabsForward: () => driver.press('Tab'),
+  tabsBackward: () => driver.press('Shift+Tab'),
 });
 
-const insistTheCursorIs = async (
+const insistTheFocusIs = async (
   driver: Driver,
   role: Role,
   name: string,
   where: string,
   within?: Within,
 ): Promise<void> => {
-  if (!(await driver.cursorIs(role, name, within))) {
-    throw new Error(`the cursor is not ${where}`);
+  if (!(await driver.focusIs(role, name, within))) {
+    throw new Error(`the focus is not ${where}`);
   }
 };
 
 export const cardSeesOn = (driver: Driver): CardSees => ({
-  cursorIsInTheSummary: () =>
-    insistTheCursorIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard),
-  cursorIsOnTheAction: () =>
-    insistTheCursorIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard),
-  cursorIsOnTheCard: () => insistTheCursorIs(driver, 'group', beat, `on ${beat}'s card`),
+  focusIsInTheSummary: () =>
+    insistTheFocusIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard),
+  focusIsOnTheAction: () =>
+    insistTheFocusIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard),
+  focusIsOnTheCard: () => insistTheFocusIs(driver, 'group', beat, `on ${beat}'s card`),
 });
 
 export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, StepAction> => ({
   'a beat card is current with tab focus': () => writer.opensTheCard(),
   'a beat card is current with focus in its one-sentence summary': async () => {
     await writer.opensTheCard();
-    await writer.putsTheCursorInTheSummary();
+    await writer.putsTheFocusInTheSummary();
   },
   'a beat card is current with focus on "Add a scene"': async () => {
     await writer.opensTheCard();
-    await writer.putsTheCursorOnTheAction();
+    await writer.putsTheFocusOnTheAction();
   },
-  'focus moves to the one-sentence summary': () => sees.cursorIsInTheSummary(),
-  'focus moves to "Add a scene"': () => sees.cursorIsOnTheAction(),
-  'focus moves to the card': () => sees.cursorIsOnTheCard(),
+  'the writer presses {key}': ({ key }) => writer.presses(key ?? ''),
+  'the writer tabs forward': () => writer.tabsForward(),
+  'the writer tabs backward': () => writer.tabsBackward(),
+  'focus moves to the one-sentence summary': () => sees.focusIsInTheSummary(),
+  'focus moves to "Add a scene"': () => sees.focusIsOnTheAction(),
+  'focus moves to the card': () => sees.focusIsOnTheCard(),
 });
