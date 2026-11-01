@@ -7,7 +7,8 @@ export default {
   vitest: { configFile: 'stryker.vitest.config.ts' },
   /* shortcut: Stryker's Vitest runner cannot run browser mode, so a *.dom.ts and the adapters,
      tested only there, are left out; mutate them too once it can
-     (https://stryker-mutator.io/docs/stryker-js/vitest-runner#limitations). */
+     (https://stryker-mutator.io/docs/stryker-js/vitest-runner#limitations). A component's
+     *.harness.ts is browser-mode test code and is left out for the same reason. */
   mutate: [
     'src/domain/**/*.ts',
     'src/application/**/*.ts',
@@ -16,6 +17,7 @@ export default {
     '!src/**/*.dsl.ts',
     '!src/**/*.test.ts',
     '!src/**/*.test-page.ts',
+    '!src/**/*.harness.ts',
   ],
   incremental: true,
   thresholds: { break: 90 },
