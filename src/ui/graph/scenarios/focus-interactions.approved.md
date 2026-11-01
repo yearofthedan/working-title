@@ -11,7 +11,7 @@ Then the writer sees
     - group "The story":
       - heading "The story" [level=2]
       - text: One-sentence summary
-      - textbox "One-sentence summary" [active]: A widow hunts the man who sank her husband's ship
+      - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
   - toolbar "Beats under The story":
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
@@ -60,7 +60,7 @@ Then the writer sees
     - group "Beat 2":
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
-      - textbox "One-sentence summary" [active]: Maren finds the ship's log and learns the sinking was no accident
+      - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
       - button "Add a scene"
     - group "Beat 3":
       - heading "Beat 3" [level=3]:

@@ -18,7 +18,7 @@ Then the writer sees
     - group "Scene 1":
       - heading "Scene 1" [level=4]
       - text: List line
-      - textbox "List line" [active]
+      - textbox "List line"
 ```
 
 ### Scenario: a scene's list line survives a reload
@@ -41,7 +41,7 @@ Then the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2" [active]:
+    - group "Beat 2":
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"

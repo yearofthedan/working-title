@@ -992,9 +992,17 @@ describe('what a tree says about focus', () => {
     };
 
     await driver.focus('button', 'Scene 2', { role: 'group', name: 'Scene 2' });
+    expect(await marked()).toEqual([]);
+
+    expect(await driver.focusIs('button', 'Scene 2', { role: 'group', name: 'Scene 2' })).toBe(
+      true,
+    );
     expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
 
     await driver.focus('textbox', 'List line', { role: 'group', name: 'Scene 1' });
+    expect(await driver.focusIs('textbox', 'List line', { role: 'group', name: 'Scene 1' })).toBe(
+      true,
+    );
     expect(await marked()).toEqual(['- group "Scene 1":', '- textbox "List line" [active]']);
 
     await driver.clickAway();

@@ -3,9 +3,9 @@ import { cardLooks } from '../ui/card/card';
 import {
   clicking,
   drawn,
+  focusAssertions,
   focusedIn,
-  linesOf,
-  markingFocus,
+  markingFocusWhenAsserted,
   settled,
   typing,
   wholeNameAnyCase,
@@ -34,6 +34,7 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
     within === undefined
       ? page
       : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
+  const assertions = focusAssertions();
   return {
     reload: async () => {
       await page.reload();
@@ -53,15 +54,21 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
     },
     value: async (label, within) =>
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
-    focusIs: async (role, name, within) =>
-      rootIn(within)
+    focusIs: async (role, name, within) => {
+      assertions.note();
+      return rootIn(within)
         .getByRole(role, { name: wholeNameAnyCase(name) })
         .first()
-        .evaluate((element) => element === document.activeElement),
+        .evaluate((element) => element === document.activeElement);
+    },
     tree: async () => {
       await page.evaluate(settled);
-      const focus = await page.evaluate(focusedIn, await page.getByRole('main').elementHandle());
-      return markingFocus(linesOf(await page.getByRole('main').ariaSnapshot()), focus);
+      const pane = await page.getByRole('main').elementHandle();
+      return markingFocusWhenAsserted(
+        assertions,
+        async () => page.getByRole('main').ariaSnapshot(),
+        async () => page.evaluate(focusedIn, pane),
+      );
     },
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {

@@ -145,7 +145,7 @@ Then the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2" [active]:
+    - group "Beat 2":
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -194,7 +194,7 @@ Then the writer sees
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
-    - group "Scene 2" [active]:
+    - group "Scene 2":
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"

@@ -205,3 +205,27 @@ export const markingFocus = (
   }
   return markedLines;
 };
+
+export interface FocusAssertions {
+  noted(): boolean;
+  note(): void;
+}
+
+export const focusAssertions = (): FocusAssertions => {
+  let noted = false;
+  return {
+    noted: () => noted,
+    note: () => {
+      noted = true;
+    },
+  };
+};
+
+export const markingFocusWhenAsserted = async (
+  assertions: FocusAssertions,
+  printed: () => Promise<string>,
+  focused: () => Promise<Focus | undefined>,
+): Promise<readonly string[]> => {
+  const lines = linesOf(await printed());
+  return assertions.noted() ? markingFocus(lines, await focused()) : lines;
+};

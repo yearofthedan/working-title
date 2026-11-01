@@ -15,7 +15,7 @@ Then the first scene becomes current
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Scenes under Beat 2":
-    - group "Scene 1" [active]:
+    - group "Scene 1":
       - heading "Scene 1" [level=4]
       - text: List line
       - textbox "List line"
