@@ -4,7 +4,7 @@ import { settled, type Driver } from '../../test-helpers/driver';
 import { laidOut, moving, pageWith, recorded, partWay } from '../../test-helpers/graph-page';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import { type Writer } from './graph.dsl';
-import { cardAtCursor, everyCard, focused, nameOf, named } from './graph.test-page';
+import { cardAtCursor, current, everyCard, nameOf, named } from './graph.test-page';
 import { narrowThePane } from '../../test-helpers/staging';
 
 const boxes = (): readonly string[] =>
@@ -98,7 +98,7 @@ describe('the motion of a move', () => {
     }
 
     await browser.userEvent.click(leaving, { force: true });
-    expect(nameOf(focused())).not.toBe('Scene 1');
+    expect(nameOf(current())).not.toBe('Scene 1');
   });
 
   it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
@@ -176,7 +176,7 @@ describe('the motion of a move', () => {
       await partWay();
       clicked = performance.now();
       await browser.userEvent.click(named('chip', 'Beat 5'), { force: true });
-      landed.push(nameOf(focused()));
+      landed.push(nameOf(current()));
       await settled();
     });
     const keyFrames = await recorded(async () => {
@@ -184,7 +184,7 @@ describe('the motion of a move', () => {
       await partWay();
       pressed = performance.now();
       await driver.press('ArrowLeft');
-      landed.push(nameOf(focused()));
+      landed.push(nameOf(current()));
       await settled();
     });
 

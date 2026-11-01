@@ -5,7 +5,7 @@
 
 ## How the terms relate
 
-A **project** is one novel being planned and written, and it follows one **method**. The method sets out the kinds of **piece**, the **facets** each kind has, and the **stages** the writer works through; the stages in order are the **flow**. Pieces form one tree: the story at the root, and every other piece under one parent, in order among its siblings. A piece's **level** is where it sits in that tree. **Collections**, such as the cast and places, sit outside the tree. **Links** join any two pieces, across the tree and into collections. **Chapters** group the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **focus** is the piece the writer is on, and the **next moves** are what the method offers from there.
+A **project** is one novel being planned and written, and it follows one **method**. The method sets out the kinds of **piece**, the **facets** each kind has, and the **stages** the writer works through; the stages in order are the **flow**. Pieces form one tree: the story at the root, and every other piece under one parent, in order among its siblings. A piece's **level** is where it sits in that tree. **Collections**, such as the cast and places, sit outside the tree. **Links** join any two pieces, across the tree and into collections. **Chapters** group the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **current piece** is the piece the graph is centred on, and the **next moves** are what the method offers from there.
 
 ```
 Project ── follows ──► Method: piece kinds, facets, stages
@@ -40,9 +40,10 @@ The **core** terms below name things every method has. They are the only words i
 | Chapter | A group of pieces with prose, in the order a reader meets them | |
 | Manuscript | All the prose, chapter by chapter: the novel as a reader would read it | |
 | Graph | The view of the pieces in their tree, each piece's children in order under it | |
-| Focus | The piece the writer is working on | |
-| Row | The pieces the graph shows side by side at one level around the focus: its parent, the focus and its siblings, or its children | |
-| Next move | Something the writer can do from the focus: a stage the method offers, or a move up or down a level | |
-| Capture | Add a piece outside the flow, linked to the focus from the start | |
-| Replan | Revisit the plan after drafting: the pieces upstream of the focus and the pieces linked to it | |
+| Current piece | The piece the graph is centred on, drawn as the big card, where the path ends. Moving to another piece changes it; tabbing does not. A piece pinned in the panel can be a different one | |
+| Focus | The element the keyboard acts on | |
+| Row | The pieces the graph shows side by side at one level around the current piece: its parent, the current piece and its siblings, or its children | |
+| Next move | Something the writer can do from the current piece: a stage the method offers, or a move up or down a level | |
+| Capture | Add a piece outside the flow, linked to the current piece from the start | |
+| Replan | Revisit the plan after drafting: the pieces upstream of the current piece and the pieces linked to it | |
 | Theme | What the novel is about, in the writer's words. It belongs to the project, not to any piece | |

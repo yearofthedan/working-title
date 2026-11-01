@@ -48,21 +48,21 @@ describe('the tree of a piece', () => {
 });
 
 describe('how a piece is drawn', () => {
-  it('draws the piece in focus, its parent and its children as cards, and its siblings as chips', () => {
+  it('draws the current piece, its parent and its children as cards, and its siblings as chips', () => {
     expect(entries.map(({ piece: { id } }) => [id, drawnAs(entries, 'Beat 2', id)])).toEqual([
       ['The story', 'card'],
       ['Beat 1', 'chip'],
-      ['Beat 2', 'focus'],
+      ['Beat 2', 'current'],
       ['Scene 1', 'card'],
       ['Scene 2', 'card'],
       ['Beat 3', 'chip'],
     ]);
   });
 
-  it('hides what is neither around the focus nor beside it', () => {
+  it('hides what is neither around the current piece nor beside it', () => {
     expect(entries.map(({ piece: { id } }) => [id, drawnAs(entries, 'Beat 1', id)])).toEqual([
       ['The story', 'card'],
-      ['Beat 1', 'focus'],
+      ['Beat 1', 'current'],
       ['Beat 2', 'chip'],
       ['Scene 1', 'hidden'],
       ['Scene 2', 'hidden'],
@@ -70,9 +70,9 @@ describe('how a piece is drawn', () => {
     ]);
   });
 
-  it('draws no chip with the story in focus', () => {
+  it('draws no chip with the story current', () => {
     expect(entries.map(({ piece: { id } }) => drawnAs(entries, 'The story', id))).toEqual([
-      'focus',
+      'current',
       'card',
       'card',
       'hidden',
@@ -82,8 +82,8 @@ describe('how a piece is drawn', () => {
   });
 
   it('draws every piece as one of the kinds the driver reads back', () => {
-    const drawn = ['The story', 'Beat 1', 'Beat 2'].flatMap((focus) =>
-      entries.map(({ piece: { id } }) => drawnAs(entries, focus, id)),
+    const drawn = ['The story', 'Beat 1', 'Beat 2'].flatMap((current) =>
+      entries.map(({ piece: { id } }) => drawnAs(entries, current, id)),
     );
 
     expect(drawn.filter((kind) => !drawnKinds.includes(kind))).toEqual([]);
@@ -112,7 +112,7 @@ describe('the rows around a piece', () => {
     ]);
   });
 
-  it('reads the parent, the focus with its siblings, then the children', () => {
+  it('reads the parent, the current piece with its siblings, then the children', () => {
     expect(rowsAround(entries, 'Beat 2')).toEqual([
       { ids: ['The story'], named: 'The story' },
       { ids: ['Beat 1', 'Beat 2', 'Beat 3'], named: 'Beats', under: 'The story' },
@@ -175,7 +175,7 @@ describe('where the cursor moves along a row', () => {
   });
 });
 
-describe('where an arrow moves the focus', () => {
+describe('where an arrow moves the current piece', () => {
   it('goes up to the parent', () => {
     expect(moveFrom(entries, 'Scene 1', 'up', nowhereVisited)).toBe('Beat 2');
   });
@@ -185,7 +185,7 @@ describe('where an arrow moves the focus', () => {
     expect(moveFrom(entries, 'Beat 2', 'down', new Map([['Beat 2', 'Scene 2']]))).toBe('Scene 2');
   });
 
-  it('goes left and right to the siblings beside the focus', () => {
+  it('goes left and right to the siblings beside the current piece', () => {
     expect(moveFrom(entries, 'Beat 2', 'left', nowhereVisited)).toBe('Beat 1');
     expect(moveFrom(entries, 'Beat 2', 'right', nowhereVisited)).toBe('Beat 3');
   });

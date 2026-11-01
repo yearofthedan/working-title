@@ -217,7 +217,7 @@ main {
     pointer-events: none;
   }
 
-  .focus .shown {
+  .current .shown {
     opacity: 0;
   }
 
@@ -238,7 +238,7 @@ main {
     display: none;
   }
 
-  .focus .facet textarea:hover {
+  .current .facet textarea:hover {
     outline: 1px solid var(--color-edge);
   }
 
@@ -266,7 +266,7 @@ main {
     cursor: pointer;
   }
 
-  .focus .facet button {
+  .current .facet button {
     display: block;
   }
 

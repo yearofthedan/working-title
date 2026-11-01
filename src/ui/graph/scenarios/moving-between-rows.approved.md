@@ -1,4 +1,4 @@
-Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes the focus, the arrow keys make the next or previous piece in the row the focus, and a row whose first piece is off screen slides it into view.
+Rule: Each row of the graph is one Tab stop, named in the method's words, Tab moves the cursor to the next or previous row's first piece and never changes which piece is current, the arrow keys make the next or previous piece in the row current, and a row whose first piece is off screen slides it into view.
 
 ### Scenario: moving along a row and into it
 
@@ -6,11 +6,11 @@ Rule: Each row of the graph is one Tab stop, named in the method's words, Tab mo
 Given a project with two scenes under beat 2
 When the writer clicks beat 2
 And presses Tab
-Then beat 2 is in focus, with scenes 1 and 2 under it
+Then beat 2 is current, with scenes 1 and 2 under it
 And presses →
 And presses ←
 And presses Enter
-Then scene 1 under beat 2 is in focus, with beat 2 above it and scene 2 beside it
+Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
 Then the writer sees
 - main:
   - toolbar "Beat 2":

@@ -6,9 +6,9 @@ export interface Entry {
   readonly parentId?: string;
 }
 
-export type Drawn = 'focus' | 'card' | 'chip' | 'hidden';
+export type Drawn = 'current' | 'card' | 'chip' | 'hidden';
 
-export const drawnKinds: readonly Drawn[] = ['focus', 'card', 'chip', 'hidden'];
+export const drawnKinds: readonly Drawn[] = ['current', 'card', 'chip', 'hidden'];
 
 const entryOf = (entries: readonly Entry[], id: string | undefined): Entry | undefined =>
   entries.find((entry) => entry.piece.id === id);
@@ -21,17 +21,17 @@ export const treeOf = (root: PieceView, level = 0, parentId?: string): readonly 
 export const childrenOf = (entries: readonly Entry[], id: string): readonly Entry[] =>
   entries.filter((entry) => entry.parentId === id);
 
-export const drawnAs = (entries: readonly Entry[], focus: string, id: string): Drawn => {
-  const parent = entryOf(entries, focus)!.parentId;
-  if (id === focus) return 'focus';
-  if (id === parent || entryOf(entries, id)!.parentId === focus) return 'card';
+export const drawnAs = (entries: readonly Entry[], current: string, id: string): Drawn => {
+  const parent = entryOf(entries, current)!.parentId;
+  if (id === current) return 'current';
+  if (id === parent || entryOf(entries, id)!.parentId === current) return 'card';
   if (entryOf(entries, id)!.parentId === parent) return 'chip';
   return 'hidden';
 };
 
-export const shownAncestor = (entries: readonly Entry[], focus: string, id: string): Entry => {
+export const shownAncestor = (entries: readonly Entry[], current: string, id: string): Entry => {
   let entry = entryOf(entries, id)!;
-  while (drawnAs(entries, focus, entry.piece.id) === 'hidden' && entry.parentId !== undefined) {
+  while (drawnAs(entries, current, entry.piece.id) === 'hidden' && entry.parentId !== undefined) {
     entry = entryOf(entries, entry.parentId)!;
   }
   return entry;
@@ -46,8 +46,8 @@ export interface Row {
 export const nameOfRow = (row: Row): string =>
   row.under === undefined ? row.named : `${row.named} under ${row.under}`;
 
-export const rowsAround = (entries: readonly Entry[], focus: string): readonly Row[] => {
-  const entry = entryOf(entries, focus);
+export const rowsAround = (entries: readonly Entry[], current: string): readonly Row[] => {
+  const entry = entryOf(entries, current);
   if (entry === undefined) return [];
 
   const rows: Row[] = [];
@@ -62,7 +62,7 @@ export const rowsAround = (entries: readonly Entry[], focus: string): readonly R
     ...(parent === undefined ? {} : { under: parent.piece.name }),
   });
 
-  const children = childrenOf(entries, focus);
+  const children = childrenOf(entries, current);
   if (children.length > 0) {
     rows.push({
       ids: children.map((child) => child.piece.id),
@@ -86,20 +86,20 @@ export const along = (row: Row, from: string, where: 'left' | 'right'): string |
 
 export const moveFrom = (
   entries: readonly Entry[],
-  focus: string,
+  current: string,
   where: 'up' | 'down' | 'left' | 'right',
   lastVisited: ReadonlyMap<string, string>,
 ): string | undefined => {
-  const parent = entryOf(entries, focus)?.parentId;
+  const parent = entryOf(entries, current)?.parentId;
   if (where === 'up') return parent;
   if (where === 'down') {
-    const children = childrenOf(entries, focus);
-    const last = lastVisited.get(focus);
+    const children = childrenOf(entries, current);
+    const last = lastVisited.get(current);
     return (children.find((entry) => entry.piece.id === last) ?? children.at(0))?.piece.id;
   }
   if (parent === undefined) return undefined;
   const siblings = childrenOf(entries, parent);
-  const here = siblings.findIndex((entry) => entry.piece.id === focus);
+  const here = siblings.findIndex((entry) => entry.piece.id === current);
   return siblings[here + (where === 'left' ? -1 : 1)]?.piece.id;
 };
 

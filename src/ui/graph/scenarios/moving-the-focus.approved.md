@@ -1,11 +1,11 @@
-Rule: the writer moves the focus by clicking a piece or with the arrow keys (↑ to its parent, ↓ to a child, ← and → to its siblings), and the graph is arranged around the focus: its parent above, its siblings beside it and its children below.
+Rule: the writer moves the current piece by clicking a piece or with the arrow keys (↑ to its parent, ↓ to a child, ← and → to its siblings), and the graph is arranged around the current piece: its parent above, its siblings beside it and its children below.
 
-### Scenario: a new project opens with the story in focus
+### Scenario: a new project opens with the story current
 
 ```
 Given a new project
 When the writer opens the app
-Then the story is in focus, with beats 1 to 5 under it
+Then the story is current, with beats 1 to 5 under it
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -41,12 +41,12 @@ Then the writer sees
       - textbox "One-sentence summary"
 ```
 
-### Scenario: clicking a beat focuses it
+### Scenario: clicking a beat makes it current
 
 ```
 Given a new project
 When the writer clicks beat 2
-Then beat 2 is in focus, with the story above it and beats 1, 3, 4 and 5 beside it
+Then beat 2 is current, with the story above it and beats 1, 3, 4 and 5 beside it
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -81,7 +81,7 @@ Then the writer sees
 Given a new project
 When the writer clicks beat 2
 And presses →
-Then beat 3 is in focus, with beats 1, 2, 4 and 5 beside it
+Then beat 3 is current, with beats 1, 2, 4 and 5 beside it
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -116,9 +116,9 @@ Then the writer sees
 Given a project with two scenes under beat 2
 When the writer clicks beat 2
 And presses ↓
-Then scene 1 under beat 2 is in focus, with beat 2 above it and scene 2 beside it
+Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
 And presses ↑
-Then beat 2 is in focus, with scenes 1 and 2 under it
+Then beat 2 is current, with scenes 1 and 2 under it
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -167,7 +167,7 @@ And presses ↓
 And presses →
 And presses ↑
 And presses ↓
-Then scene 2 under beat 2 is in focus
+Then scene 2 under beat 2 is current
 Then the writer sees
 - main:
   - toolbar "Beat 2":

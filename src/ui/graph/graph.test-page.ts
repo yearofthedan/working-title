@@ -13,9 +13,9 @@ const kindOf = (card: HTMLElement): Drawn | undefined =>
 export const cards = (kind: Drawn): HTMLElement[] =>
   everyCard().filter((card) => kindOf(card) === kind);
 
-export const focused = (): HTMLElement => {
-  const [card] = cards('focus');
-  if (card === undefined) throw new Error('no piece is drawn as the focus');
+export const current = (): HTMLElement => {
+  const [card] = cards('current');
+  if (card === undefined) throw new Error('no piece is drawn as the current piece');
   return card;
 };
 

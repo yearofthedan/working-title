@@ -39,7 +39,7 @@ const eightScenes = piece('The story', [
   ),
 ]);
 
-const sizes: Sizes = { focus: 560, cards: [200, 180, 120], gap: 32 };
+const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
 
 const pane = (over: Partial<Pane> = {}): Pane => ({
   width: 1440,
@@ -93,7 +93,7 @@ describe('the width of a piece', () => {
   const entries = treeOf(story);
   const chip = (): number => 137;
 
-  it('gives the focus the focus width, or main when that is narrower', () => {
+  it('gives the current piece the current width, or main when that is narrower', () => {
     expect(widthOf(entries, 'Beat 2', 'Beat 2', pane(), sizes, chip)).toBe(560);
     expect(
       widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400, mainWidth: 400 }), sizes, chip),
@@ -122,26 +122,26 @@ describe('where the pieces are centred', () => {
   const entries = treeOf(story);
   const size = measured(storyWidths, storyHeights);
 
-  it('centres the focus on the pane’s width, its middle on the pane’s middle when there is room', () => {
+  it('centres the current piece on the pane’s width, its middle on the pane’s middle when there is room', () => {
     const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
 
     expect(centres.get('Beat 2')).toEqual({ x: 720, y: 450 });
   });
 
-  it('puts the parent straight above the focus, a gap between them', () => {
+  it('puts the parent straight above the current piece, a gap between them', () => {
     const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
 
     expect(centres.get('The story')).toEqual({ x: 720, y: 268 });
   });
 
-  it('puts the children in one row a gap below the focus, centred on it and a gap apart', () => {
+  it('puts the children in one row a gap below the current piece, centred on it and a gap apart', () => {
     const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
 
     expect(centres.get('Scene 1')).toEqual({ x: 644, y: 632 });
     expect(centres.get('Scene 2')).toEqual({ x: 796, y: 632 });
   });
 
-  it('holds the focus row below the header and the parent when the window is too short to centre it', () => {
+  it("holds the current piece's row below the header and the parent when the window is too short to centre it", () => {
     const centres = centresOf(entries, 'Beat 2', size, pane({ middle: 100 }), sizes);
 
     expect(centres.get('Beat 2')).toEqual({ x: 720, y: 312 });
@@ -180,7 +180,7 @@ describe('where the pieces are centred', () => {
     ]);
   });
 
-  it('centres the later siblings on the focus’s middle when it is the first of them', () => {
+  it("centres the later siblings on the current piece's middle when it is the first of them", () => {
     const centres = centresOf(
       treeOf(fiveBeats),
       'Beat 1',
@@ -226,7 +226,7 @@ describe('where the pieces are centred', () => {
     expect([...centres.keys()].sort()).toEqual(['Beat 2', 'Line 1', 'Scene 1', 'Scene 2']);
   });
 
-  it('puts the earlier siblings left of the focus and the later ones right, on its row', () => {
+  it('puts the earlier siblings left of the current piece and the later ones right, on its row', () => {
     const centres = centresOf(
       treeOf(fiveBeats),
       'Beat 3',
@@ -321,6 +321,6 @@ describe('the transition a card is measured under', () => {
   });
 
   it('gives back all, the computed value under reduced motion', () => {
-    expect(whileMeasuring('all', 'focus')).toBe('all');
+    expect(whileMeasuring('all', 'current')).toBe('all');
   });
 });

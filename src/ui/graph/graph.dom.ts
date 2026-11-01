@@ -34,7 +34,7 @@ interface State {
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
   project: OpenProject;
-  focus: string;
+  current: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, HTMLElement>;
   readonly rowElements: Map<string, HTMLElement>;
@@ -66,7 +66,7 @@ const chipWidth = (card: HTMLElement): number => {
   );
 };
 
-const sizes: Sizes = { focus: 560, cards: [200, 180, 120], gap: 32 };
+const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
 
 const paneOf = (st: State): Pane => {
   const mainTop = st.main.getBoundingClientRect().top;
@@ -79,10 +79,10 @@ const paneOf = (st: State): Pane => {
 };
 
 const goTo = (st: State, id: string, into?: HTMLElement): void => {
-  if (id !== st.focus) {
+  if (id !== st.current) {
     const parent = entryOf(st, id)?.parentId;
     if (parent !== undefined) st.lastVisited.set(parent, id);
-    st.focus = id;
+    st.current = id;
     place(st);
     pathNav(st);
   }
@@ -97,16 +97,16 @@ const nameButton = (piece: PieceView): HTMLElement => {
 };
 
 const setHeading = (st: State, piece: PieceView): void => {
-  const focused = piece.id === st.focus;
+  const current = piece.id === st.current;
   const heading = st.cards.get(piece.id)!.querySelector('h2, h3, h4')!;
   if (
-    (heading.querySelector('button') === null) === focused &&
+    (heading.querySelector('button') === null) === current &&
     heading.textContent === piece.name
   ) {
     return;
   }
   heading.replaceChildren(
-    ...(focused ? [document.createTextNode(piece.name)] : [nameButton(piece)]),
+    ...(current ? [document.createTextNode(piece.name)] : [nameButton(piece)]),
   );
 };
 
@@ -177,12 +177,12 @@ const pathNav = (st: State): void => {
     st.header.append(nav);
   }
 
-  const path = pathTo(st.entries, st.focus);
+  const path = pathTo(st.entries, st.current);
 
   const list = document.createElement('ol');
   for (const step of path) {
     const item = document.createElement('li');
-    if (step.piece.id === st.focus) {
+    if (step.piece.id === st.current) {
       item.setAttribute('aria-current', 'location');
       item.textContent = step.piece.name;
     } else {
@@ -202,8 +202,8 @@ const skipToEnd = (st: State): void => {
 };
 
 const watch = (st: State): void => {
-  const focus = st.cards.get(st.focus)!;
-  if (st.watcher !== undefined && st.watching === focus) return;
+  const current = st.cards.get(st.current)!;
+  if (st.watcher !== undefined && st.watching === current) return;
   st.watcher?.disconnect();
   st.watcher = new ResizeObserver(() => {
     if (st.replacing) return;
@@ -227,9 +227,9 @@ const watch = (st: State): void => {
     placeWhenStill();
   });
   st.watcher.observe(st.main);
-  st.watcher.observe(focus);
-  for (const facet of focus.querySelectorAll('.facet')) st.watcher.observe(facet);
-  st.watching = focus;
+  st.watcher.observe(current);
+  for (const facet of current.querySelectorAll('.facet')) st.watcher.observe(facet);
+  st.watching = current;
 };
 
 const rowElement = (st: State, row: Row): HTMLElement => {
@@ -273,7 +273,7 @@ const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
 const cursorCard = (st: State): HTMLElement | null => {
   const at = document.activeElement;
   const card = at instanceof Element ? at.closest('fieldset') : null;
-  return card === null || card === st.cards.get(st.focus) ? null : card;
+  return card === null || card === st.cards.get(st.current) ? null : card;
 };
 
 const slide = (st: State): void => {
@@ -285,19 +285,19 @@ const slide = (st: State): void => {
   for (const [id, box] of st.places) {
     const target = st.cards.get(id);
     if (target === undefined) continue;
-    const under = shownAncestor(st.entries, st.focus, id).piece.id;
+    const under = shownAncestor(st.entries, st.current, id).piece.id;
     target.style.left = `${box.x + (row?.ids.includes(under) === true ? offset : 0)}px`;
   }
 };
 
 const cursorInCard = (st: State): boolean => {
-  const card = st.cards.get(st.focus);
+  const card = st.cards.get(st.current);
   const at = document.activeElement;
   return card !== undefined && at !== null && at !== card && card.contains(at);
 };
 
 const setFieldsTabIndex = (st: State): void => {
-  const inside = cursorInCard(st) ? st.focus : undefined;
+  const inside = cursorInCard(st) ? st.current : undefined;
   for (const [id, card] of st.cards) {
     for (const field of fieldsOf(card)) field.tabIndex = id === inside ? 0 : -1;
   }
@@ -305,14 +305,14 @@ const setFieldsTabIndex = (st: State): void => {
 
 const setRoving = (st: State): void => {
   for (const row of st.rows) {
-    const stop = row.ids.includes(st.focus) ? st.focus : rowStop(row, st.showable);
+    const stop = row.ids.includes(st.current) ? st.current : rowStop(row, st.showable);
     for (const id of row.ids) {
       const card = st.cards.get(id);
       if (card === undefined) continue;
       const isStop = id === stop;
-      card.tabIndex = isStop && id === st.focus ? 0 : -1;
+      card.tabIndex = isStop && id === st.current ? 0 : -1;
       const button = nameButtonIn(card);
-      if (button !== null) button.tabIndex = isStop && id !== st.focus ? 0 : -1;
+      if (button !== null) button.tabIndex = isStop && id !== st.current ? 0 : -1;
     }
   }
 };
@@ -325,7 +325,7 @@ const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
     card.tabIndex = -1;
-    if (drawnAs(st.entries, st.focus, piece.id) === 'hidden') {
+    if (drawnAs(st.entries, st.current, piece.id) === 'hidden') {
       const button = nameButtonIn(card);
       if (button !== null) button.tabIndex = -1;
       off.push(card);
@@ -336,7 +336,7 @@ const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
   }
   st.showable = showable;
   st.places = places;
-  st.rows = rowsAround(st.entries, st.focus);
+  st.rows = rowsAround(st.entries, st.current);
 
   keepOrder(st.wrapper, [...st.rows.map((row) => rowElement(st, row)), ...off]);
   for (const row of st.rows) {
@@ -358,7 +358,9 @@ const place = (st: State): void => {
   const pieces = st.entries;
   const pane = paneOf(st);
   const widthOf = (id: string): number =>
-    layoutWidthOf(st.entries, st.focus, id, pane, sizes, (chip) => chipWidth(st.cards.get(chip)!));
+    layoutWidthOf(st.entries, st.current, id, pane, sizes, (chip) =>
+      chipWidth(st.cards.get(chip)!),
+    );
 
   const was = new Map(
     [...st.cards].map(([id, card]) => [id, { w: card.offsetWidth, h: card.offsetHeight }]),
@@ -367,12 +369,12 @@ const place = (st: State): void => {
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id);
     if (card === undefined) continue;
-    const kind = drawnAs(st.entries, st.focus, piece.id);
+    const kind = drawnAs(st.entries, st.current, piece.id);
     card.style.transitionProperty = whileMeasuring(getComputedStyle(card).transitionProperty, kind);
     card.style.height = '';
     card.className = kind;
     card.inert = kind === 'hidden';
-    if (piece.id === st.focus) card.setAttribute('aria-current', 'location');
+    if (piece.id === st.current) card.setAttribute('aria-current', 'location');
     else card.removeAttribute('aria-current');
   }
 
@@ -400,7 +402,7 @@ const place = (st: State): void => {
 
   const centres = centresOf(
     st.entries,
-    st.focus,
+    st.current,
     (id) => ({ width: widthOf(id), height: heightOf(id) }),
     pane,
     sizes,
@@ -418,8 +420,8 @@ const place = (st: State): void => {
       card.style.left = `${at.x}px`;
       card.style.top = `${at.y}px`;
     }
-    if (drawnAs(st.entries, st.focus, piece.id) !== 'hidden') continue;
-    const ancestor = shownAncestor(st.entries, st.focus, piece.id).piece.id;
+    if (drawnAs(st.entries, st.current, piece.id) !== 'hidden') continue;
+    const ancestor = shownAncestor(st.entries, st.current, piece.id).piece.id;
     if (ancestor === piece.id) continue;
     const under = st.cards.get(ancestor)!;
     card.style.left = under.style.left;
@@ -475,9 +477,9 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
     const card = target instanceof Element ? target.closest('fieldset') : null;
-    const focusCard = st.cards.get(st.focus);
+    const currentCard = st.cards.get(st.current);
 
-    if (card !== null && card === focusCard && target !== focusCard) {
+    if (card !== null && card === currentCard && target !== currentCard) {
       if (event.key === 'Escape') {
         event.preventDefault();
         card.focus({ preventScroll: true });
@@ -493,7 +495,7 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     if (target instanceof HTMLTextAreaElement) {
       if (event.key !== 'Escape') return;
       event.preventDefault();
-      focusCard?.focus({ preventScroll: true });
+      currentCard?.focus({ preventScroll: true });
       return;
     }
 
@@ -502,23 +504,28 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       event.preventDefault();
       const row = card === null ? undefined : rowOf(st, card);
-      if (card !== null && card !== focusCard && row !== undefined && !row.ids.includes(st.focus)) {
+      if (
+        card !== null &&
+        card !== currentCard &&
+        row !== undefined &&
+        !row.ids.includes(st.current)
+      ) {
         if (where === 'up' || where === 'down') return;
         const id = idOfCard(card);
         const to = id === undefined ? undefined : along(row, id, where);
         if (to !== undefined) goTo(st, to);
         return;
       }
-      const to = moveFrom(st.entries, st.focus, where, st.lastVisited);
+      const to = moveFrom(st.entries, st.current, where, st.lastVisited);
       if (to !== undefined) goTo(st, to);
       return;
     }
 
     if (event.key !== 'Enter') return;
 
-    if (target === focusCard) {
+    if (target === currentCard) {
       event.preventDefault();
-      focusCard?.querySelector('textarea')?.focus({ preventScroll: true });
+      currentCard?.querySelector('textarea')?.focus({ preventScroll: true });
     }
   };
   return onKeyDown;
@@ -550,7 +557,7 @@ export const renderGraph = async (
     main,
     wrapper,
     project,
-    focus: project.root.id,
+    current: project.root.id,
     lastVisited: new Map(),
     cards: new Map(),
     rowElements: new Map(),
