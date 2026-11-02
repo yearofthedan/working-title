@@ -90,6 +90,12 @@ export const writerOn = (
     await clicking(piece);
   };
 
+  const openingBeside = async (piece: string): Promise<void> => {
+    const named = pieceNamed(piece);
+    await reaching(named);
+    await driver.click('button', 'Open beside', { role: 'group', name: named });
+  };
+
   return {
     opensANewProject: () => opening.fresh(),
     reopens: () => opening.reopen(),
@@ -116,16 +122,17 @@ export const writerOn = (
       await reaching(named);
       await driver.click('button', 'Add a scene', { role: 'group', name: named });
     },
-    opensBeside: async (piece) => {
-      const named = pieceNamed(piece);
-      await reaching(named);
-      await driver.click('button', 'Open beside', { role: 'group', name: named });
-    },
+    opensBeside: openingBeside,
     closesThePanel: () => driver.click('button', 'Close'),
-    types: (text, at) =>
-      typedBeside(at.facet)
-        ? driver.type(text, at.facet, { role: 'complementary', name: at.piece })
-        : driver.type(text, at.facet, { role: 'group', name: at.piece }),
+    types: async (text, at) => {
+      if (!typedBeside(at.facet)) {
+        await driver.type(text, at.facet, { role: 'group', name: at.piece });
+        return;
+      }
+      // shortcut: a long facet has no field on the card, so typing one opens its piece beside the graph first; a scenario whose panel is already open on that piece says " beside the graph" instead, until the driver can ask whether the icon is pressed.
+      await openingBeside(at.piece);
+      await driver.type(text, at.facet, { role: 'complementary', name: at.piece });
+    },
     typesBeside: (text, at) =>
       driver.type(text, at.facet, { role: 'complementary', name: at.piece }),
   };
@@ -290,10 +297,14 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer opens the app': () => writer.opensANewProject(),
   'the story is on screen': () => writer.opensANewProject(),
   // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
-  'beat 2 is open beside the graph': () => writer.opensBeside('beat 2'),
+  'beat 2 is open beside the graph': async () => {
+    await writer.opensANewProject();
+    await writer.opensBeside('beat 2');
+  },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
   "{piece}'s paragraph is open beside the graph": ({ piece }) => sees.panelIsOpenOn(piece),
   'the writer opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
+  'opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
   'the writer closes the panel': () => writer.closesThePanel(),
   'nothing is open beside the graph': () => sees.noPanelIsOpen(),
   'focus moves to the paragraph': () => sees.focusIsInTheParagraph(),
