@@ -21,6 +21,7 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - button "Open beside"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:

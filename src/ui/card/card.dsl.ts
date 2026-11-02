@@ -5,11 +5,13 @@ const beat = 'Beat 2';
 const theCard: Within = { role: 'group', name: beat };
 const summary = 'One-sentence summary';
 const action = 'Add a scene';
+const openBeside = 'Open beside';
 
 export interface CardWriter {
   opensTheCard(): Promise<void>;
   putsTheFocusInTheSummary(): Promise<void>;
   putsTheFocusOnTheAction(): Promise<void>;
+  putsTheFocusOnOpenBeside(): Promise<void>;
   presses(key: string): Promise<void>;
   tabsForward(): Promise<void>;
   tabsBackward(): Promise<void>;
@@ -25,6 +27,7 @@ export const cardWriterOn = (driver: Driver, stage: () => Promise<void>): CardWr
   opensTheCard: stage,
   putsTheFocusInTheSummary: () => driver.focus('textbox', summary, theCard),
   putsTheFocusOnTheAction: () => driver.focus('button', action, theCard),
+  putsTheFocusOnOpenBeside: () => driver.focus('button', openBeside, theCard),
   presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
   tabsForward: () => driver.press('Tab'),
   tabsBackward: () => driver.press('Shift+Tab'),
@@ -59,6 +62,10 @@ export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, St
   'a beat card is current with focus on "Add a scene"': async () => {
     await writer.opensTheCard();
     await writer.putsTheFocusOnTheAction();
+  },
+  'a beat card is current with focus on "Open beside"': async () => {
+    await writer.opensTheCard();
+    await writer.putsTheFocusOnOpenBeside();
   },
   'the writer presses {key}': ({ key }) => writer.presses(key ?? ''),
   'the writer tabs forward': () => writer.tabsForward(),

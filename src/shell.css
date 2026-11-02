@@ -64,11 +64,25 @@ header nav [aria-current] {
 main {
   flex: 1;
   min-height: 0;
+  max-inline-size: 100%;
   position: relative;
   overflow: hidden;
   font-family: var(--font-prose);
   font-size: var(--text-prose);
   line-height: var(--leading-prose);
+}
+
+.row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.column {
+  flex: 1;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 @scope (main) {
@@ -299,6 +313,38 @@ main {
     outline-offset: var(--space-1);
   }
 
+  .open-beside {
+    position: absolute;
+    top: var(--name);
+    right: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  fieldset:hover .open-beside,
+  fieldset:focus-within .open-beside,
+  .open-beside[aria-pressed='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .chip .open-beside {
+    display: none;
+  }
+
+  .open-beside:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     fieldset {
       transition:
@@ -313,6 +359,84 @@ main {
     .shown,
     .facet textarea {
       transition: opacity var(--move) var(--move-ease);
+    }
+  }
+}
+
+@scope (aside) {
+  :scope {
+    flex: none;
+    box-sizing: border-box;
+    width: 0;
+    visibility: hidden;
+    overflow: auto;
+    background: var(--color-surface);
+    font-family: var(--font-prose);
+    font-size: var(--text-prose);
+    line-height: var(--leading-prose);
+  }
+
+  :scope.open {
+    width: 560px;
+    visibility: visible;
+    border-left: 1px solid var(--color-edge);
+  }
+
+  h2 {
+    margin: var(--space-8) var(--space-6) var(--space-4);
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  .facet {
+    display: grid;
+    gap: var(--space-1);
+    padding: 0 var(--space-6) var(--space-4);
+  }
+
+  .facet label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .facet textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    resize: none;
+    field-sizing: content;
+    min-height: 1lh;
+  }
+
+  button {
+    justify-self: start;
+    margin: 0 var(--space-6) var(--space-8);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  :scope :is(textarea, button):focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :scope {
+      transition:
+        width var(--move) var(--move-ease),
+        visibility var(--move);
+    }
+
+    :scope.open {
+      transition: width var(--move) var(--move-ease);
     }
   }
 }

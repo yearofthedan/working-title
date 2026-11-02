@@ -1,5 +1,6 @@
 import type { OpenProject, PieceView } from '../../application/project';
 import { pieceCard, type Card } from '../card/card.dom';
+import { thePanel, type Panel } from '../panel/panel.dom';
 import {
   along,
   drawnAs,
@@ -34,6 +35,9 @@ interface State {
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
   project: OpenProject;
+  readonly typing: OpenProject['elaborate'];
+  readonly panel: Panel;
+  open: string | undefined;
   current: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, Card>;
@@ -82,13 +86,33 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
   if (into !== undefined) into.focus({ preventScroll: true });
   else st.cards.get(id)?.focus();
 };
+const openBeside = (st: State, id: string): void => {
+  const was = st.open;
+  st.open = id;
+  if (was !== undefined && was !== id) st.cards.get(was)?.showOpen(false);
+  st.cards.get(id)?.showOpen(true);
+  st.panel.open(st.project.read(id));
+};
+
+const closeBeside = (st: State): void => {
+  const id = st.open;
+  st.open = undefined;
+  st.panel.close();
+  const kind = id === undefined ? undefined : drawnAs(st.entries, st.current, id);
+  const card = id === undefined ? undefined : st.cards.get(id);
+  card?.showOpen(false);
+  if (card !== undefined && (kind === 'card' || kind === 'current')) card.focusOpenBeside();
+  else st.cards.get(st.current)?.focus();
+};
+
 const cardFor = (st: State, piece: PieceView): Card =>
   pieceCard(piece, {
     level: entryOf(st, piece.id)!.level,
     current: () => st.current === piece.id,
-    elaborate: st.project.elaborate,
+    elaborate: st.typing,
     goTo: (into) => goTo(st, piece.id, into),
     addChild: () => void addUnder(st, piece.id),
+    openBeside: () => (st.open === piece.id ? closeBeside(st) : openBeside(st, piece.id)),
   });
 
 const pathNav = (st: State): void => {
@@ -366,6 +390,7 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
       return;
     }
     const target = event.target;
+    if (target instanceof Element && st.panel.element.contains(target)) return;
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
     if (target instanceof HTMLTextAreaElement) return;
@@ -409,17 +434,28 @@ const focusOn = (st: State): (() => void) => {
 };
 
 export const renderGraph = async (
-  { header, main }: { header: HTMLElement; main: HTMLElement },
+  { header, main, panel: element }: { header: HTMLElement; main: HTMLElement; panel: HTMLElement },
   project: OpenProject,
 ): Promise<void> => {
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
-  const st: State = {
+  let st: State;
+  const typing: OpenProject['elaborate'] = async (pieceId, facetId, text) => {
+    await st.project.elaborate(pieceId, facetId, text);
+    // shortcut: the graph passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
+    if (st.panel.isOpenOn(pieceId)) st.panel.show(facetId, text);
+    st.cards.get(pieceId)?.show(facetId, text);
+  };
+  const panel = thePanel(element, { elaborate: typing, close: () => closeBeside(st) });
+  st = {
     header,
     main,
     wrapper,
     project,
+    typing,
+    panel,
+    open: undefined,
     current: project.root.id,
     lastVisited: new Map(),
     cards: new Map(),

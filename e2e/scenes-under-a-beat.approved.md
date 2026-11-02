@@ -14,6 +14,7 @@ Then the writer sees
         - button "Beat 4"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
   - toolbar "Scenes under Beat 4":
     - group "Scene 1":
       - heading "Scene 1" [level=4]
@@ -46,6 +47,7 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - button "Open beside"
     - group "Beat 3":
       - heading "Beat 3" [level=3]:
         - button "Beat 3"

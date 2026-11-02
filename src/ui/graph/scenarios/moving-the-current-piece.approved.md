@@ -19,26 +19,31 @@ Then the writer sees
         - button "Beat 1"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 2":
       - heading "Beat 2" [level=3]:
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 3":
       - heading "Beat 3" [level=3]:
         - button "Beat 3"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 4":
       - heading "Beat 4" [level=3]:
         - button "Beat 4"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 5":
       - heading "Beat 5" [level=3]:
         - button "Beat 5"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
 ```
 
 ### Scenario: clicking a scene's card makes it current
@@ -55,6 +60,7 @@ And it has focus
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1" [active]:
       - heading "Scene 1" [level=4]
@@ -88,6 +94,7 @@ And focus moves to its card
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
@@ -106,6 +113,7 @@ And focus moves to its card
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
@@ -144,6 +152,7 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
+      - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
@@ -177,6 +186,7 @@ Then the writer sees
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:

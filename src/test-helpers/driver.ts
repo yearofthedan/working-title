@@ -1,6 +1,13 @@
 import type { CardLook } from '../ui/card/card';
 
-export type Role = 'group' | 'button' | 'heading' | 'main' | 'navigation' | 'textbox';
+export type Role =
+  | 'group'
+  | 'button'
+  | 'heading'
+  | 'main'
+  | 'navigation'
+  | 'textbox'
+  | 'complementary';
 
 export interface Within {
   readonly role: Role;
@@ -118,6 +125,7 @@ export interface Focus {
 export const focusedIn = (root: Element): Focus | undefined => {
   // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
   const roles: Readonly<Record<string, string>> = {
+    ASIDE: 'complementary',
     BUTTON: 'button',
     FIELDSET: 'group',
     H1: 'heading',

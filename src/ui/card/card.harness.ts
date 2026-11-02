@@ -6,7 +6,7 @@ export const theBeat: PieceView = {
   id: 'beat-2',
   name: 'Beat 2',
   facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary', text: '' }],
-  longFacets: [],
+  longFacets: [{ id: 'paragraph', label: 'Paragraph', text: '' }],
   children: [],
   childKind: 'Scene',
 };
@@ -15,6 +15,7 @@ export interface CardHooks {
   readonly piece?: PieceView;
   readonly elaborate?: OpenProject['elaborate'];
   readonly addChild?: () => void;
+  readonly openBeside?: () => void;
 }
 
 export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
@@ -27,6 +28,7 @@ export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
     elaborate: hooks.elaborate ?? (() => Promise.resolve()),
     goTo: () => undefined,
     addChild: hooks.addChild ?? (() => undefined),
+    openBeside: hooks.openBeside ?? (() => undefined),
   });
   card.settle(piece, as);
   card.reachCard(true);

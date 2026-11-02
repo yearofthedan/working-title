@@ -8,7 +8,14 @@ export const thePage = async (width: number): Promise<void> => {
   header.append(document.createElement('h1'));
   const main = document.createElement('main');
   main.style.width = `${width}px`;
-  document.body.append(header, main);
+  const column = document.createElement('div');
+  column.className = 'column';
+  column.append(header, main);
+  const row = document.createElement('div');
+  row.className = 'row';
+  const panel = document.createElement('aside');
+  row.append(column, panel);
+  document.body.append(row);
 };
 
 export const twoGraphs = async (): Promise<void> => {
@@ -18,7 +25,8 @@ export const twoGraphs = async (): Promise<void> => {
   const main = document.createElement('main');
   main.setAttribute('aria-label', 'Second graph');
   main.style.width = '1440px';
-  page.append(header, main);
+  const panel = document.createElement('aside');
+  page.append(header, main, panel);
   document.body.append(page);
   await startApp(page);
 };
@@ -44,5 +52,10 @@ export const aPageWithoutAMain = (): Document => {
 
 export const aPageWithoutAHeader = (): Document => {
   document.body.replaceChildren(document.createElement('main'));
+  return document;
+};
+
+export const aPageWithoutAnAside = (): Document => {
+  document.body.replaceChildren(document.createElement('header'), document.createElement('main'));
   return document;
 };

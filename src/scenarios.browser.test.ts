@@ -46,6 +46,12 @@ const tierFor = (path: string): ScenarioTier => {
   return tier;
 };
 
+const besideTheGraph = 'src/ui/graph/scenarios/beside-the-graph.approved.md';
+
+// shortcut: this one file's tree reads the whole page, because the panel it records sits outside main; every other file stays rooted at main.
+const driverFor = (path: string): Driver =>
+  path === besideTheGraph ? vitestBrowserDriver(undefined, 'page') : vitestBrowserDriver();
+
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({
   tree: async () => driver.tree(),
   ...(approving
@@ -67,7 +73,7 @@ for (const [key, text] of Object.entries(files)) {
   describe(path, () => {
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
-        const driver = vitestBrowserDriver();
+        const driver = driverFor(path);
         await playScenarios({ path, text }, runnerFor(driver, approving), tier.steps(driver), {
           only: behaviour,
           ...(approving ? { approve: true } : {}),

@@ -14,6 +14,5 @@ export const journeyOn = (driver: ReloadingDriver, opening: Opening): Journey =>
 export const journeySteps = (journey: Journey, sees: Sees): Record<string, StepAction> => ({
   ...graphSteps(journey, sees),
   'reloads the app': () => journey.reloads(),
-  'the writer types "{text}" as {piece}\'s {facet}': ({ text, piece, facet }) =>
-    journey.types(text, { piece, facet }),
+  '{piece}\'s {facet} reads "{text}"': ({ piece, facet, text }) => sees.reads(piece, facet, text),
 });

@@ -8,6 +8,7 @@ interface CardHooks {
   readonly elaborate: OpenProject['elaborate'];
   readonly goTo: (into?: HTMLElement) => void;
   readonly addChild: () => void;
+  readonly openBeside: () => void;
 }
 
 export interface Card {
@@ -26,12 +27,15 @@ export interface Card {
   size(): { w: number; h: number };
   startAt(other: Card): void;
   focus(): void;
+  focusOpenBeside(): void;
   contains(node: Node | null): boolean;
   afterMeasuring(): void;
+  showOpen(on: boolean): void;
+  show(facetId: string, text: string): void;
 }
 
 const fieldsOf = (card: HTMLElement): readonly HTMLElement[] => [
-  ...card.querySelectorAll<HTMLElement>('textarea, .facet button'),
+  ...card.querySelectorAll<HTMLElement>('textarea, .facet button, .open-beside'),
 ];
 
 const nameButtonIn = (card: HTMLElement): HTMLElement | null =>
@@ -58,11 +62,17 @@ const setHeading = (card: HTMLElement, piece: PieceView, current: boolean): void
   );
 };
 
+interface FacetField extends FacetView {
+  readonly element: HTMLElement;
+  readonly input: HTMLTextAreaElement;
+  readonly shown: HTMLElement;
+}
+
 const field = (
   pieceId: string,
   { id, label, text }: FacetView,
   elaborate: OpenProject['elaborate'],
-): HTMLElement => {
+): FacetField => {
   const wrapper = document.createElement('div');
   wrapper.className = 'facet';
   const fieldId = `facet-${pieceId}-${id}`;
@@ -82,7 +92,22 @@ const field = (
     void elaborate(pieceId, id, input.value);
   });
   wrapper.append(name, input, shown);
-  return wrapper;
+  return { id, label, text, element: wrapper, input, shown };
+};
+
+const openBesideButton = (openBeside: () => void): HTMLElement => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'open-beside';
+  button.tabIndex = -1;
+  button.textContent = 'Open beside';
+  button.setAttribute('aria-pressed', 'false');
+  button.addEventListener('mousedown', (event) => event.preventDefault());
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
+    openBeside();
+  });
+  return button;
 };
 
 const cap = (key: string): HTMLElement => {
@@ -147,7 +172,7 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
   heading.textContent = piece.name;
   legend.append(heading);
   const facets = piece.facets.map((facet) => field(piece.id, facet, hooks.elaborate));
-  element.append(legend, ...facets);
+  element.append(legend, ...facets.map(({ element: one }) => one));
 
   if (piece.childKind !== undefined) {
     const button = document.createElement('button');
@@ -159,8 +184,11 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
       event.stopPropagation();
       hooks.addChild();
     });
-    (facets.at(-1) ?? element).append(button);
+    (facets.at(-1)?.element ?? element).append(button);
   }
+
+  const open = piece.longFacets.length === 0 ? undefined : openBesideButton(hooks.openBeside);
+  if (open !== undefined) element.append(open);
 
   const keys = keysHint(piece);
   element.append(keys);
@@ -230,9 +258,17 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
       element.style.width = other.element.style.width;
     },
     focus: () => element.focus({ preventScroll: true }),
+    focusOpenBeside: () => open?.focus({ preventScroll: true }),
     contains: (node) => element.contains(node),
     afterMeasuring: () => {
       element.style.transitionProperty = '';
+    },
+    showOpen: (on) => open?.setAttribute('aria-pressed', on ? 'true' : 'false'),
+    show: (facetId, text) => {
+      const made = facets.find((facet) => facet.id === facetId);
+      if (made === undefined || made.input.value === text) return;
+      made.input.value = text;
+      made.shown.textContent = text;
     },
   };
   element.addEventListener('keydown', keysOnTheCard(card, hooks.current));

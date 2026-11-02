@@ -12,6 +12,7 @@ Then focus moves to the one-sentence summary
     - text: One-sentence summary
     - textbox "One-sentence summary" [active]
     - button "Add a scene"
+    - button "Open beside"
 ```
 
 ### Scenario: tabbing forward moves focus to the card's next action
@@ -26,12 +27,13 @@ Then focus moves to "Add a scene"
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene" [active]
+    - button "Open beside"
 ```
 
 ### Scenario: tabbing forward from the card's last action returns to its first input
 
 ```
-Given a beat card is current with focus on "Add a scene"
+Given a beat card is current with focus on "Open beside"
 When the writer tabs forward
 Then focus moves to the one-sentence summary
 - main:
@@ -40,6 +42,7 @@ Then focus moves to the one-sentence summary
     - text: One-sentence summary
     - textbox "One-sentence summary" [active]
     - button "Add a scene"
+    - button "Open beside"
 ```
 
 ### Scenario: Esc moves focus back to the card
@@ -54,5 +57,6 @@ Then focus moves to the card
     - text: One-sentence summary
     - textbox "One-sentence summary"
     - button "Add a scene"
+    - button "Open beside"
     - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
