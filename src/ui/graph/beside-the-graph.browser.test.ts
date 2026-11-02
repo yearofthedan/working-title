@@ -11,7 +11,7 @@ import {
 } from '../card/card.test-page';
 import { closeButtonOf, panelOf } from '../panel/panel.test-page';
 import { pageWith } from './graph.harness';
-import { atFocus, blurTheFocus, current, named } from './graph.test-page';
+import { atFocus, blurTheFocus, current, headerOf, named } from './graph.test-page';
 
 const thePanelIsOpen = async (): Promise<boolean> =>
   (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
@@ -57,6 +57,21 @@ describe('opening a piece beside the graph', () => {
     expect(await thePanelIsOpen()).toBe(false);
   });
 
+  it('runs the panel the full height of the page, past the header', async () => {
+    const { stage, writer } = pageWith();
+    await stage.fresh();
+    await writer.opensBeside('Beat 2');
+    await settled();
+
+    const panel = panelOf().getBoundingClientRect();
+    const header = headerOf().getBoundingClientRect();
+
+    expect(panel.top).toBe(0);
+    expect(panel.height).toBe(window.innerHeight);
+    expect(header.top).toBeGreaterThanOrEqual(panel.top);
+    expect(header.bottom).toBeLessThanOrEqual(panel.bottom);
+  });
+
   it('leaves the focus on the Close button when an arrow key is pressed there', async () => {
     const { driver, stage, writer } = pageWith();
     await stage.fresh();
@@ -97,6 +112,7 @@ describe('opening a piece beside the graph', () => {
     await stage.fresh();
     await writer.opensBeside('Beat 2');
     await settled();
+    closeButtonOf(panelOf()).focus();
 
     await driver.press('Escape');
     await settled();

@@ -5,6 +5,12 @@ import { cardLooks, type CardLook } from '../card/card';
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());
 
+export const headerOf = (): HTMLElement => {
+  const [header] = inThePage(browser.page.getByRole('banner').elements());
+  if (header === undefined) throw new Error('the page draws no header');
+  return header;
+};
+
 const kindOf = (card: HTMLElement): CardLook | undefined =>
   cardLooks.find((kind) => card.classList.contains(kind));
 

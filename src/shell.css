@@ -434,7 +434,7 @@ main {
 
   @media (prefers-reduced-motion: no-preference) {
     :scope {
-      /* shortcut: the slide animates `display` with `transition-behavior: allow-discrete`, which MDN marks limited availability because no engine but Chromium and recent Safari transitions `display`; upgrade it once MDN marks it Baseline. */
+      /* shortcut: the slide animates `display` with `transition-behavior: allow-discrete`, which MDN marks limited availability because its data still lists Firefox as unable to transition `display`; upgrade it once MDN marks it Baseline. */
       transition:
         width var(--move) var(--move-ease),
         display var(--move) allow-discrete;
