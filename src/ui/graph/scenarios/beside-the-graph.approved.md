@@ -283,3 +283,44 @@ Then nothing is open beside the graph
       - heading "Beat 5" [level=3]:
         - button "Beat 5"
 ```
+
+### Scenario: Esc closes the panel
+
+```
+Given beat 2 is open beside the graph
+When the writer presses Esc
+Then nothing is open beside the graph
+- banner:
+  - heading [level=1]
+  - navigation "Where you are":
+    - list:
+      - listitem:
+        - button "The story"
+      - listitem: ›" / "Beat 2
+- main:
+  - toolbar "The story":
+    - group "The story":
+      - heading "The story" [level=2]:
+        - button "The story"
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+  - toolbar "Beats under The story":
+    - group "Beat 1":
+      - heading "Beat 1" [level=3]:
+        - button "Beat 1"
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+      - button "Add a scene"
+      - button "Open beside"
+    - group "Beat 3":
+      - heading "Beat 3" [level=3]:
+        - button "Beat 3"
+    - group "Beat 4":
+      - heading "Beat 4" [level=3]:
+        - button "Beat 4"
+    - group "Beat 5":
+      - heading "Beat 5" [level=3]:
+        - button "Beat 5"
+```

@@ -89,6 +89,19 @@ describe('opening a piece beside the graph', () => {
     expect(atFocus()).toBe(named('current', 'Beat 4'));
   });
 
+  it('closes the panel on Esc, putting the focus back on the icon', async () => {
+    const { driver, stage, writer } = pageWith();
+    await stage.fresh();
+    await writer.opensBeside('Beat 2');
+    await settled();
+
+    await driver.press('Escape');
+    await settled();
+
+    expect(await thePanelIsOpen(driver)).toBe(false);
+    expect(atFocus()).toBe(openBesideOf(named('current', 'Beat 2')));
+  });
+
   it('shows the icon while the pointer is over the card or the focus is within it, and draws none on a chip or the story card', async () => {
     const { stage, writer } = pageWith();
     await stage.fresh();

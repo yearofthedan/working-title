@@ -397,7 +397,10 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
       return;
     }
     const target = event.target;
-    if (target instanceof Element && st.panel?.element.contains(target) === true) return;
+    if (target instanceof Element && st.panel?.element.contains(target) === true) {
+      if (event.key === 'Escape') closeBeside(st);
+      return;
+    }
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
     if (target instanceof HTMLTextAreaElement) return;
