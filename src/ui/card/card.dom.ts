@@ -95,12 +95,50 @@ const field = (
   return { id, label, text, element: wrapper, input, shown };
 };
 
+const svgIn = (name: string, attributes: Readonly<Record<string, string>>): SVGElement => {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', name);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+  return element;
+};
+
+const panelIcon = (): SVGElement => {
+  const icon = svgIn('svg', {
+    viewBox: '0 0 16 16',
+    width: '14',
+    height: '14',
+    'aria-hidden': 'true',
+  });
+  icon.append(
+    svgIn('rect', {
+      x: '1.5',
+      y: '2.5',
+      width: '13',
+      height: '11',
+      rx: '2',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+    }),
+    svgIn('rect', { x: '9.5', y: '4', width: '3.5', height: '8', rx: '1', fill: 'currentColor' }),
+    svgIn('line', {
+      x1: '9.5',
+      y1: '2.5',
+      x2: '9.5',
+      y2: '13.5',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+    }),
+  );
+  return icon;
+};
+
 const openBesideButton = (openBeside: () => void): HTMLElement => {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'open-beside';
   button.tabIndex = -1;
-  button.textContent = 'Open beside';
+  button.setAttribute('aria-label', 'Open beside');
+  button.append(panelIcon());
   button.setAttribute('aria-pressed', 'false');
   button.addEventListener('mousedown', (event) => event.preventDefault());
   button.addEventListener('click', (event) => {

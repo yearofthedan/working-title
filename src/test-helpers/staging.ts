@@ -8,14 +8,7 @@ export const thePage = async (width: number): Promise<void> => {
   header.append(document.createElement('h1'));
   const main = document.createElement('main');
   main.style.width = `${width}px`;
-  const column = document.createElement('div');
-  column.className = 'column';
-  column.append(header, main);
-  const row = document.createElement('div');
-  row.className = 'row';
-  const panel = document.createElement('aside');
-  row.append(column, panel);
-  document.body.append(row);
+  document.body.append(header, main, document.createElement('aside'));
 };
 
 export const twoGraphs = async (): Promise<void> => {
@@ -38,6 +31,9 @@ export const narrowThePane = (width: number): void => {
 export const anExtraHeaderAbove = (): { given: HTMLElement; extra: HTMLElement } => {
   const given = document.querySelector<HTMLElement>('header')!;
   const extra = document.createElement('header');
+  extra.style.gridArea = 'extra';
+  document.body.style.gridTemplateRows = 'auto auto minmax(0, 1fr)';
+  document.body.style.gridTemplateAreas = "'extra panel' 'header panel' 'main panel'";
   document.body.prepend(extra);
   return { given, extra };
 };

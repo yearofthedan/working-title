@@ -34,8 +34,6 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
     return wrapper;
   };
 
-  element.inert = true;
-
   return {
     element,
 
@@ -43,8 +41,9 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
       openOn = piece.id;
       fields = new Map();
       const name = document.createElement('h2');
+      name.id = 'panel-name';
       name.textContent = piece.name;
-      element.setAttribute('aria-label', piece.name);
+      element.setAttribute('aria-labelledby', name.id);
       const close = document.createElement('button');
       close.type = 'button';
       close.textContent = 'Close';
@@ -55,7 +54,6 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
         close,
       );
       element.classList.add('open');
-      element.inert = false;
       const opens = piece.longFacets[0] ?? piece.facets[0];
       if (opens !== undefined) fields.get(opens.id)?.focus();
     },
@@ -63,7 +61,6 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
     close: () => {
       openOn = undefined;
       element.classList.remove('open');
-      element.inert = true;
     },
 
     show: (facetId, text) => {

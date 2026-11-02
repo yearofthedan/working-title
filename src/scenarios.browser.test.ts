@@ -21,12 +21,10 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 });
 
 const cardTier: ScenarioTier = {
-  stage: stageTheCard,
   steps: (driver: Driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
 };
 
 const graphTier: ScenarioTier = {
-  stage: stageTheGraph,
   steps: (driver: Driver) =>
     graphSteps(
       writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }, stageTheSeededGraph),

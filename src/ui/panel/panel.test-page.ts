@@ -38,8 +38,6 @@ export const caretIn = (field: HTMLTextAreaElement): number | null => field.sele
 
 export const heightOf = (element: HTMLElement): number => element.getBoundingClientRect().height;
 
-export const inertOf = (panel: HTMLElement): boolean => panel.inert;
-
-export const visibilityOf = (panel: HTMLElement): string => getComputedStyle(panel).visibility;
+export const displayOf = (panel: HTMLElement): string => getComputedStyle(panel).display;
 
 export const widthOf = (panel: HTMLElement): number => panel.getBoundingClientRect().width;

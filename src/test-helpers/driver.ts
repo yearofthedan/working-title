@@ -143,6 +143,8 @@ export const focusedIn = (root: Element): Focus | undefined => {
     const role = element.getAttribute('role') ?? roles[element.tagName];
     if (role === undefined) return undefined;
     const label = element.getAttribute('aria-label');
+    const labelledby = element.getAttribute('aria-labelledby');
+    const namedBy = labelledby === null ? null : element.ownerDocument.getElementById(labelledby);
     const legend = [...element.children].find((child) => child.tagName === 'LEGEND');
     const labels =
       element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement
@@ -150,6 +152,7 @@ export const focusedIn = (root: Element): Focus | undefined => {
         : null;
     const name = (
       label ??
+      namedBy?.textContent ??
       legend?.textContent ??
       labels?.[0]?.textContent ??
       element.textContent ??

@@ -274,7 +274,10 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       }
     },
     panelIsOpenOn: async (piece) => {
-      await driver.value('Paragraph', { role: 'complementary', name: pieceNamed(piece) });
+      const open = (await driver.tree()).some((line) =>
+        line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
+      );
+      if (!open) throw new Error(`${piece} is not open beside the graph`);
     },
     noPanelIsOpen: async () => {
       if ((await driver.tree()).some((line) => line.includes('- complementary'))) {

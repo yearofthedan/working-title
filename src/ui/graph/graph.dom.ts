@@ -36,7 +36,8 @@ interface State {
   readonly wrapper: HTMLElement;
   project: OpenProject;
   readonly typing: OpenProject['elaborate'];
-  readonly panel: Panel;
+  readonly panelElement: HTMLElement;
+  panel: Panel | undefined;
   open: string | undefined;
   current: string;
   readonly lastVisited: Map<string, string>;
@@ -86,18 +87,24 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
   if (into !== undefined) into.focus({ preventScroll: true });
   else st.cards.get(id)?.focus();
 };
+const beside = (st: State): Panel =>
+  (st.panel ??= thePanel(st.panelElement, {
+    elaborate: st.typing,
+    close: () => closeBeside(st),
+  }));
+
 const openBeside = (st: State, id: string): void => {
   const was = st.open;
   st.open = id;
   if (was !== undefined && was !== id) st.cards.get(was)?.showOpen(false);
   st.cards.get(id)?.showOpen(true);
-  st.panel.open(st.project.read(id));
+  beside(st).open(st.project.read(id));
 };
 
 const closeBeside = (st: State): void => {
   const id = st.open;
   st.open = undefined;
-  st.panel.close();
+  st.panel?.close();
   const kind = id === undefined ? undefined : drawnAs(st.entries, st.current, id);
   const card = id === undefined ? undefined : st.cards.get(id);
   card?.showOpen(false);
@@ -390,7 +397,7 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
       return;
     }
     const target = event.target;
-    if (target instanceof Element && st.panel.element.contains(target)) return;
+    if (target instanceof Element && st.panel?.element.contains(target) === true) return;
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
     if (target instanceof HTMLTextAreaElement) return;
@@ -440,21 +447,19 @@ export const renderGraph = async (
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
-  let st: State;
-  const typing: OpenProject['elaborate'] = async (pieceId, facetId, text) => {
-    await st.project.elaborate(pieceId, facetId, text);
-    // shortcut: the graph passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
-    if (st.panel.isOpenOn(pieceId)) st.panel.show(facetId, text);
-    st.cards.get(pieceId)?.show(facetId, text);
-  };
-  const panel = thePanel(element, { elaborate: typing, close: () => closeBeside(st) });
-  st = {
+  const st: State = {
     header,
     main,
     wrapper,
     project,
-    typing,
-    panel,
+    panelElement: element,
+    panel: undefined,
+    typing: async (pieceId, facetId, text) => {
+      await st.project.elaborate(pieceId, facetId, text);
+      // shortcut: the graph passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
+      if (st.panel?.isOpenOn(pieceId) === true) st.panel.show(facetId, text);
+      st.cards.get(pieceId)?.show(facetId, text);
+    },
     open: undefined,
     current: project.root.id,
     lastVisited: new Map(),

@@ -13,6 +13,7 @@ import { type Writer } from './graph.dsl';
 import { pageWith } from './graph.harness';
 import { nameOf } from '../card/card.test-page';
 import { cardAtFocus, current, everyCard, named } from './graph.test-page';
+import { panelOf, widthOf } from '../panel/panel.test-page';
 import { narrowThePane } from '../../test-helpers/staging';
 
 const boxes = (): readonly string[] =>
@@ -234,6 +235,66 @@ describe('the motion of a move', () => {
       await play(writer, driver);
 
       expect(moving()).toEqual([]);
+    });
+  });
+});
+
+describe('the motion of the panel beside the graph', () => {
+  it('slides in over 200 to 300 ms, easing out', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.clicks('Beat 2');
+
+    await writer.opensBeside('Beat 2');
+
+    const sliding = moving().filter(
+      (animation) => animation instanceof CSSTransition && animation.transitionProperty === 'width',
+    );
+    expect(sliding).not.toEqual([]);
+    for (const animation of sliding) {
+      const timing = animation.effect!.getComputedTiming();
+      expect(timing.duration).toBeGreaterThanOrEqual(200);
+      expect(timing.duration).toBeLessThanOrEqual(300);
+      expect(easesOut(timing.easing)).toBe(true);
+    }
+  });
+
+  it('slides out over 200 to 300 ms, easing out', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.clicks('Beat 2');
+    await writer.opensBeside('Beat 2');
+    await settled();
+
+    await writer.closesThePanel();
+
+    const sliding = moving().filter(
+      (animation) => animation instanceof CSSTransition && animation.transitionProperty === 'width',
+    );
+    expect(sliding).not.toEqual([]);
+    for (const animation of sliding) {
+      const timing = animation.effect!.getComputedTiming();
+      expect(timing.duration).toBeGreaterThanOrEqual(200);
+      expect(timing.duration).toBeLessThanOrEqual(300);
+      expect(easesOut(timing.easing)).toBe(true);
+    }
+  });
+
+  describe('under reduced motion', () => {
+    afterEach(async () => {
+      await browser.commands.emulateReducedMotion('no-preference');
+    });
+
+    it('opens the panel in one step', async () => {
+      const { stage, writer } = pageWith(1);
+      await browser.commands.emulateReducedMotion('reduce');
+      await stage.fresh();
+      await writer.clicks('Beat 2');
+
+      await writer.opensBeside('Beat 2');
+
+      expect(moving()).toEqual([]);
+      expect(widthOf(panelOf())).toBe(560);
     });
   });
 });

@@ -3,7 +3,6 @@ import { OBSERVED, readScenarioFile, withObserved, type Scenario } from './scena
 import { stepTable, type StepAction } from './steps';
 
 export interface ScenarioTier {
-  readonly stage: () => Promise<void>;
   readonly steps: (driver: Driver) => Readonly<Record<string, StepAction>>;
 }
 

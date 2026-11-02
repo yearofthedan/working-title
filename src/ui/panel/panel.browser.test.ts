@@ -5,12 +5,11 @@ import { settled } from '../../test-helpers/driver';
 import {
   caretIn,
   closeButtonOf,
+  displayOf,
   fieldFor,
   holdsTheFocus,
   heightOf,
-  inertOf,
   nameOn,
-  visibilityOf,
   widthOf,
 } from './panel.test-page';
 import { mountThePanel, theBeat } from './panel.harness';
@@ -126,8 +125,7 @@ describe('the panel mounted alone', () => {
     await settled();
 
     expect(widthOf(panel.element)).toBe(0);
-    expect(inertOf(panel.element)).toBe(true);
-    expect(visibilityOf(panel.element)).toBe('hidden');
+    expect(displayOf(panel.element)).toBe('none');
   });
 
   it('calls back to the graph when Close is pressed', async () => {
