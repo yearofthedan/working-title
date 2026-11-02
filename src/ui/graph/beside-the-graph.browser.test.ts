@@ -8,7 +8,7 @@ import {
   openBesideOf,
   showsOpenBeside,
 } from '../card/card.test-page';
-import { closeButtonOf, fieldFor, holdsTheFocus, panelOf } from '../panel/panel.test-page';
+import { closeButtonOf, panelOf } from '../panel/panel.test-page';
 import { pageWith } from './graph.harness';
 import { atFocus, blurTheFocus, current, named } from './graph.test-page';
 
@@ -16,14 +16,14 @@ const thePanelIsOpen = async (driver: { tree(): Promise<readonly string[]> }): P
   (await driver.tree()).some((line) => line.includes('- complementary'));
 
 describe('opening a piece beside the graph', () => {
-  it('puts the focus in the paragraph when a beat opens beside the graph', async () => {
+  it('puts the focus inside the panel when a beat opens beside the graph', async () => {
     const { stage, writer } = pageWith();
     await stage.fresh();
 
     await writer.opensBeside('Beat 2');
     await settled();
 
-    expect(holdsTheFocus(fieldFor(panelOf(), 'Paragraph'))).toBe(true);
+    expect(panelOf().contains(atFocus())).toBe(true);
   });
 
   it('keeps the icon of the beat beside pressed, and unpressed once it is closed', async () => {

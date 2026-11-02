@@ -18,8 +18,9 @@ const theSentence = 'One-sentence summary';
 const theParagraph = 'Paragraph';
 const theText = 'Maren rows out before first light';
 
-const holding = (paragraph: string): PieceView => ({
+const holding = (sentence: string, paragraph: string): PieceView => ({
   ...theBeat,
+  facets: [{ id: 'one-sentence-summary', label: theSentence, text: sentence }],
   longFacets: [{ id: 'paragraph', label: theParagraph, text: paragraph }],
 });
 
@@ -36,7 +37,7 @@ describe('the panel mounted alone', () => {
   });
 
   it('moves the caret inside a field with the arrow keys, and leaves the focus in it', async () => {
-    const panel = mountThePanel(holding(theText));
+    const panel = mountThePanel(holding('', theText));
     const field = fieldFor(panel.element, theParagraph);
     field.focus();
     field.setSelectionRange(6, 6);
@@ -87,7 +88,7 @@ describe('the panel mounted alone', () => {
 
   it('sets a field’s text from outside with no input fired, leaving the caret where it was', async () => {
     const typed: string[] = [];
-    const panel = mountThePanel(holding(theText), {
+    const panel = mountThePanel(holding('', theText), {
       elaborate: (_piece, _facet, text) => {
         typed.push(text);
         return Promise.resolve();
@@ -109,8 +110,20 @@ describe('the panel mounted alone', () => {
     expect(typed).toEqual([]);
   });
 
-  it('takes the focus into the paragraph when it is opened', () => {
+  it('takes the focus into the one-sentence summary while it holds no text', () => {
     const panel = mountThePanel();
+
+    expect(holdsTheFocus(fieldFor(panel.element, theSentence))).toBe(true);
+  });
+
+  it('takes the focus into the paragraph once the one-sentence summary holds text', () => {
+    const panel = mountThePanel(holding(theText, ''));
+
+    expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
+  });
+
+  it('takes the focus into the last field when both hold text', () => {
+    const panel = mountThePanel(holding(theText, longParagraph));
 
     expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
   });

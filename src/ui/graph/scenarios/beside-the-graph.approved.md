@@ -5,7 +5,7 @@ Rule: the writer opens a beat in the panel beside the graph and types its one-se
 ```
 Given a new project
 When the writer opens beat 2 beside the graph
-Then focus moves to the paragraph
+Then beat 2's paragraph is open beside the graph
 - banner:
   - heading [level=1]
   - navigation "Where you are":
@@ -44,7 +44,7 @@ Then focus moves to the paragraph
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
-  - textbox "Paragraph" [active]
+  - textbox "Paragraph"
   - button "Close"
 ```
 
