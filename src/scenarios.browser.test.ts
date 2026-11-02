@@ -21,12 +21,10 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 });
 
 const cardTier: ScenarioTier = {
-  stage: stageTheCard,
   steps: (driver: Driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
 };
 
 const graphTier: ScenarioTier = {
-  stage: stageTheGraph,
   steps: (driver: Driver) =>
     graphSteps(
       writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }, stageTheSeededGraph),
@@ -45,6 +43,12 @@ const tierFor = (path: string): ScenarioTier => {
   if (tier === undefined) throw new Error(`no tier stages the scenarios in ${folder}`);
   return tier;
 };
+
+const besideTheGraph = 'src/ui/graph/scenarios/beside-the-graph.approved.md';
+
+// shortcut: this one file's tree reads the whole page, because the panel it records sits outside main; until the tree root comes from the scenario file, every other file stays rooted at main.
+const driverFor = (path: string): Driver =>
+  path === besideTheGraph ? vitestBrowserDriver(undefined, 'page') : vitestBrowserDriver();
 
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({
   tree: async () => driver.tree(),
@@ -67,7 +71,7 @@ for (const [key, text] of Object.entries(files)) {
   describe(path, () => {
     for (const { behaviour } of readScenarioFile(text).scenarios) {
       it(behaviour, async () => {
-        const driver = vitestBrowserDriver();
+        const driver = driverFor(path);
         await playScenarios({ path, text }, runnerFor(driver, approving), tier.steps(driver), {
           only: behaviour,
           ...(approving ? { approve: true } : {}),

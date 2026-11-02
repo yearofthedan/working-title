@@ -15,6 +15,7 @@ And it has focus
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
   - toolbar "Scenes under Beat 2":
     - group "Scene 1" [active]:
       - heading "Scene 1" [level=4]

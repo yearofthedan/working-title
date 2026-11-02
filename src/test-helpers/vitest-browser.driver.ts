@@ -30,11 +30,12 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
-export const vitestBrowserDriver = (graph?: string): Driver => {
+export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'main'): Driver => {
   const main =
     graph === undefined
       ? browser.page.getByRole('main')
       : browser.page.getByRole('main', { name: wholeNameAnyCase(graph) });
+  const root = (): Element => (reads === 'page' ? document.body : main.element());
   const within = graph === undefined ? browser.page : main;
   const rootIn = (group?: Within) =>
     group === undefined
@@ -73,8 +74,8 @@ export const vitestBrowserDriver = (graph?: string): Driver => {
       await settled();
       return markingFocusWhenAsserted(
         assertions,
-        async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(main.element())),
-        async () => focusedIn(main.element()),
+        async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(root())),
+        async () => focusedIn(root()),
       );
     },
   };

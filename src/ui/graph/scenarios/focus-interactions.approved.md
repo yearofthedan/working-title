@@ -18,26 +18,31 @@ Then the writer sees
         - button "Beat 1"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 2":
       - heading "Beat 2" [level=3]:
         - button "Beat 2"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 3":
       - heading "Beat 3" [level=3]:
         - button "Beat 3"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 4":
       - heading "Beat 4" [level=3]:
         - button "Beat 4"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
     - group "Beat 5":
       - heading "Beat 5" [level=3]:
         - button "Beat 5"
       - text: One-sentence summary
       - textbox "One-sentence summary"
+      - button "Open beside"
 ```
 
 ### Scenario: the writer types into one beat
@@ -62,6 +67,7 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
       - button "Add a scene"
+      - button "Open beside"
     - group "Beat 3":
       - heading "Beat 3" [level=3]:
         - button "Beat 3"

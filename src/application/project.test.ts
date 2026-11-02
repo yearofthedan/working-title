@@ -53,6 +53,18 @@ describe('opening a project', () => {
     expect(item?.longFacets).toEqual([{ id: 'body', label: 'Body', text: '' }]);
   });
 
+  it('reads one piece of the project as it is now, holding the text typed since', async () => {
+    const project = await openProject(toyMethod, storeOf(), ids());
+    const item2 = item2Of(project.root.children).id;
+    await project.elaborate(item2, 'title', typed);
+
+    const read = project.read(item2);
+
+    expect(read.name).toBe('Item 2');
+    expect(read.facets.find(({ id }) => id === 'title')?.text).toBe(typed);
+    expect(read.longFacets.map(({ id }) => id)).toEqual(['body']);
+  });
+
   it('saves the text typed into a long facet and reads it back on the next open', async () => {
     const store = copyingStore();
     const first = await openProject(toyMethod, store, ids());

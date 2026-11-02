@@ -29,7 +29,10 @@ export interface Writer {
   tabsForward(): Promise<void>;
   tabsBackward(): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
+  opensBeside(piece: string): Promise<void>;
+  closesThePanel(): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
+  typesBeside(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
 
 export interface Around {
@@ -43,8 +46,15 @@ export interface Sees {
   tree(): Promise<readonly string[]>;
   pathIs(pieces: readonly string[]): Promise<void>;
   focusIsIn(piece: string, facet: string): Promise<void>;
+  focusIsOn(piece: string): Promise<void>;
   focusIsOnTheName(piece: string): Promise<void>;
   focusIsOnTheCard(): Promise<void>;
+  focusIsInTheParagraph(): Promise<void>;
+  panelIsOpenOn(piece: string): Promise<void>;
+  noPanelIsOpen(): Promise<void>;
+  reads(piece: string, facet: string, text: string): Promise<void>;
+  readsOnTheCard(piece: string, facet: string, text: string): Promise<void>;
+  readsBeside(piece: string, facet: string, text: string): Promise<void>;
 }
 
 const pieces: Readonly<Record<string, string>> = {
@@ -54,6 +64,11 @@ const pieces: Readonly<Record<string, string>> = {
 };
 
 const pieceNamed = (words: string): string => pieces[words] ?? words;
+
+const besideTheGraph = ' beside the graph';
+
+// shortcut: the paragraph is the one facet typed beside the graph, until the driver can ask the method which facets are long.
+const typedBeside = (facet: string): boolean => facet.toLowerCase() === 'paragraph';
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
@@ -73,6 +88,12 @@ export const writerOn = (
       await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
     }
     await clicking(piece);
+  };
+
+  const openingBeside = async (piece: string): Promise<void> => {
+    const named = pieceNamed(piece);
+    await reaching(named);
+    await driver.click('button', 'Open beside', { role: 'group', name: named });
   };
 
   return {
@@ -101,7 +122,19 @@ export const writerOn = (
       await reaching(named);
       await driver.click('button', 'Add a scene', { role: 'group', name: named });
     },
-    types: (text, at) => driver.type(text, at.facet, { role: 'group', name: at.piece }),
+    opensBeside: openingBeside,
+    closesThePanel: () => driver.click('button', 'Close'),
+    types: async (text, at) => {
+      if (!typedBeside(at.facet)) {
+        await driver.type(text, at.facet, { role: 'group', name: at.piece });
+        return;
+      }
+      // shortcut: a long facet has no field on the card, so typing one opens its piece beside the graph first; a scenario whose panel is already open on that piece says " beside the graph" instead, until the driver can ask whether the icon is pressed.
+      await openingBeside(at.piece);
+      await driver.type(text, at.facet, { role: 'complementary', name: at.piece });
+    },
+    typesBeside: (text, at) =>
+      driver.type(text, at.facet, { role: 'complementary', name: at.piece }),
   };
 };
 
@@ -176,42 +209,87 @@ const under = (
   }
 };
 
-export const seesOn = (driver: Driver, reads: Reads): Sees => ({
-  currentIs: async (piece, around = {}) => {
-    const pieces = await reads.drawn();
-    const current = theCurrent(pieces, piece);
-    if (around.above !== undefined) above(pieces, current, around.above);
-    if (around.beside !== undefined) beside(pieces, current, around.beside);
-    if (around.under !== undefined) under(pieces, current, around.under);
-  },
-  tree: () => driver.tree(),
-  pathIs: async (pieces) => {
-    const path = await reads.path();
-    if (path !== pieces.join('')) {
-      throw new Error(`the path reads ${path || 'nothing'}, not ${pieces.join(' › ')}`);
+export const seesOn = (driver: Driver, reads: Reads): Sees => {
+  const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<void> => {
+    const held = await driver.value(facet, { role: 'group', name: pieceNamed(piece) });
+    if (held !== text) {
+      throw new Error(
+        `${piece}'s ${facet} on its card reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
+      );
     }
-  },
-  focusIsIn: async (piece, facet) => {
-    if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
-      throw new Error(`the focus is not in ${piece}'s ${facet}`);
+  };
+
+  const readsBeside = async (piece: string, facet: string, text: string): Promise<void> => {
+    const held = await driver.value(facet, { role: 'complementary', name: pieceNamed(piece) });
+    if (held !== text) {
+      throw new Error(
+        `${piece}'s ${facet} beside the graph reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
+      );
     }
-  },
-  focusIsOnTheName: async (piece) => {
-    if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
-      throw new Error(`the focus is not on ${piece}'s name`);
-    }
-  },
-  focusIsOnTheCard: async () => {
-    const cards = (await reads.drawn()).filter((piece) => piece.current);
-    const [only] = cards;
-    if (cards.length !== 1 || only === undefined) {
-      throw new Error('the graph draws no one current piece');
-    }
-    if (!(await driver.focusIs('group', only.name))) {
-      throw new Error(`the focus is not on ${only.name}'s card`);
-    }
-  },
-});
+  };
+
+  return {
+    currentIs: async (piece, around = {}) => {
+      const pieces = await reads.drawn();
+      const current = theCurrent(pieces, piece);
+      if (around.above !== undefined) above(pieces, current, around.above);
+      if (around.beside !== undefined) beside(pieces, current, around.beside);
+      if (around.under !== undefined) under(pieces, current, around.under);
+    },
+    tree: () => driver.tree(),
+    pathIs: async (pieces) => {
+      const path = await reads.path();
+      if (path !== pieces.join('')) {
+        throw new Error(`the path reads ${path || 'nothing'}, not ${pieces.join(' › ')}`);
+      }
+    },
+    focusIsIn: async (piece, facet) => {
+      if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
+        throw new Error(`the focus is not in ${piece}'s ${facet}`);
+      }
+    },
+    focusIsOn: async (piece) => {
+      if (!(await driver.focusIs('group', pieceNamed(piece)))) {
+        throw new Error(`the focus is not on ${piece}`);
+      }
+    },
+    focusIsOnTheName: async (piece) => {
+      if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
+        throw new Error(`the focus is not on ${piece}'s name`);
+      }
+    },
+    focusIsOnTheCard: async () => {
+      const cards = (await reads.drawn()).filter((piece) => piece.current);
+      const [only] = cards;
+      if (cards.length !== 1 || only === undefined) {
+        throw new Error('the graph draws no one current piece');
+      }
+      if (!(await driver.focusIs('group', only.name))) {
+        throw new Error(`the focus is not on ${only.name}'s card`);
+      }
+    },
+    focusIsInTheParagraph: async () => {
+      if (!(await driver.focusIs('textbox', 'Paragraph'))) {
+        throw new Error('the focus is not in the paragraph beside the graph');
+      }
+    },
+    panelIsOpenOn: async (piece) => {
+      const open = (await driver.tree()).some((line) =>
+        line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
+      );
+      if (!open) throw new Error(`${piece} is not open beside the graph`);
+    },
+    noPanelIsOpen: async () => {
+      if ((await driver.tree()).some((line) => line.includes('- complementary'))) {
+        throw new Error('something is open beside the graph');
+      }
+    },
+    reads: (piece, facet, text) =>
+      typedBeside(facet) ? readsBeside(piece, facet, text) : readsOnTheCard(piece, facet, text),
+    readsOnTheCard,
+    readsBeside,
+  };
+};
 
 const twoBeats = story(beat(), beat());
 const aBeatWithTwoScenes = story(beat(), beat(scene(), scene()));
@@ -221,6 +299,27 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
   'the story is on screen': () => writer.opensANewProject(),
+  // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
+  'beat 2 is open beside the graph': async () => {
+    await writer.opensANewProject();
+    await writer.opensBeside('beat 2');
+  },
+  '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
+  "{piece}'s paragraph is open beside the graph": ({ piece }) => sees.panelIsOpenOn(piece),
+  'the writer opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
+  'opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
+  'the writer closes the panel': () => writer.closesThePanel(),
+  'nothing is open beside the graph': () => sees.noPanelIsOpen(),
+  'focus moves to the paragraph': () => sees.focusIsInTheParagraph(),
+  '{piece} is in focus': ({ piece }) => sees.focusIsOn(piece),
+  'the writer types "{text}" as {piece}\'s {facet}': ({ text, piece, facet }) =>
+    facet.endsWith(besideTheGraph)
+      ? writer.typesBeside(text, { piece, facet: facet.slice(0, -besideTheGraph.length) })
+      : writer.types(text, { piece, facet }),
+  '{piece}\'s {facet} on its card reads "{text}"': ({ piece, facet, text }) =>
+    sees.readsOnTheCard(piece, facet, text),
+  '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
+    sees.readsBeside(piece, facet, text),
   'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
   'the writer presses {key}': ({ key }) => writer.moves(key),

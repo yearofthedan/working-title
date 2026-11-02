@@ -28,8 +28,8 @@ const openingOn = (page: Page): Opening => ({
   },
 });
 
-const fixtureOn = (page: Page): Fixture => {
-  const driver = playwrightDriver(page);
+const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
+  const driver = playwrightDriver(page, treeRoot);
   const reads = playwrightReads(page);
 
   return {
@@ -70,9 +70,10 @@ const fixtureOn = (page: Page): Fixture => {
   };
 };
 
-export const test = base.extend<{ writer: Fixture }>({
-  writer: async ({ page }, use) => {
-    await use(fixtureOn(page));
+export const test = base.extend<{ writer: Fixture; treeRoot: 'main' | 'page' }>({
+  treeRoot: ['main', { option: true }],
+  writer: async ({ page, treeRoot }, use) => {
+    await use(fixtureOn(page, treeRoot));
   },
 });
 

@@ -28,6 +28,7 @@ export interface PieceView {
 
 export interface OpenProject {
   readonly root: PieceView;
+  readonly read: (pieceId: string) => PieceView;
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
   readonly branch: (
     pieceId: string,
@@ -72,6 +73,15 @@ const listed = (project: Project, method: Method): PieceView => {
   return listedUnder(root, method.rootKind, method.rootKind.label);
 };
 
+const pieceIn = (root: PieceView, pieceId: string): PieceView | undefined => {
+  if (root.id === pieceId) return root;
+  for (const child of root.children) {
+    const found = pieceIn(child, pieceId);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+};
+
 export const openProject = async (
   method: Method,
   store: ProjectStore,
@@ -82,6 +92,12 @@ export const openProject = async (
 
   const projectOf = (): OpenProject => ({
     root: listed(project, method),
+
+    read: (pieceId) => {
+      const found = pieceIn(listed(project, method), pieceId);
+      if (found === undefined) throw new Error(`the project has no piece ${pieceId}`);
+      return found;
+    },
 
     elaborate: (pieceId, facetId, text) => {
       project = withFacet(project, pieceId, facetId, text);

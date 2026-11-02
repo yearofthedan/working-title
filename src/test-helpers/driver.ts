@@ -1,6 +1,13 @@
 import type { CardLook } from '../ui/card/card';
 
-export type Role = 'group' | 'button' | 'heading' | 'main' | 'navigation' | 'textbox';
+export type Role =
+  | 'group'
+  | 'button'
+  | 'heading'
+  | 'main'
+  | 'navigation'
+  | 'textbox'
+  | 'complementary';
 
 export interface Within {
   readonly role: Role;
@@ -115,9 +122,10 @@ export interface Focus {
   readonly inside: Named | undefined;
 }
 
-export const focusedIn = (root: Element): Focus | undefined => {
+export const focusedIn = (root: Element = document.body): Focus | undefined => {
   // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
   const roles: Readonly<Record<string, string>> = {
+    ASIDE: 'complementary',
     BUTTON: 'button',
     FIELDSET: 'group',
     H1: 'heading',
@@ -135,6 +143,8 @@ export const focusedIn = (root: Element): Focus | undefined => {
     const role = element.getAttribute('role') ?? roles[element.tagName];
     if (role === undefined) return undefined;
     const label = element.getAttribute('aria-label');
+    const labelledby = element.getAttribute('aria-labelledby');
+    const namedBy = labelledby === null ? null : element.ownerDocument.getElementById(labelledby);
     const legend = [...element.children].find((child) => child.tagName === 'LEGEND');
     const labels =
       element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement
@@ -142,6 +152,7 @@ export const focusedIn = (root: Element): Focus | undefined => {
         : null;
     const name = (
       label ??
+      namedBy?.textContent ??
       legend?.textContent ??
       labels?.[0]?.textContent ??
       element.textContent ??

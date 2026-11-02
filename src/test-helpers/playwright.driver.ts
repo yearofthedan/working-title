@@ -29,7 +29,7 @@ export const playwrightReads = (page: Page): Reads => ({
     (await page.getByRole('navigation', { name: 'Where you are' }).textContent()) ?? '',
 });
 
-export const playwrightDriver = (page: Page): PlaywrightDriver => {
+export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): PlaywrightDriver => {
   const rootIn = (within?: Within) =>
     within === undefined
       ? page
@@ -63,10 +63,11 @@ export const playwrightDriver = (page: Page): PlaywrightDriver => {
     },
     tree: async () => {
       await page.evaluate(settled);
-      const pane = await page.getByRole('main').elementHandle();
+      const wholePage = reads === 'page';
+      const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
       return markingFocusWhenAsserted(
         assertions,
-        async () => page.getByRole('main').ariaSnapshot(),
+        async () => (wholePage ? page : page.getByRole('main')).ariaSnapshot(),
         async () => page.evaluate(focusedIn, pane),
       );
     },

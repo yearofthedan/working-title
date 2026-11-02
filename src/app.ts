@@ -8,5 +8,7 @@ export const startApp = async (page: ParentNode): Promise<void> => {
   if (header === null) throw new Error('the page has no <header>');
   const main = page.querySelector<HTMLElement>('main');
   if (main === null) throw new Error('the page has no <main>');
-  await renderGraph({ header, main }, await openProject(snowflakeExtended, projectStore()));
+  const panel = page.querySelector<HTMLElement>('aside');
+  if (panel === null) throw new Error('the page has no <aside>');
+  await renderGraph({ header, main, panel }, await openProject(snowflakeExtended, projectStore()));
 };
