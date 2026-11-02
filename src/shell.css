@@ -305,7 +305,7 @@ main {
     outline-offset: var(--space-1);
   }
 
-  fieldset:has(.open-beside) legend {
+  fieldset:not(.chip):has(.open-beside) legend {
     padding-inline-end: calc(var(--space-4) + 1.5rem);
   }
 
@@ -434,6 +434,7 @@ main {
 
   @media (prefers-reduced-motion: no-preference) {
     :scope {
+      /* shortcut: the slide animates `display` with `transition-behavior: allow-discrete`, which MDN marks limited availability because no engine but Chromium and recent Safari transitions `display`; upgrade it once MDN marks it Baseline. */
       transition:
         width var(--move) var(--move-ease),
         display var(--move) allow-discrete;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled } from '../../test-helpers/driver';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import {
   drawsOpenBeside,
   nameOf,
@@ -12,8 +13,10 @@ import { closeButtonOf, panelOf } from '../panel/panel.test-page';
 import { pageWith } from './graph.harness';
 import { atFocus, blurTheFocus, current, named } from './graph.test-page';
 
-const thePanelIsOpen = async (driver: { tree(): Promise<readonly string[]> }): Promise<boolean> =>
-  (await driver.tree()).some((line) => line.includes('- complementary'));
+const thePanelIsOpen = async (): Promise<boolean> =>
+  (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
+    line.includes('- complementary'),
+  );
 
 describe('opening a piece beside the graph', () => {
   it('puts the focus inside the panel when a beat opens beside the graph', async () => {
@@ -27,7 +30,7 @@ describe('opening a piece beside the graph', () => {
   });
 
   it('keeps the icon of the beat beside pressed, and unpressed once it is closed', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer } = pageWith();
     await stage.fresh();
 
     await writer.opensBeside('Beat 2');
@@ -38,11 +41,11 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     expect(openBesideIsPressed(named('current', 'Beat 2'))).toBe(false);
-    expect(await thePanelIsOpen(driver)).toBe(false);
+    expect(await thePanelIsOpen()).toBe(false);
   });
 
   it('closes the panel when the lit icon is clicked again', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.opensBeside('Beat 2');
     await settled();
@@ -51,7 +54,7 @@ describe('opening a piece beside the graph', () => {
     await browser.userEvent.click(openBesideOf(card));
     await settled();
 
-    expect(await thePanelIsOpen(driver)).toBe(false);
+    expect(await thePanelIsOpen()).toBe(false);
   });
 
   it('leaves the focus on the Close button when an arrow key is pressed there', async () => {
@@ -98,7 +101,7 @@ describe('opening a piece beside the graph', () => {
     await driver.press('Escape');
     await settled();
 
-    expect(await thePanelIsOpen(driver)).toBe(false);
+    expect(await thePanelIsOpen()).toBe(false);
     expect(atFocus()).toBe(openBesideOf(named('current', 'Beat 2')));
   });
 

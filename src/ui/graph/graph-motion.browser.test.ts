@@ -280,6 +280,28 @@ describe('the motion of the panel beside the graph', () => {
     }
   });
 
+  it('ends with every visible card where a pane narrowed at rest puts it, with the panel open', async () => {
+    const withPanel = pageWith(1);
+    await withPanel.stage.fresh();
+    await withPanel.writer.clicks('Beat 2');
+    await withPanel.writer.opensBeside('Beat 2');
+    await settled();
+    await laidOut();
+    await settled();
+    const opened = boxes();
+
+    const atRest = pageWith(1);
+    await atRest.stage.fresh();
+    await atRest.writer.clicks('Beat 2');
+    narrowThePane(880);
+    await laidOut();
+    await settled();
+    await laidOut();
+    await settled();
+
+    expect(boxes()).toEqual(opened);
+  });
+
   describe('under reduced motion', () => {
     afterEach(async () => {
       await browser.commands.emulateReducedMotion('no-preference');

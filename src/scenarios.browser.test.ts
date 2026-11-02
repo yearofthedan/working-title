@@ -46,7 +46,7 @@ const tierFor = (path: string): ScenarioTier => {
 
 const besideTheGraph = 'src/ui/graph/scenarios/beside-the-graph.approved.md';
 
-// shortcut: this one file's tree reads the whole page, because the panel it records sits outside main; every other file stays rooted at main.
+// shortcut: this one file's tree reads the whole page, because the panel it records sits outside main; until the tree root comes from the scenario file, every other file stays rooted at main.
 const driverFor = (path: string): Driver =>
   path === besideTheGraph ? vitestBrowserDriver(undefined, 'page') : vitestBrowserDriver();
 
