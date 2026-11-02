@@ -8,6 +8,13 @@ When the writer types "Maren finds the ship's log in the harbourmaster's office,
 And reloads the app
 And opens beat 2 beside the graph
 Then beat 2's paragraph reads "Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident."
+- banner:
+  - heading "working-title" [level=1]
+  - navigation "Where you are":
+    - list:
+      - listitem:
+        - button "The story"
+      - listitem: Beat 2
 - main:
   - toolbar "The story":
     - group "The story":
@@ -34,4 +41,11 @@ Then beat 2's paragraph reads "Maren finds the ship's log in the harbourmaster's
     - group "Beat 5":
       - heading "Beat 5" [level=3]:
         - button "Beat 5"
+- complementary "Beat 2":
+  - heading "Beat 2" [level=2]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - text: Paragraph
+  - textbox "Paragraph": Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident.
+  - button "Close"
 ```

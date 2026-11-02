@@ -122,7 +122,7 @@ export interface Focus {
   readonly inside: Named | undefined;
 }
 
-export const focusedIn = (root: Element): Focus | undefined => {
+export const focusedIn = (root: Element = document.body): Focus | undefined => {
   // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
   const roles: Readonly<Record<string, string>> = {
     ASIDE: 'complementary',
