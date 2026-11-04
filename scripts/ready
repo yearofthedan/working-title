@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Mark a pull request ready for review when the tree, CI and the body back it; with --check, report whether it would be, and mark nothing.
+# help: Mark a pull request ready for review when the tree, CI, the body and its merge with main back it; with --check, report whether it would be, and mark nothing.
 
 set -eu
 
@@ -154,6 +154,14 @@ check_the_rows() {
   done <"$work/rows"
 }
 
+check_the_merge() {
+  case "$mergeable" in
+  MERGEABLE) ;;
+  CONFLICTING) fail "the pull request conflicts with its base: merge it in and push" ;;
+  *) fail "GitHub has not worked out whether the pull request merges (\`$mergeable\`): run this again in a moment" ;;
+  esac
+}
+
 head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
   echo "error: gh could not read pull request $pr" >&2
   exit 1
@@ -161,12 +169,14 @@ head=$(gh pr view "$pr" --json headRefOid -q .headRefOid) || {
 short_head=$(short "$head")
 gh pr view "$pr" --json body -q .body >"$work/body"
 : >"$work/runs"
+mergeable=$(gh pr view "$pr" --json mergeable -q .mergeable)
 
 check_the_tree
 check_the_checks
 check_the_required
 check_the_boxes
 check_the_rows
+check_the_merge
 
 if [ -s "$work/failures" ]; then
   echo "Pull request $pr stays in draft:" >&2
@@ -175,7 +185,7 @@ if [ -s "$work/failures" ]; then
 fi
 
 if [ -n "$check_only" ]; then
-  echo "Pull request $pr meets every condition."
+  echo "Pull request $pr meets every condition on $short_head."
   exit 0
 fi
 
