@@ -80,7 +80,7 @@ With no open pull request and earlier ones merged, tick them off in the plan com
 
 A pull request whose work is done is handed over, not left in draft. The main session runs every step below, dispatching the execution agent only for a finding step 2 sends back to it:
 
-1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. Run it yourself, as the `reviewer` agent, and hand it this brief and nothing else: no finding you already have, no part you suspect, no summary of what the change is for. A reviewer told where to look finds that and stops.
+1. **Run the review** over the branch's diff against `main` — the whole change, not only the last commit. Run it yourself, as the `reviewer` agent, and hand it the range it covers, this brief, and nothing else: no finding you already have, no part you suspect, no summary of what the change is for. A reviewer told where to look finds that and stops.
 
    > Review this pull request's change, not the story behind it. Does the diff do what the body says? Do the body's claims hold against the tree? Do its links resolve? Does its prose break a rule the repository sets itself? Start from [the standards index](../../../docs/standards/README.md), which says where the rest of the rules are. Findings only, strongest first, each with its file and line, and no summary of the change. A story-level gap is an aside, not a finding.
    >
