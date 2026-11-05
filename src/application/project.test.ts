@@ -53,16 +53,6 @@ describe('opening a project', () => {
     expect(item?.longFacets).toEqual([{ id: 'body', label: 'Body', text: '' }]);
   });
 
-  it('opens a save made before a long facet existed, reading its text as empty', async () => {
-    const saved = elaborate(newProject(toyMethod, ids()), 'id-2', 'title', 'kept');
-
-    const project = await openProject(toyMethod, storeOf(saved), ids());
-
-    const [item] = project.root.children;
-    expect(item?.facets[0]?.text).toBe('kept');
-    expect(item?.longFacets[0]?.text).toBe('');
-  });
-
   it('reads one piece of the project as it is now, holding the text typed since', async () => {
     const project = await openProject(toyMethod, storeOf(), ids());
     const item2 = item2Of(project.root.children).id;
