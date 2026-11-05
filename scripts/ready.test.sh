@@ -19,7 +19,8 @@ GH_BODY="$work/gh-body"
 GH_CHECKS="$work/gh-checks"
 GH_REQUIRED="$work/gh-required"
 GH_RUNS="$work/gh-runs"
-export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS
+GH_MERGEABLE="$work/gh-mergeable"
+export GH_LOG GH_HEAD_FILE GH_BODY GH_CHECKS GH_REQUIRED GH_RUNS GH_MERGEABLE
 
 printf '#!/bin/sh\n' >"$work/bin/gh"
 cat >>"$work/bin/gh" <<'STUB'
@@ -29,6 +30,7 @@ case "$1 $2" in
   case "$*" in
   *headRefOid*) cat "$GH_HEAD_FILE" ;;
   *body*) cat "$GH_BODY" ;;
+  *mergeable*) cat "$GH_MERGEABLE" ;;
   esac
   ;;
 'pr checks')
@@ -84,6 +86,7 @@ passing() {
   printf 'pass check\npass mutate\nskipping deploy\n' >"$GH_CHECKS"
   printf 'check\n' >"$GH_REQUIRED"
   printf '%s %s success\n' "$run_path" "$head" >"$GH_RUNS"
+  printf 'MERGEABLE\n' >"$GH_MERGEABLE"
   : >"$GH_LOG"
   unset GH_CHECKS_ERROR
 }
@@ -275,6 +278,21 @@ ready
 expect_status 0 "reads a body with CRLF line ends"
 
 passing
+printf 'CONFLICTING\n' >"$GH_MERGEABLE"
+ready
+expect_status 1 "refuses a pull request that conflicts with its base"
+expect_err 'conflicts' "says the pull request conflicts"
+refused "a conflict with the base"
+expect_one_failure "a conflict with the base"
+
+passing
+printf 'UNKNOWN\n' >"$GH_MERGEABLE"
+ready
+expect_status 1 "refuses while GitHub has not worked out the merge"
+expect_err 'UNKNOWN' "names the merge state it read"
+refused "an unknown merge state"
+
+passing
 printf 'two\n' >"$repo/notes.txt"
 printf 'pass check\nfail mutate\n' >"$GH_CHECKS"
 body '- [ ] docs/architecture.md unchanged
@@ -292,6 +310,7 @@ passing
 status=0
 (cd "$repo" && "$root/do" ready --check 77) >"$work/out" 2>"$work/err" || status=$?
 expect_status 0 "--check passes when every condition holds"
+if grep -qF "on ${head%"${head#???????}"}" "$work/out"; then ok "--check names the head it checked"; else no "--check names the head it checked"; fi
 refused "--check"
 
 passing
