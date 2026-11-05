@@ -16,6 +16,7 @@ import { mountThePanel, theBeat } from './panel.harness';
 
 const theSentence = 'One-sentence summary';
 const theParagraph = 'Paragraph';
+const thePage = 'Page';
 const theText = 'Maren rows out before first light';
 
 const holding = (sentence: string, paragraph: string): PieceView => ({
@@ -55,6 +56,15 @@ describe('the panel mounted alone', () => {
     await browser.userEvent.keyboard('{Tab}');
 
     expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
+  });
+
+  it('tabs from the paragraph to the page', async () => {
+    const panel = mountThePanel();
+    fieldFor(panel.element, theParagraph).focus();
+
+    await browser.userEvent.keyboard('{Tab}');
+
+    expect(holdsTheFocus(fieldFor(panel.element, thePage))).toBe(true);
   });
 
   it('elaborates the facet it was typed into, with the text typed', async () => {
