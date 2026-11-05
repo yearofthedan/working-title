@@ -132,6 +132,16 @@ describe('the panel mounted alone', () => {
     expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
   });
 
+  it('takes the focus into the page once the sentence and the paragraph hold text', () => {
+    const filled = holding(theText, theText);
+    const panel = mountThePanel({
+      ...filled,
+      longFacets: [...filled.longFacets, { id: 'page', label: thePage, text: '' }],
+    });
+
+    expect(holdsTheFocus(fieldFor(panel.element, thePage))).toBe(true);
+  });
+
   it('takes the focus into the last field when both hold text', () => {
     const panel = mountThePanel(holding(theText, longParagraph));
 
