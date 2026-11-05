@@ -1,0 +1,24 @@
+#!/bin/sh
+# help: Refuse a Vite+ whose core in the catalog is a different version from vite-plus.
+
+set -eu
+
+top=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "not in a git working tree, so pnpm-workspace.yaml cannot be read" >&2
+  exit 1
+}
+
+core=$(sed -n 's/^  vite: npm:@voidzero-dev\/vite-plus-core@//p' "$top/pnpm-workspace.yaml")
+plus=$(sed -n 's/^  vite-plus: //p' "$top/pnpm-workspace.yaml")
+
+if [ -z "$core" ] || [ -z "$plus" ]; then
+  echo "pnpm-workspace.yaml's catalog has no vite (npm:@voidzero-dev/vite-plus-core@<version>) or no vite-plus entry" >&2
+  exit 1
+fi
+
+if [ "$core" != "$plus" ]; then
+  echo "catalog vite pins @voidzero-dev/vite-plus-core@$core but vite-plus is $plus: the two move together (ADR 6), and a split leaves two copies of Vite and Vitest in the tree, which fails the typecheck" >&2
+  exit 1
+fi
+
+echo "the Vite+ core and vite-plus are both $plus"
