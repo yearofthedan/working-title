@@ -5,7 +5,7 @@ overrides:
   # override when the core takes a typed-rest-client that allows 6.16.0, as 3.1.1 does.
   qs@*: 6.16.1
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
   vite-plus: 1.3.0
 # The peer rule (https://pnpm.io/settings/peer-dependencies#peerdependencyrules)
 # accepts any vite version, because the core's own version number falls outside
