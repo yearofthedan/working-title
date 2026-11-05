@@ -67,8 +67,8 @@ const pieceNamed = (words: string): string => pieces[words] ?? words;
 
 const besideTheGraph = ' beside the graph';
 
-// shortcut: the paragraph is the one facet typed beside the graph, until the driver can ask the method which facets are long.
-const typedBeside = (facet: string): boolean => facet.toLowerCase() === 'paragraph';
+// shortcut: the paragraph and the page are the facets typed beside the graph, until the driver can ask the method which facets are long.
+const typedBeside = (facet: string): boolean => ['paragraph', 'page'].includes(facet.toLowerCase());
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
@@ -306,6 +306,8 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
   "{piece}'s paragraph is open beside the graph": ({ piece }) => sees.panelIsOpenOn(piece),
+  '{piece} is open beside the graph, with its paragraph and then its page': ({ piece }) =>
+    sees.panelIsOpenOn(piece),
   'the writer opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
   'opens {piece} beside the graph': ({ piece }) => writer.opensBeside(piece),
   'the writer closes the panel': () => writer.closesThePanel(),
@@ -320,6 +322,7 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.readsOnTheCard(piece, facet, text),
   '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
     sees.readsBeside(piece, facet, text),
+  "{piece}'s {facet} is empty": ({ piece, facet }) => sees.reads(piece, facet, ''),
   'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
   'the writer presses {key}': ({ key }) => writer.moves(key),
