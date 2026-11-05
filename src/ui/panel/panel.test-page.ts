@@ -78,6 +78,9 @@ export const scrollToTheEndOf = (element: HTMLElement): void => {
   element.scrollTop = element.scrollHeight;
 };
 
+export const writerCanScroll = (element: HTMLElement): boolean =>
+  ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
+
 export const lineHeightOf = (element: HTMLElement): number =>
   Number.parseFloat(getComputedStyle(element).lineHeight);
 

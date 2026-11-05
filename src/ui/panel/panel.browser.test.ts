@@ -22,6 +22,7 @@ import {
   theBodyIs,
   topOf,
   widthOf,
+  writerCanScroll,
 } from './panel.test-page';
 import { mountThePanel, theBeat } from './panel.harness';
 
@@ -280,11 +281,13 @@ describe('the panel mounted alone', () => {
       await settled();
 
       expect(scrollHeightOf(panel.element)).toBeGreaterThan(heightOf(panel.element));
+      expect(writerCanScroll(panel.element)).toBe(true);
 
       scrollToTheEndOf(panel.element);
 
       const thePageField = fieldFor(panel.element, thePage);
       expect(bottomOf(thePageField)).toBeLessThanOrEqual(bottomOf(panel.element) + 1);
+      expect(heightOf(thePageField)).toBeGreaterThanOrEqual(8 * lineHeightOf(thePageField) - 1);
       expect(insideTheViewport(thePageField)).toBe(true);
       expect(topOf(headingOf(panel.element))).toBeCloseTo(topOf(panel.element), 0);
     } finally {
