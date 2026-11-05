@@ -379,18 +379,30 @@ main {
   }
 
   :scope.open {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 560px;
     border-left: 1px solid var(--color-edge);
   }
 
+  .heading {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-8) var(--space-6) var(--space-4);
+    background: var(--color-surface);
+  }
+
   h2 {
-    margin: var(--space-8) var(--space-6) var(--space-4);
+    margin: 0;
     font-family: var(--font-interface);
     font-size: var(--text-interface);
   }
 
   .facet {
+    flex: none;
     display: grid;
     gap: var(--space-1);
     padding: 0 var(--space-6) var(--space-4);
@@ -412,11 +424,23 @@ main {
     resize: none;
     field-sizing: content;
     min-height: 2lh;
+    max-height: 6lh;
+    overflow: auto;
+  }
+
+  .fills {
+    flex: 1;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .fills textarea {
+    field-sizing: fixed;
+    height: 100%;
+    min-height: 8lh;
+    max-height: none;
   }
 
   button {
-    justify-self: start;
-    margin: 0 var(--space-6) var(--space-8);
     padding: 0;
     border: none;
     background: none;
