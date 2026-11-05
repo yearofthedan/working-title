@@ -48,8 +48,13 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
       close.type = 'button';
       close.textContent = 'Close';
       close.addEventListener('click', () => hooks.close());
+      const heading = document.createElement('div');
+      heading.className = 'heading';
+      heading.append(name, close);
       const shown = fieldsFor(piece);
-      element.replaceChildren(name, ...shown.map((facet) => field(piece.id, facet)), close);
+      const wrappers = shown.map((facet) => field(piece.id, facet));
+      wrappers.at(-1)?.classList.add('fills');
+      element.replaceChildren(heading, ...wrappers);
       element.classList.add('open');
       const opens = shown.find(({ text }) => text === '') ?? shown.at(-1);
       if (opens !== undefined) fields.get(opens.id)?.focus();
