@@ -54,15 +54,21 @@ export const displayOf = (panel: HTMLElement): string => getComputedStyle(panel)
 
 export const widthOf = (panel: HTMLElement): number => panel.getBoundingClientRect().width;
 
-export const theBodyIs = (height: number): void => {
-  /* shortcut: the browser test page carries `body { min-height: 100vh }` from its runner, which floors a shorter body; upgrade once the body is not floored. */
-  document.body.style.height = `${height}px`;
-  document.body.style.minHeight = `${height}px`;
+export const textHeightOf = (field: HTMLElement): number => {
+  const style = getComputedStyle(field);
+  const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(
+    (sum, side) => sum + Number.parseFloat(style[side as 'paddingTop']),
+    0,
+  );
+  return heightOf(field) - box;
 };
 
-export const theBodyFillsTheWindow = (): void => {
-  document.body.style.removeProperty('height');
-  document.body.style.removeProperty('min-height');
+export const scrolledTo = (element: HTMLElement, top: number): void => {
+  element.scrollTop = top;
+};
+
+export const focusWithoutScrolling = (field: HTMLElement): void => {
+  field.focus({ preventScroll: true });
 };
 
 export const topOf = (element: HTMLElement): number => element.getBoundingClientRect().top;

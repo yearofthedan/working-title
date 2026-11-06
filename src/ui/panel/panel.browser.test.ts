@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
 import { settled } from '../../test-helpers/driver';
+import { theViewport } from '../../test-helpers/staging';
 import {
   bottomOf,
   caretIn,
@@ -9,6 +10,7 @@ import {
   closeButtonOf,
   displayOf,
   fieldFor,
+  focusWithoutScrolling,
   headingOf,
   holdsTheFocus,
   heightOf,
@@ -17,9 +19,9 @@ import {
   nameElementOf,
   nameOn,
   scrollHeightOf,
+  scrolledTo,
   scrollToTheEndOf,
-  theBodyFillsTheWindow,
-  theBodyIs,
+  textHeightOf,
   topOf,
   widthOf,
   writerCanScroll,
@@ -265,19 +267,21 @@ describe('the panel mounted alone', () => {
     expect(scrollHeightOf(panel.element)).toBeLessThanOrEqual(heightOf(panel.element) + 1);
   });
 
-  it('caps the paragraph field at six lines and scrolls it inside itself', async () => {
+  it('caps the paragraph field at six lines of text and scrolls it inside itself', async () => {
     const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, ''));
     await settled();
 
     const paragraph = fieldFor(panel.element, theParagraph);
-    expect(heightOf(paragraph)).toBeLessThanOrEqual(6 * lineHeightOf(paragraph) + 1);
+    expect(textHeightOf(paragraph)).toBeLessThanOrEqual(6 * lineHeightOf(paragraph) + 1);
+    expect(textHeightOf(paragraph)).toBeGreaterThanOrEqual(6 * lineHeightOf(paragraph) - 1);
     expect(scrollHeightOf(paragraph)).toBeGreaterThan(heightOf(paragraph));
   });
 
-  it('reaches the bottom of the page in a 420 px body, with the header row still at the top', async () => {
-    const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
-    theBodyIs(420);
+  it('reaches the bottom of the page in a 420 px window, with the header row still at the top', async () => {
+    const { innerWidth, innerHeight } = window;
+    await theViewport(innerWidth, 420);
     try {
+      const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
       await settled();
 
       expect(scrollHeightOf(panel.element)).toBeGreaterThan(heightOf(panel.element));
@@ -286,12 +290,32 @@ describe('the panel mounted alone', () => {
       scrollToTheEndOf(panel.element);
 
       const thePageField = fieldFor(panel.element, thePage);
-      expect(bottomOf(thePageField)).toBeLessThanOrEqual(bottomOf(panel.element) + 1);
-      expect(heightOf(thePageField)).toBeGreaterThanOrEqual(8 * lineHeightOf(thePageField) - 1);
+      expect(textHeightOf(thePageField)).toBeGreaterThanOrEqual(8 * lineHeightOf(thePageField) - 1);
       expect(insideTheViewport(thePageField)).toBe(true);
       expect(topOf(headingOf(panel.element))).toBeCloseTo(topOf(panel.element), 0);
     } finally {
-      theBodyFillsTheWindow();
+      await theViewport(innerWidth, innerHeight);
+    }
+  });
+
+  it('scrolls a field the keyboard reaches out from under the header', async () => {
+    const { innerWidth, innerHeight } = window;
+    await theViewport(innerWidth, 420);
+    try {
+      const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+      await settled();
+      const theSummary = fieldFor(panel.element, theSentence);
+      const theHeader = headingOf(panel.element);
+      focusWithoutScrolling(fieldFor(panel.element, theParagraph));
+      scrolledTo(panel.element, 100);
+      expect(bottomOf(theSummary)).toBeLessThanOrEqual(bottomOf(theHeader));
+
+      await browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+
+      expect(holdsTheFocus(theSummary)).toBe(true);
+      expect(topOf(theSummary)).toBeGreaterThanOrEqual(bottomOf(theHeader));
+    } finally {
+      await theViewport(innerWidth, innerHeight);
     }
   });
 
