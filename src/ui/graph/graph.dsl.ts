@@ -61,10 +61,14 @@ const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
   'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
-  'scene 1 under beat 2': 'Scene 1',
 };
 
-const pieceNamed = (words: string): string => pieces[words] ?? words;
+const sceneUnderABeat = /^scene (\d+) under beat \d+$/i;
+
+const pieceNamed = (words: string): string => {
+  const scene = sceneUnderABeat.exec(words);
+  return scene?.[1] === undefined ? (pieces[words] ?? words) : `Scene ${scene[1]}`;
+};
 
 const besideTheGraph = ' beside the graph';
 
