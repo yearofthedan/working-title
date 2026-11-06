@@ -1,7 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
+import { projectStorageKey } from '../src/adapters/local-storage-project-store';
 import type { Opening } from '../src/test-helpers/driver';
 import { playwrightDriver, playwrightReads } from '../src/test-helpers/playwright.driver';
+import type { SeededProject } from '../src/test-helpers/seed';
 import { seesOn, type Sees } from '../src/ui/graph/graph.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
 
@@ -28,12 +30,23 @@ const openingOn = (page: Page): Opening => ({
   },
 });
 
+const startingFrom =
+  (page: Page) =>
+  async (project: SeededProject): Promise<void> => {
+    await page.goto('/');
+    await page.evaluate((stored) => localStorage.setItem(stored.key, stored.project), {
+      key: projectStorageKey,
+      project: JSON.stringify(project),
+    });
+    await page.goto('/');
+  };
+
 const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
   const driver = playwrightDriver(page, treeRoot);
   const reads = playwrightReads(page);
 
   return {
-    ...journeyOn(driver, openingOn(page)),
+    ...journeyOn(driver, openingOn(page), startingFrom(page)),
     sees: seesOn(driver, reads),
 
     contrastViolations: async () => {

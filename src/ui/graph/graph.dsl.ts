@@ -79,29 +79,40 @@ const typedBeside = (facet: string): boolean =>
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
 
+const clicking = (driver: Driver, piece: string): Promise<void> => {
+  const named = pieceNamed(piece);
+  return driver.click('heading', named, { role: 'group', name: named });
+};
+
+const reaching = async (driver: Driver, piece: string): Promise<void> => {
+  if (!shows(await driver.tree(), pieceNamed(piece))) {
+    await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
+  }
+  await clicking(driver, piece);
+};
+
+const openingBeside = async (driver: Driver, piece: string): Promise<void> => {
+  const named = pieceNamed(piece);
+  await reaching(driver, piece);
+  await driver.click('button', 'Open beside', { role: 'group', name: named });
+};
+
+// shortcut: a long facet has no field on the card, so a typing or a read opens its piece beside the graph first, unless the panel already names it; until the driver can ask whether the icon is pressed.
+const openingIfClosed = async (driver: Driver, piece: string): Promise<void> => {
+  const open = (await driver.tree()).some((line) =>
+    line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
+  );
+  if (!open) await openingBeside(driver, piece);
+};
+
+const underABeat = /^(?<facet>.+) under (?<beat>.+)$/;
+
+// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing or a read makes that beat current first; until the table can name a piece and its beat apart.
 export const writerOn = (
   driver: Driver,
   opening: Opening,
   startFrom?: (project: SeededProject) => Promise<void>,
 ): Writer => {
-  const clicking = (piece: string): Promise<void> => {
-    const named = pieceNamed(piece);
-    return driver.click('heading', named, { role: 'group', name: named });
-  };
-
-  const reaching = async (piece: string): Promise<void> => {
-    if (!shows(await driver.tree(), pieceNamed(piece))) {
-      await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
-    }
-    await clicking(piece);
-  };
-
-  const openingBeside = async (piece: string): Promise<void> => {
-    const named = pieceNamed(piece);
-    await reaching(named);
-    await driver.click('button', 'Open beside', { role: 'group', name: named });
-  };
-
   return {
     opensANewProject: () => opening.fresh(),
     reopens: () => opening.reopen(),
@@ -113,9 +124,9 @@ export const writerOn = (
       }
       await startFrom(project);
     },
-    clicks: clicking,
+    clicks: (piece) => clicking(driver, piece),
     clicksAwayFromTheGraph: () => driver.clickAway(),
-    makesCurrent: reaching,
+    makesCurrent: (piece) => reaching(driver, piece),
     putsTheFocusOnNameButtonOf: (piece) => {
       const named = pieceNamed(piece);
       return driver.focus('button', named, { role: 'group', name: named });
@@ -125,19 +136,22 @@ export const writerOn = (
     tabsBackward: () => driver.press('Shift+Tab'),
     addsASceneUnder: async (beat) => {
       const named = pieceNamed(beat);
-      await reaching(named);
+      await reaching(driver, beat);
       await driver.click('button', 'Add a scene', { role: 'group', name: named });
     },
-    opensBeside: openingBeside,
+    opensBeside: (piece) => openingBeside(driver, piece),
     closesThePanel: () => driver.click('button', 'Close'),
     types: async (text, at) => {
-      if (!typedBeside(at.facet)) {
-        await driver.type(text, at.facet, { role: 'group', name: at.piece });
+      const under = underABeat.exec(at.facet)?.groups;
+      const beat = under?.['beat'];
+      const facet = under?.['facet'] ?? at.facet;
+      if (beat !== undefined) await reaching(driver, beat);
+      if (!typedBeside(facet)) {
+        await driver.type(text, facet, { role: 'group', name: at.piece });
         return;
       }
-      // shortcut: a long facet has no field on the card, so typing one opens its piece beside the graph first; a scenario whose panel is already open on that piece says " beside the graph" instead, until the driver can ask whether the icon is pressed.
-      await openingBeside(at.piece);
-      await driver.type(text, at.facet, { role: 'complementary', name: at.piece });
+      await openingIfClosed(driver, at.piece);
+      await driver.type(text, facet, { role: 'complementary', name: at.piece });
     },
     typesBeside: (text, at) =>
       driver.type(text, at.facet, { role: 'complementary', name: at.piece }),
@@ -290,8 +304,15 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
         throw new Error('something is open beside the graph');
       }
     },
-    reads: (piece, facet, text) =>
-      typedBeside(facet) ? readsBeside(piece, facet, text) : readsOnTheCard(piece, facet, text),
+    reads: async (piece, facet, text) => {
+      const under = underABeat.exec(facet)?.groups;
+      const beat = under?.['beat'];
+      const field = under?.['facet'] ?? facet;
+      if (beat !== undefined) await reaching(driver, beat);
+      if (!typedBeside(field)) return readsOnTheCard(piece, field, text);
+      await openingIfClosed(driver, piece);
+      return readsBeside(piece, field, text);
+    },
     readsOnTheCard,
     readsBeside,
   };
