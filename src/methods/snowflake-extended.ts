@@ -22,7 +22,10 @@ export const snowflakeExtended: Method = {
         id: 'scene',
         label: 'Scene',
         plural: 'Scenes',
-        facets: [{ id: 'list-line', label: 'List line' }],
+        facets: [
+          { id: 'list-line', label: 'List line' },
+          { id: 'narrative', label: 'Narrative', long: true },
+        ],
       },
     },
     count: 5,

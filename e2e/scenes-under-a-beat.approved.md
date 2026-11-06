@@ -20,6 +20,7 @@ Then the writer sees
       - heading "Scene 1" [level=4]
       - text: List line
       - textbox "List line"
+      - button "Open beside"
 ```
 
 ### Scenario: a scene's list line survives a reload
@@ -63,9 +64,11 @@ Then the writer sees
         - button "Scene 1"
       - text: List line
       - textbox "List line"
+      - button "Open beside"
     - group "Scene 2":
       - heading "Scene 2" [level=4]:
         - button "Scene 2"
       - text: List line
       - textbox "List line": Maren bribes the harbourmaster for the log
+      - button "Open beside"
 ```

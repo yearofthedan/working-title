@@ -21,6 +21,7 @@ And it has focus
       - heading "Scene 1" [level=4]
       - text: List line
       - textbox "List line"
+      - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
     - group "Scene 2":
       - heading "Scene 2" [level=4]:

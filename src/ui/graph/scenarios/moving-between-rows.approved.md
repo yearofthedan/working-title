@@ -31,11 +31,13 @@ But beat two stays current
         - button "Scene 1" [active]
       - text: List line
       - textbox "List line"
+      - button "Open beside"
     - group "Scene 2":
       - heading "Scene 2" [level=4]:
         - button "Scene 2"
       - text: List line
       - textbox "List line"
+      - button "Open beside"
 ```
 
 ### Scenario: tabbing backward moves focus to the previous row
@@ -69,9 +71,11 @@ But beat two stays current
         - button "Scene 1"
       - text: List line
       - textbox "List line"
+      - button "Open beside"
     - group "Scene 2":
       - heading "Scene 2" [level=4]:
         - button "Scene 2"
       - text: List line
       - textbox "List line"
+      - button "Open beside"
 ```
