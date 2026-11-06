@@ -9,7 +9,7 @@ import {
   openBesideOf,
   showsOpenBeside,
 } from '../card/card.test-page';
-import { closeButtonOf, panelOf } from '../panel/panel.test-page';
+import { closeButtonOf, fieldFor, panelOf } from '../panel/panel.test-page';
 import { pageWith } from './graph.harness';
 import { atFocus, blurTheFocus, current, headerOf, named } from './graph.test-page';
 
@@ -177,7 +177,8 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     expect(await thePanelIsOn('Scene 1')).toBe(true);
-    expect(await thePanelIsOn('Beat 4')).toBe(false);
+    expect(fieldFor(panelOf(), 'Narrative')).toBeDefined();
+    expect(() => fieldFor(panelOf(), 'Page')).toThrow();
   });
 
   it('replaces the scene beside the graph when a beat opens', async () => {
@@ -193,6 +194,7 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     expect(await thePanelIsOn('Beat 4')).toBe(true);
-    expect(await thePanelIsOn('Scene 1')).toBe(false);
+    expect(fieldFor(panelOf(), 'Page')).toBeDefined();
+    expect(() => fieldFor(panelOf(), 'Narrative')).toThrow();
   });
 });
