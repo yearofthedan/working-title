@@ -1,4 +1,4 @@
-Rule: the writer opens a beat in the panel beside the graph and types its one-sentence summary, its paragraph and its page there. The panel keeps that beat until the writer closes it or opens another, even while the focus moves, the one-sentence summary reads the same on the card and in the panel, and all three are still there after a reload.
+Rule: the writer opens a beat or a scene in the panel beside the graph and types its facets there. The panel keeps that piece until the writer closes it or opens another, even while the focus moves, and the one-sentence summary reads the same on the card and in the panel.
 
 ### Scenario: a beat opens with its paragraph and its page
 
@@ -333,4 +333,48 @@ Then nothing is open beside the graph
     - group "Beat 5":
       - heading "Beat 5" [level=3]:
         - button "Beat 5"
+```
+
+### Scenario: a scene opens beside the graph
+
+```
+Given a project with two scenes under beat 2
+When the writer clicks beat 2
+And presses ↓
+And opens scene 1 under beat 2 beside the graph
+Then scene 1 under beat 2 is open beside the graph
+- banner:
+  - heading [level=1]
+  - navigation "Where you are":
+    - list:
+      - listitem:
+        - button "The story"
+      - listitem:
+        - text: ›" / "
+        - button "Beat 2"
+      - listitem: ›" / "Scene 1
+- main:
+  - toolbar "Beat 2":
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]:
+        - button "Beat 2"
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+      - button "Open beside"
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1":
+      - heading "Scene 1" [level=4]
+      - text: List line
+      - textbox "List line"
+      - button "Open beside" [pressed]
+    - group "Scene 2":
+      - heading "Scene 2" [level=4]:
+        - button "Scene 2"
+- complementary "Scene 1":
+  - heading "Scene 1" [level=2]
+  - button "Close"
+  - text: List line
+  - textbox "List line"
+  - text: Narrative
+  - textbox "Narrative"
 ```

@@ -61,14 +61,16 @@ const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
   'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
+  'scene 1 under beat 2': 'Scene 1',
 };
 
 const pieceNamed = (words: string): string => pieces[words] ?? words;
 
 const besideTheGraph = ' beside the graph';
 
-// shortcut: the paragraph and the page are the facets typed beside the graph, until the driver can ask the method which facets are long.
-const typedBeside = (facet: string): boolean => ['paragraph', 'page'].includes(facet.toLowerCase());
+// shortcut: the paragraph, the page and the narrative are the facets typed beside the graph, until the driver can ask the method which facets are long.
+const typedBeside = (facet: string): boolean =>
+  ['paragraph', 'page', 'narrative'].includes(facet.toLowerCase());
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
@@ -305,6 +307,7 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.opensBeside('beat 2');
   },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
+  '{scene} under {beat} is open beside the graph': ({ scene }) => sees.panelIsOpenOn(scene),
   "{piece}'s paragraph is open beside the graph": ({ piece }) => sees.panelIsOpenOn(piece),
   '{piece} is open beside the graph, with its paragraph and then its page': ({ piece }) =>
     sees.panelIsOpenOn(piece),
@@ -365,6 +368,11 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.makesCurrent(beat);
     if (!shows(await sees.tree(), scene)) throw new Error(`${scene} is not under ${beat}`);
     await writer.types(text, { piece: scene, facet: 'List line' });
+  },
+  'types "{text}" as {scene}\'s narrative under {beat}': async ({ text, scene, beat }) => {
+    await writer.makesCurrent(beat);
+    if (!shows(await sees.tree(), scene)) throw new Error(`${scene} is not under ${beat}`);
+    await writer.types(text, { piece: scene, facet: 'Narrative' });
   },
   'the story is current, with beats 1 to 5 under it': () =>
     sees.currentIs('The story', { under: ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'] }),
