@@ -30,7 +30,19 @@ export const closeButtonOf = (panel: HTMLElement): HTMLElement => {
   return button;
 };
 
-export const nameOn = (panel: HTMLElement): string => panel.querySelector('h2')?.textContent ?? '';
+export const nameElementOf = (panel: HTMLElement): HTMLElement => {
+  const name = panel.querySelector('h2');
+  if (!(name instanceof HTMLElement)) throw new Error('the panel draws no name');
+  return name;
+};
+
+export const nameOn = (panel: HTMLElement): string => nameElementOf(panel).textContent ?? '';
+
+export const headingOf = (panel: HTMLElement): HTMLElement => {
+  const heading = panel.querySelector('div.heading');
+  if (!(heading instanceof HTMLElement)) throw new Error('the panel draws no header row');
+  return heading;
+};
 
 export const holdsTheFocus = (element: HTMLElement): boolean => element === document.activeElement;
 
@@ -41,3 +53,44 @@ export const heightOf = (element: HTMLElement): number => element.getBoundingCli
 export const displayOf = (panel: HTMLElement): string => getComputedStyle(panel).display;
 
 export const widthOf = (panel: HTMLElement): number => panel.getBoundingClientRect().width;
+
+export const textHeightOf = (field: HTMLElement): number => {
+  const style = getComputedStyle(field);
+  const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(
+    (sum, side) => sum + Number.parseFloat(style[side as 'paddingTop']),
+    0,
+  );
+  return heightOf(field) - box;
+};
+
+export const scrolledTo = (element: HTMLElement, top: number): void => {
+  element.scrollTop = top;
+};
+
+export const focusWithoutScrolling = (field: HTMLElement): void => {
+  field.focus({ preventScroll: true });
+};
+
+export const topOf = (element: HTMLElement): number => element.getBoundingClientRect().top;
+
+export const bottomOf = (element: HTMLElement): number => element.getBoundingClientRect().bottom;
+
+export const insideTheViewport = (element: HTMLElement): boolean =>
+  topOf(element) >= 0 && bottomOf(element) <= window.innerHeight;
+
+export const scrollHeightOf = (element: HTMLElement): number => element.scrollHeight;
+
+export const scrollToTheEndOf = (element: HTMLElement): void => {
+  element.scrollTop = element.scrollHeight;
+};
+
+export const writerCanScroll = (element: HTMLElement): boolean =>
+  ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
+
+export const lineHeightOf = (element: HTMLElement): number =>
+  Number.parseFloat(getComputedStyle(element).lineHeight);
+
+export const caretLineBottomOf = (field: HTMLTextAreaElement): number => {
+  const padding = Number.parseFloat(getComputedStyle(field).paddingBottom);
+  return topOf(field) + field.clientTop + field.scrollHeight - padding - field.scrollTop;
+};

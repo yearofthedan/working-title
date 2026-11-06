@@ -41,13 +41,13 @@ Then beat 2 is open beside the graph, with its paragraph and then its page
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: the one-sentence summary is typed beside the graph
@@ -91,13 +91,13 @@ Then beat 2's one-sentence summary on its card reads "Maren learns the sinking w
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: the one-sentence summary is typed on its card while the panel is open
@@ -141,13 +141,13 @@ Then beat 2's one-sentence summary beside the graph reads "Maren learns the sink
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: the panel keeps its beat while the focus moves
@@ -194,13 +194,13 @@ And beat 2 is still open beside the graph
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: opening another beat replaces the one beside
@@ -244,13 +244,13 @@ Then beat 4's paragraph is open beside the graph
         - button "Beat 5"
 - complementary "Beat 4":
   - heading "Beat 4" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: closing the panel

@@ -367,6 +367,8 @@ main {
 
 @scope (aside) {
   :scope {
+    --panel-heading: 4.5rem;
+    --field-box: calc(2 * var(--space-1) + 2px);
     grid-area: panel;
     box-sizing: border-box;
     display: none;
@@ -379,18 +381,34 @@ main {
   }
 
   :scope.open {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 560px;
     border-left: 1px solid var(--color-edge);
+    scroll-padding-top: var(--panel-heading);
+  }
+
+  .heading {
+    position: sticky;
+    top: 0;
+    flex: none;
+    box-sizing: border-box;
+    height: var(--panel-heading);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-8) var(--space-6) 0;
+    background: var(--color-surface);
   }
 
   h2 {
-    margin: var(--space-8) var(--space-6) var(--space-4);
+    margin: 0;
     font-family: var(--font-interface);
     font-size: var(--text-interface);
   }
 
   .facet {
+    flex: none;
     display: grid;
     gap: var(--space-1);
     padding: 0 var(--space-6) var(--space-4);
@@ -411,12 +429,24 @@ main {
     padding: var(--space-1) var(--space-2);
     resize: none;
     field-sizing: content;
-    min-height: 2lh;
+    min-height: calc(2lh + var(--field-box));
+    max-height: calc(6lh + var(--field-box));
+    overflow: auto;
+  }
+
+  .fills {
+    flex: 1;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .fills textarea {
+    field-sizing: fixed;
+    height: 100%;
+    min-height: calc(8lh + var(--field-box));
+    max-height: none;
   }
 
   button {
-    justify-self: start;
-    margin: 0 var(--space-6) var(--space-8);
     padding: 0;
     border: none;
     background: none;

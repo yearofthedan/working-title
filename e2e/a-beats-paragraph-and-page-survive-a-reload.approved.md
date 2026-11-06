@@ -43,13 +43,13 @@ Then beat 2's paragraph reads "Maren finds the ship's log in the harbourmaster's
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph": Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident.
   - text: Page
   - textbox "Page"
-  - button "Close"
 ```
 
 ### Scenario: a beat's page survives a reload
@@ -96,11 +96,11 @@ And beat 2's paragraph is empty
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
   - text: Page
   - textbox "Page": "Maren rows out to the wreck at low tide and finds the hull holed from inside. Back in port, the harbourmaster's log has the night of the sinking torn out, and he names a clerk who died last winter. She takes the log to her husband's old mate, who reads the remaining entries and goes quiet: the ship was carrying something its manifest never listed."
-  - button "Close"
 ```
