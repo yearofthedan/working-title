@@ -177,6 +177,7 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     expect(await thePanelIsOn('Scene 1')).toBe(true);
+    expect(await thePanelIsOn('Beat 4')).toBe(false);
   });
 
   it('replaces the scene beside the graph when a beat opens', async () => {
@@ -192,5 +193,6 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     expect(await thePanelIsOn('Beat 4')).toBe(true);
+    expect(await thePanelIsOn('Scene 1')).toBe(false);
   });
 });

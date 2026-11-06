@@ -63,6 +63,7 @@ const pieces: Readonly<Record<string, string>> = {
   "the first scene's card": 'Scene 1',
 };
 
+// shortcut: a scene under a beat is named by its number alone, so the beat in the words is not checked, until a piece's name carries its beat.
 const sceneUnderABeat = /^scene (\d+) under beat \d+$/i;
 
 const pieceNamed = (words: string): string => {
@@ -105,9 +106,9 @@ const openingIfClosed = async (driver: Driver, piece: string): Promise<void> => 
   if (!open) await openingBeside(driver, piece);
 };
 
+// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing or a read makes that beat current first, until the table can name a piece and its beat apart.
 const underABeat = /^(?<facet>.+) under (?<beat>.+)$/;
 
-// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing or a read makes that beat current first; until the table can name a piece and its beat apart.
 export const writerOn = (
   driver: Driver,
   opening: Opening,
@@ -350,7 +351,6 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.readsOnTheCard(piece, facet, text),
   '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
     sees.readsBeside(piece, facet, text),
-  "{piece}'s {facet} is empty": ({ piece, facet }) => sees.reads(piece, facet, ''),
   'the writer clicks {piece}': ({ piece }) => writer.clicks(piece),
   'presses {key}': ({ key }) => writer.moves(key),
   'the writer presses {key}': ({ key }) => writer.moves(key),
