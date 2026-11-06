@@ -5,7 +5,10 @@ export const theBeat: PieceView = {
   id: 'beat-2',
   name: 'Beat 2',
   facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary', text: '' }],
-  longFacets: [{ id: 'paragraph', label: 'Paragraph', text: '' }],
+  longFacets: [
+    { id: 'paragraph', label: 'Paragraph', text: '' },
+    { id: 'page', label: 'Page', text: '' },
+  ],
   children: [],
   childKind: 'Scene',
 };

@@ -16,6 +16,7 @@ export const snowflakeExtended: Method = {
       facets: [
         { id: 'one-sentence-summary', label: 'One-sentence summary' },
         { id: 'paragraph', label: 'Paragraph', long: true },
+        { id: 'page', label: 'Page', long: true },
       ],
       childKind: {
         id: 'scene',

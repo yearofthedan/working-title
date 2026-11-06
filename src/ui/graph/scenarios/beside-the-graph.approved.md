@@ -1,11 +1,11 @@
-Rule: the writer opens a beat in the panel beside the graph and types its one-sentence summary and its paragraph there. The panel keeps that beat until the writer closes it or opens another, even while the focus moves, the one-sentence summary reads the same on the card and in the panel, and both are still there after a reload.
+Rule: the writer opens a beat in the panel beside the graph and types its one-sentence summary, its paragraph and its page there. The panel keeps that beat until the writer closes it or opens another, even while the focus moves, the one-sentence summary reads the same on the card and in the panel, and all three are still there after a reload.
 
-### Scenario: a beat opens beside the graph
+### Scenario: a beat opens with its paragraph and its page
 
 ```
 Given a new project
 When the writer opens beat 2 beside the graph
-Then beat 2's paragraph is open beside the graph
+Then beat 2 is open beside the graph, with its paragraph and then its page
 - banner:
   - heading [level=1]
   - navigation "Where you are":
@@ -41,11 +41,13 @@ Then beat 2's paragraph is open beside the graph
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
-  - button "Close"
+  - text: Page
+  - textbox "Page"
 ```
 
 ### Scenario: the one-sentence summary is typed beside the graph
@@ -89,11 +91,13 @@ Then beat 2's one-sentence summary on its card reads "Maren learns the sinking w
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
   - text: Paragraph
   - textbox "Paragraph"
-  - button "Close"
+  - text: Page
+  - textbox "Page"
 ```
 
 ### Scenario: the one-sentence summary is typed on its card while the panel is open
@@ -137,11 +141,13 @@ Then beat 2's one-sentence summary beside the graph reads "Maren learns the sink
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
   - text: Paragraph
   - textbox "Paragraph"
-  - button "Close"
+  - text: Page
+  - textbox "Page"
 ```
 
 ### Scenario: the panel keeps its beat while the focus moves
@@ -188,11 +194,13 @@ And beat 2 is still open beside the graph
         - button "Beat 5"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
-  - button "Close"
+  - text: Page
+  - textbox "Page"
 ```
 
 ### Scenario: opening another beat replaces the one beside
@@ -236,11 +244,13 @@ Then beat 4's paragraph is open beside the graph
         - button "Beat 5"
 - complementary "Beat 4":
   - heading "Beat 4" [level=2]
+  - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - text: Paragraph
   - textbox "Paragraph"
-  - button "Close"
+  - text: Page
+  - textbox "Page"
 ```
 
 ### Scenario: closing the panel
