@@ -5,7 +5,7 @@ import { thePanel } from '../panel/panel.dom';
 export const renderApp = async (
   { header, main, panel: element }: { header: HTMLElement; main: HTMLElement; panel: HTMLElement },
   project: OpenProject,
-): Promise<void> => {
+): Promise<() => void> => {
   let held = project;
   let open: string | undefined;
 
@@ -70,4 +70,6 @@ export const renderApp = async (
       panel.open(held.read(pieceId));
     },
   });
+
+  return () => graph.stop();
 };

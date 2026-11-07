@@ -1,10 +1,20 @@
 import { startApp } from '../app';
 
-export const openTheApp = async (): Promise<void> => {
-  await startApp(document);
+const stops = new Map<ParentNode, () => void>();
+
+export const stopTheApp = (): void => {
+  for (const stop of stops.values()) stop();
+  stops.clear();
+};
+
+export const openTheApp = async (page: ParentNode = document): Promise<void> => {
+  stops.get(page)?.();
+  stops.set(page, await startApp(page));
 };
 
 export const reopenTheApp = async (): Promise<void> => {
+  stopTheApp();
+
   const main = document.querySelector<HTMLElement>('main');
   const width = main?.style.width ?? '';
   const label = main?.getAttribute('aria-label');
@@ -20,5 +30,5 @@ export const reopenTheApp = async (): Promise<void> => {
   main?.replaceWith(freshMain);
   document.querySelector('aside')?.replaceWith(aside);
 
-  await startApp(document);
+  await openTheApp();
 };

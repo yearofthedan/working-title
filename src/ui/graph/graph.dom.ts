@@ -34,6 +34,7 @@ export interface Graph {
   show(pieceId: string, facetId: string, text: string): void;
   showOpen(pieceId: string): void;
   closedBeside(pieceId: string): void;
+  stop(): void;
 }
 
 const arrowKeys: Readonly<Record<string, 'up' | 'down' | 'left' | 'right'>> = {
@@ -47,6 +48,7 @@ interface State {
   readonly hooks: GraphHooks;
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
+  readonly signal: AbortSignal;
   root: PieceView;
   current: string;
   readonly lastVisited: Map<string, string>;
@@ -121,10 +123,7 @@ const watch = (st: State): void => {
     if (st.replacing) return;
     st.replacing = true;
     const placeWhenStill = (): void => {
-      if (!st.wrapper.isConnected) {
-        st.watcher?.disconnect();
-        return;
-      }
+      if (st.signal.aborted) return;
       const running = st.wrapper
         .getAnimations({ subtree: true })
         .filter((animation) => animation.playState === 'running');
@@ -350,11 +349,6 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
 
 const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (!st.wrapper.isConnected) {
-      document.removeEventListener('keydown', onKeyDown);
-      st.watcher?.disconnect();
-      return;
-    }
     const target = event.target;
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
@@ -386,11 +380,6 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
 
 const focusOn = (st: State): (() => void) => {
   const onFocusMove = (): void => {
-    if (!st.wrapper.isConnected) {
-      document.removeEventListener('focusin', onFocusMove);
-      document.removeEventListener('focusout', onFocusMove);
-      return;
-    }
     setRoving(st);
     setFieldsTabIndex(st);
     slide(st);
@@ -406,10 +395,12 @@ export const renderGraph = async (
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
+  const controller = new AbortController();
   const st: State = {
     hooks,
     main,
     wrapper,
+    signal: controller.signal,
     root,
     current: root.id,
     lastVisited: new Map(),
@@ -424,12 +415,12 @@ export const renderGraph = async (
     watching: undefined,
     replacing: false,
   };
-  document.addEventListener('keydown', keysOn(st));
+  document.addEventListener('keydown', keysOn(st), { signal: controller.signal });
   const onFocusMove = focusOn(st);
-  document.addEventListener('focusin', onFocusMove);
-  document.addEventListener('focusout', onFocusMove);
+  document.addEventListener('focusin', onFocusMove, { signal: controller.signal });
+  document.addEventListener('focusout', onFocusMove, { signal: controller.signal });
   await document.fonts.ready;
-  if (st.wrapper.isConnected) draw(st);
+  if (!controller.signal.aborted) draw(st);
   return {
     goTo: (pieceId) => goTo(st, pieceId),
     show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),
@@ -442,6 +433,10 @@ export const renderGraph = async (
       const kind = drawnAs(st.entries, st.current, pieceId);
       if (card !== undefined && (kind === 'card' || kind === 'current')) card.focusOpenBeside();
       else st.cards.get(st.current)?.focus();
+    },
+    stop: () => {
+      controller.abort();
+      st.watcher?.disconnect();
     },
   };
 };
