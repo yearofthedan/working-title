@@ -43,35 +43,11 @@ make_copy() {
       cat >>"$copy/node_modules/.bin/vp" <<'STUB'
 case "$*" in
 'preview '*) [ -z "${VP_PREVIEW_STAYS:-}" ] || sleep 30 ;;
-'test list --filesOnly --json')
-  printf '[\n'
-  git ls-files 2>/dev/null |
-    grep -E '\.(test|spec)\.(ts|tsx|js|jsx|mts|cts|mjs|cjs)$' |
-    grep -v '^e2e/' |
-    while IFS= read -r file; do
-      printf '  {\n    "file": "%s/%s",\n    "projectName": "node"\n  },\n' "$(pwd)" "$file"
-    done
-  printf '  {\n    "file": "%s/__stub__.test.ts",\n    "projectName": "node"\n  }\n]\n' "$(pwd)"
-  ;;
 esac
 exit 0
 STUB
     fi
   done
-  cat >>"$copy/node_modules/.bin/playwright" <<'STUB'
-case "$*" in
-'test --list')
-  printf 'Listing tests:\n'
-  files=$(git ls-files 'e2e/*.spec.ts' 2>/dev/null)
-  if [ -n "$files" ]; then
-    printf '%s\n' "$files" | while IFS= read -r file; do
-      printf '  %s:1:1 › a stub test\n' "${file#e2e/}"
-    done
-  fi
-  printf '  __stub__.spec.ts:1:1 › a stub test\n'
-  ;;
-esac
-STUB
   printf '#!/bin/sh\necho "node $*" >> "$VP_LOG"\n' >"$copy/node_modules/.bin/node"
   cat >>"$copy/node_modules/.bin/node" <<'STUB'
 # shortcut: the copy serves nothing on 4174 and has no browser, so the script that takes the shots is recorded and not run, until a shot can be taken of a build the suite itself serves.

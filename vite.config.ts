@@ -210,7 +210,6 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['**/*.test.ts'],
           exclude: [
             ...configDefaults.exclude,
             'e2e/**',

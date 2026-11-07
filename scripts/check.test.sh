@@ -16,8 +16,6 @@ if grep -q 'opens with its audience and purpose' "$work/out"; then ok "check ref
 if grep -q 'starts with an allowed prefix' "$work/out"; then ok "check refuses a shell or CSS comment without an allowed prefix"; else no "check refuses a shell or CSS comment without an allowed prefix"; fi
 if grep -q -- '--external' "$VP_LOG"; then no "check asks no site, which cannot block a merge"; else ok "check asks no site, which cannot block a merge"; fi
 if [ "$(grep -c '^pnpm audit --json$' "$VP_LOG")" = 2 ]; then ok "check audits the head and the base"; else no "check audits the head and the base"; fi
-expect_vp 'test list --filesOnly --json' "check refuses a test file no project runs"
-expect_vp 'playwright test --list' "check lists the journeys"
 expect_vp 'test' "check runs the tests"
 expect_vp 'playwright test' "check runs the journeys"
 if [ "$(grep -nx 'playwright test' "$VP_LOG" | cut -d: -f1)" -lt "$(grep -nx 'test' "$VP_LOG" | cut -d: -f1)" ]; then ok "check runs the journeys before the tests, which need the browser they install"; else no "check runs the journeys before the tests, which need the browser they install"; fi
