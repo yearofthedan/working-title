@@ -84,6 +84,26 @@ describe('the graph language', () => {
     ]);
   });
 
+  it('reads a scene under a beat as the scene named for its place', async () => {
+    for (const [words, name] of [
+      ['scene 1 under beat 2', 'Scene 1'],
+      ['scene 2 under beat 2', 'Scene 2'],
+    ] as const) {
+      const { calls, driver, opening, reads } = recording(storyDrawn);
+      const opens = graphSteps(writerOn(driver, opening), seesOn(driver, reads))[
+        'opens {piece} beside the graph'
+      ]!;
+
+      await opens({ piece: words });
+
+      expect(calls).toEqual([
+        'click button "The story" in navigation "Where you are"',
+        `click heading "${name}" in group "${name}"`,
+        `click button "Open beside" in group "${name}"`,
+      ]);
+    }
+  });
+
   it('presses the path to a piece that is off the graph', async () => {
     const { calls, driver, opening } = recording(['- main:']);
 

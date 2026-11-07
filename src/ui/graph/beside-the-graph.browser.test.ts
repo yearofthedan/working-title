@@ -9,13 +9,18 @@ import {
   openBesideOf,
   showsOpenBeside,
 } from '../card/card.test-page';
-import { closeButtonOf, panelOf } from '../panel/panel.test-page';
+import { closeButtonOf, fieldFor, panelOf } from '../panel/panel.test-page';
 import { pageWith } from './graph.harness';
 import { atFocus, blurTheFocus, current, headerOf, named } from './graph.test-page';
 
 const thePanelIsOpen = async (): Promise<boolean> =>
   (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
     line.includes('- complementary'),
+  );
+
+const thePanelIsOn = async (piece: string): Promise<boolean> =>
+  (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
+    line.includes(`- complementary "${piece}"`),
   );
 
 describe('opening a piece beside the graph', () => {
@@ -146,5 +151,50 @@ describe('opening a piece beside the graph', () => {
 
     await browser.userEvent.hover(named('card', 'The story'));
     expect(drawsOpenBeside(named('card', 'The story'))).toBe(false);
+  });
+
+  it('keeps a scene open beside the graph while the focus moves off it', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.makesCurrent('Beat 4');
+    await writer.opensBeside('Scene 1');
+    await settled();
+
+    await writer.makesCurrent('The story');
+    await settled();
+
+    expect(await thePanelIsOn('Scene 1')).toBe(true);
+  });
+
+  it('replaces the beat beside the graph when a scene opens', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.makesCurrent('Beat 4');
+    await writer.opensBeside('Beat 4');
+    await settled();
+
+    await writer.opensBeside('Scene 1');
+    await settled();
+
+    expect(await thePanelIsOn('Scene 1')).toBe(true);
+    expect(fieldFor(panelOf(), 'Narrative')).toBeDefined();
+    expect(() => fieldFor(panelOf(), 'Page')).toThrow();
+  });
+
+  it('replaces the scene beside the graph when a beat opens', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.makesCurrent('Beat 4');
+    await writer.opensBeside('Scene 1');
+    await settled();
+    const card = named('card', 'Beat 4');
+
+    await browser.userEvent.hover(card);
+    await browser.userEvent.click(openBesideOf(card));
+    await settled();
+
+    expect(await thePanelIsOn('Beat 4')).toBe(true);
+    expect(fieldFor(panelOf(), 'Page')).toBeDefined();
+    expect(() => fieldFor(panelOf(), 'Narrative')).toThrow();
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, type Project, type StoredProject } from '../domain/project';
+import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
 import { toyMethod } from '../test-helpers/toy-method';
@@ -73,6 +74,19 @@ describe('opening a project', () => {
     const reopened = await openProject(toyMethod, store, ids());
 
     expect(reopened.root.children[1]?.longFacets[0]?.text).toBe(typed);
+  });
+
+  it("saves a scene's narrative, line breaks and all, and reads it back on the next open", async () => {
+    const store = copyingStore();
+    const first = await openProject(snowflakeExtended, store, ids());
+    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await project.elaborate(added, 'narrative', typed);
+
+    const reopened = await openProject(snowflakeExtended, store, ids());
+
+    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+      { id: 'narrative', label: 'Narrative', text: typed },
+    ]);
   });
 
   it('lists the root first and its children by their order, however the store holds them', async () => {

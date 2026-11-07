@@ -11,7 +11,7 @@ const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
 // shortcut: this one file's tree reads the whole page, because the panel it asserts on sits outside main; until the tree root comes from the scenario file, every other file stays rooted at main.
-const rootedAtThePage = 'e2e/a-beats-paragraph-and-page-survive-a-reload.approved.md';
+const rootedAtThePage = 'e2e/your-words-survive-a-reload.approved.md';
 
 for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved.md'))) {
   const path = relative(root, join(here, name));
