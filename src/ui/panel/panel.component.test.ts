@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
 import { settled } from '../../test-helpers/driver';
@@ -252,17 +252,13 @@ describe('the panel mounted alone', () => {
   });
 
   it('closes when Esc is pressed in the panel', async () => {
-    let closed = 0;
-    const panel = mountThePanel(theBeat, {
-      close: () => {
-        closed += 1;
-      },
-    });
+    const close = vi.fn();
+    const panel = mountThePanel(theBeat, { close });
     fieldFor(panel.element, theSentence).focus();
 
     await browser.userEvent.keyboard('{Escape}');
 
-    expect(closed).toBe(1);
+    expect(close).toHaveBeenCalledOnce();
   });
 
   it('stops a key pressed in the panel from reaching a listener on the document', async () => {
