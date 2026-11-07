@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { elaborate, newProject, readProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -10,6 +10,24 @@ const key = 'working-title:project';
 const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
 const listLine = snowflakeExtended.startingChildren.kind.childKind?.facets[0]?.id ?? '';
 const saved = (): string | null => localStorage.getItem(key);
+
+const storing = new Map<string, string>();
+
+const storage = {
+  getItem: (name: string): string | null => storing.get(name) ?? null,
+  setItem: (name: string, value: string): void => void storing.set(name, value),
+  removeItem: (name: string): void => void storing.delete(name),
+  clear: (): void => storing.clear(),
+};
+
+beforeEach(() => {
+  storing.clear();
+  vi.stubGlobal('localStorage', storage);
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());

@@ -6,7 +6,7 @@ const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
-export const browserTestRefusals = ['querySelector', 'querySelectorAll', 'style'];
+export const componentAndAppTestRefusals = ['querySelector', 'querySelectorAll', 'style'];
 export const domGlobals = [
   'document',
   'window',
@@ -158,12 +158,12 @@ export default defineConfig({
         rules: { 'no-restricted-globals': 'off' },
       },
       {
-        files: ['src/**/*.browser.test.ts'],
+        files: ['src/**/*.{component,app}.test.ts'],
         rules: {
           'no-restricted-properties': [
             'error',
             ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
-            ...browserTestRefusals.map((property) => ({
+            ...componentAndAppTestRefusals.map((property) => ({
               property,
               message: theComponentHasATestPage,
             })),
@@ -210,10 +210,11 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
+          include: ['**/*.test.ts'],
           exclude: [
             ...configDefaults.exclude,
             'e2e/**',
-            '**/*.browser.test.ts',
+            '**/*.{component,app}.test.ts',
             'src/ui/lint-sample-*/**',
           ],
         },
@@ -221,7 +222,7 @@ export default defineConfig({
       {
         test: {
           name: 'browser',
-          include: ['**/*.browser.test.ts'],
+          include: ['**/*.{component,app}.test.ts'],
           exclude: ['src/ui/lint-sample-*/**'],
           setupFiles: ['src/shell.css'],
           ...(approving ? { api: { allowWrite: true } } : {}),

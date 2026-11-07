@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import {
-  browserTestRefusals,
+  componentAndAppTestRefusals,
   documentSelectors,
   domGlobals,
   findsAnyOtherWay,
@@ -12,6 +12,8 @@ import {
 } from './vite.config';
 
 const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
+
+const levels = ['component', 'app'] as const;
 
 const callingOnPage = (call: string) =>
   `import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.${call}('x');\n`;
@@ -84,15 +86,16 @@ beforeAll(() => {
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
   write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
-  for (const property of browserTestRefusals) {
+  for (const property of componentAndAppTestRefusals) {
     const use = readingACard[property];
     if (use === undefined) throw new Error(`no sample reads a card with ${property}`);
-    writeInUi(`browser-${property}.browser.test.ts`, use);
+    for (const level of levels) writeInUi(`${level}-${property}.${level}.test.ts`, use);
   }
-  writeInUi(
-    'browser-document.browser.test.ts',
-    'export const sample = (): number => document.body.childElementCount;\n',
-  );
+  for (const level of levels)
+    writeInUi(
+      `${level}-document.${level}.test.ts`,
+      'export const sample = (): number => document.body.childElementCount;\n',
+    );
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -164,20 +167,22 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
   });
 });
 
-describe('a browser test', { timeout: 60_000 }, () => {
-  it.each(browserTestRefusals)(
+describe('a component test or an app test', { timeout: 60_000 }, () => {
+  it.each(componentAndAppTestRefusals)(
     'calling card.%s fails lint, pointing at the test page and staging',
     (property) => {
-      expect(uiErrorsIn(`browser-${property}.browser.test.ts`)).toEqual([
-        expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
+      for (const level of levels)
+        expect(uiErrorsIn(`${level}-${property}.${level}.test.ts`)).toEqual([
+          expect.stringMatching(/test-page\.ts.*staging\.ts/),
+        ]);
     },
   );
 
   it('reading document fails lint, pointing at the test page and staging', () => {
-    expect(uiErrorsIn('browser-document.browser.test.ts')).toEqual([
-      expect.stringMatching(/test-page\.ts.*staging\.ts/),
-    ]);
+    for (const level of levels)
+      expect(uiErrorsIn(`${level}-document.${level}.test.ts`)).toEqual([
+        expect.stringMatching(/test-page\.ts.*staging\.ts/),
+      ]);
   });
 });
 

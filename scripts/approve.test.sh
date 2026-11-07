@@ -28,7 +28,7 @@ mkdir -p "$copy/src/ui/focus/scenarios" "$copy/e2e" "$copy/src/ui/focus"
 : >"$copy/e2e/a-journey.approved.md"
 
 run_copy approve "$copy/src/ui/focus/scenarios/a-rule.approved.md"
-expect_vp 'test src/scenarios.browser.test.ts -t src/ui/focus/scenarios/a-rule.approved.md' \
+expect_vp 'test src/scenarios.app.test.ts -t src/ui/focus/scenarios/a-rule.approved.md' \
   "approve runs the browser entry for a page scenario"
 
 run_copy approve "$copy/e2e/a-journey.approved.md"
