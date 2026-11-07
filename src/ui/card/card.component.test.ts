@@ -34,14 +34,36 @@ const beatWith = (text: string): PieceView => ({
 describe('the card mounted alone', () => {
   it.each(cardLooks)('is drawn in the %s look without the graph', async (as) => {
     mountTheCard(as);
-    const { card } = theCard(theBeat.name);
 
-    await expect.element(card).toHaveClass(as, { exact: true });
-    if (as === 'hidden') await expect.element(card).toHaveAttribute('inert');
-    else await expect.element(card).not.toHaveAttribute('inert');
-    if (as === 'current') await expect.element(card).toHaveAttribute('aria-current', 'location');
-    else await expect.element(card).not.toHaveAttribute('aria-current');
+    await expect.element(theCard(theBeat.name).card).toHaveClass(as, { exact: true });
   });
+
+  it('makes a hidden card inert', async () => {
+    mountTheCard('hidden');
+
+    await expect.element(theCard(theBeat.name).card).toHaveAttribute('inert');
+  });
+
+  it.each(['current', 'card', 'chip'] as const)('leaves a %s card reachable', async (as) => {
+    mountTheCard(as);
+
+    await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('inert');
+  });
+
+  it('marks the current card as where the writer is', async () => {
+    mountTheCard('current');
+
+    await expect.element(theCard(theBeat.name).card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it.each(['card', 'chip', 'hidden'] as const)(
+    'marks no %s card as where the writer is',
+    async (as) => {
+      mountTheCard(as);
+
+      await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('aria-current');
+    },
+  );
 
   it("draws the sentence on the current piece's card once", () => {
     const card = mountTheCard('current', { piece: beatWith(theSentence) });
