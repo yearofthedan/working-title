@@ -47,5 +47,7 @@ export const stageTheCard = async (): Promise<void> => {
 };
 
 export const stageTheCardUnfocused = async (): Promise<void> => {
-  mountTheCard('current').placeAt(200, 400);
+  const card = mountTheCard('current');
+  const main = document.querySelector('main')!;
+  card.placeAt(main.clientWidth / 2, main.clientHeight / 2);
 };
