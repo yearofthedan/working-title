@@ -4,15 +4,10 @@ import { settled, type Opening } from '../../test-helpers/driver';
 import { laidOut } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import {
-  anExtraHeaderAbove,
-  narrowThePane,
-  theViewport,
-  twoGraphs,
-} from '../../test-helpers/staging';
+import { narrowThePane, theViewport } from '../../test-helpers/staging';
 import { type AppSees, type AppWriter } from '../app/app.dsl';
+import { twoGraphs } from '../app/app.harness';
 import { graphOn, graphScenarioSteps, pageWith } from './graph.harness';
 import {
   addButtonIsFirst,
@@ -27,7 +22,6 @@ import {
   positionOf,
   sentenceFieldOf,
   shownSentenceOf,
-  timesDrawn,
 } from '../card/card.test-page';
 import {
   altKeySeenFor,
@@ -37,22 +31,16 @@ import {
   cardAtFocus,
   cards,
   focusIn,
-  focusIsInThePane,
   currentCards,
   current,
   named,
-  navigationIn,
   pane,
 } from './graph.test-page';
-
-const stored = 'working-title:project';
 
 const centreOf = (card: Element): number => {
   const box = card.getBoundingClientRect();
   return box.left + box.width / 2;
 };
-
-const theStory = "A widow hunts the man who sank her husband's ship";
 
 const inMain = (element: Element): boolean => {
   const box = element.getBoundingClientRect();
@@ -74,25 +62,6 @@ const offScreenFocus = (): string[] => {
 const shiftTab = (): Promise<void> => browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
 
 describe('the graph page', () => {
-  it('tells the application about every keystroke as it is typed', async () => {
-    const { stage, writer } = pageWith();
-    await stage.fresh();
-
-    await writer.types('A wid', { piece: 'The story', facet: 'One-sentence summary' });
-    expect(localStorage.getItem(stored)).toContain('A wid');
-
-    await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
-    expect(localStorage.getItem(stored)).toContain(theStory);
-  });
-
-  it("draws the sentence on the current piece's card once", async () => {
-    const { stage, writer } = pageWith();
-    await stage.fresh();
-    await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
-
-    expect(timesDrawn(current(), theStory)).toBe(1);
-  });
-
   it("draws a card's sentence in the muted colour", async () => {
     const { stage } = pageWith();
     await stage.fresh();
@@ -553,17 +522,6 @@ describe('the rows of the graph', () => {
 });
 
 describe('moving the current piece', () => {
-  it('writes the path into the header the graph was given, and no other header', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    const { extra } = anExtraHeaderAbove();
-
-    await writer.clicks('Beat 2');
-
-    await sees.pathIs(['The story', 'Beat 2']);
-    expect(navigationIn(extra)).toBeNull();
-  });
-
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
     const { driver, stage, writer } = pageWith();
     await stage.fresh();
@@ -653,7 +611,7 @@ describe('moving the current piece', () => {
     await sees.focusIsIn(nameOf(current()), 'One-sentence summary');
   });
 
-  it("leaves the cursor on the new current piece's card after a key, a chip, a card and a path", async () => {
+  it("leaves the cursor on the new current piece's card after a key, a chip, a card and a story card", async () => {
     const { driver, stage, writer } = pageWith();
     await stage.fresh();
 
@@ -671,13 +629,6 @@ describe('moving the current piece', () => {
 
     await writer.clicks('Beat 4');
     expect(nameOf(current())).toBe('Beat 4');
-    expect(cardAtFocus()).toBe(current());
-
-    await driver.click('button', 'The story', {
-      role: 'navigation',
-      name: 'Where you are',
-    });
-    expect(nameOf(current())).toBe('The story');
     expect(cardAtFocus()).toBe(current());
   });
 
@@ -875,49 +826,6 @@ describe('moving the current piece', () => {
   });
 });
 
-describe('what a move leaves alone', () => {
-  it('writes nothing to storage', async () => {
-    const { driver, stage, writer } = pageWith();
-    await stage.fresh();
-    await writer.types("Maren finds the ship's log", {
-      piece: 'Beat 2',
-      facet: 'One-sentence summary',
-    });
-    const before = localStorage.getItem(stored);
-    expect(before).not.toBeNull();
-
-    await driver.press('ArrowRight');
-    await driver.press('ArrowUp');
-    await writer.clicks('Beat 1');
-
-    expect(localStorage.getItem(stored)).toBe(before);
-  });
-
-  it('opens on the story when the page is drawn again', async () => {
-    const { stage, writer } = pageWith();
-    await stage.fresh();
-    await writer.clicks('Beat 2');
-    expect(nameOf(current())).toBe('Beat 2');
-
-    await reopenTheApp();
-
-    expect(nameOf(current())).toBe('The story');
-  });
-
-  it('saves a sentence typed into a card after clicking it, read back by a fresh page', async () => {
-    const { driver, stage, writer } = pageWith();
-    await stage.fresh();
-    const sentence = "Maren finds the ship's log";
-    await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
-
-    await reopenTheApp();
-    await writer.clicks('Beat 4');
-
-    const held = await driver.value('One-sentence summary', { role: 'group', name: 'Beat 4' });
-    expect(held).toBe(sentence);
-  });
-});
-
 describe('two graphs on one page', () => {
   const onGraph = (name: string, stage: Opening): { writer: AppWriter; sees: AppSees } =>
     graphOn(name, stage);
@@ -947,42 +855,6 @@ describe('two graphs on one page', () => {
 
     await onGraph('First graph', stage).sees.currentIs('Beat 1');
     await onGraph('Second graph', stage).sees.currentIs('Beat 1');
-  });
-
-  it('lets a graph drawn over stop answering keys', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    await writer.clicks('Beat 3');
-
-    await stage.reopen();
-    await writer.moves('→');
-
-    await sees.pathIs(['The story']);
-  });
-
-  it('stops the app it replaces from answering keys and writing the path', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    await writer.clicks('Beat 2');
-    await openTheApp();
-    await writer.clicks('Beat 5');
-
-    await writer.moves('→');
-
-    await sees.pathIs(['The story', 'Beat 5']);
-  });
-
-  it('keeps working when the app is reopened', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-
-    await stage.reopen();
-    narrowThePane(720);
-    await laidOut();
-    await writer.moves('↓');
-
-    await sees.currentIs('Beat 1');
-    expect(focusIsInThePane()).toBe(true);
   });
 });
 

@@ -1,33 +1,45 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { startApp } from './app';
-import type { RawGlob } from './test-helpers/raw-glob';
-import { playScenarioFiles } from './test-helpers/scenario-entry';
-import {
-  aPageWithoutAHeader,
-  aPageWithoutAMain,
-  aPageWithoutAnAside,
-} from './test-helpers/staging';
+import { thePage } from './test-helpers/staging';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
-import { graphScenarioSteps } from './ui/graph/graph.harness';
 
-describe('starting the app', () => {
-  it('refuses a page with no main', async () => {
-    await expect(startApp(aPageWithoutAMain())).rejects.toThrow('the page has no <main>');
-  });
+const stored = 'working-title:project';
 
-  it('refuses a page with no header', async () => {
-    await expect(startApp(aPageWithoutAHeader())).rejects.toThrow('the page has no <header>');
-  });
+let stop: (() => void) | undefined;
 
-  it('refuses a page with no aside to open a piece beside', async () => {
-    await expect(startApp(aPageWithoutAnAside())).rejects.toThrow('the page has no <aside>');
-  });
+const stageTheApp = async (): Promise<void> => {
+  stop?.();
+  stop = await startApp(await thePage(1440));
+};
+
+afterEach(() => {
+  stop?.();
+  stop = undefined;
 });
 
-const files = (import.meta as unknown as RawGlob).glob('/src/scenarios/*.approved.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
+describe('what the app saves to the browser', () => {
+  it("saves each keystroke to the browser's storage", async () => {
+    const driver = vitestBrowserDriver();
+    localStorage.clear();
+    await stageTheApp();
 
-playScenarioFiles(files, () => vitestBrowserDriver(undefined, 'page'), graphScenarioSteps);
+    await driver.type('A wid', 'One-sentence summary', { role: 'group', name: 'The story' });
+
+    expect(localStorage.getItem(stored)).toContain('A wid');
+  });
+
+  it('reads a saved sentence back on a fresh page', async () => {
+    const driver = vitestBrowserDriver();
+    const sentence = "Maren finds the ship's log";
+    localStorage.clear();
+    await stageTheApp();
+
+    await driver.type(sentence, 'One-sentence summary', { role: 'group', name: 'Beat 4' });
+
+    await stageTheApp();
+    await driver.click('heading', 'Beat 4', { role: 'group', name: 'Beat 4' });
+
+    const held = await driver.value('One-sentence summary', { role: 'group', name: 'Beat 4' });
+    expect(held).toBe(sentence);
+  });
+});

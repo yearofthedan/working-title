@@ -1,5 +1,5 @@
 import { projectStore } from '../adapters/local-storage-project-store';
-import { openProject } from '../application/project';
+import { openProject, type OpenProject } from '../application/project';
 import type { FacetText, Piece, Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -47,7 +47,7 @@ export const aProject = (root: PieceSeed): SeededProject => ({
   pieces: piecesOf(root, null, 0, ids()),
 });
 
-const inMemory = (): ProjectStore => {
+export const inMemory = (): ProjectStore => {
   let held: Project | undefined;
   return {
     load: async () => held,
@@ -55,6 +55,14 @@ const inMemory = (): ProjectStore => {
       held = project;
     },
   };
+};
+
+export const anInMemoryProject = async (
+  seed?: SeededProject,
+): Promise<{ store: ProjectStore; project: OpenProject }> => {
+  const store = inMemory();
+  if (seed !== undefined) await store.save(seed);
+  return { store, project: await openProject(snowflakeExtended, store) };
 };
 
 const placeOfBeat = async (beatName: string): Promise<number> => {

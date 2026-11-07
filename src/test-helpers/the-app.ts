@@ -1,15 +1,25 @@
-import { startApp } from '../app';
+import { openProject } from '../application/project';
+import { snowflakeExtended } from '../methods/snowflake-extended';
+import type { ProjectStore } from '../ports/project-store';
+import { renderApp } from '../ui/app/app.dom';
+import { inMemory } from './seed';
 
 const stops = new Map<ParentNode, () => void>();
+
+let store = inMemory();
 
 export const stopTheApp = (): void => {
   for (const stop of stops.values()) stop();
   stops.clear();
 };
 
-export const openTheApp = async (page: ParentNode = document): Promise<void> => {
+export const openTheApp = async (
+  page: ParentNode = document,
+  held?: ProjectStore,
+): Promise<void> => {
   stops.get(page)?.();
-  stops.set(page, await startApp(page));
+  if (held !== undefined) store = held;
+  stops.set(page, await renderApp(page, await openProject(snowflakeExtended, store)));
 };
 
 export const reopenTheApp = async (): Promise<void> => {
