@@ -4,9 +4,9 @@ import type { ProjectStore } from '../ports/project-store';
 export const projectStorageKey = 'working-title:project';
 
 // shortcut: one JSON blob in localStorage, until #2 saves pieces and links together and picks a library, which moves it to IndexedDB.
-export const projectStore = (): ProjectStore => ({
+export const projectStore = (storage: Storage = localStorage): ProjectStore => ({
   load: async () => {
-    const saved = localStorage.getItem(projectStorageKey);
+    const saved = storage.getItem(projectStorageKey);
     if (saved === null) return undefined;
     const project: unknown = JSON.parse(saved);
     if (!isProject(project) && !isProjectFromVersion1(project)) {
@@ -15,6 +15,6 @@ export const projectStore = (): ProjectStore => ({
     return project;
   },
   save: async (project) => {
-    localStorage.setItem(projectStorageKey, JSON.stringify(project));
+    storage.setItem(projectStorageKey, JSON.stringify(project));
   },
 });

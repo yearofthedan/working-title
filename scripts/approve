@@ -34,7 +34,7 @@ e2e/*.approved.md)
 src/*)
   case "$path" in
   */scenarios/*.approved.md)
-    entry=src/scenarios.browser.test.ts
+    entry=src/scenarios.app.test.ts
     runner=vp
     filter=-t
     ;;

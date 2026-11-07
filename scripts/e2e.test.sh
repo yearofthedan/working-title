@@ -19,6 +19,6 @@ done
 
 run_do e2e e2e/manifest.spec.ts
 expect_status 0 "e2e passes while another worktree answers on 4173"
-expect_out '1 passed' "the spec ran"
+expect_out '1 passed' "the journey ran"
 
 finish

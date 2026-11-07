@@ -42,6 +42,7 @@ The **core** terms below name things every method has. They are the only words i
 | Chapter | A group of pieces with prose, in the order a reader meets them | |
 | Manuscript | All the prose, chapter by chapter: the novel as a reader would read it | |
 | Graph | The view of the pieces in their tree, each piece's children in order under it | |
+| App | The whole product the writer opens: the header, the graph and the panel | |
 | Current piece | The piece the graph is centred on, drawn as the big card, where the path ends. Moving to another piece changes it; tabbing does not. A piece pinned in the panel can be a different one | |
 | Focus | The element the keyboard acts on | |
 | Row | The pieces the graph shows side by side at one level around the current piece: its parent, the current piece and its siblings, or its children | |

@@ -134,7 +134,7 @@ rm -rf "$project/src"
 write src/test-helpers/driver.ts 'export interface Driver { fresh(): Promise<void> }'
 write src/ui/focus/focus.dsl.ts "import type { Driver } from '../../test-helpers/driver';
 export const writerOn = (driver: Driver): Driver => driver;"
-write src/ui/focus/focus.dsl.browser.test.ts "import { writerOn } from './focus.dsl';
+write src/ui/focus/focus.dsl.component.test.ts "import { writerOn } from './focus.dsl';
 export const judge = writerOn;"
 write src/test-helpers/runner.ts "import { writerOn } from '../ui/focus/focus.dsl';
 export const run = writerOn;"
@@ -168,10 +168,10 @@ expect_out 'standards/testing.md' "the refusal links the standard"
 rm -f "$project/src/ui/focus/graph.ts"
 write src/ui/focus/cards.dom.ts "import { card } from './focus.dom';
 export const cards = card;"
-write src/ui/focus/graph.browser.test.ts "import { card } from './focus.dom';
+write src/ui/focus/graph.component.test.ts "import { card } from './focus.dom';
 export const judge = card;"
 run_layers
-allowed "a *.dom.ts importing a *.dom.ts, and a browser test importing one, are allowed"
+allowed "a *.dom.ts importing a *.dom.ts, and a component test importing one, are allowed"
 not_out 'logic-not-on-the-dom' "the rule says nothing where the DOM is in a *.dom.ts"
 
 finish
