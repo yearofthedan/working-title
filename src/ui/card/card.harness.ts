@@ -38,6 +38,16 @@ export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
   return card;
 };
 
+export const theCardSettles = async (): Promise<void> => {
+  await document.fonts.ready;
+};
+
 export const stageTheCard = async (): Promise<void> => {
   mountTheCard('current').focus();
+};
+
+export const stageTheCardUnfocused = async (): Promise<void> => {
+  const card = mountTheCard('current');
+  const main = document.querySelector('main')!;
+  card.placeAt(main.clientWidth / 2, main.clientHeight / 2);
 };

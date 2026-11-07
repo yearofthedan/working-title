@@ -12,7 +12,6 @@ import {
   holdsTheFocus,
   inertOf,
   labelOf,
-  legendOf,
   lookOf,
   marksCurrent,
   sentenceFieldOf,
@@ -20,7 +19,13 @@ import {
   showsTheKeys,
   timesDrawn,
 } from './card.test-page';
-import { mountTheCard, stageTheCard, theBeat } from './card.harness';
+import {
+  mountTheCard,
+  stageTheCard,
+  stageTheCardUnfocused,
+  theBeat,
+  theCardSettles,
+} from './card.harness';
 import { cardSeesOn, cardSteps, cardWriterOn } from './card.dsl';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
@@ -75,24 +80,9 @@ describe('the card mounted alone', () => {
     expect(button.bottom).toBeLessThanOrEqual(body.bottom);
   });
 
-  it('shows the keys on no other card', () => {
-    const card = mountTheCard('card');
-
-    expect(showsTheKeys(card.element)).toBe(false);
-  });
-
-  it('shows no keys when the pointer focused the card', async () => {
-    const card = mountTheCard('current');
-    card.placeAt(200, 400);
-
-    await browser.userEvent.click(legendOf(card.element));
-
-    expect(holdsTheFocus(card.element)).toBe(true);
-    expect(showsTheKeys(card.element)).toBe(false);
-  });
-
   it('shows the keys without resizing the card', async () => {
     const card = mountTheCard('current');
+    await theCardSettles();
     const unfocused = card.size();
 
     await browser.userEvent.keyboard('{Tab}');
@@ -129,5 +119,6 @@ const files = (import.meta as unknown as RawGlob).glob('/src/ui/card/scenarios/*
 playScenarioFiles(
   files,
   () => vitestBrowserDriver(),
-  (driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
+  (driver) =>
+    cardSteps(cardWriterOn(driver, stageTheCard, stageTheCardUnfocused), cardSeesOn(driver)),
 );
