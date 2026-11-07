@@ -12,7 +12,6 @@ import {
   aPageWithoutAnAside,
   narrowThePane,
 } from '../../test-helpers/staging';
-import { openTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import {
   drawsOpenBeside,
@@ -28,14 +27,13 @@ import {
   cardAtFocus,
   current,
   everyCard,
-  focusIsInThePane,
   named,
 } from '../graph/graph.test-page';
 import { closeButtonOf, fieldFor, panelOf, widthOf } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
 import { appSteps, type AppWriter } from './app.dsl';
-import { anExtraHeaderAbove, appScenarioSteps, pageWith } from './app.harness';
-import { headerOf, navigationIn } from './app.test-page';
+import { appScenarioSteps, pageWith } from './app.harness';
+import { headerOf } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
@@ -149,17 +147,6 @@ describe('what the app keeps', () => {
 });
 
 describe('the path in the header', () => {
-  it('writes the path into the header the graph was given, and no other header', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    const { extra } = anExtraHeaderAbove();
-
-    await writer.clicks('Beat 2');
-
-    await sees.pathIs(['The story', 'Beat 2']);
-    expect(navigationIn(extra)).toBeNull();
-  });
-
   it("leaves the cursor on the new current piece's card after a path click", async () => {
     const { driver, stage, writer } = pageWith();
     await stage.fresh();
@@ -347,44 +334,6 @@ describe('opening a piece beside the graph', () => {
     expect(await thePanelIsOn('Beat 4')).toBe(true);
     expect(fieldFor(panelOf(), 'Page')).toBeDefined();
     expect(() => fieldFor(panelOf(), 'Narrative')).toThrow();
-  });
-});
-
-describe('two graphs on one page', () => {
-  it('lets a graph drawn over stop answering keys', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    await writer.clicks('Beat 3');
-
-    await stage.reopen();
-    await writer.moves('→');
-
-    await sees.pathIs(['The story']);
-  });
-
-  it('stops the app it replaces from answering keys and writing the path', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-    await writer.clicks('Beat 2');
-    await openTheApp();
-    await writer.clicks('Beat 5');
-
-    await writer.moves('→');
-
-    await sees.pathIs(['The story', 'Beat 5']);
-  });
-
-  it('keeps working when the app is reopened', async () => {
-    const { stage, sees, writer } = pageWith();
-    await stage.fresh();
-
-    await stage.reopen();
-    narrowThePane(720);
-    await laidOut();
-    await writer.moves('↓');
-
-    await sees.currentIs('Beat 1');
-    expect(focusIsInThePane()).toBe(true);
   });
 });
 

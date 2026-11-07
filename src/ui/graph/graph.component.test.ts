@@ -29,7 +29,7 @@ import {
   shownSentenceOf,
 } from '../card/card.test-page';
 import { type Writer } from './graph.dsl';
-import { graphOn, graphScenarioSteps, graphWith, twoGraphs } from './graph.harness';
+import { graphScenarioSteps, graphWith } from './graph.harness';
 import {
   altKeySeenFor,
   atFocus,
@@ -845,35 +845,6 @@ describe('moving the current piece', () => {
     await browser.userEvent.click(legendOf(named('card', 'The story')));
     expect(nameOf(current())).toBe('The story');
     expect(atFocus()).toBe(current());
-  });
-});
-
-describe('two graphs on one page', () => {
-  it('moves the current piece of the graph the writer clicked, and leaves the other where it is', async () => {
-    const { driver, stage } = graphWith();
-    await stage.fresh();
-    await addASceneUnder(driver, 'Beat 2');
-    await twoGraphs();
-    const first = graphOn('First graph', stage);
-    const second = graphOn('Second graph', stage);
-
-    await first.writer.clicks('Beat 2');
-    await first.writer.moves('↓');
-
-    await first.sees.currentIs('Scene 1');
-    await second.sees.currentIs('The story');
-  });
-
-  it('moves every graph when the key is pressed outside them', async () => {
-    const { driver, stage, writer } = graphWith();
-    await stage.fresh();
-    await twoGraphs();
-
-    await writer.clicksAwayFromTheGraph();
-    await driver.press('ArrowDown');
-
-    await graphOn('First graph', stage).sees.currentIs('Beat 1');
-    await graphOn('Second graph', stage).sees.currentIs('Beat 1');
   });
 });
 

@@ -79,3 +79,9 @@ export const aProjectWithScenesUnder = async (
   const under = beat(...Array.from({ length: scenes }, () => scene()));
   return aProject(story(...Array.from({ length: place - 1 }, () => beat()), under));
 };
+
+// shortcut: the story holds the five beats the method starts a project with, the fourth carrying the scenes, until a case needs the scenes under another beat.
+export const aProjectWithScenesUnderBeatFour = (scenes: number): SeededProject =>
+  aProject(
+    story(beat(), beat(), beat(), beat(...Array.from({ length: scenes }, () => scene())), beat()),
+  );

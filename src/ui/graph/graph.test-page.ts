@@ -46,8 +46,6 @@ export const pane = (): HTMLElement => {
   return main;
 };
 
-export const focusIsInThePane = (): boolean => pane().contains(document.activeElement);
-
 export const theBodyHolds = (): readonly string[] =>
   [...document.body.children].map((child) => child.tagName.toLowerCase());
 

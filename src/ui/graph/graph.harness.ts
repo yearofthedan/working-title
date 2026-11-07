@@ -1,15 +1,10 @@
 import * as browser from 'vite-plus/test/browser';
-import { openProject, type OpenProject } from '../../application/project';
-import { snowflakeExtended } from '../../methods/snowflake-extended';
-import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/driver';
+import { type OpenProject } from '../../application/project';
+import { type Driver, type Opening } from '../../test-helpers/driver';
 import { readsIn } from '../../test-helpers/graph-page';
 import {
   anInMemoryProject,
-  aProject,
-  beat,
-  inMemory,
-  scene,
-  story,
+  aProjectWithScenesUnderBeatFour,
   type SeededProject,
 } from '../../test-helpers/seed';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
@@ -18,7 +13,6 @@ import { renderGraph } from './graph.dom';
 import { blurTheFocus } from './graph.test-page';
 
 let stops: (() => void)[] = [];
-let store = inMemory();
 let drawn: { readonly main: HTMLElement; readonly project: () => OpenProject } | undefined;
 
 const stopTheGraphs = (): void => {
@@ -41,33 +35,24 @@ const drawOn = async (main: HTMLElement, project: OpenProject): Promise<void> =>
   drawn = { main, project: () => held };
 };
 
-// shortcut: the story holds the five beats the method starts a project with, the fourth carrying the scenes, until a case needs the scenes under another beat.
-const aProjectWithScenesUnderBeatFour = (scenes: number): SeededProject =>
-  aProject(
-    story(beat(), beat(), beat(), beat(...Array.from({ length: scenes }, () => scene())), beat()),
-  );
-
 export const mountTheGraph = async (
   stage: {
     readonly width?: number;
     readonly scenes?: number;
-    readonly name?: string;
     readonly project?: SeededProject;
   } = {},
 ): Promise<void> => {
-  const { width = 1440, scenes = 0, name, project } = stage;
+  const { width = 1440, scenes = 0, project } = stage;
   await browser.page.viewport(width, 900);
   stopTheGraphs();
 
   const main = document.createElement('main');
   main.style.width = `${width}px`;
-  if (name !== undefined) main.setAttribute('aria-label', name);
   document.body.replaceChildren(main);
 
-  const { store: made, project: opened } = await anInMemoryProject(
+  const { project: opened } = await anInMemoryProject(
     scenes > 0 ? aProjectWithScenesUnderBeatFour(scenes) : project,
   );
-  store = made;
   await drawOn(main, opened);
 };
 
@@ -76,22 +61,6 @@ export const reopenTheGraph = async (): Promise<void> => {
   if (at === undefined) throw new Error('the graph is drawn on no main to draw it again on');
   stopTheGraphs();
   await drawOn(at.main, at.project());
-};
-
-export const twoGraphs = async (): Promise<void> => {
-  const first = theMain();
-  first.setAttribute('aria-label', 'First graph');
-
-  const page = document.createElement('div');
-  const second = document.createElement('main');
-  second.setAttribute('aria-label', 'Second graph');
-  second.style.width = first.style.width;
-  page.append(second);
-  // shortcut: the second graph shares the shell's main column below the first, with no height of its own, until a case needs its cards where the writer can click them.
-  page.style.gridColumn = '1';
-  document.body.append(page);
-
-  await drawOn(second, await openProject(snowflakeExtended, store));
 };
 
 const theMain = (): HTMLElement => {
@@ -123,22 +92,6 @@ export const graphWith = (
     sees: seesOn(
       driver,
       readsIn(() => theMain()),
-    ),
-  };
-};
-
-export const graphOn = (
-  name: string,
-  opening: Opening,
-): { driver: Driver; writer: Writer; sees: Sees } => {
-  const driver = graphDriver(name);
-  const main = browser.page.getByRole('main', { name: wholeNameAnyCase(name) });
-  return {
-    driver,
-    writer: writerOn(driver, opening),
-    sees: seesOn(
-      driver,
-      readsIn(() => main.element()),
     ),
   };
 };
