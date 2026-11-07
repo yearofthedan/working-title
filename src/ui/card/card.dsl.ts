@@ -8,7 +8,8 @@ const action = 'Add a scene';
 const openBeside = 'Open beside';
 
 export interface CardWriter {
-  opensTheCard(withTabFocus?: boolean): Promise<void>;
+  opensTheCard(): Promise<void>;
+  showsTheCard(): Promise<void>;
   clicksTheCard(): Promise<void>;
   putsTheFocusInTheSummary(): Promise<void>;
   putsTheFocusOnTheAction(): Promise<void>;
@@ -29,7 +30,8 @@ export const cardWriterOn = (
   stage: () => Promise<void>,
   stageUnfocused: () => Promise<void>,
 ): CardWriter => ({
-  opensTheCard: (withTabFocus = true) => (withTabFocus ? stage() : stageUnfocused()),
+  opensTheCard: stage,
+  showsTheCard: stageUnfocused,
   clicksTheCard: () => driver.click('heading', beat, theCard),
   putsTheFocusInTheSummary: () => driver.focus('textbox', summary, theCard),
   putsTheFocusOnTheAction: () => driver.focus('button', action, theCard),
@@ -60,7 +62,7 @@ export const cardSeesOn = (driver: Driver): CardSees => ({
 });
 
 export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, StepAction> => ({
-  'a beat card is current': () => writer.opensTheCard(false),
+  'a beat card is current': () => writer.showsTheCard(),
   'a beat card is current with tab focus': () => writer.opensTheCard(),
   'a beat card is current with focus in its one-sentence summary': async () => {
     await writer.opensTheCard();

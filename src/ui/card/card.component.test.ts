@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
-import { theFontsAreReady } from '../../test-helpers/staging';
 import { cardLooks } from './card';
 import {
   addButtonOf,
@@ -17,7 +16,7 @@ import {
   showsTheKeys,
   timesDrawn,
 } from './card.test-page';
-import { mountTheCard, theBeat } from './card.harness';
+import { mountTheCard, theBeat, theCardSettles } from './card.harness';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
 
@@ -73,7 +72,7 @@ describe('the card mounted alone', () => {
 
   it('shows the keys without resizing the card', async () => {
     const card = mountTheCard('current');
-    await theFontsAreReady();
+    await theCardSettles();
     const unfocused = card.size();
 
     await browser.userEvent.keyboard('{Tab}');

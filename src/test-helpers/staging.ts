@@ -1,10 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import { startApp } from '../app';
 
-export const theFontsAreReady = async (): Promise<void> => {
-  await document.fonts.ready;
-};
-
 export const thePage = async (width: number): Promise<void> => {
   await browser.page.viewport(width, 900);
   document.body.replaceChildren();
