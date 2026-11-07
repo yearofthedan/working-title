@@ -38,7 +38,6 @@ const pane = (over: Partial<Pane> = {}): Pane => ({
   width: 1440,
   mainWidth: 1440,
   middle: 450,
-  top: 80,
   ...over,
 });
 
@@ -134,14 +133,14 @@ describe('where the pieces are centred', () => {
     expect(centres.get('Scene 2')).toEqual({ x: 796, y: 632 });
   });
 
-  it("holds the current piece's row below the header and the parent when the window is too short to centre it", () => {
+  it("holds the current piece's row below the top of main and the parent when the window is too short to centre it", () => {
     const centres = centresOf(entries, 'Beat 2', size, pane({ middle: 100 }), sizes);
 
-    expect(centres.get('Beat 2')).toEqual({ x: 720, y: 312 });
-    expect(centres.get('The story')).toEqual({ x: 720, y: 130 });
+    expect(centres.get('Beat 2')).toEqual({ x: 720, y: 232 });
+    expect(centres.get('The story')).toEqual({ x: 720, y: 50 });
   });
 
-  it('holds the story below the header when it has no parent to clear', () => {
+  it('holds the story a gap below the top of main when it has no parent to clear', () => {
     const centres = centresOf(
       entries,
       'The story',
@@ -161,7 +160,7 @@ describe('where the pieces are centred', () => {
       sizes,
     );
 
-    expect(centres.get('The story')).toEqual({ x: 720, y: 212 });
+    expect(centres.get('The story')).toEqual({ x: 720, y: 132 });
     expect([...centres.keys()].sort()).toEqual([
       'Beat 1',
       'Beat 2',

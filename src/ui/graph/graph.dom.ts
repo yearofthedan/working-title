@@ -1,6 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
 import { pieceCard, type Card } from '../card/card.dom';
-import { thePanel, type Panel } from '../panel/panel.dom';
 import {
   along,
   drawnAs,
@@ -23,6 +22,21 @@ import {
   type Sizes,
 } from './layout';
 
+export interface GraphHooks {
+  moved(path: readonly PieceView[]): void;
+  elaborate: OpenProject['elaborate'];
+  branch(pieceId: string): Promise<{ root: PieceView; added: string }>;
+  toggleBeside(pieceId: string): void;
+}
+
+export interface Graph {
+  goTo(pieceId: string): void;
+  show(pieceId: string, facetId: string, text: string): void;
+  showOpen(pieceId: string): void;
+  closedBeside(pieceId: string): void;
+  stop(): void;
+}
+
 const arrowKeys: Readonly<Record<string, 'up' | 'down' | 'left' | 'right'>> = {
   ArrowUp: 'up',
   ArrowDown: 'down',
@@ -31,14 +45,11 @@ const arrowKeys: Readonly<Record<string, 'up' | 'down' | 'left' | 'right'>> = {
 };
 
 interface State {
-  readonly header: HTMLElement;
+  readonly hooks: GraphHooks;
   readonly main: HTMLElement;
   readonly wrapper: HTMLElement;
-  project: OpenProject;
-  readonly typing: OpenProject['elaborate'];
-  readonly panelElement: HTMLElement;
-  panel: Panel | undefined;
-  open: string | undefined;
+  readonly signal: AbortSignal;
+  root: PieceView;
   current: string;
   readonly lastVisited: Map<string, string>;
   readonly cards: Map<string, Card>;
@@ -54,7 +65,7 @@ interface State {
 }
 
 const remember = (st: State): void => {
-  st.entries = treeOf(st.project.root);
+  st.entries = treeOf(st.root);
   st.byId = new Map(st.entries.map((entry) => [entry.piece.id, entry]));
 };
 
@@ -68,7 +79,6 @@ const paneOf = (st: State): Pane => {
     width: st.wrapper.clientWidth,
     mainWidth: st.main.clientWidth,
     middle: window.innerHeight / 2 - mainTop,
-    top: st.header.getBoundingClientRect().bottom - mainTop,
   };
 };
 
@@ -78,7 +88,7 @@ const moveTo = (st: State, id: string): void => {
     if (parent !== undefined) st.lastVisited.set(parent, id);
     st.current = id;
     place(st);
-    pathNav(st);
+    moved(st);
   }
 };
 
@@ -87,67 +97,18 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
   if (into !== undefined) into.focus({ preventScroll: true });
   else st.cards.get(id)?.focus();
 };
-const beside = (st: State): Panel =>
-  (st.panel ??= thePanel(st.panelElement, {
-    elaborate: st.typing,
-    close: () => closeBeside(st),
-  }));
-
-const openBeside = (st: State, id: string): void => {
-  const was = st.open;
-  st.open = id;
-  if (was !== undefined && was !== id) st.cards.get(was)?.showOpen(false);
-  st.cards.get(id)?.showOpen(true);
-  beside(st).open(st.project.read(id));
-};
-
-const closeBeside = (st: State): void => {
-  const id = st.open;
-  st.open = undefined;
-  st.panel?.close();
-  const kind = id === undefined ? undefined : drawnAs(st.entries, st.current, id);
-  const card = id === undefined ? undefined : st.cards.get(id);
-  card?.showOpen(false);
-  if (card !== undefined && (kind === 'card' || kind === 'current')) card.focusOpenBeside();
-  else st.cards.get(st.current)?.focus();
-};
-
 const cardFor = (st: State, piece: PieceView): Card =>
   pieceCard(piece, {
     level: entryOf(st, piece.id)!.level,
     current: () => st.current === piece.id,
-    elaborate: st.typing,
+    elaborate: st.hooks.elaborate,
     goTo: (into) => goTo(st, piece.id, into),
     addChild: () => void addUnder(st, piece.id),
-    openBeside: () => (st.open === piece.id ? closeBeside(st) : openBeside(st, piece.id)),
+    openBeside: () => st.hooks.toggleBeside(piece.id),
   });
 
-const pathNav = (st: State): void => {
-  let nav = st.header.querySelector('nav');
-  if (nav === null) {
-    nav = document.createElement('nav');
-    nav.setAttribute('aria-label', 'Where you are');
-    st.header.append(nav);
-  }
-
-  const path = pathTo(st.entries, st.current);
-
-  const list = document.createElement('ol');
-  for (const step of path) {
-    const item = document.createElement('li');
-    if (step.piece.id === st.current) {
-      item.setAttribute('aria-current', 'location');
-      item.textContent = step.piece.name;
-    } else {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = step.piece.name;
-      button.addEventListener('click', () => goTo(st, step.piece.id));
-      item.append(button);
-    }
-    list.append(item);
-  }
-  nav.replaceChildren(list);
+const moved = (st: State): void => {
+  st.hooks.moved(pathTo(st.entries, st.current).map(({ piece }) => piece));
 };
 
 const skipToEnd = (st: State): void => {
@@ -162,10 +123,7 @@ const watch = (st: State): void => {
     if (st.replacing) return;
     st.replacing = true;
     const placeWhenStill = (): void => {
-      if (!st.wrapper.isConnected) {
-        st.watcher?.disconnect();
-        return;
-      }
+      if (st.signal.aborted) return;
       const running = st.wrapper
         .getAnimations({ subtree: true })
         .filter((animation) => animation.playState === 'running');
@@ -372,12 +330,12 @@ const draw = (st: State): void => {
   );
   place(st);
   skipToEnd(st);
-  pathNav(st);
+  moved(st);
 };
 
 const addUnder = async (st: State, pieceId: string): Promise<void> => {
-  const { project, added } = await st.project.branch(pieceId);
-  st.project = project;
+  const { root, added } = await st.hooks.branch(pieceId);
+  st.root = root;
   remember(st);
   const entry = entryOf(st, added)!;
   const card = cardFor(st, entry.piece);
@@ -391,16 +349,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
 
 const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (!st.wrapper.isConnected) {
-      document.removeEventListener('keydown', onKeyDown);
-      st.watcher?.disconnect();
-      return;
-    }
     const target = event.target;
-    if (target instanceof Element && st.panel?.element.contains(target) === true) {
-      if (event.key === 'Escape') closeBeside(st);
-      return;
-    }
     const inside = target instanceof Element ? target.closest('main') : null;
     if (inside !== null && inside !== st.main) return;
     if (target instanceof HTMLTextAreaElement) return;
@@ -431,11 +380,6 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
 
 const focusOn = (st: State): (() => void) => {
   const onFocusMove = (): void => {
-    if (!st.wrapper.isConnected) {
-      document.removeEventListener('focusin', onFocusMove);
-      document.removeEventListener('focusout', onFocusMove);
-      return;
-    }
     setRoving(st);
     setFieldsTabIndex(st);
     slide(st);
@@ -444,27 +388,21 @@ const focusOn = (st: State): (() => void) => {
 };
 
 export const renderGraph = async (
-  { header, main, panel: element }: { header: HTMLElement; main: HTMLElement; panel: HTMLElement },
-  project: OpenProject,
-): Promise<void> => {
+  main: HTMLElement,
+  root: PieceView,
+  hooks: GraphHooks,
+): Promise<Graph> => {
   const wrapper = document.createElement('div');
   wrapper.className = 'graph';
   main.replaceChildren(wrapper);
+  const controller = new AbortController();
   const st: State = {
-    header,
+    hooks,
     main,
     wrapper,
-    project,
-    panelElement: element,
-    panel: undefined,
-    typing: async (pieceId, facetId, text) => {
-      await st.project.elaborate(pieceId, facetId, text);
-      // shortcut: the graph passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
-      if (st.panel?.isOpenOn(pieceId) === true) st.panel.show(facetId, text);
-      st.cards.get(pieceId)?.show(facetId, text);
-    },
-    open: undefined,
-    current: project.root.id,
+    signal: controller.signal,
+    root,
+    current: root.id,
     lastVisited: new Map(),
     cards: new Map(),
     rowElements: new Map(),
@@ -477,10 +415,28 @@ export const renderGraph = async (
     watching: undefined,
     replacing: false,
   };
-  document.addEventListener('keydown', keysOn(st));
+  document.addEventListener('keydown', keysOn(st), { signal: controller.signal });
   const onFocusMove = focusOn(st);
-  document.addEventListener('focusin', onFocusMove);
-  document.addEventListener('focusout', onFocusMove);
+  document.addEventListener('focusin', onFocusMove, { signal: controller.signal });
+  document.addEventListener('focusout', onFocusMove, { signal: controller.signal });
   await document.fonts.ready;
-  if (st.wrapper.isConnected) draw(st);
+  draw(st);
+  return {
+    goTo: (pieceId) => goTo(st, pieceId),
+    show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),
+    showOpen: (pieceId) => {
+      for (const [id, card] of st.cards) card.showOpen(id === pieceId);
+    },
+    closedBeside: (pieceId) => {
+      const card = st.cards.get(pieceId);
+      card?.showOpen(false);
+      const kind = drawnAs(st.entries, st.current, pieceId);
+      if (card !== undefined && (kind === 'card' || kind === 'current')) card.focusOpenBeside();
+      else st.cards.get(st.current)?.focus();
+    },
+    stop: () => {
+      controller.abort();
+      st.watcher?.disconnect();
+    },
+  };
 };

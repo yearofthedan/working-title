@@ -18,6 +18,11 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
   let openOn: string | undefined;
   let fields = new Map<string, HTMLTextAreaElement>();
 
+  element.addEventListener('keydown', (event) => {
+    event.stopPropagation();
+    if (event.key === 'Escape') hooks.close();
+  });
+
   const field = (pieceId: string, { id, label, text }: FacetView): HTMLElement => {
     const wrapper = document.createElement('div');
     wrapper.className = 'facet';
