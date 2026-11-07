@@ -1,0 +1,57 @@
+#!/bin/sh
+# help: Refuse a test file no project runs.
+
+set -eu
+
+. "$(dirname "$0")/_vp"
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+top=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "not in a git working tree, so the test files cannot be read" >&2
+  exit 1
+}
+cd "$top"
+
+git ls-files | grep -E '\.(test|spec)\.(ts|tsx|js|jsx|mts|cts|mjs|cjs)$' >"$work/tracked" || true
+
+if ! vp test list --filesOnly --json >"$work/vp.json"; then
+  echo "vp test list --filesOnly --json failed, so no test file can be checked against the projects" >&2
+  exit 1
+fi
+
+sed -n 's/^[[:space:]]*"file": "\(.*\)",\{0,1\}$/\1/p' "$work/vp.json" |
+  while IFS= read -r file; do printf '%s\n' "${file#"$top"/}"; done >"$work/ran"
+
+[ -s "$work/ran" ] || {
+  echo "vp test list --filesOnly --json listed no test file, so no test file can be checked against the projects" >&2
+  exit 1
+}
+
+if ! playwright test --list >"$work/playwright" 2>"$work/playwright-err"; then
+  cat "$work/playwright-err" >&2
+  echo "playwright test --list failed, so no test file can be checked against the journeys" >&2
+  exit 1
+fi
+
+sed -n 's/^  \([^:]*\):[0-9][0-9]*:[0-9][0-9]* ›.*$/e2e\/\1/p' "$work/playwright" >"$work/journeys"
+[ -s "$work/journeys" ] || {
+  echo "playwright test --list listed no test file, so no test file can be checked against the journeys" >&2
+  exit 1
+}
+cat "$work/journeys" >>"$work/ran"
+
+: >"$work/bad"
+while IFS= read -r file; do
+  grep -Fqx -- "$file" "$work/ran" || echo "$file" >>"$work/bad"
+done <"$work/tracked"
+
+if [ -s "$work/bad" ]; then
+  cat "$work/bad"
+  echo "Every test file is run by a project: a unit test by the node project, a component test or an app test by the browser project, a journey by Playwright. A test file no project runs passes nowhere. The levels and their names are in docs/standards/testing.md." >&2
+  exit 1
+fi
+
+count=$(wc -l <"$work/tracked" | tr -d ' ')
+echo "every one of the $count test files is run by a project"
