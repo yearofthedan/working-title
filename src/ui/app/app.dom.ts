@@ -2,10 +2,13 @@ import type { OpenProject, PieceView } from '../../application/project';
 import { renderGraph } from '../graph/graph.dom';
 import { thePanel } from '../panel/panel.dom';
 
-export const renderApp = async (
-  { header, main, panel: element }: { header: HTMLElement; main: HTMLElement; panel: HTMLElement },
-  project: OpenProject,
-): Promise<() => void> => {
+export const renderApp = async (page: ParentNode, project: OpenProject): Promise<() => void> => {
+  const header = page.querySelector<HTMLElement>('header');
+  if (header === null) throw new Error('the page has no <header>');
+  const main = page.querySelector<HTMLElement>('main');
+  if (main === null) throw new Error('the page has no <main>');
+  const element = page.querySelector<HTMLElement>('aside');
+  if (element === null) throw new Error('the page has no <aside>');
   let held = project;
   let open: string | undefined;
 

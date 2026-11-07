@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Opening } from '../../test-helpers/driver';
 import { laidOut } from '../../test-helpers/graph-page';
-import { reopenTheApp } from '../../test-helpers/the-app';
+import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import {
   anExtraHeaderAbove,
   narrowThePane,
@@ -955,6 +955,18 @@ describe('two graphs on one page', () => {
     await writer.moves('→');
 
     await sees.pathIs(['The story']);
+  });
+
+  it('stops the app it replaces from answering keys and writing the path', async () => {
+    const { stage, sees, writer } = pageWith();
+    await stage.fresh();
+    await writer.clicks('Beat 2');
+    await openTheApp();
+    await writer.clicks('Beat 5');
+
+    await writer.moves('→');
+
+    await sees.pathIs(['The story', 'Beat 5']);
   });
 
   it('keeps working when the app is reopened', async () => {
