@@ -420,7 +420,7 @@ export const renderGraph = async (
   document.addEventListener('focusin', onFocusMove, { signal: controller.signal });
   document.addEventListener('focusout', onFocusMove, { signal: controller.signal });
   await document.fonts.ready;
-  if (!controller.signal.aborted) draw(st);
+  draw(st);
   return {
     goTo: (pieceId) => goTo(st, pieceId),
     show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),
