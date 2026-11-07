@@ -3,13 +3,13 @@ import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/
 import { readsIn, readsOnThePage } from '../../test-helpers/graph-page';
 import { storesTheProject, type SeededProject } from '../../test-helpers/seed';
 import { thePage } from '../../test-helpers/staging';
-import { openTheApp } from '../../test-helpers/the-app';
+import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 
 export const graphScenarioSteps = (driver: Driver) =>
   graphSteps(
-    writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }, stageTheSeededGraph),
+    writerOn(driver, { fresh: stageTheGraph, reopen: reopenTheApp }, stageTheSeededGraph),
     seesOn(driver, readsOnThePage()),
   );
 
@@ -45,7 +45,7 @@ export const pageWith = (
       if (scenes > 0) await openTheApp();
     },
     reopen: async () => {
-      await openTheApp();
+      await reopenTheApp();
     },
   };
   return {

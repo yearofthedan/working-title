@@ -46,6 +46,15 @@ export const headingOf = (panel: HTMLElement): HTMLElement => {
 
 export const holdsTheFocus = (element: HTMLElement): boolean => element === document.activeElement;
 
+export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop(): void } => {
+  const keys: string[] = [];
+  const listener = (event: KeyboardEvent): void => {
+    keys.push(event.key);
+  };
+  document.addEventListener('keydown', listener);
+  return { keys, stop: () => document.removeEventListener('keydown', listener) };
+};
+
 export const caretIn = (field: HTMLTextAreaElement): number | null => field.selectionStart;
 
 export const heightOf = (element: HTMLElement): number => element.getBoundingClientRect().height;

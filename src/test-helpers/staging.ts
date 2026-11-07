@@ -1,8 +1,9 @@
 import * as browser from 'vite-plus/test/browser';
-import { startApp } from '../app';
+import { openTheApp, stopTheApp } from './the-app';
 
 export const thePage = async (width: number): Promise<void> => {
   await browser.page.viewport(width, 900);
+  stopTheApp();
   document.body.replaceChildren();
   const header = document.createElement('header');
   header.append(document.createElement('h1'));
@@ -21,7 +22,7 @@ export const twoGraphs = async (): Promise<void> => {
   const panel = document.createElement('aside');
   page.append(header, main, panel);
   document.body.append(page);
-  await startApp(page);
+  await openTheApp(page);
 };
 
 export const narrowThePane = (width: number): void => {

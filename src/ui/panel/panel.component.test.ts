@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
 import { settled } from '../../test-helpers/driver';
@@ -15,6 +15,7 @@ import {
   holdsTheFocus,
   heightOf,
   insideTheViewport,
+  keysHeardOnThePage,
   lineHeightOf,
   nameElementOf,
   nameOn,
@@ -248,6 +249,30 @@ describe('the panel mounted alone', () => {
     await browser.userEvent.click(closeButtonOf(panel.element));
 
     expect(closed).toBe(1);
+  });
+
+  it('closes when Esc is pressed in the panel', async () => {
+    const close = vi.fn();
+    const panel = mountThePanel(theBeat, { close });
+    fieldFor(panel.element, theSentence).focus();
+
+    await browser.userEvent.keyboard('{Escape}');
+
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it('stops a key pressed in the panel from reaching a listener on the document', async () => {
+    const panel = mountThePanel();
+    const page = keysHeardOnThePage();
+    fieldFor(panel.element, theSentence).focus();
+
+    try {
+      await browser.userEvent.keyboard('{ArrowRight}');
+    } finally {
+      page.stop();
+    }
+
+    expect(page.keys).toEqual([]);
   });
 
   it('keeps the name and Close in the viewport under a long paragraph and a long page', async () => {
