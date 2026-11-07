@@ -36,7 +36,7 @@ run_copy approve "$copy/src/ui/focus/scenarios/a-rule.approved.md"
 expect_vp 'test src/ui/focus/focus.component.test.ts -t src/ui/focus/scenarios/a-rule.approved.md' \
   "approve runs the component entry beside the folder"
 
-rm -f "$copy/src/ui/focus/focus.component.test.ts"
+printf 'const glob = "/src/ui/other/scenarios/*.approved.md";\n' >"$copy/src/ui/focus/focus.component.test.ts"
 run_copy approve "$copy/src/ui/focus/scenarios/a-rule.approved.md"
 expect_vp 'test src/ui/focus/focus.app.test.ts -t src/ui/focus/scenarios/a-rule.approved.md' \
   "approve skips a sibling without the glob for the one with it"
