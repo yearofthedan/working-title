@@ -5,12 +5,6 @@ import { cardLooks, type CardLook } from '../card/card';
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());
 
-export const headerOf = (): HTMLElement => {
-  const [header] = inThePage(browser.page.getByRole('banner').elements());
-  if (header === undefined) throw new Error('the page draws no header');
-  return header;
-};
-
 const kindOf = (card: HTMLElement): CardLook | undefined =>
   cardLooks.find((kind) => card.classList.contains(kind));
 
@@ -52,12 +46,8 @@ export const pane = (): HTMLElement => {
   return main;
 };
 
-export const focusIsInThePane = (): boolean => pane().contains(document.activeElement);
-
-export const navigationIn = (header: HTMLElement): HTMLElement | null =>
-  inThePage(browser.page.getByRole('navigation', { includeHidden: true }).elements()).find(
-    (navigation) => header.contains(navigation),
-  ) ?? null;
+export const theBodyHolds = (): readonly string[] =>
+  [...document.body.children].map((child) => child.tagName.toLowerCase());
 
 export const altKeySeenFor = async (key: string, what: () => Promise<void>): Promise<boolean[]> => {
   const seen: boolean[] = [];

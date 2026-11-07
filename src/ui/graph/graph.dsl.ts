@@ -98,7 +98,12 @@ export const writerOn = (
     moves: (direction) => driver.press(keys[direction] ?? direction),
     tabsForward: () => driver.press('Tab'),
     tabsBackward: () => driver.press('Shift+Tab'),
-    types: (text, at) => driver.type(text, at.facet, { role: 'group', name: at.piece }),
+    types: async (text, at) => {
+      if (underABeat.test(at.facet) || at.facet.endsWith(besideTheGraph)) {
+        throw new Error(`types needs the app's path or panel for "${at.facet}"`);
+      }
+      await driver.type(text, at.facet, { role: 'group', name: at.piece });
+    },
   };
 };
 

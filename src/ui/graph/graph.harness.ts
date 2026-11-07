@@ -1,73 +1,110 @@
 import * as browser from 'vite-plus/test/browser';
-import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/driver';
-import { appReadsIn, appReadsOnThePage } from '../../test-helpers/graph-page';
-import { storesTheProject, type SeededProject } from '../../test-helpers/seed';
-import { thePage } from '../../test-helpers/staging';
-import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
+import { type OpenProject } from '../../application/project';
+import { type Driver, type Opening } from '../../test-helpers/driver';
+import { readsIn } from '../../test-helpers/graph-page';
+import {
+  anInMemoryProject,
+  aProjectWithScenesUnderBeatFour,
+  type SeededProject,
+} from '../../test-helpers/seed';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { appSeesOn, appSteps, appWriterOn, type AppSees, type AppWriter } from '../app/app.dsl';
+import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
+import { renderGraph } from './graph.dom';
+import { blurTheFocus } from './graph.test-page';
 
-export const graphScenarioSteps = (driver: Driver) =>
-  appSteps(
-    appWriterOn(driver, { fresh: stageTheGraph, reopen: reopenTheApp }, stageTheSeededGraph),
-    appSeesOn(driver, appReadsOnThePage()),
+let stops: (() => void)[] = [];
+let drawn: { readonly main: HTMLElement; readonly project: () => OpenProject } | undefined;
+
+const stopTheGraphs = (): void => {
+  for (const stop of stops.splice(0)) stop();
+};
+
+const drawOn = async (main: HTMLElement, project: OpenProject): Promise<void> => {
+  let held = project;
+  const graph = await renderGraph(main, held.root, {
+    moved: () => undefined,
+    elaborate: (pieceId, facetId, text) => held.elaborate(pieceId, facetId, text),
+    branch: async (pieceId) => {
+      const { project: next, added } = await held.branch(pieceId);
+      held = next;
+      return { root: next.root, added };
+    },
+    toggleBeside: () => undefined,
+  });
+  stops.push(() => graph.stop());
+  drawn = { main, project: () => held };
+};
+
+export const mountTheGraph = async (
+  stage: {
+    readonly width?: number;
+    readonly scenes?: number;
+    readonly project?: SeededProject;
+  } = {},
+): Promise<void> => {
+  const { width = 1440, scenes = 0, project } = stage;
+  await browser.page.viewport(width, 900);
+  stopTheGraphs();
+
+  const main = document.createElement('main');
+  main.style.width = `${width}px`;
+  document.body.replaceChildren(main);
+
+  const { project: opened } = await anInMemoryProject(
+    scenes > 0 ? aProjectWithScenesUnderBeatFour(scenes) : project,
   );
-
-export const stageTheGraph = async (): Promise<void> => {
-  localStorage.clear();
-  await thePage(1440);
-  await openTheApp();
+  await drawOn(main, opened);
 };
 
-export const stageTheSeededGraph = async (project: SeededProject): Promise<void> => {
-  localStorage.clear();
-  await thePage(1440);
-  await storesTheProject(project);
-  await openTheApp();
+export const reopenTheGraph = async (): Promise<void> => {
+  const at = drawn;
+  if (at === undefined) throw new Error('the graph is drawn on no main to draw it again on');
+  stopTheGraphs();
+  await drawOn(at.main, at.project());
 };
 
-export const addASceneUnder = async (driver: Driver, beat: string): Promise<void> => {
-  await driver.click('heading', beat, { role: 'group', name: beat });
-  await driver.click('button', 'Add a scene', { role: 'group', name: beat });
+const theMain = (): HTMLElement => {
+  const main = document.querySelector<HTMLElement>('main');
+  if (main === null) throw new Error('the page has no main');
+  return main;
 };
 
-export const pageWith = (
+const graphDriver = (name?: string): Driver => ({
+  ...vitestBrowserDriver(name),
+  clickAway: async () => blurTheFocus(),
+});
+
+export const graphWith = (
   scenes = 0,
   width = 1440,
-): { driver: Driver; stage: Opening; writer: AppWriter; sees: AppSees } => {
-  const driver = vitestBrowserDriver();
+): { driver: Driver; stage: Opening; writer: Writer; sees: Sees } => {
+  const driver = graphDriver();
   const stage: Opening = {
     fresh: async () => {
-      localStorage.clear();
-      await thePage(width);
-      await openTheApp();
-      for (let at = 0; at < scenes; at += 1) await addASceneUnder(driver, 'Beat 4');
-      if (scenes > 0) await openTheApp();
+      await mountTheGraph({ width, scenes });
     },
-    reopen: async () => {
-      await reopenTheApp();
-    },
+    reopen: () => reopenTheGraph(),
   };
   return {
     driver,
     stage,
-    writer: appWriterOn(driver, stage),
-    sees: appSeesOn(driver, appReadsOnThePage()),
-  };
-};
-
-export const graphOn = (
-  name: string,
-  opening: Opening,
-): { driver: Driver; writer: AppWriter; sees: AppSees } => {
-  const driver = vitestBrowserDriver(name);
-  const main = browser.page.getByRole('main', { name: wholeNameAnyCase(name) });
-  return {
-    driver,
-    writer: appWriterOn(driver, opening),
-    sees: appSeesOn(
+    writer: writerOn(driver, stage),
+    sees: seesOn(
       driver,
-      appReadsIn(() => main.element()),
+      readsIn(() => theMain()),
     ),
   };
 };
+
+export const graphScenarioSteps = (driver: Driver) =>
+  graphSteps(
+    writerOn(
+      driver,
+      { fresh: () => mountTheGraph(), reopen: () => reopenTheGraph() },
+      (project: SeededProject) => mountTheGraph({ project }),
+    ),
+    seesOn(
+      driver,
+      readsIn(() => theMain()),
+    ),
+  );

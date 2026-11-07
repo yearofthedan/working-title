@@ -1,5 +1,4 @@
-import { projectStore } from '../adapters/local-storage-project-store';
-import { openProject } from '../application/project';
+import { openProject, type OpenProject } from '../application/project';
 import type { FacetText, Piece, Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -47,7 +46,7 @@ export const aProject = (root: PieceSeed): SeededProject => ({
   pieces: piecesOf(root, null, 0, ids()),
 });
 
-const inMemory = (): ProjectStore => {
+export const inMemory = (): ProjectStore => {
   let held: Project | undefined;
   return {
     load: async () => held,
@@ -55,6 +54,14 @@ const inMemory = (): ProjectStore => {
       held = project;
     },
   };
+};
+
+export const anInMemoryProject = async (
+  seed?: SeededProject,
+): Promise<{ store: ProjectStore; project: OpenProject }> => {
+  const store = inMemory();
+  if (seed !== undefined) await store.save(seed);
+  return { store, project: await openProject(snowflakeExtended, store) };
 };
 
 const placeOfBeat = async (beatName: string): Promise<number> => {
@@ -73,6 +80,8 @@ export const aProjectWithScenesUnder = async (
   return aProject(story(...Array.from({ length: place - 1 }, () => beat()), under));
 };
 
-export const storesTheProject = async (project: SeededProject): Promise<void> => {
-  await projectStore().save(project);
-};
+// shortcut: the story holds the five beats the method starts a project with, the fourth carrying the scenes, until a case needs the scenes under another beat.
+export const aProjectWithScenesUnderBeatFour = (scenes: number): SeededProject =>
+  aProject(
+    story(beat(), beat(), beat(), beat(...Array.from({ length: scenes }, () => scene())), beat()),
+  );

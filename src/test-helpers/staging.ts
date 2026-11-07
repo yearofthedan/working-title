@@ -1,7 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
-import { openTheApp, stopTheApp } from './the-app';
+import { stopTheApp } from './the-app';
 
-export const thePage = async (width: number): Promise<void> => {
+export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);
   stopTheApp();
   document.body.replaceChildren();
@@ -10,33 +10,11 @@ export const thePage = async (width: number): Promise<void> => {
   const main = document.createElement('main');
   main.style.width = `${width}px`;
   document.body.append(header, main, document.createElement('aside'));
-};
-
-export const twoGraphs = async (): Promise<void> => {
-  document.querySelector('main')!.setAttribute('aria-label', 'First graph');
-  const page = document.createElement('div');
-  const header = document.createElement('header');
-  const main = document.createElement('main');
-  main.setAttribute('aria-label', 'Second graph');
-  main.style.width = '1440px';
-  const panel = document.createElement('aside');
-  page.append(header, main, panel);
-  document.body.append(page);
-  await openTheApp(page);
+  return document;
 };
 
 export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
-};
-
-export const anExtraHeaderAbove = (): { given: HTMLElement; extra: HTMLElement } => {
-  const given = document.querySelector<HTMLElement>('header')!;
-  const extra = document.createElement('header');
-  extra.style.gridArea = 'extra';
-  document.body.style.gridTemplateRows = 'auto auto minmax(0, 1fr)';
-  document.body.style.gridTemplateAreas = "'extra panel' 'header panel' 'main panel'";
-  document.body.prepend(extra);
-  return { given, extra };
 };
 
 export const theViewport = async (width: number, height: number): Promise<void> => {
