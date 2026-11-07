@@ -58,6 +58,7 @@ export const appWriterOn = (
   },
   opensBeside: (piece) => openingBeside(driver, piece),
   closesThePanel: () => driver.click('button', 'Close'),
+  // shortcut: a facet written "{facet} under {beat}" makes that beat current first, until the table can name a piece and its beat apart.
   types: async (text, at) => {
     const under = underABeat.exec(at.facet)?.groups;
     const beat = under?.['beat'];

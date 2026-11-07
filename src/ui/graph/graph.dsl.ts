@@ -70,7 +70,7 @@ export const clicking = (driver: Driver, piece: string): Promise<void> => {
   return driver.click('heading', named, { role: 'group', name: named });
 };
 
-// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing makes that beat current first and a read drops the beat from the facet, until the table can name a piece and its beat apart.
+// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a read drops the beat from the facet, until the table can name a piece and its beat apart.
 export const underABeat = /^(?<facet>.+) under (?<beat>.+)$/;
 
 export const writerOn = (
