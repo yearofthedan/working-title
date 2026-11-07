@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { readsOnThePage } from '../../test-helpers/graph-page';
+import { appReadsOnThePage } from '../../test-helpers/graph-page';
 import type { Opening } from '../../test-helpers/driver';
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { graphSteps, seesOn, writerOn } from './graph.dsl';
+import { appSeesOn, appSteps, appWriterOn } from '../app/app.dsl';
 import { addASceneUnder } from './graph.harness';
 
 const typing = 'types "{text}" as {scene}\'s list line under {beat}';
@@ -23,14 +23,14 @@ const pageWithTwoScenesUnderBeat4 = () => {
       await reopenTheApp();
     },
   };
-  return { driver, opening, reads: readsOnThePage() };
+  return { driver, opening, reads: appReadsOnThePage() };
 };
 
 describe('the graph page actions', () => {
   it('refuses a scene that is not under the beat named', async () => {
     const { driver, opening, reads } = pageWithTwoScenesUnderBeat4();
     await opening.fresh();
-    const type = graphSteps(writerOn(driver, opening), seesOn(driver, reads))[typing]!;
+    const type = appSteps(appWriterOn(driver, opening), appSeesOn(driver, reads))[typing]!;
 
     await expect(
       Promise.resolve(type({ text: 'Maren rows out', scene: 'Scene 1', beat: 'Beat 2' })),

@@ -1,6 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import { cardLooks } from '../ui/card/card';
-import { drawn, settled, type Reads } from './driver';
+import { drawn, settled, type AppReads, type Reads } from './driver';
 import { type Frame } from './frames';
 import { nameOf } from '../ui/card/card.test-page';
 import { everyCard } from '../ui/graph/graph.test-page';
@@ -10,11 +10,15 @@ export const readsIn = (root: () => ParentNode): Reads => ({
     await settled();
     return drawn(cardLooks, root());
   },
+});
+
+export const appReadsIn = (root: () => ParentNode): AppReads => ({
+  ...readsIn(root),
   path: async () =>
     browser.page.getByRole('navigation', { name: 'Where you are' }).element().textContent ?? '',
 });
 
-export const readsOnThePage = (): Reads => readsIn(() => document);
+export const appReadsOnThePage = (): AppReads => appReadsIn(() => document);
 
 export const laidOut = (): Promise<void> => {
   const { promise, resolve } = Promise.withResolvers<void>();

@@ -1,16 +1,16 @@
 import * as browser from 'vite-plus/test/browser';
 import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/driver';
-import { readsIn, readsOnThePage } from '../../test-helpers/graph-page';
+import { appReadsIn, appReadsOnThePage } from '../../test-helpers/graph-page';
 import { storesTheProject, type SeededProject } from '../../test-helpers/seed';
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
+import { appSeesOn, appSteps, appWriterOn, type AppSees, type AppWriter } from '../app/app.dsl';
 
 export const graphScenarioSteps = (driver: Driver) =>
-  graphSteps(
-    writerOn(driver, { fresh: stageTheGraph, reopen: reopenTheApp }, stageTheSeededGraph),
-    seesOn(driver, readsOnThePage()),
+  appSteps(
+    appWriterOn(driver, { fresh: stageTheGraph, reopen: reopenTheApp }, stageTheSeededGraph),
+    appSeesOn(driver, appReadsOnThePage()),
   );
 
 export const stageTheGraph = async (): Promise<void> => {
@@ -34,7 +34,7 @@ export const addASceneUnder = async (driver: Driver, beat: string): Promise<void
 export const pageWith = (
   scenes = 0,
   width = 1440,
-): { driver: Driver; stage: Opening; writer: Writer; sees: Sees } => {
+): { driver: Driver; stage: Opening; writer: AppWriter; sees: AppSees } => {
   const driver = vitestBrowserDriver();
   const stage: Opening = {
     fresh: async () => {
@@ -51,23 +51,23 @@ export const pageWith = (
   return {
     driver,
     stage,
-    writer: writerOn(driver, stage),
-    sees: seesOn(driver, readsOnThePage()),
+    writer: appWriterOn(driver, stage),
+    sees: appSeesOn(driver, appReadsOnThePage()),
   };
 };
 
 export const graphOn = (
   name: string,
   opening: Opening,
-): { driver: Driver; writer: Writer; sees: Sees } => {
+): { driver: Driver; writer: AppWriter; sees: AppSees } => {
   const driver = vitestBrowserDriver(name);
   const main = browser.page.getByRole('main', { name: wholeNameAnyCase(name) });
   return {
     driver,
-    writer: writerOn(driver, opening),
-    sees: seesOn(
+    writer: appWriterOn(driver, opening),
+    sees: appSeesOn(
       driver,
-      readsIn(() => main.element()),
+      appReadsIn(() => main.element()),
     ),
   };
 };

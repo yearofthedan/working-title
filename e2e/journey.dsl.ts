@@ -1,9 +1,9 @@
 import type { Opening, ReloadingDriver } from '../src/test-helpers/driver';
 import type { SeededProject } from '../src/test-helpers/seed';
 import type { StepAction } from '../src/test-helpers/steps';
-import { graphSteps, writerOn, type Sees, type Writer } from '../src/ui/graph/graph.dsl';
+import { appSteps, appWriterOn, type AppSees, type AppWriter } from '../src/ui/app/app.dsl';
 
-export interface Journey extends Writer {
+export interface Journey extends AppWriter {
   reloads(): Promise<void>;
 }
 
@@ -12,11 +12,11 @@ export const journeyOn = (
   opening: Opening,
   startFrom?: (project: SeededProject) => Promise<void>,
 ): Journey => ({
-  ...writerOn(driver, opening, startFrom),
+  ...appWriterOn(driver, opening, startFrom),
   reloads: () => driver.reload(),
 });
 
-export const journeySteps = (journey: Journey, sees: Sees): Record<string, StepAction> => ({
-  ...graphSteps(journey, sees),
+export const journeySteps = (journey: Journey, sees: AppSees): Record<string, StepAction> => ({
+  ...appSteps(journey, sees),
   'reloads the app': () => journey.reloads(),
 });

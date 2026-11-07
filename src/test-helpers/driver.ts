@@ -37,6 +37,9 @@ export interface Opening {
 
 export interface Reads {
   drawn(): Promise<readonly DrawnCard[]>;
+}
+
+export interface AppReads extends Reads {
   path(): Promise<string>;
 }
 

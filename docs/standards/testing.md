@@ -15,7 +15,7 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 | Layer | File | Holds |
 | --- | --- | --- |
-| Language | `src/ui/graph/graph.dsl.ts`, `src/ui/card/card.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's or a component's language sits beside it, a journey's in the runner's folder, and each step phrase calls it |
+| Language | `src/ui/graph/graph.dsl.ts`, `src/ui/app/app.dsl.ts`, `src/ui/card/card.dsl.ts`, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's or a component's language sits beside it, a journey's in the runner's folder, and each step phrase calls it. The graph's language holds the steps a graph alone can play, and the app's language builds on it with the steps that need the header or the panel |
 | Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
 | Protocol driver | `src/test-helpers/vitest-browser.driver.ts`, `src/test-helpers/playwright.driver.ts` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
 | Test page | `src/ui/graph/graph.test-page.ts`, `src/ui/card/card.test-page.ts` | A component test's or an app test's finders for its component's markup: each part by role or label where one exists, and the names that have no role |
