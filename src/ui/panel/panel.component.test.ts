@@ -15,6 +15,7 @@ import {
   holdsTheFocus,
   heightOf,
   insideTheViewport,
+  keysHeardOnThePage,
   lineHeightOf,
   nameElementOf,
   nameOn,
@@ -248,6 +249,34 @@ describe('the panel mounted alone', () => {
     await browser.userEvent.click(closeButtonOf(panel.element));
 
     expect(closed).toBe(1);
+  });
+
+  it('closes when Esc is pressed in the panel', async () => {
+    let closed = 0;
+    const panel = mountThePanel(theBeat, {
+      close: () => {
+        closed += 1;
+      },
+    });
+    fieldFor(panel.element, theSentence).focus();
+
+    await browser.userEvent.keyboard('{Escape}');
+
+    expect(closed).toBe(1);
+  });
+
+  it('stops a key pressed in the panel from reaching a listener on the document', async () => {
+    const panel = mountThePanel();
+    const page = keysHeardOnThePage();
+    fieldFor(panel.element, theSentence).focus();
+
+    try {
+      await browser.userEvent.keyboard('{ArrowRight}');
+    } finally {
+      page.stop();
+    }
+
+    expect(page.keys).toEqual([]);
   });
 
   it('keeps the name and Close in the viewport under a long paragraph and a long page', async () => {

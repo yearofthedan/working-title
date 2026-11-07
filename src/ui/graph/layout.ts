@@ -10,7 +10,6 @@ export interface Pane {
   readonly width: number;
   readonly mainWidth: number;
   readonly middle: number;
-  readonly top: number;
 }
 
 export const widthOf = (
@@ -41,7 +40,7 @@ export const centresOf = (
   const currentHeight = size(current).height;
   const top = Math.max(
     pane.middle - currentHeight / 2,
-    pane.top + sizes.gap + (parentId === undefined ? 0 : size(parentId).height),
+    sizes.gap + (parentId === undefined ? 0 : size(parentId).height),
   );
 
   centres.set(current, { x: centre, y: top + currentHeight / 2 });

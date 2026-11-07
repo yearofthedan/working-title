@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Opening } from '../../test-helpers/driver';
 import { laidOut } from '../../test-helpers/graph-page';
-import { openTheApp } from '../../test-helpers/the-app';
+import { reopenTheApp } from '../../test-helpers/the-app';
 import {
   anExtraHeaderAbove,
   narrowThePane,
@@ -230,18 +230,17 @@ describe('the graph around the current piece', () => {
     },
   );
 
-  it("stops the current piece's row below the header it was given when the window is too short to centre it", async () => {
+  it("stops the current piece's row below the top of main when the window is too short to centre it", async () => {
     const { stage, writer } = pageWith(0, 400);
     await stage.fresh();
     await theViewport(400, 500);
-    const { given } = anExtraHeaderAbove();
     await writer.clicks('Beat 2');
     await settled();
 
-    const header = given.getBoundingClientRect();
+    const main = pane().getBoundingClientRect();
     const parent = named('card', 'The story').getBoundingClientRect();
 
-    expect(parent.top).toBeGreaterThanOrEqual(header.bottom);
+    expect(parent.top).toBeGreaterThanOrEqual(main.top);
   });
 
   it('shows a card’s sentence small and in the interface font', async () => {
@@ -897,7 +896,7 @@ describe('what a move leaves alone', () => {
     await writer.clicks('Beat 2');
     expect(nameOf(current())).toBe('Beat 2');
 
-    await openTheApp();
+    await reopenTheApp();
 
     expect(nameOf(current())).toBe('The story');
   });
@@ -908,7 +907,7 @@ describe('what a move leaves alone', () => {
     const sentence = "Maren finds the ship's log";
     await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
 
-    await openTheApp();
+    await reopenTheApp();
     await writer.clicks('Beat 4');
 
     const held = await driver.value('One-sentence summary', { role: 'group', name: 'Beat 4' });
@@ -958,7 +957,7 @@ describe('two graphs on one page', () => {
     await sees.pathIs(['The story']);
   });
 
-  it('keeps working when the graph is drawn again on the same main', async () => {
+  it('keeps working when the app is reopened', async () => {
     const { stage, sees, writer } = pageWith();
     await stage.fresh();
 

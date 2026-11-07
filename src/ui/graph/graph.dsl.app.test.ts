@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { readsOnThePage } from '../../test-helpers/graph-page';
 import type { Opening } from '../../test-helpers/driver';
 import { thePage } from '../../test-helpers/staging';
-import { openTheApp } from '../../test-helpers/the-app';
+import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn } from './graph.dsl';
 import { addASceneUnder } from './graph.harness';
@@ -20,7 +20,7 @@ const pageWithTwoScenesUnderBeat4 = () => {
       await driver.click('heading', 'Beat 4', { role: 'group', name: 'Beat 4' });
     },
     reopen: async () => {
-      await openTheApp();
+      await reopenTheApp();
     },
   };
   return { driver, opening, reads: readsOnThePage() };

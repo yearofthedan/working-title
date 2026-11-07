@@ -68,7 +68,6 @@ const paneOf = (st: State): Pane => {
     width: st.wrapper.clientWidth,
     mainWidth: st.main.clientWidth,
     middle: window.innerHeight / 2 - mainTop,
-    top: st.header.getBoundingClientRect().bottom - mainTop,
   };
 };
 

@@ -5,7 +5,7 @@ import { readsOnThePage } from './test-helpers/graph-page';
 import type { RawGlob } from './test-helpers/raw-glob';
 import { readScenarioFile } from './test-helpers/scenario-file';
 import { playScenarios, type Runner, type ScenarioTier } from './test-helpers/play';
-import { openTheApp } from './test-helpers/the-app';
+import { reopenTheApp } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
 import { cardSeesOn, cardSteps, cardWriterOn } from './ui/card/card.dsl';
 import { stageTheCard } from './ui/card/card.harness';
@@ -27,7 +27,7 @@ const cardTier: ScenarioTier = {
 const graphTier: ScenarioTier = {
   steps: (driver: Driver) =>
     graphSteps(
-      writerOn(driver, { fresh: stageTheGraph, reopen: openTheApp }, stageTheSeededGraph),
+      writerOn(driver, { fresh: stageTheGraph, reopen: reopenTheApp }, stageTheSeededGraph),
       seesOn(driver, readsOnThePage()),
     ),
 };
