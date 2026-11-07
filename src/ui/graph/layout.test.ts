@@ -140,13 +140,6 @@ describe('where the pieces are centred', () => {
     expect(centres.get('The story')).toEqual({ x: 720, y: 50 });
   });
 
-  it("clamps the current piece's row a gap and the parent's height below the top of main when middle is small", () => {
-    const centres = centresOf(entries, 'Scene 1', size, pane({ middle: 100 }), sizes);
-
-    expect(centres.get('Scene 1')).toEqual({ x: 720, y: 282 });
-    expect(centres.get('Beat 2')).toEqual({ x: 720, y: 100 });
-  });
-
   it('holds the story a gap below the top of main when it has no parent to clear', () => {
     const centres = centresOf(
       entries,

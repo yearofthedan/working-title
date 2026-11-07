@@ -30,10 +30,9 @@ export interface GraphHooks {
 }
 
 export interface Graph {
-  readonly element: HTMLElement;
   goTo(pieceId: string): void;
   show(pieceId: string, facetId: string, text: string): void;
-  showOpen(pieceId: string | undefined): void;
+  showOpen(pieceId: string): void;
   closedBeside(pieceId: string): void;
 }
 
@@ -432,7 +431,6 @@ export const renderGraph = async (
   await document.fonts.ready;
   if (st.wrapper.isConnected) draw(st);
   return {
-    element: wrapper,
     goTo: (pieceId) => goTo(st, pieceId),
     show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),
     showOpen: (pieceId) => {
