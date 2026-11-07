@@ -41,3 +41,7 @@ export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
 export const stageTheCard = async (): Promise<void> => {
   mountTheCard('current').focus();
 };
+
+export const stageTheCardUnfocused = async (): Promise<void> => {
+  mountTheCard('current').placeAt(200, 400);
+};
