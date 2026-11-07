@@ -1,9 +1,10 @@
 #!/bin/sh
-# help: Write what a scenario's runner observed into the file, choosing the runner by where the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
+# help: Write what a scenario's runner observed into the file, choosing the runner by where the file is: a journey in e2e/ runs in Playwright, a page scenario in a scenarios/ folder runs in the *.component.test.ts or *.app.test.ts beside that folder.
 
 set -eu
 
 . "$(dirname "$0")/_vp"
+. "$(dirname "$0")/_scenario-entry"
 
 if [ "$#" -eq 0 ]; then
   echo "Name the scenario file to approve first: ./do approve <scenario file>" >&2
@@ -25,6 +26,8 @@ case "$resolved" in
   ;;
 esac
 
+cd "$root"
+
 case "$path" in
 e2e/*.approved.md)
   entry=e2e/scenarios.spec.ts
@@ -34,7 +37,12 @@ e2e/*.approved.md)
 src/*)
   case "$path" in
   */scenarios/*.approved.md)
-    entry=src/scenarios.app.test.ts
+    folder=$(dirname -- "$path")
+    entry=$(scenario_entry "$folder")
+    if [ -z "$entry" ]; then
+      echo "$folder has no test beside it that reads it, so there is nothing to run." >&2
+      exit 2
+    fi
     runner=vp
     filter=-t
     ;;

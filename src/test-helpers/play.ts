@@ -1,10 +1,5 @@
-import type { Driver } from './driver';
 import { OBSERVED, readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type StepAction } from './steps';
-
-export interface ScenarioTier {
-  readonly steps: (driver: Driver) => Readonly<Record<string, StepAction>>;
-}
 
 export interface ScenarioSource {
   readonly path: string;
