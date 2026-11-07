@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import { settled, type Opening } from '../../test-helpers/driver';
 import { laidOut } from '../../test-helpers/graph-page';
+import type { RawGlob } from '../../test-helpers/raw-glob';
+import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { openTheApp } from '../../test-helpers/the-app';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import {
   anExtraHeaderAbove,
   narrowThePane,
@@ -10,7 +13,7 @@ import {
   twoGraphs,
 } from '../../test-helpers/staging';
 import { type Sees, type Writer } from './graph.dsl';
-import { graphOn, pageWith } from './graph.harness';
+import { graphOn, graphScenarioSteps, pageWith } from './graph.harness';
 import {
   addButtonIsFirst,
   addButtonOf,
@@ -1009,3 +1012,11 @@ describe('what a tree says about focus', () => {
     expect(await marked()).toEqual([]);
   });
 });
+
+const files = (import.meta as unknown as RawGlob).glob('/src/ui/graph/scenarios/*.approved.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+playScenarioFiles(files, () => vitestBrowserDriver(), graphScenarioSteps);

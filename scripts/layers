@@ -1,20 +1,35 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, and a plain src/ui/ file importing a *.dom.ts, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, a scenarios/ folder with no test beside it, and a plain src/ui/ file importing a *.dom.ts, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
 
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+. "$root/scripts/_scenario-entry"
 
 if ! command -v depcruise >/dev/null 2>&1; then
   echo "dependency-cruiser is not installed. Run pnpm install, then try again." >&2
   exit 1
 fi
 
+whole=0
 if [ "$#" -eq 0 ]; then
+  whole=1
   set -- src
   if [ -d e2e ]; then
     set -- src e2e
   fi
 fi
 
-exec depcruise --config "$root/.dependency-cruiser.mjs" --output-type err-long -- "$@"
+status=0
+depcruise --config "$root/.dependency-cruiser.mjs" --output-type err-long -- "$@" || status=$?
+
+if [ "$whole" -eq 1 ]; then
+  for folder in $(find src -path '*/scenarios/*.approved.md' | xargs -n1 dirname | sort -u); do
+    if [ -z "$(scenario_entry "$folder")" ]; then
+      echo "$folder has no test beside it that reads it (a *.component.test.ts or *.app.test.ts with its glob)" >&2
+      status=1
+    fi
+  done
+fi
+
+exit "$status"

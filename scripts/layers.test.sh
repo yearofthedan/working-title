@@ -174,4 +174,39 @@ run_layers
 allowed "a *.dom.ts importing a *.dom.ts, and a component test importing one, are allowed"
 not_out 'logic-not-on-the-dom' "the rule says nothing where the DOM is in a *.dom.ts"
 
+rm -rf "$project/src" "$project/e2e"
+write src/domain/story.ts 'export type Story = { summary: string };'
+write src/test-helpers/raw-glob.ts 'export interface RawGlob { glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, string>; }'
+write src/ui/focus/scenarios/a-rule.approved.md "Rule: A rule
+"
+run_layers
+refused "a scenarios folder with no test beside it is refused"
+expect_err 'src/ui/focus/scenarios has no test beside it' "the refusal names the folder"
+
+write src/ui/focus/focus.component.test.ts 'const glob = "/src/ui/focus/scenarios/*.approved.md";'
+run_layers
+allowed "a component test beside the folder that reads it is allowed"
+
+rm -f "$project/src/ui/focus/focus.component.test.ts"
+write src/ui/focus/focus.app.test.ts 'const glob = "/src/ui/focus/scenarios/*.approved.md";'
+run_layers
+allowed "an app test beside the folder that reads it is allowed"
+
+rm -f "$project/src/ui/focus/focus.app.test.ts"
+write src/ui/focus/focus.component.test.ts 'const glob = "/src/ui/other/scenarios/*.approved.md";'
+run_layers
+refused "a test beside the folder that reads a different folder is refused"
+
+rm -f "$project/src/ui/focus/focus.component.test.ts"
+write src/ui/focus/focus.test.ts 'const glob = "/src/ui/focus/scenarios/*.approved.md";'
+run_layers
+refused "a test that is neither a component nor an app test is refused"
+
+rm -f "$project/src/ui/focus/focus.test.ts" "$project/src/ui/focus/scenarios/a-rule.approved.md"
+write src/scenarios/a-rule.approved.md "Rule: A rule
+"
+write src/app.app.test.ts 'const glob = "/src/scenarios/*.approved.md";'
+run_layers
+allowed "an app test at the root reads its scenarios folder"
+
 finish

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
+import type { RawGlob } from '../../test-helpers/raw-glob';
+import { playScenarioFiles } from '../../test-helpers/scenario-entry';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
 import {
   addButtonOf,
@@ -17,7 +20,8 @@ import {
   showsTheKeys,
   timesDrawn,
 } from './card.test-page';
-import { mountTheCard, theBeat } from './card.harness';
+import { mountTheCard, stageTheCard, theBeat } from './card.harness';
+import { cardSeesOn, cardSteps, cardWriterOn } from './card.dsl';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
 
@@ -115,3 +119,15 @@ describe('the card mounted alone', () => {
     expect(typed).toEqual(['m', 'ma']);
   });
 });
+
+const files = (import.meta as unknown as RawGlob).glob('/src/ui/card/scenarios/*.approved.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+playScenarioFiles(
+  files,
+  () => vitestBrowserDriver(),
+  (driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
+);

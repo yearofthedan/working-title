@@ -1,0 +1,14 @@
+#!/bin/sh
+# shortcut: when two tests in a folder read the same scenarios/, the first is taken; upgrade if two entries for one folder is ever allowed.
+scenario_entry() {
+  folder=$1
+  parent=$(dirname -- "$folder")
+  for test in "$parent"/*.component.test.ts "$parent"/*.app.test.ts; do
+    [ -f "$test" ] || continue
+    if grep -qF "/$folder/*.approved.md" "$test"; then
+      printf '%s\n' "$test"
+      return 0
+    fi
+  done
+  return 0
+}
