@@ -350,8 +350,6 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
 const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
   const onKeyDown = (event: KeyboardEvent): void => {
     const target = event.target;
-    const inside = target instanceof Element ? target.closest('main') : null;
-    if (inside !== null && inside !== st.main) return;
     if (target instanceof HTMLTextAreaElement) return;
 
     const where = arrowKeys[event.key];
