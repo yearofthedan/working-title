@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, a scenarios/ folder with no test beside it, and a plain src/ui/ file importing a *.dom.ts, in the files given (src, and e2e when it is there, when none are). The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, and a plain src/ui/ file importing a *.dom.ts, in the files given (src, and e2e when it is there, when none are); with none given it also refuses a scenarios/ folder with no test beside it. The rules are .dependency-cruiser.mjs.
 
 set -eu
 
@@ -24,7 +24,7 @@ status=0
 depcruise --config "$root/.dependency-cruiser.mjs" --output-type err-long -- "$@" || status=$?
 
 if [ "$whole" -eq 1 ]; then
-  for folder in $(find src -path '*/scenarios/*.approved.md' | xargs -n1 dirname | sort -u); do
+  for folder in $(find src -path '*/scenarios/*.approved.md' -exec dirname {} \; | sort -u); do
     if [ -z "$(scenario_entry "$folder")" ]; then
       echo "$folder has no test beside it that reads it (a *.component.test.ts or *.app.test.ts with its glob)" >&2
       status=1

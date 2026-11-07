@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Write what a scenario's runner observed into the file, choosing the runner by where the file is: a journey in e2e/, a page scenario beside its page in a scenarios/ folder.
+# help: Write what a scenario's runner observed into the file, choosing the runner by where the file is: a journey in e2e/ runs in Playwright, a page scenario in a scenarios/ folder runs in the *.component.test.ts or *.app.test.ts beside that folder.
 
 set -eu
 
