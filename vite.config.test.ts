@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import {
@@ -51,7 +52,7 @@ const uiErrorsIn = (file: string) => lintErrors.get(join(uiSamples, file)) ?? []
 beforeAll(() => {
   samples = mkdtempSync('e2e/lint-sample-');
   uiSamples = mkdtempSync('src/ui/lint-sample-');
-  testFileSamples = mkdtempSync('test-file-sample-');
+  testFileSamples = realpathSync(mkdtempSync(join(tmpdir(), 'test-file-sample-')));
   for (const name of [
     'component-test.component.test.ts',
     'app-test.app.test.ts',
@@ -199,7 +200,20 @@ describe('a component test or an app test', { timeout: 60_000 }, () => {
 
 describe('the test files a project runs', { timeout: 60_000 }, () => {
   it('runs a component test and an app test in the browser project, and a file named otherwise in node', () => {
-    const run = spawnSync('vp', ['test', 'list', '--filesOnly', '--json'], { encoding: 'utf8' });
+    const run = spawnSync(
+      'vp',
+      [
+        'test',
+        'list',
+        '--filesOnly',
+        '--json',
+        '--root',
+        testFileSamples,
+        '--config',
+        resolve('vite.config.ts'),
+      ],
+      { encoding: 'utf8' },
+    );
     const listed = JSON.parse(run.stdout) as { file: string; projectName: string }[];
     const projectOf = (file: string) =>
       listed.find((entry) => entry.file === resolve(testFileSamples, file))?.projectName;
