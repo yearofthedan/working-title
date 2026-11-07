@@ -1,4 +1,3 @@
-import { projectStore } from '../adapters/local-storage-project-store';
 import { openProject, type OpenProject } from '../application/project';
 import type { FacetText, Piece, Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
@@ -79,8 +78,4 @@ export const aProjectWithScenesUnder = async (
   const place = await placeOfBeat(beatName);
   const under = beat(...Array.from({ length: scenes }, () => scene()));
   return aProject(story(...Array.from({ length: place - 1 }, () => beat()), under));
-};
-
-export const storesTheProject = async (project: SeededProject): Promise<void> => {
-  await projectStore().save(project);
 };

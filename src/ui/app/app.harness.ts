@@ -1,11 +1,10 @@
-import * as browser from 'vite-plus/test/browser';
-import { wholeNameAnyCase, type Driver, type Opening } from '../../test-helpers/driver';
-import { appReadsIn, appReadsOnThePage } from '../../test-helpers/graph-page';
+import { type Driver, type Opening } from '../../test-helpers/driver';
+import { appReadsOnThePage } from '../../test-helpers/graph-page';
 import { inMemory, type SeededProject } from '../../test-helpers/seed';
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { appSeesOn, appSteps, appWriterOn, type AppSees, type AppWriter } from './app.dsl';
+import { appSeesOn, appSteps, appWriterOn } from './app.dsl';
 
 export const addASceneUnder = async (driver: Driver, beat: string): Promise<void> => {
   await driver.click('heading', beat, { role: 'group', name: beat });
@@ -29,21 +28,6 @@ export const appScenarioSteps = (driver: Driver) =>
     appWriterOn(driver, { fresh: stageTheApp, reopen: reopenTheApp }, stageTheSeededApp),
     appSeesOn(driver, appReadsOnThePage()),
   );
-
-export const twoGraphs = async (): Promise<void> => {
-  document.querySelector('main')!.setAttribute('aria-label', 'First graph');
-  const page = document.createElement('div');
-  const header = document.createElement('header');
-  const main = document.createElement('main');
-  main.setAttribute('aria-label', 'Second graph');
-  main.style.width = '1440px';
-  const panel = document.createElement('aside');
-  page.append(header, main, panel);
-  // shortcut: the second page shares the shell's main column below the first, with no height of its own, until a case needs its cards where the writer can click them.
-  page.style.gridColumn = '1';
-  document.body.append(page);
-  await openTheApp(page);
-};
 
 export const anExtraHeaderAbove = (): { given: HTMLElement; extra: HTMLElement } => {
   const given = document.querySelector<HTMLElement>('header')!;
@@ -75,21 +59,5 @@ export const pageWith = (scenes = 0, width = 1440) => {
     writer: appWriterOn(driver, stage),
     sees: appSeesOn(driver, appReadsOnThePage()),
     store,
-  };
-};
-
-export const graphOn = (
-  name: string,
-  opening: Opening,
-): { driver: Driver; writer: AppWriter; sees: AppSees } => {
-  const driver = vitestBrowserDriver(name);
-  const main = browser.page.getByRole('main', { name: wholeNameAnyCase(name) });
-  return {
-    driver,
-    writer: appWriterOn(driver, opening),
-    sees: appSeesOn(
-      driver,
-      appReadsIn(() => main.element()),
-    ),
   };
 };

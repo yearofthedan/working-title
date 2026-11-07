@@ -48,6 +48,9 @@ export const pane = (): HTMLElement => {
 
 export const focusIsInThePane = (): boolean => pane().contains(document.activeElement);
 
+export const theBodyHolds = (): readonly string[] =>
+  [...document.body.children].map((child) => child.tagName.toLowerCase());
+
 export const altKeySeenFor = async (key: string, what: () => Promise<void>): Promise<boolean[]> => {
   const seen: boolean[] = [];
   const watch = (event: KeyboardEvent): void => {

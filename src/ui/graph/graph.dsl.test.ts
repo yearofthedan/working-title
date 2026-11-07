@@ -16,6 +16,21 @@ describe('the graph language', () => {
   });
 });
 
+describe('what only the app can play', () => {
+  it.each(['one-sentence summary under beat 2', 'paragraph beside the graph'])(
+    'refuses to type into "%s"',
+    async (facet) => {
+      const { calls, driver, opening } = recording(storyDrawn);
+      const writer = writerOn(driver, opening);
+
+      await expect(writer.types('Maren rows out', { piece: 'Beat 2', facet })).rejects.toThrow(
+        `types needs the app's path or panel for "${facet}"`,
+      );
+      expect(calls).toEqual([]);
+    },
+  );
+});
+
 const shapeOf = (project: SeededProject): readonly string[] =>
   project.pieces.map((piece) => {
     const parent = project.pieces.findIndex((other) => other.id === piece.parent);

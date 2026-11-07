@@ -1,14 +1,19 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { settled, type Opening } from '../../test-helpers/driver';
-import { laidOut } from '../../test-helpers/graph-page';
+import { settled, type Driver } from '../../test-helpers/driver';
+import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
+import {
+  laidOut,
+  moving,
+  partWay,
+  recorded,
+  startedTransitions,
+} from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { narrowThePane, theViewport } from '../../test-helpers/staging';
-import { type AppSees, type AppWriter } from '../app/app.dsl';
-import { twoGraphs } from '../app/app.harness';
-import { graphOn, graphScenarioSteps, pageWith } from './graph.harness';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { addASceneUnder } from '../app/app.harness';
 import {
   addButtonIsFirst,
   addButtonOf,
@@ -23,6 +28,8 @@ import {
   sentenceFieldOf,
   shownSentenceOf,
 } from '../card/card.test-page';
+import { type Writer } from './graph.dsl';
+import { graphOn, graphScenarioSteps, graphWith, twoGraphs } from './graph.harness';
 import {
   altKeySeenFor,
   atFocus,
@@ -30,11 +37,13 @@ import {
   buttonsFocused,
   cardAtFocus,
   cards,
-  focusIn,
   currentCards,
   current,
+  everyCard,
+  focusIn,
   named,
   pane,
+  theBodyHolds,
 } from './graph.test-page';
 
 const centreOf = (card: Element): number => {
@@ -59,11 +68,17 @@ const offScreenFocus = (): string[] => {
   return [nameOf(card)];
 };
 
+const boxes = (): readonly string[] =>
+  everyCard().map((card) => {
+    const box = card.getBoundingClientRect();
+    return `${nameOf(card)} ${box.left} ${box.top} ${box.width} ${box.height}`;
+  });
+
 const shiftTab = (): Promise<void> => browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
 
 describe('the graph page', () => {
   it("draws a card's sentence in the muted colour", async () => {
-    const { stage } = pageWith();
+    const { stage } = graphWith();
     await stage.fresh();
 
     const card = named('card', 'Beat 1');
@@ -72,13 +87,20 @@ describe('the graph page', () => {
 
     expect(getComputedStyle(layer).color).toBe(getComputedStyle(label).color);
   });
+
+  it('draws on a page holding only its main', async () => {
+    const { stage } = graphWith();
+    await stage.fresh();
+
+    expect(theBodyHolds()).toEqual(['main']);
+  });
 });
 
 describe('the graph around the current piece', () => {
   it.each([1440, 1100])(
     "draws the current piece's card 560 px wide and centred at %i px",
     async (width) => {
-      const { stage } = pageWith(0, width);
+      const { stage } = graphWith(0, width);
       await stage.fresh();
 
       expect(current().getBoundingClientRect().width).toBe(560);
@@ -87,7 +109,7 @@ describe('the graph around the current piece', () => {
   );
 
   it("shows the whole sentence on the current piece's card, and fits its height to what it holds", async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.types(
       'A widowed lighthouse keeper trades her last winter of fuel for a stranger\u2019s chart, then finds the chart leads back to the harbour where her husband\u2019s boat went down.',
@@ -103,7 +125,7 @@ describe('the graph around the current piece', () => {
   });
 
   it('puts the pieces hidden under a hidden story where the story is', async () => {
-    const { stage, writer } = pageWith(2);
+    const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await writer.clicks('Scene 1');
@@ -115,7 +137,7 @@ describe('the graph around the current piece', () => {
   });
 
   it('draws a piece hidden under a chip at the chip’s width', async () => {
-    const { stage, writer } = pageWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
     await writer.clicks('Beat 2');
     await settled();
@@ -126,7 +148,7 @@ describe('the graph around the current piece', () => {
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
-    const { driver, stage, writer } = pageWith(8);
+    const { driver, stage, writer } = graphWith(8);
     await stage.fresh();
     await writer.clicks('The story');
 
@@ -140,7 +162,7 @@ describe('the graph around the current piece', () => {
   });
 
   it("marks each piece's depth in its heading, and the current piece with aria-current", async () => {
-    const { stage, writer } = pageWith(2);
+    const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -154,7 +176,7 @@ describe('the graph around the current piece', () => {
   });
 
   it("keeps the current piece's card whole and centred when main narrows, with no move", async () => {
-    const { stage } = pageWith();
+    const { stage } = graphWith();
     await stage.fresh();
 
     for (const width of [720, 320]) {
@@ -170,7 +192,7 @@ describe('the graph around the current piece', () => {
   });
 
   it("keeps the children under the current piece's card as its sentence grows while the writer types", async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     const sentence =
       'She rows out before first light with the chart weighted under a stone, and finds a buoy ringing a bell nobody hung there, its rope still wet from a hand that had no business tying it.';
@@ -187,7 +209,7 @@ describe('the graph around the current piece', () => {
   it.each([1440, 1100])(
     "centres the current piece's row on the window, with the parent inside it, at %i px",
     async (width) => {
-      const { stage, writer } = pageWith(0, width);
+      const { stage, writer } = graphWith(0, width);
       await stage.fresh();
       await writer.clicks('Beat 2');
       await settled();
@@ -203,7 +225,7 @@ describe('the graph around the current piece', () => {
   );
 
   it("stops the current piece's row below the top of main when the window is too short to centre it", async () => {
-    const { stage, writer } = pageWith(0, 400);
+    const { stage, writer } = graphWith(0, 400);
     await stage.fresh();
     await theViewport(400, 500);
     await writer.clicks('Beat 2');
@@ -216,7 +238,7 @@ describe('the graph around the current piece', () => {
   });
 
   it('shows a card’s sentence small and in the interface font', async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -230,7 +252,7 @@ describe('the graph around the current piece', () => {
   });
 
   it('draws a chip sized to its name, with the name whole inside it', async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
     await settled();
@@ -250,7 +272,7 @@ describe('the graph around the current piece', () => {
   });
 
   it("keeps the add button inside the current piece's card", async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await settled();
@@ -266,7 +288,7 @@ describe('the graph around the current piece', () => {
 
 describe('the rows of the graph', () => {
   it('tabbing to a scene off screen brings it into view', async () => {
-    const { driver, stage, writer } = pageWith(8, 1100);
+    const { driver, stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
@@ -294,7 +316,7 @@ describe('the rows of the graph', () => {
   });
 
   it('lands on the first piece of a row with Tab, whatever the cursor was last on in it', async () => {
-    const { driver, stage, writer } = pageWith(8);
+    const { driver, stage, writer } = graphWith(8);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
@@ -310,7 +332,7 @@ describe('the rows of the graph', () => {
   });
 
   it('gives a row back its place when the cursor leaves it', async () => {
-    const { driver, stage, writer } = pageWith(8, 1100);
+    const { driver, stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
@@ -330,7 +352,7 @@ describe('the rows of the graph', () => {
   });
 
   it('never puts the cursor on a piece outside main, with eight scenes under the current piece at 1100 px', async () => {
-    const { driver, stage, writer } = pageWith(8, 1100);
+    const { driver, stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
@@ -379,8 +401,8 @@ describe('the rows of the graph', () => {
     ]);
   });
 
-  it('never puts the cursor on a piece outside main, in a fresh app at 770 px', async () => {
-    const { driver, stage } = pageWith(0, 770);
+  it('never puts the cursor on a piece outside main, in a fresh graph at 770 px', async () => {
+    const { driver, stage } = graphWith(0, 770);
     await stage.fresh();
     await settled();
 
@@ -423,7 +445,7 @@ describe('the rows of the graph', () => {
   });
 
   it('goes one stop per row with Tab, then out of the graph, and back with Shift+Tab', async () => {
-    const { driver, stage, writer } = pageWith(2);
+    const { driver, stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
     expect(atFocus()).toBe(current());
@@ -448,7 +470,7 @@ describe('the rows of the graph', () => {
   });
 
   it('makes the next and previous piece in a row the current piece with ← →', async () => {
-    const { driver, stage, writer } = pageWith(2);
+    const { driver, stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -473,7 +495,7 @@ describe('the rows of the graph', () => {
   });
 
   it("leaves the cursor on a row's stop when Esc is pressed there", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
@@ -484,7 +506,7 @@ describe('the rows of the graph', () => {
   });
 
   it("takes the current piece's card's field and its add button out of reach once Esc returns to it", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -500,7 +522,7 @@ describe('the rows of the graph', () => {
   });
 
   it('gives a row back its stop once a piece of it is on screen again', async () => {
-    const { driver, stage, writer } = pageWith(8, 1100);
+    const { driver, stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -523,7 +545,7 @@ describe('the rows of the graph', () => {
 
 describe('moving the current piece', () => {
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -538,7 +560,7 @@ describe('moving the current piece', () => {
   });
 
   it('moves the current piece with → from a sibling’s name button', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
@@ -550,7 +572,7 @@ describe('moving the current piece', () => {
   });
 
   it('moves the current piece with ↓ from the add button', async () => {
-    const { driver, stage, writer } = pageWith(1);
+    const { driver, stage, writer } = graphWith(1);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -563,7 +585,7 @@ describe('moving the current piece', () => {
   });
 
   it('still presses a name button with Enter and with Space', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
@@ -578,7 +600,7 @@ describe('moving the current piece', () => {
   });
 
   it('leaves the current piece where it is while the cursor is in a sentence', async () => {
-    const { driver, stage, sees, writer } = pageWith();
+    const { driver, stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
@@ -589,7 +611,7 @@ describe('moving the current piece', () => {
   });
 
   it("puts the cursor on the current piece's card with Esc, and the arrows then move the current piece", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
@@ -603,7 +625,7 @@ describe('moving the current piece', () => {
   });
 
   it("puts the cursor in the current piece's sentence with Enter", async () => {
-    const { driver, stage, sees, writer } = pageWith();
+    const { driver, stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
@@ -612,7 +634,7 @@ describe('moving the current piece', () => {
   });
 
   it("leaves the cursor on the new current piece's card after a key, a chip, a card and a story card", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
 
     await driver.press('ArrowDown');
@@ -633,7 +655,7 @@ describe('moving the current piece', () => {
   });
 
   it('leaves the siblings beside the current piece out of the tab order, and moves the current piece along them with the arrows', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
@@ -664,7 +686,7 @@ describe('moving the current piece', () => {
   });
 
   it('moves the current piece to a piece another row stops on with Enter', async () => {
-    const { driver, stage, writer } = pageWith(2);
+    const { driver, stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await writer.clicks('Scene 1');
@@ -678,7 +700,7 @@ describe('moving the current piece', () => {
   });
 
   it('leaves the current piece where it is when an arrow key is held with a modifier', async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -691,7 +713,7 @@ describe('moving the current piece', () => {
   });
 
   it('moves the current piece to a piece whose sentence is clicked, with the cursor in it', async () => {
-    const { driver, stage, sees } = pageWith();
+    const { driver, stage, sees } = graphWith();
     await stage.fresh();
     await driver.click('textbox', 'One-sentence summary', {
       role: 'group',
@@ -703,7 +725,7 @@ describe('moving the current piece', () => {
   });
 
   it("never tabs into a sentence that is not the current piece's", async () => {
-    const { driver, stage } = pageWith();
+    const { driver, stage } = graphWith();
     await stage.fresh();
 
     const strayed: string[] = [];
@@ -723,7 +745,7 @@ describe('moving the current piece', () => {
   });
 
   it('reaches the sentence of the piece it moved to with Enter, and not through the press', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -751,7 +773,7 @@ describe('moving the current piece', () => {
   });
 
   it('never puts the cursor on the add button through the press', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -763,7 +785,7 @@ describe('moving the current piece', () => {
   });
 
   it('moves the current piece to the new scene, and ↑ then ↓ returns to it', async () => {
-    const { driver, stage, sees, writer } = pageWith();
+    const { driver, stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
@@ -780,7 +802,7 @@ describe('moving the current piece', () => {
   });
 
   it('leaves the fields of the card it leaves out of the tab order, after adding a scene', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
@@ -799,7 +821,7 @@ describe('moving the current piece', () => {
   });
 
   it("takes the fields of the current piece's card out of the tab order when the cursor leaves with no focusin", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
@@ -811,7 +833,7 @@ describe('moving the current piece', () => {
   });
 
   it('puts the cursor on the card the writer clicks, the current one or another', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await driver.press('Enter');
@@ -827,16 +849,13 @@ describe('moving the current piece', () => {
 });
 
 describe('two graphs on one page', () => {
-  const onGraph = (name: string, stage: Opening): { writer: AppWriter; sees: AppSees } =>
-    graphOn(name, stage);
-
   it('moves the current piece of the graph the writer clicked, and leaves the other where it is', async () => {
-    const { stage, writer } = pageWith();
+    const { driver, stage } = graphWith();
     await stage.fresh();
-    await writer.addsASceneUnder('Beat 2');
+    await addASceneUnder(driver, 'Beat 2');
     await twoGraphs();
-    const first = onGraph('First graph', stage);
-    const second = onGraph('Second graph', stage);
+    const first = graphOn('First graph', stage);
+    const second = graphOn('Second graph', stage);
 
     await first.writer.clicks('Beat 2');
     await first.writer.moves('↓');
@@ -846,21 +865,21 @@ describe('two graphs on one page', () => {
   });
 
   it('moves every graph when the key is pressed outside them', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { driver, stage, writer } = graphWith();
     await stage.fresh();
     await twoGraphs();
 
     await writer.clicksAwayFromTheGraph();
     await driver.press('ArrowDown');
 
-    await onGraph('First graph', stage).sees.currentIs('Beat 1');
-    await onGraph('Second graph', stage).sees.currentIs('Beat 1');
+    await graphOn('First graph', stage).sees.currentIs('Beat 1');
+    await graphOn('Second graph', stage).sees.currentIs('Beat 1');
   });
 });
 
 describe('what a tree says about focus', () => {
   it('marks the name button and the field that hold focus, and nothing once the focus leaves the graph', async () => {
-    const { driver, stage, writer } = pageWith(2);
+    const { driver, stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -893,6 +912,204 @@ describe('what a tree says about focus', () => {
 
     await driver.clickAway();
     expect(await marked()).toEqual([]);
+  });
+});
+
+const moves: ReadonlyArray<{
+  readonly what: string;
+  readonly play: (writer: Writer, driver: Driver) => Promise<void>;
+}> = [
+  {
+    what: 'a click on a card',
+    play: async (writer) => {
+      await writer.clicks('Beat 2');
+    },
+  },
+  {
+    what: 'a click on a chip',
+    play: async (writer) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await writer.clicks('Beat 5');
+    },
+  },
+  {
+    what: 'an arrow key',
+    play: async (writer, driver) => {
+      await writer.clicks('Beat 2');
+      await settled();
+      await driver.press('ArrowRight');
+    },
+  },
+];
+
+describe('the motion of a move', () => {
+  it.each(moves)('keeps every animation of $what within 400 ms, easing out', async ({ play }) => {
+    const { driver, stage, writer } = graphWith(1);
+    await stage.fresh();
+
+    await play(writer, driver);
+    const animations = moving();
+
+    expect(animations.length).toBeGreaterThan(0);
+    for (const animation of animations) {
+      const timing = animation.effect!.getComputedTiming();
+      expect(timing.endTime).toBeLessThanOrEqual(400);
+      expect(easesOut(timing.easing)).toBe(true);
+    }
+  });
+
+  it('draws the page without moving anything', async () => {
+    const { stage } = graphWith(1);
+    await stage.fresh();
+
+    expect(moving()).toEqual([]);
+  });
+
+  it('changes a card’s look without starting a transition of its own, ending at a fresh draw’s size', async () => {
+    const atRest = graphWith(1);
+    await atRest.stage.fresh();
+    await addASceneUnder(atRest.driver, 'Beat 4');
+    await settled();
+    const rest = boxes();
+
+    const moved = graphWith(1);
+    await moved.stage.fresh();
+    await addASceneUnder(moved.driver, 'Beat 4');
+    const started = startedTransitions();
+    await settled();
+    await laidOut();
+    await settled();
+
+    expect(started.filter(({ easing }) => !easesOut(easing))).toEqual([]);
+    expect(boxes()).toEqual(rest);
+  });
+
+  it('keeps a piece leaving the graph out of reach while it fades', async () => {
+    const { driver, stage, writer } = graphWith(1);
+    await stage.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    await writer.clicks('The story');
+
+    for (let at = 0; at < 12; at += 1) {
+      await driver.press('Tab');
+      expect(cardAtFocus()).not.toBe(named('hidden', 'Scene 1'));
+    }
+
+    await browser.userEvent.click(named('hidden', 'Scene 1'), { force: true });
+    expect(nameOf(current())).not.toBe('Scene 1');
+  });
+
+  it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
+    const atRest = graphWith(1);
+    await atRest.stage.fresh();
+    await atRest.writer.clicks('Beat 2');
+    await settled();
+    narrowThePane(720);
+    await laidOut();
+    await settled();
+    const rest = boxes();
+
+    const partWay = graphWith(1);
+    await partWay.stage.fresh();
+    await partWay.writer.clicks('Beat 2');
+    narrowThePane(720);
+    await laidOut();
+    expect(moving().length).toBeGreaterThan(0);
+    await settled();
+    await laidOut();
+    await settled();
+
+    expect(boxes()).toEqual(rest);
+  });
+
+  it('keeps a move made during a move running, and comes to rest without a jump', async () => {
+    const { driver, stage, writer } = graphWith(1);
+    await stage.fresh();
+
+    const frames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await partWay();
+      await driver.press('ArrowRight');
+      await settled();
+    });
+
+    const first = frames.find((frame) => frame.running > 0)!;
+    expect(frames.some((frame) => frame.at > first.at + 270 && frame.running > 0)).toBe(true);
+    expect(arrivalStep(frames)).toBeLessThan(10);
+  });
+
+  it('starts a second move part-way through the first without jumping a card', async () => {
+    const { driver, stage, writer } = graphWith(1);
+    await stage.fresh();
+
+    let pressed = 0;
+    const frames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await laidOut();
+      pressed = performance.now();
+      await driver.press('ArrowRight');
+      await settled();
+    });
+
+    const story = nameOf(named('card', 'The story'));
+    const before = frames.findLast((frame) => frame.at <= pressed)!;
+    const after = frames.find((frame) => frame.at > pressed)!;
+    const landing = frames.at(-1)!;
+
+    const step = movedBy(before, after, story);
+    const stillToGo = movedBy(before, landing, story);
+
+    expect(step).toBeLessThan(stillToGo / 2);
+  });
+
+  it('takes a click and a key while a move runs, each landing on the piece it aims at and running to its end', async () => {
+    const { driver, stage, writer } = graphWith(1);
+    await stage.fresh();
+
+    const landed: string[] = [];
+    let clicked = 0;
+    let pressed = 0;
+    const clickFrames = await recorded(async () => {
+      await writer.clicks('Beat 2');
+      await partWay();
+      clicked = performance.now();
+      await browser.userEvent.click(named('chip', 'Beat 5'), { force: true });
+      landed.push(nameOf(current()));
+      await settled();
+    });
+    const keyFrames = await recorded(async () => {
+      await driver.press('ArrowLeft');
+      await partWay();
+      pressed = performance.now();
+      await driver.press('ArrowLeft');
+      landed.push(nameOf(current()));
+      await settled();
+    });
+
+    expect(landed).toEqual(['Beat 5', 'Beat 3']);
+    const afterClick = clickFrames.filter((frame) => frame.at > clicked && frame.running > 0);
+    const afterKey = keyFrames.filter((frame) => frame.at > pressed && frame.running > 0);
+    expect((afterClick.at(-1)?.at ?? clicked) - clicked).toBeGreaterThan(160);
+    expect((afterKey.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
+  });
+
+  describe('under reduced motion', () => {
+    afterEach(async () => {
+      await browser.commands.emulateReducedMotion('no-preference');
+    });
+
+    it.each(moves)('moves nothing for $what', async ({ play }) => {
+      const { driver, stage, writer } = graphWith(1);
+      await browser.commands.emulateReducedMotion('reduce');
+      await stage.fresh();
+
+      await play(writer, driver);
+
+      expect(moving()).toEqual([]);
+    });
   });
 });
 
