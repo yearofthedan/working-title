@@ -6,7 +6,7 @@ Rule: what the writer types into a piece is still there after a reload.
 Given a new project
 When the writer types "A widow hunts the man who sank her husband's ship" as the story's one-sentence summary
 And reloads the app
-Then the story's one-sentence summary reads "A widow hunts the man who sank her husband's ship"
+Then the story's one-sentence summary on its card reads "A widow hunts the man who sank her husband's ship"
 - banner:
   - heading "working-title" [level=1]
   - navigation "Where you are":
@@ -56,12 +56,14 @@ Then the story's one-sentence summary reads "A widow hunts the man who sank her 
 ```
 Given a new project
 When the writer types "Maren finds the ship's log and learns the sinking was no accident" as beat 2's one-sentence summary
-And the writer types "Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident." as beat 2's paragraph
-And the writer types "Maren rows out to the wreck at low tide and finds the hull holed from inside. Back in port, the harbourmaster's log has the night of the sinking torn out, and he names a clerk who died last winter. She takes the log to her husband's old mate, who reads the remaining entries and goes quiet: the ship was carrying something its manifest never listed." as beat 2's page
+And the writer opens beat 2 beside the graph
+And the writer types "Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident." as beat 2's paragraph beside the graph
+And the writer types "Maren rows out to the wreck at low tide and finds the hull holed from inside. Back in port, the harbourmaster's log has the night of the sinking torn out, and he names a clerk who died last winter. She takes the log to her husband's old mate, who reads the remaining entries and goes quiet: the ship was carrying something its manifest never listed." as beat 2's page beside the graph
 And reloads the app
-Then beat 2's one-sentence summary reads "Maren finds the ship's log and learns the sinking was no accident"
-And beat 2's paragraph reads "Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident."
-And beat 2's page reads "Maren rows out to the wreck at low tide and finds the hull holed from inside. Back in port, the harbourmaster's log has the night of the sinking torn out, and he names a clerk who died last winter. She takes the log to her husband's old mate, who reads the remaining entries and goes quiet: the ship was carrying something its manifest never listed."
+And the writer opens beat 2 beside the graph
+Then beat 2's one-sentence summary on its card reads "Maren finds the ship's log and learns the sinking was no accident"
+And beat 2's paragraph beside the graph reads "Maren finds the ship's log in the harbourmaster's office, its pages for the night of the sinking torn out. The harbourmaster lies about who took them, and she sees the sinking was no accident."
+And beat 2's page beside the graph reads "Maren rows out to the wreck at low tide and finds the hull holed from inside. Back in port, the harbourmaster's log has the night of the sinking torn out, and he names a clerk who died last winter. She takes the log to her husband's old mate, who reads the remaining entries and goes quiet: the ship was carrying something its manifest never listed."
 - banner:
   - heading "working-title" [level=1]
   - navigation "Where you are":
@@ -111,10 +113,13 @@ And beat 2's page reads "Maren rows out to the wreck at low tide and finds the h
 ```
 Given a project with two scenes under beat 2
 When the writer types "Maren bribes the harbourmaster for the log" as scene 2's list line under beat 2
-And types "Maren waits for the harbourmaster's shift to end and finds him at the tavern. He wants more than she has. She puts her husband's watch on the table, and he slides the log across without looking at it." as scene 2's narrative under beat 2
+And the writer opens scene 2 under beat 2 beside the graph
+And the writer types "Maren waits for the harbourmaster's shift to end and finds him at the tavern. He wants more than she has. She puts her husband's watch on the table, and he slides the log across without looking at it." as scene 2 under beat 2's narrative beside the graph
 And reloads the app
-Then scene 2's list line under beat 2 reads "Maren bribes the harbourmaster for the log"
-And scene 2's narrative under beat 2 reads "Maren waits for the harbourmaster's shift to end and finds him at the tavern. He wants more than she has. She puts her husband's watch on the table, and he slides the log across without looking at it."
+And the writer clicks beat 2
+And the writer opens scene 2 under beat 2 beside the graph
+Then scene 2's list line under beat 2 on its card reads "Maren bribes the harbourmaster for the log"
+And scene 2 under beat 2's narrative beside the graph reads "Maren waits for the harbourmaster's shift to end and finds him at the tavern. He wants more than she has. She puts her husband's watch on the table, and he slides the log across without looking at it."
 - banner:
   - heading "working-title" [level=1]
   - navigation "Where you are":
