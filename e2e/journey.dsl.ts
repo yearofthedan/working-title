@@ -19,5 +19,4 @@ export const journeyOn = (
 export const journeySteps = (journey: Journey, sees: Sees): Record<string, StepAction> => ({
   ...graphSteps(journey, sees),
   'reloads the app': () => journey.reloads(),
-  '{piece}\'s {facet} reads "{text}"': ({ piece, facet, text }) => sees.reads(piece, facet, text),
 });

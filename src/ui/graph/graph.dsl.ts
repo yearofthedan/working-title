@@ -52,7 +52,6 @@ export interface Sees {
   focusIsInTheParagraph(): Promise<void>;
   panelIsOpenOn(piece: string): Promise<void>;
   noPanelIsOpen(): Promise<void>;
-  reads(piece: string, facet: string, text: string): Promise<void>;
   readsOnTheCard(piece: string, facet: string, text: string): Promise<void>;
   readsBeside(piece: string, facet: string, text: string): Promise<void>;
 }
@@ -72,10 +71,6 @@ const pieceNamed = (words: string): string => {
 };
 
 const besideTheGraph = ' beside the graph';
-
-// shortcut: the paragraph, the page and the narrative are the facets typed beside the graph, until the driver can ask the method which facets are long.
-const typedBeside = (facet: string): boolean =>
-  ['paragraph', 'page', 'narrative'].includes(facet.toLowerCase());
 
 const shows = (tree: readonly string[], piece: string): boolean =>
   tree.some((line) => line.toLowerCase().includes(`group "${piece.toLowerCase()}"`));
@@ -98,15 +93,7 @@ const openingBeside = async (driver: Driver, piece: string): Promise<void> => {
   await driver.click('button', 'Open beside', { role: 'group', name: named });
 };
 
-// shortcut: a long facet has no field on the card, so a typing or a read opens its piece beside the graph first, unless the panel already names it; until the driver can ask whether the icon is pressed.
-const openingIfClosed = async (driver: Driver, piece: string): Promise<void> => {
-  const open = (await driver.tree()).some((line) =>
-    line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
-  );
-  if (!open) await openingBeside(driver, piece);
-};
-
-// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing or a read makes that beat current first, until the table can name a piece and its beat apart.
+// shortcut: a phrase like "scene 2's narrative under beat 2" folds the beat into the facet, so a typing makes that beat current first and a read drops the beat from the facet, until the table can name a piece and its beat apart.
 const underABeat = /^(?<facet>.+) under (?<beat>.+)$/;
 
 export const writerOn = (
@@ -147,15 +134,10 @@ export const writerOn = (
       const beat = under?.['beat'];
       const facet = under?.['facet'] ?? at.facet;
       if (beat !== undefined) await reaching(driver, beat);
-      if (!typedBeside(facet)) {
-        await driver.type(text, facet, { role: 'group', name: at.piece });
-        return;
-      }
-      await openingIfClosed(driver, at.piece);
-      await driver.type(text, facet, { role: 'complementary', name: at.piece });
+      await driver.type(text, facet, { role: 'group', name: at.piece });
     },
     typesBeside: (text, at) =>
-      driver.type(text, at.facet, { role: 'complementary', name: at.piece }),
+      driver.type(text, at.facet, { role: 'complementary', name: pieceNamed(at.piece) }),
   };
 };
 
@@ -232,7 +214,8 @@ const under = (
 
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
   const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<void> => {
-    const held = await driver.value(facet, { role: 'group', name: pieceNamed(piece) });
+    const field = underABeat.exec(facet)?.groups?.['facet'] ?? facet;
+    const held = await driver.value(field, { role: 'group', name: pieceNamed(piece) });
     if (held !== text) {
       throw new Error(
         `${piece}'s ${facet} on its card reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
@@ -304,15 +287,6 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       if ((await driver.tree()).some((line) => line.includes('- complementary'))) {
         throw new Error('something is open beside the graph');
       }
-    },
-    reads: async (piece, facet, text) => {
-      const under = underABeat.exec(facet)?.groups;
-      const beat = under?.['beat'];
-      const field = under?.['facet'] ?? facet;
-      if (beat !== undefined) await reaching(driver, beat);
-      if (!typedBeside(field)) return readsOnTheCard(piece, field, text);
-      await openingIfClosed(driver, piece);
-      return readsBeside(piece, field, text);
     },
     readsOnTheCard,
     readsBeside,
@@ -393,11 +367,6 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     await writer.makesCurrent(beat);
     if (!shows(await sees.tree(), scene)) throw new Error(`${scene} is not under ${beat}`);
     await writer.types(text, { piece: scene, facet: 'List line' });
-  },
-  'types "{text}" as {scene}\'s narrative under {beat}': async ({ text, scene, beat }) => {
-    await writer.makesCurrent(beat);
-    if (!shows(await sees.tree(), scene)) throw new Error(`${scene} is not under ${beat}`);
-    await writer.types(text, { piece: scene, facet: 'Narrative' });
   },
   'the story is current, with beats 1 to 5 under it': () =>
     sees.currentIs('The story', { under: ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'] }),
