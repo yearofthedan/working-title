@@ -8,7 +8,7 @@ import { playScenarios, type Runner, type ScenarioTier } from './test-helpers/pl
 import { reopenTheApp } from './test-helpers/the-app';
 import { vitestBrowserDriver } from './test-helpers/vitest-browser.driver';
 import { cardSeesOn, cardSteps, cardWriterOn } from './ui/card/card.dsl';
-import { stageTheCard } from './ui/card/card.harness';
+import { stageTheCard, stageTheCardUnfocused } from './ui/card/card.harness';
 import { graphSteps, seesOn, writerOn } from './ui/graph/graph.dsl';
 import { stageTheGraph, stageTheSeededGraph } from './ui/graph/graph.harness';
 
@@ -21,7 +21,8 @@ const files = (import.meta as unknown as RawGlob).glob('/src/**/scenarios/*.appr
 });
 
 const cardTier: ScenarioTier = {
-  steps: (driver: Driver) => cardSteps(cardWriterOn(driver, stageTheCard), cardSeesOn(driver)),
+  steps: (driver: Driver) =>
+    cardSteps(cardWriterOn(driver, stageTheCard, stageTheCardUnfocused), cardSeesOn(driver)),
 };
 
 const graphTier: ScenarioTier = {
