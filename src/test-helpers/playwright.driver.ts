@@ -9,7 +9,7 @@ import {
   settled,
   typing,
   wholeNameAnyCase,
-  type Reads,
+  type AppReads,
   type ReloadingDriver,
   type Within,
 } from './driver';
@@ -19,7 +19,7 @@ export interface PlaywrightDriver extends ReloadingDriver {
   opensWatchingTheGraph(): Promise<readonly string[]>;
 }
 
-export const playwrightReads = (page: Page): Reads => ({
+export const playwrightReads = (page: Page): AppReads => ({
   drawn: async () => {
     await page.getByRole('main').getByRole('group').first().waitFor();
     await page.evaluate(settled);

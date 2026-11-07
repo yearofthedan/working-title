@@ -12,7 +12,7 @@ import {
   theViewport,
   twoGraphs,
 } from '../../test-helpers/staging';
-import { type Sees, type Writer } from './graph.dsl';
+import { type AppSees, type AppWriter } from '../app/app.dsl';
 import { graphOn, graphScenarioSteps, pageWith } from './graph.harness';
 import {
   addButtonIsFirst,
@@ -919,7 +919,7 @@ describe('what a move leaves alone', () => {
 });
 
 describe('two graphs on one page', () => {
-  const onGraph = (name: string, stage: Opening): { writer: Writer; sees: Sees } =>
+  const onGraph = (name: string, stage: Opening): { writer: AppWriter; sees: AppSees } =>
     graphOn(name, stage);
 
   it('moves the current piece of the graph the writer clicked, and leaves the other where it is', async () => {
