@@ -7,6 +7,7 @@ playwright-report/
 e2e/lint-sample-*/
 src/ui/lint-sample-*/
 lint-comments-sample-*/
+test-file-sample-*/
 reports/
 screenshots/
 .stryker-tmp/

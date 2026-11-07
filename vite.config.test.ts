@@ -21,7 +21,7 @@ const callingOnPage = (call: string) =>
 const readingTheDocument = (call: string) =>
   `export const sample = () => document.${call}('main');\n`;
 
-const needsTheBrowser = 'export const sample = (): number => document.body.childElementCount;\n';
+const aTestFile = 'export {};\n';
 
 const readingACard: Record<string, string> = {
   querySelector: "export const sample = (card: HTMLElement) => card.querySelector('h2');\n",
@@ -57,7 +57,7 @@ beforeAll(() => {
     'app-test.app.test.ts',
     'mis-named-test.browser.test.ts',
   ])
-    writeFileSync(join(testFileSamples, name), needsTheBrowser);
+    writeFileSync(join(testFileSamples, name), aTestFile);
   const files: string[] = [];
   const writeIn = (root: string) => (file: string, content: string) => {
     mkdirSync(join(root, file, '..'), { recursive: true });
