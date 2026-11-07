@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import {
-  browserTestRefusals,
+  componentAndAppTestRefusals,
   documentSelectors,
   domGlobals,
   findsAnyOtherWay,
@@ -13,11 +13,15 @@ import {
 
 const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
 
+const levels = ['component', 'app'] as const;
+
 const callingOnPage = (call: string) =>
   `import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.${call}('x');\n`;
 
 const readingTheDocument = (call: string) =>
   `export const sample = () => document.${call}('main');\n`;
+
+const needsTheBrowser = 'export const sample = (): number => document.body.childElementCount;\n';
 
 const readingACard: Record<string, string> = {
   querySelector: "export const sample = (card: HTMLElement) => card.querySelector('h2');\n",
@@ -38,6 +42,7 @@ const usingTheDom: Record<string, string> = {
 
 let samples: string;
 let uiSamples: string;
+let testFileSamples: string;
 const lintErrors = new Map<string, string[]>();
 const commentRefusals = new Set<string>();
 const errorsIn = (file: string) => lintErrors.get(join(samples, file)) ?? [];
@@ -46,6 +51,13 @@ const uiErrorsIn = (file: string) => lintErrors.get(join(uiSamples, file)) ?? []
 beforeAll(() => {
   samples = mkdtempSync('e2e/lint-sample-');
   uiSamples = mkdtempSync('src/ui/lint-sample-');
+  testFileSamples = mkdtempSync('test-file-sample-');
+  for (const name of [
+    'component-test.component.test.ts',
+    'app-test.app.test.ts',
+    'mis-named-test.browser.test.ts',
+  ])
+    writeFileSync(join(testFileSamples, name), needsTheBrowser);
   const files: string[] = [];
   const writeIn = (root: string) => (file: string, content: string) => {
     mkdirSync(join(root, file, '..'), { recursive: true });
@@ -84,15 +96,16 @@ beforeAll(() => {
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
   write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
-  for (const property of browserTestRefusals) {
+  for (const property of componentAndAppTestRefusals) {
     const use = readingACard[property];
     if (use === undefined) throw new Error(`no sample reads a card with ${property}`);
-    writeInUi(`browser-${property}.browser.test.ts`, use);
+    for (const level of levels) writeInUi(`${level}-${property}.${level}.test.ts`, use);
   }
-  writeInUi(
-    'browser-document.browser.test.ts',
-    'export const sample = (): number => document.body.childElementCount;\n',
-  );
+  for (const level of levels)
+    writeInUi(
+      `${level}-document.${level}.test.ts`,
+      'export const sample = (): number => document.body.childElementCount;\n',
+    );
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -109,6 +122,7 @@ beforeAll(() => {
 afterAll(() => {
   rmSync(samples, { recursive: true, force: true });
   rmSync(uiSamples, { recursive: true, force: true });
+  rmSync(testFileSamples, { recursive: true, force: true });
 });
 
 describe('e2e locators', { timeout: 60_000 }, () => {
@@ -164,20 +178,35 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
   });
 });
 
-describe('a browser test', { timeout: 60_000 }, () => {
-  it.each(browserTestRefusals)(
+describe('a component test or an app test', { timeout: 60_000 }, () => {
+  it.each(componentAndAppTestRefusals)(
     'calling card.%s fails lint, pointing at the test page and staging',
     (property) => {
-      expect(uiErrorsIn(`browser-${property}.browser.test.ts`)).toEqual([
-        expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
+      for (const level of levels)
+        expect(uiErrorsIn(`${level}-${property}.${level}.test.ts`)).toEqual([
+          expect.stringMatching(/test-page\.ts.*staging\.ts/),
+        ]);
     },
   );
 
   it('reading document fails lint, pointing at the test page and staging', () => {
-    expect(uiErrorsIn('browser-document.browser.test.ts')).toEqual([
-      expect.stringMatching(/test-page\.ts.*staging\.ts/),
-    ]);
+    for (const level of levels)
+      expect(uiErrorsIn(`${level}-document.${level}.test.ts`)).toEqual([
+        expect.stringMatching(/test-page\.ts.*staging\.ts/),
+      ]);
+  });
+});
+
+describe('the test files a project runs', { timeout: 60_000 }, () => {
+  it('runs a component test and an app test in the browser project, and a file named otherwise in node', () => {
+    const run = spawnSync('vp', ['test', 'list', '--filesOnly', '--json'], { encoding: 'utf8' });
+    const listed = JSON.parse(run.stdout) as { file: string; projectName: string }[];
+    const projectOf = (file: string) =>
+      listed.find((entry) => entry.file === resolve(testFileSamples, file))?.projectName;
+
+    expect(projectOf('component-test.component.test.ts')).toBe('browser (chromium)');
+    expect(projectOf('app-test.app.test.ts')).toBe('browser (chromium)');
+    expect(projectOf('mis-named-test.browser.test.ts')).toBe('node');
   });
 });
 

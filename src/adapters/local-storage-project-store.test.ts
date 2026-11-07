@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, readProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -9,9 +9,24 @@ import { projectStore } from './local-storage-project-store';
 const key = 'working-title:project';
 const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
 const listLine = snowflakeExtended.startingChildren.kind.childKind?.facets[0]?.id ?? '';
-const saved = (): string | null => localStorage.getItem(key);
+const storing = new Map<string, string>();
 
-const opened = async (store: ProjectStore = projectStore()): Promise<Project | undefined> =>
+const storage: Storage = {
+  getItem: (name: string): string | null => storing.get(name) ?? null,
+  setItem: (name: string, value: string): void => void storing.set(name, value),
+  removeItem: (name: string): void => void storing.delete(name),
+  clear: (): void => storing.clear(),
+  key: (index: number): string | null => [...storing.keys()][index] ?? null,
+  get length(): number {
+    return storing.size;
+  },
+};
+
+beforeEach(() => {
+  storage.clear();
+});
+
+const opened = async (store: ProjectStore = projectStore(storage)): Promise<Project | undefined> =>
   readProject(await store.load(), snowflakeExtended, ids());
 
 const longSentences = (import.meta as unknown as RawGlob).glob(
@@ -37,7 +52,7 @@ const projectIn = (files: Record<string, string>): string => {
 
 describe('the project in browser storage', () => {
   it('reads back what it saved, an empty sentence included', async () => {
-    const store = projectStore();
+    const store = projectStore(storage);
     const sentence = "A widow hunts the man's ship";
     await store.save(elaborate(newProject(snowflakeExtended, ids()), 'id-1', summary, sentence));
     expect((await opened(store))?.pieces[0]?.facets[summary]).toBe(sentence);
@@ -53,19 +68,19 @@ describe('the project in browser storage', () => {
     ],
     ['nothing at all', ''],
   ])('reads back %s unchanged', async (_, text) => {
-    const store = projectStore();
+    const store = projectStore(storage);
     await store.save(elaborate(newProject(snowflakeExtended, ids()), 'id-1', summary, text));
     expect((await opened(store))?.pieces[0]?.facets[summary]).toBe(text);
   });
 
   it('reads nothing where nothing was saved', async () => {
-    localStorage.clear();
-    expect(await projectStore().load()).toBeUndefined();
+    storage.clear();
+    expect(await projectStore(storage).load()).toBeUndefined();
   });
 
   it('opens a save in the shape version 1 wrote, keeping its sentence and adding its beats', async () => {
     const sentence = "A widow hunts the man's ship";
-    localStorage.setItem(
+    storage.setItem(
       key,
       JSON.stringify({
         method: 'snowflake-extended',
@@ -85,7 +100,7 @@ describe('the project in browser storage', () => {
   });
 
   it('opens the project the screenshots load, its story, Beat 2 and a scene holding long sentences', async () => {
-    localStorage.setItem(key, projectIn(longSentences));
+    storage.setItem(key, projectIn(longSentences));
 
     const project = await opened();
     const story = project?.pieces.find(({ parent }) => parent === null);
@@ -104,7 +119,7 @@ describe('the project in browser storage', () => {
   });
 
   it('opens the eight-scenes screenshot project, its eight scenes under its fourth beat', async () => {
-    localStorage.setItem(key, projectIn(eightScenes));
+    storage.setItem(key, projectIn(eightScenes));
 
     const project = await opened();
     const story = project?.pieces.find(({ parent }) => parent === null);
@@ -120,9 +135,9 @@ describe('the project in browser storage', () => {
   });
 
   it('refuses text that is not JSON, leaving it where it is', async () => {
-    localStorage.setItem(key, '{not json');
-    await expect(projectStore().load()).rejects.toThrow();
-    expect(saved()).toBe('{not json');
+    storage.setItem(key, '{not json');
+    await expect(projectStore(storage).load()).rejects.toThrow();
+    expect(storage.getItem(key)).toBe('{not json');
   });
 
   it.each([
@@ -136,8 +151,8 @@ describe('the project in browser storage', () => {
     ],
     ['a piece with no id', '{"method":"m","version":2,"pieces":[{"kind":"beat","facets":{}}]}'],
   ])('refuses %s, leaving it where it is', async (_, stored) => {
-    localStorage.setItem(key, stored);
-    await expect(projectStore().load()).rejects.toThrow('is not a project');
-    expect(saved()).toBe(stored);
+    storage.setItem(key, stored);
+    await expect(projectStore(storage).load()).rejects.toThrow('is not a project');
+    expect(storage.getItem(key)).toBe(stored);
   });
 });

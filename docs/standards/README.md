@@ -20,4 +20,4 @@ What belongs elsewhere:
 - [Motion](motion.md): when the app may move something, how long it may take, and when nothing moves.
 - [Scenarios](scenarios.md): what each of a story's Given, When and Then lines holds, the words it uses, and which file it is written into.
 - [Styles](styles.md): which CSS features a style may rely on.
-- [Testing](testing.md): a test beside its code, browser specs in `e2e/`, what runs each, and approved scenarios.
+- [Testing](testing.md): a test beside its code, the level each starts at and the name it takes, what runs each, and approved scenarios.
