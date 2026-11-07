@@ -1,7 +1,7 @@
 import { projectStore } from './adapters/local-storage-project-store';
 import { openProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
-import { renderGraph } from './ui/graph/graph.dom';
+import { renderApp } from './ui/app/app.dom';
 
 export const startApp = async (page: ParentNode): Promise<void> => {
   const header = page.querySelector<HTMLElement>('header');
@@ -10,5 +10,5 @@ export const startApp = async (page: ParentNode): Promise<void> => {
   if (main === null) throw new Error('the page has no <main>');
   const panel = page.querySelector<HTMLElement>('aside');
   if (panel === null) throw new Error('the page has no <aside>');
-  await renderGraph({ header, main, panel }, await openProject(snowflakeExtended, projectStore()));
+  await renderApp({ header, main, panel }, await openProject(snowflakeExtended, projectStore()));
 };
