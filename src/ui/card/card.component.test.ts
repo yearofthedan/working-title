@@ -44,11 +44,14 @@ describe('the card mounted alone', () => {
     await expect.element(theCard(theBeat.name).card).toHaveAttribute('inert');
   });
 
-  it.each(['current', 'card', 'chip'] as const)('leaves a %s card reachable', async (as) => {
-    mountTheCard(as);
+  it.each(cardLooks.filter((look) => look !== 'hidden'))(
+    'leaves a %s card reachable',
+    async (as) => {
+      mountTheCard(as);
 
-    await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('inert');
-  });
+      await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('inert');
+    },
+  );
 
   it('marks the current card as where the writer is', async () => {
     mountTheCard('current');
@@ -56,7 +59,7 @@ describe('the card mounted alone', () => {
     await expect.element(theCard(theBeat.name).card).toHaveAttribute('aria-current', 'location');
   });
 
-  it.each(['card', 'chip', 'hidden'] as const)(
+  it.each(cardLooks.filter((look) => look !== 'current'))(
     'marks no %s card as where the writer is',
     async (as) => {
       mountTheCard(as);
