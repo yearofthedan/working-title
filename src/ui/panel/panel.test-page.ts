@@ -1,8 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-
-export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
-  elements.filter((element) => element instanceof HTMLElement);
+import { inThePage } from '../card/card.test-page';
 
 const headerRowIn = (panel: Locator): HTMLElement => {
   const row = panel.element().querySelector('div.heading');
