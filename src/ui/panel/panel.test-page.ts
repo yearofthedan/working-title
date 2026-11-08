@@ -1,5 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
+import { bottomOf, topOf } from '../../test-helpers/box';
 import { inThePage } from '../card/card.test-page';
 
 const headerRowIn = (panel: Locator): HTMLElement => {
@@ -57,40 +58,7 @@ export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop()
   return { keys, stop: () => document.removeEventListener('keydown', listener) };
 };
 
-export const caretOf = (field: Element): number =>
-  (field as HTMLTextAreaElement).selectionStart ?? 0;
-
-export const heightOf = (element: Element): number => element.getBoundingClientRect().height;
-
 export const displayOf = (element: Element): string => getComputedStyle(element).display;
-
-export const widthOf = (element: Element): number => element.getBoundingClientRect().width;
-
-export const textHeightOf = (field: Element): number => {
-  const style = getComputedStyle(field);
-  const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(
-    (sum, side) => sum + Number.parseFloat(style[side as 'paddingTop']),
-    0,
-  );
-  return heightOf(field) - box;
-};
-
-export const topOf = (element: Element): number => element.getBoundingClientRect().top;
-
-export const bottomOf = (element: Element): number => element.getBoundingClientRect().bottom;
 
 export const insideTheViewport = (element: Element): boolean =>
   topOf(element) >= 0 && bottomOf(element) <= window.innerHeight;
-
-export const scrollHeightOf = (element: Element): number => element.scrollHeight;
-
-export const writerCanScroll = (element: Element): boolean =>
-  ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
-
-export const lineHeightOf = (element: Element): number =>
-  Number.parseFloat(getComputedStyle(element).lineHeight);
-
-export const caretLineBottomOf = (field: Element): number => {
-  const padding = Number.parseFloat(getComputedStyle(field).paddingBottom);
-  return topOf(field) + field.clientTop + field.scrollHeight - padding - field.scrollTop;
-};

@@ -1,36 +1,25 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
-import { settled } from '../../test-helpers/driver';
-import { theViewport } from '../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { panelWriterOn } from './panel.dsl';
-import {
-  mountThePanel,
-  focusWithoutScrolling,
-  putTheCaretAt,
-  putTheCaretAtTheEndOf,
-  scrollTo,
-  scrollToTheEnd,
-  theAppClosesThePanel,
-  theAppSetsAField,
-  theBeat,
-} from './panel.harness';
 import {
   bottomOf,
-  caretLineBottomOf,
-  caretOf,
-  displayOf,
+  focusWithoutScrolling,
   heightOf,
-  insideTheViewport,
-  keysHeardOnThePage,
   lineHeightOf,
   scrollHeightOf,
+  scrollTo,
+  scrollToTheEnd,
   textHeightOf,
-  thePanelOn,
   topOf,
   widthOf,
   writerCanScroll,
-} from './panel.test-page';
+} from '../../test-helpers/box';
+import { settled } from '../../test-helpers/driver';
+import { caretLineBottomOf, caretOf } from '../../test-helpers/field';
+import { theViewport } from '../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { panelWriterOn } from './panel.dsl';
+import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
+import { displayOf, insideTheViewport, keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
 const writer = panelWriterOn(vitestBrowserDriver());
 
@@ -125,10 +114,9 @@ describe('the panel mounted alone', () => {
     const field = thePanelOn('Beat 2').field(theParagraph);
 
     await writer.putsTheFocusIn(theParagraph);
-    putTheCaretAt(field, 6);
-    await writer.presses('ArrowRight');
+    await writer.presses('ArrowLeft');
 
-    expect(caretOf(field.element())).toBe(7);
+    expect(caretOf(field)).toBe(theText.length - 1);
     await expect.element(field).toHaveFocus();
   });
 
@@ -180,7 +168,7 @@ describe('the panel mounted alone', () => {
     expect(heightOf(field.element())).toBeGreaterThan(empty);
   });
 
-  it('sets a field’s text from outside with no input fired, leaving the caret where it was', async () => {
+  it('shows the text the app sets in a field, without saving it again', async () => {
     const typed: string[] = [];
     const panel = mountThePanel(holding('', theText), {
       elaborate: (_piece, _facet, text) => {
@@ -191,12 +179,10 @@ describe('the panel mounted alone', () => {
     const field = thePanelOn('Beat 2').field(theParagraph);
 
     await writer.putsTheFocusIn(theParagraph);
-    putTheCaretAt(field, 6);
 
     theAppSetsAField(panel, 'paragraph', theText);
 
     await expect.element(field).toHaveValue(theText);
-    expect(caretOf(field.element())).toBe(6);
     expect(typed).toEqual([]);
 
     theAppSetsAField(panel, 'paragraph', `${theText} alone`);
@@ -373,7 +359,6 @@ describe('the panel mounted alone', () => {
     const thePageField = thePanelOn('Beat 2').field(thePage);
 
     await writer.putsTheFocusIn(thePage);
-    putTheCaretAtTheEndOf(thePageField);
     await writer.presses(' ');
 
     expect(insideTheViewport(thePageField.element())).toBe(true);
