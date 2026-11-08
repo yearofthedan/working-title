@@ -21,6 +21,7 @@ export const panelWriterOn = (driver: Driver, piece: string): PanelWriter => {
     typesKeyByKey: async (text) => {
       for (const character of text) await driver.press(character);
     },
+    // shortcut: wheels over the heading because Vitest's wheel hits the element's centre and a textarea there scrolls itself first, upgrade when the driver's wheel takes a position.
     scrollsToTheEnd: () => driver.scrollToTheEnd('heading', piece, thePanel),
   };
 };
