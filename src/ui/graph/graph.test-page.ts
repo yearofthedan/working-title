@@ -1,16 +1,20 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { inThePage } from '../card/card.test-page';
+import { inThePage, partsOf, theCard } from '../card/card.test-page';
 import { type CardLook } from '../card/card';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {
-    getByLook(look: CardLook): Locator;
+    getByCurrent(): Locator;
+    getByNotCurrent(): Locator;
+    getByInert(): Locator;
   }
 }
 
 browser.locators.extend({
-  getByLook: (look: CardLook) => `css=.${look}`,
+  getByCurrent: () => 'css=[aria-current="location"]',
+  getByNotCurrent: () => 'css=:not([aria-current])',
+  getByInert: () => 'css=[inert]',
 });
 
 export const everyCard = (): HTMLElement[] =>
@@ -53,39 +57,35 @@ export const buttonsFocused = async (what: () => Promise<void>): Promise<string[
   return focused;
 };
 
-export interface CardParts {
-  readonly card: Locator;
-  readonly heading: Locator;
-  readonly headingAt: (level: number) => Locator;
-  readonly nameButton: Locator;
-  readonly buttons: Locator;
-  readonly sentence: Locator;
-  readonly fields: Locator;
-  readonly addButton: Locator;
-}
+const groups = (): Locator => browser.page.getByRole('group', { includeHidden: true });
+const toolbars = (): Locator => browser.page.getByRole('toolbar', { includeHidden: true });
 
-const partsOf = (card: Locator): CardParts => ({
-  card,
-  heading: card.getByRole('heading', { includeHidden: true }),
-  headingAt: (level) => card.getByRole('heading', { level, includeHidden: true }),
-  nameButton: card.getByRole('button', { includeHidden: true }).first(),
-  buttons: card.getByRole('button', { includeHidden: true }),
-  sentence: card.getByLabelText('One-sentence summary', { exact: true }),
-  fields: card.getByRole('textbox', { includeHidden: true }),
-  addButton: card.getByRole('button', { name: 'Add a scene', exact: true, includeHidden: true }),
-});
-
-const aPieceNamed = (name: string): Locator =>
-  browser.page.getByRole('group', { name, exact: true, includeHidden: true });
+const looks: Readonly<Record<CardLook, () => Locator>> = {
+  current: () => groups().and(browser.page.getByCurrent()),
+  hidden: () => groups().and(browser.page.getByInert()),
+  chip: () =>
+    toolbars()
+      .filter({ has: browser.page.getByCurrent() })
+      .getByRole('group', { includeHidden: true })
+      .and(browser.page.getByNotCurrent()),
+  card: () =>
+    toolbars()
+      .filter({ hasNot: browser.page.getByCurrent() })
+      .getByRole('group', { includeHidden: true }),
+};
 
 export const holdsTheFocus = (part: Locator): boolean =>
   part.elements().some((element) => element.contains(document.activeElement));
 
 export const theGraph = () => ({
   pane: browser.page.getByRole('main'),
-  look: (look: CardLook): Locator => browser.page.getByLook(look),
-  card: (look: CardLook, name: string): CardParts =>
-    partsOf(browser.page.getByLook(look).and(aPieceNamed(name))),
-  piece: (name: string): CardParts => partsOf(aPieceNamed(name)),
-  on: (look: CardLook): CardParts => partsOf(browser.page.getByLook(look)),
+  look: (look: CardLook): Locator => looks[look](),
+  card: (look: CardLook, name: string) =>
+    partsOf(
+      looks[look]().and(
+        browser.page.getByRole('group', { name, exact: true, includeHidden: true }),
+      ),
+    ),
+  piece: theCard,
+  on: (look: CardLook) => partsOf(looks[look]()),
 });

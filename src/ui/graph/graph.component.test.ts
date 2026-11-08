@@ -251,7 +251,7 @@ describe('the graph around the current piece', () => {
     await settled();
 
     const body = facetOf(graph.on('current').card.element());
-    const button = graph.on('current').addButton;
+    const button = graph.on('current').actions.addAScene;
 
     expect(topOf(button.element())).toBeGreaterThanOrEqual(topOf(body));
     expect(bottomOf(button.element())).toBeLessThanOrEqual(bottomOf(body));
@@ -508,7 +508,7 @@ describe('the rows of the graph', () => {
 
     await expect.element(graph.on('current').card).toHaveFocus();
     await expect.element(field).toHaveAttribute('tabindex', '-1');
-    await expect.element(graph.on('current').addButton).toHaveAttribute('tabindex', '-1');
+    await expect.element(graph.on('current').actions.addAScene).toHaveAttribute('tabindex', '-1');
   });
 
   it('gives a row back its stop once a piece of it is on screen again', async () => {
@@ -574,7 +574,9 @@ describe('moving the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 4');
 
-    expect(graph.on('current').buttons.elements()[0]).toBe(graph.on('current').addButton.element());
+    expect(graph.on('current').buttons.elements()[0]).toBe(
+      graph.on('current').actions.addAScene.element(),
+    );
     await writer.putsTheFocusOnTheAddButtonOf('Beat 4');
     await writer.presses('ArrowDown');
 

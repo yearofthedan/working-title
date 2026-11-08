@@ -3,26 +3,32 @@ import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
-export const theCard = (name: string) => {
-  const card = browser.page.getByRole('group', { name, exact: true, includeHidden: true });
-  return {
-    card,
-    keys: card.getByRole('paragraph', { includeHidden: true }),
-    field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
-    actions: {
-      addAScene: card.getByRole('button', {
-        name: 'Add a scene',
-        exact: true,
-        includeHidden: true,
-      }),
-      openBeside: card.getByRole('button', {
-        name: 'Open beside',
-        exact: true,
-        includeHidden: true,
-      }),
-    },
-  };
-};
+export const partsOf = (card: Locator) => ({
+  card,
+  keys: card.getByRole('paragraph', { includeHidden: true }),
+  field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
+  heading: card.getByRole('heading', { includeHidden: true }),
+  headingAt: (level: number): Locator => card.getByRole('heading', { level, includeHidden: true }),
+  nameButton: card.getByRole('button', { includeHidden: true }).first(),
+  buttons: card.getByRole('button', { includeHidden: true }),
+  sentence: card.getByLabelText('One-sentence summary', { exact: true }),
+  fields: card.getByRole('textbox', { includeHidden: true }),
+  actions: {
+    addAScene: card.getByRole('button', {
+      name: 'Add a scene',
+      exact: true,
+      includeHidden: true,
+    }),
+    openBeside: card.getByRole('button', {
+      name: 'Open beside',
+      exact: true,
+      includeHidden: true,
+    }),
+  },
+});
+
+export const theCard = (name: string) =>
+  partsOf(browser.page.getByRole('group', { name, exact: true, includeHidden: true }));
 
 export const headingOf = (card: Element): HTMLElement => {
   const heading = inThePage(
