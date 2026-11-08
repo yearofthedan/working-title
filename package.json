@@ -6,7 +6,7 @@
     "prepare": "vp config --no-agent"
   },
   "dependencies": {
-    "workbox-window": "^7.4.1"
+    "workbox-window": "7.4.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
