@@ -1,7 +1,27 @@
 import * as browser from 'vite-plus/test/browser';
+import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
+
+const headerRowIn = (panel: Locator): HTMLElement => {
+  const row = panel.element().querySelector('div.heading');
+  if (!(row instanceof HTMLElement)) throw new Error('the panel draws no header row');
+  return row;
+};
+
+export const thePanelOn = (name: string) => {
+  const panel = browser.page.getByRole('complementary', { name, exact: true, includeHidden: true });
+  return {
+    panel,
+    name: panel.getByRole('heading', { level: 2, includeHidden: true }),
+    header: browser.page.elementLocator(headerRowIn(panel)),
+    actions: {
+      close: panel.getByRole('button', { name: 'Close', exact: true, includeHidden: true }),
+    },
+    field: (label: string): Locator => panel.getByLabelText(label, { exact: true }),
+  };
+};
 
 export const panelOf = (): HTMLElement => {
   const [panel] = inThePage(
@@ -30,22 +50,6 @@ export const closeButtonOf = (panel: HTMLElement): HTMLElement => {
   return button;
 };
 
-export const nameElementOf = (panel: HTMLElement): HTMLElement => {
-  const name = panel.querySelector('h2');
-  if (!(name instanceof HTMLElement)) throw new Error('the panel draws no name');
-  return name;
-};
-
-export const nameOn = (panel: HTMLElement): string => nameElementOf(panel).textContent ?? '';
-
-export const headingOf = (panel: HTMLElement): HTMLElement => {
-  const heading = panel.querySelector('div.heading');
-  if (!(heading instanceof HTMLElement)) throw new Error('the panel draws no header row');
-  return heading;
-};
-
-export const holdsTheFocus = (element: HTMLElement): boolean => element === document.activeElement;
-
 export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop(): void } => {
   const keys: string[] = [];
   const listener = (event: KeyboardEvent): void => {
@@ -55,15 +59,16 @@ export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop()
   return { keys, stop: () => document.removeEventListener('keydown', listener) };
 };
 
-export const caretIn = (field: HTMLTextAreaElement): number | null => field.selectionStart;
+export const caretOf = (field: Element): number =>
+  (field as HTMLTextAreaElement).selectionStart ?? 0;
 
-export const heightOf = (element: HTMLElement): number => element.getBoundingClientRect().height;
+export const heightOf = (element: Element): number => element.getBoundingClientRect().height;
 
-export const displayOf = (panel: HTMLElement): string => getComputedStyle(panel).display;
+export const displayOf = (element: Element): string => getComputedStyle(element).display;
 
-export const widthOf = (panel: HTMLElement): number => panel.getBoundingClientRect().width;
+export const widthOf = (element: Element): number => element.getBoundingClientRect().width;
 
-export const textHeightOf = (field: HTMLElement): number => {
+export const textHeightOf = (field: Element): number => {
   const style = getComputedStyle(field);
   const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(
     (sum, side) => sum + Number.parseFloat(style[side as 'paddingTop']),
@@ -72,34 +77,22 @@ export const textHeightOf = (field: HTMLElement): number => {
   return heightOf(field) - box;
 };
 
-export const scrolledTo = (element: HTMLElement, top: number): void => {
-  element.scrollTop = top;
-};
+export const topOf = (element: Element): number => element.getBoundingClientRect().top;
 
-export const focusWithoutScrolling = (field: HTMLElement): void => {
-  field.focus({ preventScroll: true });
-};
+export const bottomOf = (element: Element): number => element.getBoundingClientRect().bottom;
 
-export const topOf = (element: HTMLElement): number => element.getBoundingClientRect().top;
-
-export const bottomOf = (element: HTMLElement): number => element.getBoundingClientRect().bottom;
-
-export const insideTheViewport = (element: HTMLElement): boolean =>
+export const insideTheViewport = (element: Element): boolean =>
   topOf(element) >= 0 && bottomOf(element) <= window.innerHeight;
 
-export const scrollHeightOf = (element: HTMLElement): number => element.scrollHeight;
+export const scrollHeightOf = (element: Element): number => element.scrollHeight;
 
-export const scrollToTheEndOf = (element: HTMLElement): void => {
-  element.scrollTop = element.scrollHeight;
-};
-
-export const writerCanScroll = (element: HTMLElement): boolean =>
+export const writerCanScroll = (element: Element): boolean =>
   ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
 
-export const lineHeightOf = (element: HTMLElement): number =>
+export const lineHeightOf = (element: Element): number =>
   Number.parseFloat(getComputedStyle(element).lineHeight);
 
-export const caretLineBottomOf = (field: HTMLTextAreaElement): number => {
+export const caretLineBottomOf = (field: Element): number => {
   const padding = Number.parseFloat(getComputedStyle(field).paddingBottom);
   return topOf(field) + field.clientTop + field.scrollHeight - padding - field.scrollTop;
 };
