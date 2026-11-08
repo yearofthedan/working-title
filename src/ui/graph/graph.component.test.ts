@@ -6,8 +6,12 @@ import {
   centreOf,
   heightOf,
   inMain,
+  insideItsBorder,
   leftOf,
+  middleOf,
   offScreenFocus,
+  rightOf,
+  showsAllItsText,
   topOf,
   widthOf,
 } from '../../test-helpers/box';
@@ -81,7 +85,7 @@ describe('the graph around the current piece', () => {
     await laidOut();
 
     const field = graph.on('current').sentence.element();
-    expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
+    expect(showsAllItsText(field)).toBe(true);
     expect(heightOf(graph.on('current').card.element())).toBeGreaterThan(
       heightOf(graph.card('card', 'Beat 1').card.element()),
     );
@@ -148,10 +152,10 @@ describe('the graph around the current piece', () => {
       narrowThePane(width);
       await laidOut();
 
-      const box = graph.on('current').card.element().getBoundingClientRect();
-      const bounds = graph.pane.element().getBoundingClientRect();
-      expect(box.left).toBeGreaterThanOrEqual(bounds.left);
-      expect(box.right).toBeLessThanOrEqual(bounds.right);
+      const box = graph.on('current').card.element();
+      const bounds = graph.pane.element();
+      expect(leftOf(box)).toBeGreaterThanOrEqual(leftOf(bounds));
+      expect(rightOf(box)).toBeLessThanOrEqual(rightOf(bounds));
       expect(centreOf(graph.on('current').card)).toBeCloseTo(centreOf(graph.pane), 0);
     }
   });
@@ -167,7 +171,7 @@ describe('the graph around the current piece', () => {
 
     const children = graph.look('card').elements();
     expect(children).toHaveLength(5);
-    const rowTop = Math.min(...children.map((card) => card.getBoundingClientRect().top));
+    const rowTop = Math.min(...children.map((card) => topOf(card)));
     expect(rowTop).toBeGreaterThanOrEqual(bottomOf(graph.on('current').card.element()));
   });
 
@@ -179,13 +183,12 @@ describe('the graph around the current piece', () => {
       await writer.clicks('Beat 2');
       await settled();
 
-      const bounds = graph.pane.element().getBoundingClientRect();
-      const box = graph.on('current').card.element().getBoundingClientRect();
-      expect(box.top + box.height / 2).toBeCloseTo(window.innerHeight / 2, 0);
+      const bounds = graph.pane.element();
+      expect(middleOf(graph.on('current').card.element())).toBeCloseTo(window.innerHeight / 2, 0);
 
-      const parent = graph.card('card', 'The story').card.element().getBoundingClientRect();
-      expect(parent.top).toBeGreaterThanOrEqual(bounds.top);
-      expect(parent.bottom).toBeLessThanOrEqual(bounds.bottom);
+      const parent = graph.card('card', 'The story').card.element();
+      expect(topOf(parent)).toBeGreaterThanOrEqual(topOf(bounds));
+      expect(bottomOf(parent)).toBeLessThanOrEqual(bottomOf(bounds));
     },
   );
 
@@ -196,10 +199,10 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    const main = graph.pane.element().getBoundingClientRect();
-    const parent = graph.card('card', 'The story').card.element().getBoundingClientRect();
+    const main = graph.pane.element();
+    const parent = graph.card('card', 'The story').card.element();
 
-    expect(parent.top).toBeGreaterThanOrEqual(main.top);
+    expect(topOf(parent)).toBeGreaterThanOrEqual(topOf(main));
   });
 
   it('shows a card’s sentence small and in the interface font', async () => {
@@ -224,16 +227,12 @@ describe('the graph around the current piece', () => {
 
     const chip = graph.card('chip', 'Beat 1');
     const legend = chip.legend.element();
-    const box = legend.getBoundingClientRect();
-    const inside = {
-      top: box.top + legend.clientTop,
-      bottom: box.top + legend.clientTop + legend.clientHeight,
-    };
-    const name = chip.heading.element().getBoundingClientRect();
+    const inside = insideItsBorder(legend);
+    const name = chip.heading.element();
 
-    expect(name.top).toBeGreaterThanOrEqual(inside.top);
-    expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
-    expect(box.width).toBeLessThan(180);
+    expect(topOf(name)).toBeGreaterThanOrEqual(inside.top);
+    expect(bottomOf(name)).toBeLessThanOrEqual(inside.bottom);
+    expect(widthOf(legend)).toBeLessThan(180);
   });
 
   it("keeps the add button inside the current piece's card", async () => {

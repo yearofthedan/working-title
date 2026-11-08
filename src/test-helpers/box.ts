@@ -18,6 +18,21 @@ export const topOf = (element: Element): number => element.getBoundingClientRect
 
 export const bottomOf = (element: Element): number => element.getBoundingClientRect().bottom;
 
+export const rightOf = (element: Element): number => element.getBoundingClientRect().right;
+
+export const middleOf = (element: Element): number => {
+  const { top, height } = element.getBoundingClientRect();
+  return top + height / 2;
+};
+
+export const showsAllItsText = (field: Element): boolean =>
+  field.clientHeight >= field.scrollHeight - 1;
+
+export const insideItsBorder = (element: Element): { top: number; bottom: number } => {
+  const { top } = element.getBoundingClientRect();
+  return { top: top + element.clientTop, bottom: top + element.clientTop + element.clientHeight };
+};
+
 export const textHeightOf = (field: Element): number => {
   const style = getComputedStyle(field);
   const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(

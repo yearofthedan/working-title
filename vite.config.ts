@@ -21,6 +21,7 @@ export const findsAnyOtherWay = [
   'getByAltText',
   'getByTitle',
   'getByTestId',
+  'getByElement',
   'getByRef',
   'locator',
   'frameLocator',
