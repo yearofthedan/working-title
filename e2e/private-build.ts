@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -11,7 +11,13 @@ export interface Build {
   publishNewVersion(): Promise<void>;
 }
 
-const newTitle = '<title>working-title (new version)</title>';
+export const newVersionTitle = 'working-title (new version)';
+
+const stopServing = (server: ChildProcess): void => {
+  if (server.pid !== undefined && server.exitCode === null && server.signalCode === null) {
+    process.kill(-server.pid, 'SIGTERM');
+  }
+};
 
 const copyOfTheBuild = async (): Promise<{
   dir: string;
@@ -23,6 +29,7 @@ const copyOfTheBuild = async (): Promise<{
   cpSync(join(process.cwd(), 'dist'), dir, { recursive: true });
   const server = spawn('vp', ['preview', '--outDir', dir, '--port', '0'], {
     stdio: ['ignore', 'pipe', 'inherit'],
+    detached: true,
   });
   const { promise, resolve, reject } = Promise.withResolvers<string>();
   let output = '';
@@ -33,20 +40,22 @@ const copyOfTheBuild = async (): Promise<{
   });
   server.on('error', reject);
   server.on('exit', (code) => reject(new Error(`vp preview exited with ${code} before it served`)));
-  const url = await promise.catch((error: unknown) => {
-    remove();
-    throw error;
-  });
+  const gaveUp = setTimeout(
+    () => reject(new Error('vp preview printed no address in 20s')),
+    20_000,
+  );
+  const url = await promise
+    .finally(() => clearTimeout(gaveUp))
+    .catch((error: unknown) => {
+      stopServing(server);
+      remove();
+      throw error;
+    });
   return {
     dir,
     url,
     stop: async () => {
-      if (server.exitCode === null && server.signalCode === null) {
-        const exited = Promise.withResolvers<void>();
-        server.once('exit', () => exited.resolve());
-        server.kill();
-        await exited.promise;
-      }
+      stopServing(server);
       remove();
     },
   };
@@ -57,7 +66,7 @@ const publishNewVersion = (dir: string): void => {
   const sw = join(dir, 'sw.js');
   const oldIndex = readFileSync(index, 'utf8');
   const oldRevision = createHash('md5').update(oldIndex).digest('hex');
-  const title = oldIndex.replace(/<title>[^<]*<\/title>/, newTitle);
+  const title = oldIndex.replace(/<title>[^<]*<\/title>/, `<title>${newVersionTitle}</title>`);
   if (title === oldIndex) throw new Error('the title did not change');
   const newRevision = createHash('md5').update(title).digest('hex');
   const oldSw = readFileSync(sw, 'utf8');

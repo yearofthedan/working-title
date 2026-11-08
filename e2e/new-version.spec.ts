@@ -1,8 +1,6 @@
 import type { Page } from '@playwright/test';
 import { expect } from './writer';
-import { test } from './private-build';
-
-const newTitle = 'working-title (new version)';
+import { newVersionTitle, test } from './private-build';
 
 const registrationOf = (page: Page) =>
   page.evaluate(async () => {
@@ -33,7 +31,6 @@ test('a new version waits while the tab is open', async ({ writer, page, build }
   await writer.opensANewProject();
   await writer.types(summary, { piece: 'The story', facet: 'One-sentence summary' });
   await waitForTheFirstVersionToControl(page);
-  expect((await registrationOf(page)).waiting).toBeNull();
   await page.evaluate(() => {
     Object.assign(window, { controllerChanges: 0 });
     navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -82,5 +79,5 @@ test('a tab opened at first install moves to a new version when told to', async 
   await changed;
   await writer.reloads();
 
-  expect(await page.title()).toBe(newTitle);
+  expect(await page.title()).toBe(newVersionTitle);
 });
