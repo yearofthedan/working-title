@@ -59,6 +59,9 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     focus: async (role, name, group) => {
       (found(role, name, group).element() as HTMLElement).focus();
     },
+    hover: async (role, name, group) => {
+      await found(role, name, group).hover();
+    },
     scrollToTheEnd: async (role, name, group) => {
       await found(role, name, group).wheel({ delta: { y: farEnoughToReachTheEnd } });
     },

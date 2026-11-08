@@ -18,6 +18,12 @@ export interface AppWriter extends Writer {
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
+  clicksThePathTo(piece: string): Promise<void>;
+  hovers(piece: string): Promise<void>;
+  clicksOpenBesideOn(piece: string): Promise<void>;
+  presses(key: string): Promise<void>;
+  putsTheFocusOnClose(): Promise<void>;
+  typesKeyByKey(text: string): Promise<void>;
   closesThePanel(): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
   typesBeside(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
@@ -31,9 +37,12 @@ export interface AppSees extends Sees {
   focusIsInTheParagraph(): Promise<void>;
 }
 
+const clickingThePathTo = (driver: Driver, piece: string): Promise<void> =>
+  driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
+
 const reaching = async (driver: Driver, piece: string): Promise<void> => {
   if (!shows(await driver.tree(), pieceNamed(piece))) {
-    await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
+    await clickingThePathTo(driver, 'The story');
   }
   await clicking(driver, piece);
 };
@@ -57,6 +66,18 @@ export const appWriterOn = (
     await driver.click('button', 'Add a scene', { role: 'group', name: named });
   },
   opensBeside: (piece) => openingBeside(driver, piece),
+  clicksThePathTo: (piece) => clickingThePathTo(driver, piece),
+  hovers: (piece) => driver.hover('group', pieceNamed(piece)),
+  clicksOpenBesideOn: async (piece) => {
+    const named = pieceNamed(piece);
+    await driver.hover('group', named);
+    await driver.click('button', 'Open beside', { role: 'group', name: named });
+  },
+  presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
+  putsTheFocusOnClose: () => driver.focus('button', 'Close'),
+  typesKeyByKey: async (text) => {
+    for (const character of text) await driver.press(character);
+  },
   closesThePanel: () => driver.click('button', 'Close'),
   // shortcut: a facet written "{facet} under {beat}" makes that beat current first, until the table can name a piece and its beat apart.
   types: async (text, at) => {

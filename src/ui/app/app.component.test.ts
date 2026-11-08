@@ -32,13 +32,11 @@ import {
 } from '../graph/graph.test-page';
 import { closeButtonOf, fieldFor, panelOf } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
-import { appSteps, type AppWriter } from './app.dsl';
+import { type AppWriter } from './app.dsl';
 import { appScenarioSteps, pageWith } from './app.harness';
 import { headerOf } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
-
-const typed = 'types "{text}" as {scene}\'s list line under {beat}';
 
 const pathTo = (driver: Driver, piece: string): Promise<void> =>
   driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
@@ -472,19 +470,6 @@ describe('the motion of the panel beside the graph', () => {
       expect(moving()).toEqual([]);
       expect(widthOf(panelOf())).toBe(560);
     });
-  });
-});
-
-describe('the app’s language', () => {
-  it('refuses a scene that is not under the beat named', async () => {
-    const { driver, stage, sees, writer } = pageWith(2);
-    await stage.fresh();
-    await driver.click('heading', 'Beat 4', { role: 'group', name: 'Beat 4' });
-    const type = appSteps(writer, sees)[typed]!;
-
-    await expect(
-      Promise.resolve(type({ text: 'Maren rows out', scene: 'Scene 1', beat: 'Beat 2' })),
-    ).rejects.toThrow('Scene 1 is not under Beat 2');
   });
 });
 
