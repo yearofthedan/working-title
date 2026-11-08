@@ -16,10 +16,17 @@ import { bottomOfTheTextIn, caretOf } from '../../test-helpers/field';
 import { theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
-import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
+import {
+  mountThePanel,
+  theAppClosesThePanel,
+  theAppSetsAField,
+  theBeat,
+  theScene,
+} from './panel.harness';
 import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
 const writer = panelWriterOn(vitestBrowserDriver(), theBeat.name);
+const theSceneWriter = panelWriterOn(vitestBrowserDriver(), theScene.name);
 
 const theMostLinesTheParagraphShows = 6;
 const theLeastLinesThePageShows = 8;
@@ -28,6 +35,8 @@ const onePixelOfRounding = 1;
 const theSentence = 'One-sentence summary';
 const theParagraph = 'Paragraph';
 const thePage = 'Page';
+const theNarrative = 'Narrative';
+const theProse = 'Prose';
 const theText = 'Maren rows out before first light';
 
 const holding = (sentence: string, paragraph: string): PieceView => ({
@@ -140,6 +149,16 @@ describe('the panel mounted alone', () => {
     await writer.tabsForward();
 
     await expect.element(panel.field(thePage)).toHaveFocus();
+  });
+
+  it('tabs from the narrative to the prose', async () => {
+    mountThePanel(theScene);
+    const panel = thePanelOn('Scene 2');
+
+    await theSceneWriter.putsTheFocusIn(theNarrative);
+    await theSceneWriter.tabsForward();
+
+    await expect.element(panel.field(theProse)).toHaveFocus();
   });
 
   it('elaborates the facet it was typed into, with the text typed', async () => {

@@ -14,6 +14,17 @@ export const theBeat: PieceView = {
   childKind: 'Scene',
 };
 
+export const theScene: PieceView = {
+  id: 'scene-2',
+  name: 'Scene 2',
+  facets: [{ id: 'list-line', label: 'List line', text: '' }],
+  longFacets: [
+    { id: 'narrative', label: 'Narrative', text: '' },
+    { id: 'prose', label: 'Prose', text: '' },
+  ],
+  children: [],
+};
+
 export interface PanelHooks {
   readonly elaborate?: OpenProject['elaborate'];
   readonly close?: () => void;
