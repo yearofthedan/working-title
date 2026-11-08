@@ -20,10 +20,6 @@ export const recording = (tree: readonly string[]) => {
       const root = within === undefined ? '' : ` in ${within.role} "${within.name}"`;
       calls.push(`click ${role} "${name}"${root}`);
     },
-    clickWithoutWaiting: async (role, name, within) => {
-      const root = within === undefined ? '' : ` in ${within.role} "${within.name}"`;
-      calls.push(`clickWithoutWaiting ${role} "${name}"${root}`);
-    },
     focus: async (role, name, within) => {
       const root = within === undefined ? '' : ` in ${within.role} "${within.name}"`;
       calls.push(`focus ${role} "${name}"${root}`);

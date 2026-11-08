@@ -22,7 +22,6 @@ export interface Writer {
   reopens(): Promise<void>;
   startsFrom(project: SeededProject): Promise<void>;
   clicks(piece: string): Promise<void>;
-  clicksWithoutWaitingForTheMoveToEnd(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   putsTheFocusOnNameButtonOf(piece: string): Promise<void>;
   putsTheFocusOnTheCardOf(piece: string): Promise<void>;
@@ -111,10 +110,6 @@ export const writerOn = (
     clicksTheSentenceOf: (piece) =>
       driver.click('textbox', 'One-sentence summary', { role: 'group', name: pieceNamed(piece) }),
     clicksTheNameOf: (piece) => clicking(driver, piece),
-    clicksWithoutWaitingForTheMoveToEnd: (piece) => {
-      const named = pieceNamed(piece);
-      return driver.clickWithoutWaiting('heading', named, { role: 'group', name: named });
-    },
     addsASceneUnder: async (piece) => {
       await clicking(driver, piece);
       await driver.click('button', 'Add a scene', { role: 'group', name: pieceNamed(piece) });

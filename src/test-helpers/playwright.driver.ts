@@ -47,9 +47,6 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
       await page.keyboard.press(key);
     },
     click: clicking(page),
-    clickWithoutWaiting: async (role, name, within) => {
-      await found(role, name, within).click({ force: true });
-    },
     focus: async (role, name, within) => {
       await found(role, name, within).focus();
     },

@@ -57,9 +57,6 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
       await browser.userEvent.keyboard(keysFor(key));
     },
     click: clicking(within),
-    clickWithoutWaiting: async (role, name, group) => {
-      await found(role, name, group).click({ force: true });
-    },
     focus: async (role, name, group) => {
       (found(role, name, group).element() as HTMLElement).focus();
     },
