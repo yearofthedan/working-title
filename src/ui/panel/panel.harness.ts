@@ -47,24 +47,24 @@ const textareaIn = (field: Locator): HTMLTextAreaElement => {
   return element;
 };
 
-export const theCaretIsAt = (field: Locator, offset: number): void => {
+export const putTheCaretAt = (field: Locator, offset: number): void => {
   textareaIn(field).setSelectionRange(offset, offset);
 };
 
-export const theCaretIsAtTheEndOf = (field: Locator): void => {
+export const putTheCaretAtTheEndOf = (field: Locator): void => {
   const textarea = textareaIn(field);
   textarea.setSelectionRange(textarea.value.length, textarea.value.length);
 };
 
-export const focusIsPutIn = (field: Locator): void => {
+export const focusWithoutScrolling = (field: Locator): void => {
   field.element().focus({ preventScroll: true });
 };
 
-export const scrolledTo = (element: Locator, top: number): void => {
+export const scrollTo = (element: Locator, top: number): void => {
   element.element().scrollTop = top;
 };
 
-export const scrolledToTheEnd = (element: Locator): void => {
+export const scrollToTheEnd = (element: Locator): void => {
   const scrolled = element.element();
   scrolled.scrollTop = scrolled.scrollHeight;
 };

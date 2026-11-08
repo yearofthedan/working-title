@@ -6,14 +6,14 @@ import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
 import {
   mountThePanel,
-  focusIsPutIn,
-  scrolledTo,
-  scrolledToTheEnd,
+  focusWithoutScrolling,
+  putTheCaretAt,
+  putTheCaretAtTheEndOf,
+  scrollTo,
+  scrollToTheEnd,
   theAppClosesThePanel,
   theAppSetsAField,
   theBeat,
-  theCaretIsAt,
-  theCaretIsAtTheEndOf,
 } from './panel.harness';
 import {
   bottomOf,
@@ -125,7 +125,7 @@ describe('the panel mounted alone', () => {
     const field = thePanelOn('Beat 2').field(theParagraph);
 
     await writer.putsTheFocusIn(theParagraph);
-    theCaretIsAt(field, 6);
+    putTheCaretAt(field, 6);
     await writer.presses('ArrowRight');
 
     expect(caretOf(field.element())).toBe(7);
@@ -191,7 +191,7 @@ describe('the panel mounted alone', () => {
     const field = thePanelOn('Beat 2').field(theParagraph);
 
     await writer.putsTheFocusIn(theParagraph);
-    theCaretIsAt(field, 6);
+    putTheCaretAt(field, 6);
 
     theAppSetsAField(panel, 'paragraph', theText);
 
@@ -331,7 +331,7 @@ describe('the panel mounted alone', () => {
       );
       expect(writerCanScroll(panel.panel.element())).toBe(true);
 
-      scrolledToTheEnd(panel.panel);
+      scrollToTheEnd(panel.panel);
 
       const thePageField = panel.field(thePage);
       expect(textHeightOf(thePageField.element())).toBeGreaterThanOrEqual(
@@ -354,8 +354,8 @@ describe('the panel mounted alone', () => {
       const theSummary = panel.field(theSentence);
       const theHeader = panel.header;
 
-      focusIsPutIn(panel.field(theParagraph));
-      scrolledTo(panel.panel, 100);
+      focusWithoutScrolling(panel.field(theParagraph));
+      scrollTo(panel.panel, 100);
       expect(bottomOf(theSummary.element())).toBeLessThanOrEqual(bottomOf(theHeader.element()));
 
       await writer.tabsBackward();
@@ -373,7 +373,7 @@ describe('the panel mounted alone', () => {
     const thePageField = thePanelOn('Beat 2').field(thePage);
 
     await writer.putsTheFocusIn(thePage);
-    theCaretIsAtTheEndOf(thePageField);
+    putTheCaretAtTheEndOf(thePageField);
     await writer.presses(' ');
 
     expect(insideTheViewport(thePageField.element())).toBe(true);
