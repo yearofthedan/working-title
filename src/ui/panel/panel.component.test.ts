@@ -361,6 +361,6 @@ describe('the panel mounted alone', () => {
     await writer.presses(' ');
 
     await expect.element(thePageField).toBeInViewport({ ratio: 1 });
-    expect(caretLineBottomOf(thePageField.element())).toBeLessThanOrEqual(window.innerHeight);
+    expect(caretLineBottomOf(thePageField)).toBeLessThanOrEqual(window.innerHeight);
   });
 });
