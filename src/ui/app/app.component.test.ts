@@ -3,10 +3,11 @@ import * as browser from 'vite-plus/test/browser';
 import { bottomOf, boxOf, heightOf, topOf, widthOf } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
+import { caretOf } from '../../test-helpers/field';
 import { laidOut, moving } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { anInMemoryProject } from '../../test-helpers/seed';
+import { anInMemoryProject, holdingSaves } from '../../test-helpers/seed';
 import {
   aPageWithoutAHeader,
   aPageWithoutAMain,
@@ -110,6 +111,26 @@ describe('what the app keeps', () => {
     await writer.clicks('Beat 4');
 
     await expect.element(theCard('Beat 4').field('One-sentence summary')).toHaveValue(sentence);
+  });
+
+  it('keeps the text and the caret when a save is slow', async () => {
+    const store = holdingSaves();
+    const { stage, writer } = pageWith(0, 1440, store);
+    await stage.fresh();
+    await writer.opensBeside('Beat 2');
+    await settled();
+    const paragraph = thePanelOn('Beat 2').field('Paragraph');
+
+    await writer.putsTheFocusIn('Beat 2', 'Paragraph');
+    await writer.typesKeyByKey('ab');
+    await writer.presses('ArrowLeft');
+    await writer.typesKeyByKey('X');
+
+    store.release();
+
+    await expect.element(paragraph).toHaveValue('aXb');
+    await settled();
+    expect(caretOf(paragraph)).toBe(2);
   });
 });
 

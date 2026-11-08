@@ -72,7 +72,7 @@ export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
 
     show: (facetId, text) => {
       const input = fields.get(facetId);
-      if (input !== undefined && input.value !== text) input.value = text;
+      if (input !== undefined) input.value = text;
     },
 
     isOpenOn: (pieceId) => openOn === pieceId,

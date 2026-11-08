@@ -23,6 +23,7 @@ export interface AppWriter extends Writer {
   clicksOpenBesideOn(piece: string): Promise<void>;
   presses(key: string): Promise<void>;
   putsTheFocusOnClose(): Promise<void>;
+  putsTheFocusIn(piece: string, label: string): Promise<void>;
   typesKeyByKey(text: string): Promise<void>;
   closesThePanel(): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
@@ -75,6 +76,8 @@ export const appWriterOn = (
   },
   presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
   putsTheFocusOnClose: () => driver.focus('button', 'Close'),
+  putsTheFocusIn: (piece, label) =>
+    driver.focus('textbox', label, { role: 'complementary', name: pieceNamed(piece) }),
   typesKeyByKey: async (text) => {
     for (const character of text) await driver.press(character);
   },
