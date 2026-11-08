@@ -2,7 +2,8 @@ import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
 import { stopTheApp } from './the-app';
 
-export const clickThroughInert = (part: Locator): Promise<void> => part.click({ force: true });
+export const clickWithoutWaitingForTheMoveToEnd = (part: Locator): Promise<void> =>
+  part.click({ force: true });
 
 export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);

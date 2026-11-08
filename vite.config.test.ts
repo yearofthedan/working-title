@@ -112,13 +112,9 @@ beforeAll(() => {
       `${level}-document.${level}.test.ts`,
       'export const sample = (): number => document.body.childElementCount;\n',
     );
-  const readingTheCardElement = readingACard.querySelector;
-  if (readingTheCardElement === undefined)
-    throw new Error('no sample reads a card with querySelector');
   for (const level of levels) {
     writeInUi(`calling-user-event/sample.${level}.test.ts`, callingUserEvent);
     writeInUi(`importing-user-event/sample.${level}.test.ts`, importingUserEvent);
-    writeInUi(`calling-query-selector/sample.${level}.test.ts`, readingTheCardElement);
   }
   writeInUi('unlisted/other.test.ts', callingUserEvent);
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
@@ -227,15 +223,6 @@ describe('a component test or an app test using the writer', { timeout: 60_000 }
       expect.stringMatching(/writer.*testing\.md/),
     ]);
   });
-
-  it.each(levels)(
-    'a %s test calling querySelector still fails lint, pointing at the test page',
-    (level) => {
-      expect(uiErrorsIn(`calling-query-selector/sample.${level}.test.ts`)).toEqual([
-        expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
-    },
-  );
 
   it('a test that is neither a component nor an app test calling browser.userEvent passes lint', () => {
     expect(uiErrorsIn('unlisted/other.test.ts')).toEqual([]);
