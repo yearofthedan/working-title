@@ -51,7 +51,7 @@ export default {
       to: { path: '\\.dom\\.ts$' },
     },
     {
-      name: 'app-started-only-by-its-entry-and-app-tests',
+      name: 'start-app-imported-only-by-its-entry-and-app-tests',
       severity: 'error',
       comment:
         'Only the entry and an app test import startApp, because a test that starts the whole app through it is an app test (docs/standards/testing.md).',
