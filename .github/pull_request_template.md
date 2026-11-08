@@ -16,7 +16,7 @@ After:
 
 ## How to verify
 
-<!-- Numbered steps the builder follows to check the change, starting from the running result rather than the tests: what to run, where to look, and what they should see. A change the writer sees starts with `./do preview` in the worktree, then clearing the site's data (DevTools → Application → Storage → Clear site data) and reloading, so the page is this build with a new project. The checks to run come last. -->
+<!-- Numbered steps the builder follows to check the change, starting from the running result rather than the tests: what to run, where to look, and what they should see. For a change the writer does not see, the running result is what the changed script prints or the page it renders. Start from "Verify a change" in [CONTRIBUTING](../CONTRIBUTING.md). -->
 
 1.
 

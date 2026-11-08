@@ -75,6 +75,7 @@ rm "$project/.Bad"
 stage
 
 write AGENTS.md
+write CONTRIBUTING.md
 write README.md
 write SKILL.md
 write RULES.md

@@ -17,7 +17,7 @@ labels: task
 
 ## Done when
 
-<!-- Agreed before any code. The definition of done in .agents/skills/implement/SKILL.md always applies.
+<!-- Agreed before any code. The definition of done in the implement skill always applies.
 One line per fact the pull request shows, each in one of two kinds:
 - What this repo writes or sets, such as a setting's value, two files kept in step, or a script: tested here.
 - What the tool does with it: its docs linked beside the line, and one run where it holds on this repo, such as the CI job that uses it. Not re-tested here. -->

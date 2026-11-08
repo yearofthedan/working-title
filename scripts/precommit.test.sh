@@ -37,7 +37,7 @@ expect_vp 'staged' "precommit runs vp staged"
 ran check "a change to code runs ./do check"
 expect_status 0 "a change to code that passes the check commits"
 
-stage docs/standards/markup.md README.md .agents/skills/implement/SKILL.md
+stage docs/standards/markup.md README.md .agents/skills/writing-stories/SKILL.md
 precommit
 ran check-docs "a change to docs alone runs the docs check"
 ran check-links "a change to docs alone runs the link check"
