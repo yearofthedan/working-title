@@ -318,6 +318,8 @@ describe('the panel mounted alone', () => {
         heightOf(panel.panel.element()),
       );
       expect(writerCanScroll(panel.panel.element())).toBe(true);
+      scrollTo(panel.panel, 0);
+      await expect.element(panel.field(thePage)).not.toBeInViewport({ ratio: 1 });
 
       await writer.scrollsToTheEnd();
 

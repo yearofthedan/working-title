@@ -21,6 +21,6 @@ export const panelWriterOn = (driver: Driver, piece: string): PanelWriter => {
     typesKeyByKey: async (text) => {
       for (const character of text) await driver.press(character);
     },
-    scrollsToTheEnd: () => driver.scrollToTheEnd(thePanel.role, thePanel.name),
+    scrollsToTheEnd: () => driver.scrollToTheEnd('heading', piece, thePanel),
   };
 };
