@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { stripVTControlCharacters } from 'node:util';
 import { test as base } from './writer';
 
 export interface Build {
@@ -18,6 +19,7 @@ const copyOfTheBuild = async (): Promise<{
   stop: () => Promise<void>;
 }> => {
   const dir = mkdtempSync(join(tmpdir(), 'working-title-'));
+  const remove = () => rmSync(dir, { recursive: true, force: true });
   cpSync(join(process.cwd(), 'dist'), dir, { recursive: true });
   const server = spawn('vp', ['preview', '--outDir', dir, '--port', '0'], {
     stdio: ['ignore', 'pipe', 'inherit'],
@@ -25,24 +27,27 @@ const copyOfTheBuild = async (): Promise<{
   const { promise, resolve, reject } = Promise.withResolvers<string>();
   let output = '';
   server.stdout.on('data', (chunk: Buffer) => {
-    output += chunk.toString();
+    output += stripVTControlCharacters(chunk.toString());
     const found = /Local:\s+(http:\/\/localhost:\d+)/.exec(output);
     if (found !== null) resolve(found[1] ?? '');
   });
   server.on('error', reject);
   server.on('exit', (code) => reject(new Error(`vp preview exited with ${code} before it served`)));
-  const url = await promise;
+  const url = await promise.catch((error: unknown) => {
+    remove();
+    throw error;
+  });
   return {
     dir,
     url,
     stop: async () => {
-      if (server.exitCode === null) {
+      if (server.exitCode === null && server.signalCode === null) {
         const exited = Promise.withResolvers<void>();
         server.once('exit', () => exited.resolve());
         server.kill();
         await exited.promise;
       }
-      rmSync(dir, { recursive: true, force: true });
+      remove();
     },
   };
 };
