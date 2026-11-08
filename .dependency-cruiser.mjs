@@ -54,7 +54,7 @@ export default {
       name: 'app-started-only-by-its-entry-and-app-tests',
       severity: 'error',
       comment:
-        'Only the entry and an app test start the whole app, because a test that starts the whole app is an app test (docs/standards/testing.md).',
+        'Only the entry and an app test import startApp, because a test that starts the whole app through it is an app test (docs/standards/testing.md).',
       from: { path: '^src/', pathNot: ['^src/main\\.ts$', '\\.app\\.test\\.ts$'] },
       to: { path: '^src/app\\.ts$' },
     },

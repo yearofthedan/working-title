@@ -179,9 +179,9 @@ write src/app.ts "export const startApp = (): void => undefined;"
 write src/ui/focus/graph.component.test.ts "import { startApp } from '../../app';
 export const judge = startApp;"
 run_layers
-refused "a component test that starts the whole app is refused"
+refused "a component test importing startApp is refused"
 expect_out 'app-started-only-by-its-entry-and-app-tests: src/ui/focus/graph.component.test.ts → src/app.ts' \
-  "the component test and the app it started are named"
+  "the component test and the startApp file it reached are named"
 expect_out 'standards/testing.md' "the refusal links the standard"
 
 rm -rf "$project/src"
@@ -191,9 +191,9 @@ export const start = startApp;"
 write src/app.app.test.ts "import { startApp } from './app';
 export const judge = startApp;"
 run_layers
-allowed "the entry and an app test starting the whole app are allowed"
+allowed "the entry and an app test importing startApp are allowed"
 not_out 'app-started-only-by-its-entry-and-app-tests' \
-  "the rule says nothing where the entry and an app test start the app"
+  "the rule says nothing where the entry and an app test import startApp"
 
 rm -rf "$project/src" "$project/e2e"
 write src/domain/story.ts 'export type Story = { summary: string };'
