@@ -22,11 +22,7 @@ import {
 } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import {
-  clickWithoutWaitingForTheMoveToEnd,
-  narrowThePane,
-  theViewport,
-} from '../../test-helpers/staging';
+import { narrowThePane, theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import {
   facetOf,
@@ -1073,7 +1069,7 @@ describe('the motion of a move', () => {
       await writer.clicks('Beat 2');
       await partWay();
       clicked = performance.now();
-      await clickWithoutWaitingForTheMoveToEnd(graph.card('chip', 'Beat 5').card);
+      await writer.clicksWithoutWaitingForTheMoveToEnd('Beat 5');
       landed.push(currentName());
       await settled();
     });

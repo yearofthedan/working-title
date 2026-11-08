@@ -65,6 +65,7 @@ export interface Driver {
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
+  clickWithoutWaiting(role: Role, name: string, within?: Within): Promise<void>;
   focus(role: Role, name: string, within?: Within): Promise<void>;
   hover(role: Role, name: string, within?: Within): Promise<void>;
   scrollToTheEnd(role: Role, name: string, within?: Within): Promise<void>;
