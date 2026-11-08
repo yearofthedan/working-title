@@ -5,6 +5,7 @@ import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
 import { caretOf } from '../../test-helpers/field';
 import { laidOut, moving } from '../../test-helpers/graph-page';
+import { expectVisuallyHidden, expectVisuallyShown } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { anInMemoryProject, holdingSaves } from '../../test-helpers/seed';
@@ -15,13 +16,7 @@ import {
   narrowThePane,
 } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import {
-  expectVisuallyShown,
-  expectVisuallyHidden,
-  nameOf,
-  theCard,
-  timesDrawn,
-} from '../card/card.test-page';
+import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
