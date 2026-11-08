@@ -8,11 +8,17 @@ import {
   documentSelectors,
   domGlobals,
   findsAnyOtherWay,
+  findsByElement,
   findsByRoleOrLabel,
   pageSelectorActions,
 } from './vite.config';
 
-const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
+const calls = [
+  ...findsByRoleOrLabel,
+  ...findsAnyOtherWay,
+  ...findsByElement,
+  ...pageSelectorActions,
+];
 
 const levels = ['component', 'app'] as const;
 
@@ -28,6 +34,8 @@ const readingACard: Record<string, string> = {
   querySelector: "export const sample = (card: HTMLElement) => card.querySelector('h2');\n",
   querySelectorAll: "export const sample = (card: HTMLElement) => card.querySelectorAll('h2');\n",
   style: 'export const sample = (card: HTMLElement) => card.style.width;\n',
+  getByElement:
+    "import type { Locator } from 'vite-plus/test/browser';\nexport const sample = (card: Locator) => card.getByElement('.x');\n",
 };
 
 const usingTheDom: Record<string, string> = {
@@ -116,11 +124,7 @@ beforeAll(() => {
     writeInUi(`calling-user-event/sample.${level}.test.ts`, callingUserEvent);
     writeInUi(`importing-user-event/sample.${level}.test.ts`, importingUserEvent);
   }
-  const findingByElement =
-    "import { page } from 'vite-plus/test/browser';\nexport const sample = () => page.getByElement('.x');\n";
-  for (const level of levels)
-    writeInUi(`finding-by-element-${level}.${level}.test.ts`, findingByElement);
-  writeInUi('finding-by-element.test-page.ts', findingByElement);
+  writeInUi('finding-by-element.test-page.ts', readingACard.getByElement ?? '');
   writeInUi('unlisted/other.test.ts', callingUserEvent);
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
@@ -166,7 +170,7 @@ describe('e2e locators', { timeout: 60_000 }, () => {
     expect(errorsIn('driver-acting-on-a-locator/sample.driver.ts')).toEqual([]);
   });
 
-  it.each([...findsAnyOtherWay, ...pageSelectorActions])(
+  it.each([...findsAnyOtherWay, ...findsByElement, ...pageSelectorActions])(
     'the driver calling page.%s fails lint',
     (call) => {
       expect(errorsIn(`driver-${call}/sample.driver.ts`)).toEqual([
@@ -209,13 +213,6 @@ describe('a component test or an app test', { timeout: 60_000 }, () => {
     for (const level of levels)
       expect(uiErrorsIn(`${level}-document.${level}.test.ts`)).toEqual([
         expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
-  });
-
-  it('finding by getByElement fails lint, pointing at the driver', () => {
-    for (const level of levels)
-      expect(uiErrorsIn(`finding-by-element-${level}.${level}.test.ts`)).toEqual([
-        expect.stringContaining('Find elements in a driver'),
       ]);
   });
 

@@ -72,14 +72,16 @@ describe('the card mounted alone', () => {
 
     const { shown, label } = theCard(theBeat.name);
 
-    expect(getComputedStyle(shown.element()).color).toBe(getComputedStyle(label.element()).color);
+    expect(getComputedStyle(shown(theSentence).element()).color).toBe(
+      getComputedStyle(label.element()).color,
+    );
   });
 
   it('shows a card’s sentence small and in the interface font', () => {
     mountTheCard('card', { piece: beatWith(theSentence) });
 
     const { shown, heading, sentence } = theCard(theBeat.name);
-    const shownStyle = getComputedStyle(shown.element());
+    const shownStyle = getComputedStyle(shown(theSentence).element());
     const typed = getComputedStyle(sentence.element());
 
     expect(Number.parseFloat(shownStyle.fontSize)).toBeLessThan(Number.parseFloat(typed.fontSize));

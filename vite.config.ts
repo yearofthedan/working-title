@@ -6,7 +6,13 @@ const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
-export const componentAndAppTestRefusals = ['querySelector', 'querySelectorAll', 'style'];
+export const findsByElement = ['getByElement'];
+export const componentAndAppTestRefusals = [
+  'querySelector',
+  'querySelectorAll',
+  'style',
+  ...findsByElement,
+];
 export const domGlobals = [
   'document',
   'window',
@@ -21,7 +27,6 @@ export const findsAnyOtherWay = [
   'getByAltText',
   'getByTitle',
   'getByTestId',
-  'getByElement',
   'getByRef',
   'locator',
   'frameLocator',
@@ -133,7 +138,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay, ...findsByElement],
+              findsElementsInADriver,
+            ),
             ...documentSelectors.map((property) => ({
               object: 'document',
               property,
@@ -195,7 +203,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], theLanguageCallsTheDriver),
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay, ...findsByElement],
+              theLanguageCallsTheDriver,
+            ),
             ...documentSelectors.map((property) => ({
               object: 'document',
               property,
@@ -210,7 +221,7 @@ export default defineConfig({
           'no-restricted-properties': [
             'error',
             ...restricted(
-              findsAnyOtherWay,
+              [...findsAnyOtherWay, ...findsByElement],
               'A driver finds elements by role or label, as the writer does.',
             ),
           ],

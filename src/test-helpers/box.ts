@@ -28,11 +28,6 @@ export const middleOf = (element: Element): number => {
 export const showsAllItsText = (field: Element): boolean =>
   field.clientHeight >= field.scrollHeight - 1;
 
-export const insideItsBorder = (element: Element): { top: number; bottom: number } => {
-  const { top } = element.getBoundingClientRect();
-  return { top: top + element.clientTop, bottom: top + element.clientTop + element.clientHeight };
-};
-
 export const textHeightOf = (field: Element): number => {
   const style = getComputedStyle(field);
   const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(

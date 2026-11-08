@@ -6,7 +6,6 @@ import {
   centreOf,
   heightOf,
   inMain,
-  insideItsBorder,
   leftOf,
   middleOf,
   offScreenFocus,
@@ -43,14 +42,18 @@ const graph = theGraph();
 
 const currentName = (): string => nameOf(graph.on('current').card.element());
 
+const aSentence = "A widow hunts the man who sank her husband's ship";
+
 describe('the graph page', () => {
   it("draws a card's sentence in the muted colour", async () => {
-    const { stage } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
 
+    await writer.types(aSentence, { piece: 'Beat 1', facet: 'One-sentence summary' });
+    await writer.clicks('The story');
     const card = graph.card('card', 'Beat 1');
 
-    expect(getComputedStyle(card.shown.element()).color).toBe(
+    expect(getComputedStyle(card.shown(aSentence).element()).color).toBe(
       getComputedStyle(card.label.element()).color,
     );
   });
@@ -208,10 +211,11 @@ describe('the graph around the current piece', () => {
   it('shows a card’s sentence small and in the interface font', async () => {
     const { stage, writer } = graphWith();
     await stage.fresh();
+    await writer.types(aSentence, { piece: 'The story', facet: 'One-sentence summary' });
     await writer.clicks('Beat 2');
 
     const card = graph.card('card', 'The story');
-    const sentence = getComputedStyle(card.shown.element());
+    const sentence = getComputedStyle(card.shown(aSentence).element());
     const name = getComputedStyle(card.heading.element());
     const typed = getComputedStyle(graph.on('current').sentence.element());
 
@@ -226,13 +230,12 @@ describe('the graph around the current piece', () => {
     await settled();
 
     const chip = graph.card('chip', 'Beat 1');
-    const legend = chip.legend.element();
-    const inside = insideItsBorder(legend);
+    const box = chip.card.element();
     const name = chip.heading.element();
 
-    expect(topOf(name)).toBeGreaterThanOrEqual(inside.top);
-    expect(bottomOf(name)).toBeLessThanOrEqual(inside.bottom);
-    expect(widthOf(legend)).toBeLessThan(180);
+    expect(topOf(name)).toBeGreaterThanOrEqual(topOf(box));
+    expect(bottomOf(name)).toBeLessThanOrEqual(bottomOf(box));
+    expect(widthOf(box)).toBeLessThan(180);
   });
 
   it("keeps the add button inside the current piece's card", async () => {
@@ -1060,6 +1063,7 @@ describe('the motion of a move', () => {
     let pressed = 0;
     const frames = await recorded(async () => {
       await writer.presses('ArrowLeft');
+      expect(moving().length).toBeGreaterThan(0);
       await writer.presses('ArrowLeft');
       pressed = performance.now();
       await writer.presses('ArrowLeft');

@@ -6,9 +6,9 @@ export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTML
 
 export const partsOf = (card: Locator) => ({
   card,
-  legend: card.getByElement('legend'),
+  // shortcut: the card's body has no role or name, so it is found by class, until the card marks its facets as a named region.
   facet: card.getByElement('.facet'),
-  shown: card.getByElement('.shown'),
+  shown: (sentence: string): Locator => card.getByText(sentence, { exact: true }),
   label: card.getByText('One-sentence summary', { exact: true }).first(),
   keys: card.getByRole('paragraph', { includeHidden: true }),
   field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
