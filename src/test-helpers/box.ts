@@ -29,11 +29,6 @@ export const scrollTo = (element: Locator, top: number): void => {
   element.element().scrollTop = top;
 };
 
-export const scrollToTheEnd = (element: Locator): void => {
-  const scrolled = element.element();
-  scrolled.scrollTop = scrolled.scrollHeight;
-};
-
 export const focusWithoutScrolling = (field: Locator): void => {
   field.element().focus({ preventScroll: true });
 };

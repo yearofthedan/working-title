@@ -1,6 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
+  farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
@@ -58,6 +59,11 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
           .getByRole(role, { name: wholeNameAnyCase(name) })
           .element() as HTMLElement
       ).focus();
+    },
+    scrollToTheEnd: async (role, name, group) => {
+      await rootIn(group)
+        .getByRole(role, { name: wholeNameAnyCase(name) })
+        .wheel({ delta: { y: farEnoughToReachTheEnd } });
     },
     type: typing(within),
     clickAway: async () => {

@@ -3,6 +3,7 @@ import { cardLooks } from '../ui/card/card';
 import {
   clicking,
   drawn,
+  farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
@@ -47,6 +48,12 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
       await rootIn(within)
         .getByRole(role, { name: wholeNameAnyCase(name) })
         .focus();
+    },
+    scrollToTheEnd: async (role, name, within) => {
+      await rootIn(within)
+        .getByRole(role, { name: wholeNameAnyCase(name) })
+        .hover();
+      await page.mouse.wheel(0, farEnoughToReachTheEnd);
     },
     type: typing(page),
     clickAway: async () => {

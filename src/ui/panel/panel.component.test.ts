@@ -6,7 +6,6 @@ import {
   lineHeightOf,
   scrollHeightOf,
   scrollTo,
-  scrollToTheEnd,
   textHeightOf,
   whatCoversTheTopOf,
   widthOf,
@@ -20,7 +19,11 @@ import { panelWriterOn } from './panel.dsl';
 import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
 import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
-const writer = panelWriterOn(vitestBrowserDriver());
+const writer = panelWriterOn(vitestBrowserDriver(), theBeat.name);
+
+const theMostLinesTheParagraphShows = 6;
+const theLeastLinesThePageShows = 8;
+const onePixelOfRounding = 1;
 
 const theSentence = 'One-sentence summary';
 const theParagraph = 'Paragraph';
@@ -296,14 +299,14 @@ describe('the panel mounted alone', () => {
     mountThePanel(holdingALongPage(aParagraphOfTwelveLines, ''));
     await settled();
     const paragraph = thePanelOn('Beat 2').field(theParagraph);
-    const sixLines = 6 * lineHeightOf(paragraph.element());
+    const sixLines = theMostLinesTheParagraphShows * lineHeightOf(paragraph.element());
 
-    expect(textHeightOf(paragraph.element())).toBeLessThanOrEqual(sixLines + 1);
-    expect(textHeightOf(paragraph.element())).toBeGreaterThanOrEqual(sixLines - 1);
+    expect(textHeightOf(paragraph.element())).toBeLessThanOrEqual(sixLines + onePixelOfRounding);
+    expect(textHeightOf(paragraph.element())).toBeGreaterThanOrEqual(sixLines - onePixelOfRounding);
     expect(scrollHeightOf(paragraph.element())).toBeGreaterThan(heightOf(paragraph.element()));
   });
 
-  it('reaches the bottom of the page in a 420 px window, with the name and Close still in view', async () => {
+  it('lets the writer reach the end of a long page in a short window, with the name and Close still in view', async () => {
     const { innerWidth, innerHeight } = window;
     await theViewport(innerWidth, 420);
     try {
@@ -316,11 +319,11 @@ describe('the panel mounted alone', () => {
       );
       expect(writerCanScroll(panel.panel.element())).toBe(true);
 
-      scrollToTheEnd(panel.panel);
+      await writer.scrollsToTheEnd();
 
       const thePageField = panel.field(thePage);
       expect(textHeightOf(thePageField.element())).toBeGreaterThanOrEqual(
-        8 * lineHeightOf(thePageField.element()) - 1,
+        theLeastLinesThePageShows * lineHeightOf(thePageField.element()) - onePixelOfRounding,
       );
       await expect.element(thePageField).toBeInViewport({ ratio: 1 });
       await expect.element(panel.name).toBeInViewport({ ratio: 1 });
