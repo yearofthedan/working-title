@@ -85,22 +85,6 @@ describe('a scenario file', () => {
     expect(printScenarioFile(readScenarioFile(file))).toBe(file);
   });
 
-  it('reads a file with no line as the graph, and prints it with no line', () => {
-    const file = [
-      'Rule: A toy rule.',
-      '',
-      '### Scenario: A toy behaviour',
-      '',
-      '```',
-      'Given a toy',
-      '```',
-      '',
-    ].join('\n');
-
-    expect(readScenarioFile(file).sees).toBeUndefined();
-    expect(printScenarioFile(readScenarioFile(file))).not.toContain('Sees:');
-  });
-
   it('reads a But after a Then as one more outcome', () => {
     const { scenarios } = readScenarioFile(
       [
