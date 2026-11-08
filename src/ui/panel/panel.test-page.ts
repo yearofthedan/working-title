@@ -1,8 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
 
-import { inThePage } from '../card/card.test-page';
-
 export const thePanelOn = (name: string) => {
   const panel = browser.page.getByRole('complementary', { name, exact: true, includeHidden: true });
   return {
@@ -13,33 +11,6 @@ export const thePanelOn = (name: string) => {
     },
     field: (label: string): Locator => panel.getByLabelText(label, { exact: true }),
   };
-};
-
-export const panelOf = (): HTMLElement => {
-  const [panel] = inThePage(
-    browser.page.getByRole('complementary', { includeHidden: true }).elements(),
-  );
-  if (panel === undefined) throw new Error('the page draws no panel');
-  return panel;
-};
-
-export const fieldFor = (panel: HTMLElement, label: string): HTMLTextAreaElement => {
-  const field = browser.page
-    .getByLabelText(label, { exact: true })
-    .elements()
-    .find((element) => panel.contains(element));
-  if (!(field instanceof HTMLTextAreaElement)) {
-    throw new Error(`the panel has no ${label} field`);
-  }
-  return field;
-};
-
-export const closeButtonOf = (panel: HTMLElement): HTMLElement => {
-  const button = inThePage(
-    browser.page.getByRole('button', { name: /^Close$/i, includeHidden: true }).elements(),
-  ).find((one) => panel.contains(one));
-  if (button === undefined) throw new Error('the panel draws no Close button');
-  return button;
 };
 
 export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop(): void } => {

@@ -30,7 +30,11 @@ export const findsAnyOtherWay = [
   '$$eval',
   'waitForSelector',
 ];
-export const filesUsingTheWriter = ['card.component.test.ts', 'panel.component.test.ts'];
+export const filesUsingTheWriter = [
+  'card.component.test.ts',
+  'panel.component.test.ts',
+  'app.component.test.ts',
+];
 export const pageSelectorActions = [
   'check',
   'click',

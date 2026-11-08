@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
-import * as browser from 'vite-plus/test/browser';
+import { commands } from 'vite-plus/test/browser';
 import { bottomOf, boxOf, heightOf, topOf, widthOf } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
@@ -355,12 +355,12 @@ describe('the motion of a move the app makes', () => {
 
   describe('under reduced motion', () => {
     afterEach(async () => {
-      await browser.commands.emulateReducedMotion('no-preference');
+      await commands.emulateReducedMotion('no-preference');
     });
 
     it.each(moves)('moves nothing for $what', async ({ play }) => {
       const { stage, writer } = pageWith(1);
-      await browser.commands.emulateReducedMotion('reduce');
+      await commands.emulateReducedMotion('reduce');
       await stage.fresh();
 
       await play(writer);
@@ -435,12 +435,12 @@ describe('the motion of the panel beside the graph', () => {
 
   describe('under reduced motion', () => {
     afterEach(async () => {
-      await browser.commands.emulateReducedMotion('no-preference');
+      await commands.emulateReducedMotion('no-preference');
     });
 
     it('opens the panel in one step', async () => {
       const { stage, writer } = pageWith(1);
-      await browser.commands.emulateReducedMotion('reduce');
+      await commands.emulateReducedMotion('reduce');
       await stage.fresh();
       await writer.clicks('Beat 2');
 
