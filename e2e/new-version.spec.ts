@@ -16,17 +16,25 @@ const registrationOf = (page: Page) =>
     };
   });
 
-const waitForWaiting = (page: Page) =>
-  page.waitForFunction(async () => {
-    const registration = await navigator.serviceWorker.getRegistration();
-    return registration?.waiting != null;
-  });
+const waitForTheFirstVersionToControl = async (page: Page): Promise<void> => {
+  await expect
+    .poll(async () => {
+      const { active, controller } = await registrationOf(page);
+      return active !== null && controller === active;
+    })
+    .toBe(true);
+};
+
+const waitForWaiting = async (page: Page): Promise<void> => {
+  await expect.poll(async () => (await registrationOf(page)).waiting).not.toBeNull();
+};
 
 test('a new version waits while the tab is open', async ({ writer, page, build }) => {
   await writer.opensANewProject();
   await writer.types(summary, { piece: 'The story', facet: 'One-sentence summary' });
-  await writer.reloads();
   await page.evaluate(() => navigator.serviceWorker.ready);
+  await writer.reloads();
+  await waitForTheFirstVersionToControl(page);
 
   const before = await registrationOf(page);
   expect(before.waiting).toBeNull();
@@ -51,7 +59,7 @@ test('a tab opened at first install moves to a new version when told to', async 
   build,
 }) => {
   await writer.opensANewProject();
-  await page.evaluate(() => navigator.serviceWorker.ready);
+  await waitForTheFirstVersionToControl(page);
 
   await build.publishNewVersion();
   await page.evaluate(async () => {
