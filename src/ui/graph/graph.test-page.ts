@@ -3,20 +3,6 @@ import type { Locator } from 'vite-plus/test/browser';
 import { inThePage, partsOf, theCard } from '../card/card.test-page';
 import { type CardLook } from '../card/card';
 
-declare module 'vite-plus/test/browser' {
-  interface LocatorSelectors {
-    getByCurrent(): Locator;
-    getByNotCurrent(): Locator;
-    getByInert(): Locator;
-  }
-}
-
-browser.locators.extend({
-  getByCurrent: () => 'css=[aria-current="location"]',
-  getByNotCurrent: () => 'css=:not([aria-current])',
-  getByInert: () => 'css=[inert]',
-});
-
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());
 
@@ -61,16 +47,16 @@ const groups = (): Locator => browser.page.getByRole('group', { includeHidden: t
 const toolbars = (): Locator => browser.page.getByRole('toolbar', { includeHidden: true });
 
 const looks: Readonly<Record<CardLook, () => Locator>> = {
-  current: () => groups().and(browser.page.getByCurrent()),
-  hidden: () => groups().and(browser.page.getByInert()),
+  current: () => groups().and(browser.page.getByElement('[aria-current="location"]')),
+  hidden: () => groups().and(browser.page.getByElement('[inert]')),
   chip: () =>
     toolbars()
-      .filter({ has: browser.page.getByCurrent() })
+      .filter({ has: browser.page.getByElement('[aria-current="location"]') })
       .getByRole('group', { includeHidden: true })
-      .and(browser.page.getByNotCurrent()),
+      .and(browser.page.getByElement(':not([aria-current])')),
   card: () =>
     toolbars()
-      .filter({ hasNot: browser.page.getByCurrent() })
+      .filter({ hasNot: browser.page.getByElement('[aria-current="location"]') })
       .getByRole('group', { includeHidden: true }),
 };
 

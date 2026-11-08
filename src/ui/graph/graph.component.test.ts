@@ -24,15 +24,7 @@ import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { narrowThePane, theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import {
-  facetOf,
-  headingOf,
-  labelOf,
-  legendOf,
-  nameOf,
-  sentenceFieldOf,
-  shownSentenceOf,
-} from '../card/card.test-page';
+import { nameOf } from '../card/card.test-page';
 import { type Writer } from './graph.dsl';
 import { graphScenarioSteps, graphWith } from './graph.harness';
 import {
@@ -52,11 +44,11 @@ describe('the graph page', () => {
     const { stage } = graphWith();
     await stage.fresh();
 
-    const card = graph.card('card', 'Beat 1').card.element();
-    const layer = shownSentenceOf(card);
-    const label = labelOf(card);
+    const card = graph.card('card', 'Beat 1');
 
-    expect(getComputedStyle(layer).color).toBe(getComputedStyle(label).color);
+    expect(getComputedStyle(card.shown.element()).color).toBe(
+      getComputedStyle(card.label.element()).color,
+    );
   });
 
   it('draws on a page holding only its main', async () => {
@@ -88,7 +80,7 @@ describe('the graph around the current piece', () => {
     );
     await laidOut();
 
-    const field = sentenceFieldOf(graph.on('current').card.element());
+    const field = graph.on('current').sentence.element();
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
     expect(heightOf(graph.on('current').card.element())).toBeGreaterThan(
       heightOf(graph.card('card', 'Beat 1').card.element()),
@@ -215,10 +207,10 @@ describe('the graph around the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    const card = graph.card('card', 'The story').card.element();
-    const sentence = getComputedStyle(shownSentenceOf(card));
-    const name = getComputedStyle(headingOf(card));
-    const typed = getComputedStyle(sentenceFieldOf(graph.on('current').card.element()));
+    const card = graph.card('card', 'The story');
+    const sentence = getComputedStyle(card.shown.element());
+    const name = getComputedStyle(card.heading.element());
+    const typed = getComputedStyle(graph.on('current').sentence.element());
 
     expect(Number.parseFloat(sentence.fontSize)).toBeLessThan(Number.parseFloat(typed.fontSize));
     expect(sentence.fontFamily).toBe(name.fontFamily);
@@ -230,14 +222,14 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 3');
     await settled();
 
-    const chip = graph.card('chip', 'Beat 1').card.element();
-    const legend = legendOf(chip);
+    const chip = graph.card('chip', 'Beat 1');
+    const legend = chip.legend.element();
     const box = legend.getBoundingClientRect();
     const inside = {
       top: box.top + legend.clientTop,
       bottom: box.top + legend.clientTop + legend.clientHeight,
     };
-    const name = headingOf(chip).getBoundingClientRect();
+    const name = chip.heading.element().getBoundingClientRect();
 
     expect(name.top).toBeGreaterThanOrEqual(inside.top);
     expect(name.bottom).toBeLessThanOrEqual(inside.bottom);
@@ -250,7 +242,7 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    const body = facetOf(graph.on('current').card.element());
+    const body = graph.on('current').facet.element();
     const button = graph.on('current').actions.addAScene;
 
     expect(topOf(button.element())).toBeGreaterThanOrEqual(topOf(body));

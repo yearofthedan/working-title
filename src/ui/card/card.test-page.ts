@@ -3,8 +3,23 @@ import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
+
+declare module 'vite-plus/test/browser' {
+  interface LocatorSelectors {
+    getByElement(css: string): Locator;
+  }
+}
+
+browser.locators.extend({
+  getByElement: (css: string) => `css=${css}`,
+});
+
 export const partsOf = (card: Locator) => ({
   card,
+  legend: card.getByElement('legend'),
+  facet: card.getByElement('.facet'),
+  shown: card.getByElement('.shown'),
+  label: card.getByText('One-sentence summary', { exact: true }).first(),
   keys: card.getByRole('paragraph', { includeHidden: true }),
   field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
   heading: card.getByRole('heading', { includeHidden: true }),
@@ -39,25 +54,6 @@ export const headingOf = (card: Element): HTMLElement => {
 };
 
 export const nameOf = (card: Element): string => headingOf(card).textContent ?? '';
-
-export const legendOf = (card: Element): HTMLElement => card.querySelector('legend')!;
-
-export const facetOf = (card: Element): HTMLElement => card.querySelector('.facet')!;
-
-export const shownSentenceOf = (card: Element): HTMLElement => card.querySelector('.shown')!;
-
-export const sentenceFieldOf = (card: Element): HTMLTextAreaElement => {
-  const field = browser.page
-    .getByLabelText('One-sentence summary', { exact: true })
-    .elements()
-    .find((element) => card.contains(element));
-  if (!(field instanceof HTMLTextAreaElement)) {
-    throw new Error('the card has no one-sentence summary field');
-  }
-  return field;
-};
-
-export const labelOf = (card: Element): HTMLElement => sentenceFieldOf(card).labels![0]!;
 
 const visible = (element: Element): boolean => {
   const { display, opacity, visibility } = getComputedStyle(element);
