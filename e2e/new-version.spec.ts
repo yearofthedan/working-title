@@ -72,8 +72,9 @@ test('reloading from the notice leaves another open tab on the version it loaded
     });
   });
   const version = privateBuildOn(page, build);
+  const otherVersion = privateBuildOn(other, build);
   await version.installsANewVersion();
-  await waitForWaiting(other);
+  await otherVersion.showsTheNotice();
 
   await version.driver.click('button', 'Reload');
   await version.opensOnTheNewVersion();
@@ -81,7 +82,9 @@ test('reloading from the notice leaves another open tab on the version it loaded
   await expect
     .poll(() => other.evaluate(() => Reflect.get(window, 'controllerChanges')))
     .toBeGreaterThan(0);
-  await other.waitForTimeout(500);
   expect(await other.evaluate(() => Reflect.get(window, 'stillHere'))).toBe(true);
   expect(await other.title()).not.toBe(newVersionTitle);
+
+  await otherVersion.driver.click('button', 'Reload');
+  await otherVersion.opensOnTheNewVersion();
 });
