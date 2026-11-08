@@ -1,6 +1,17 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { settled, type Driver } from '../../test-helpers/driver';
+import {
+  bottomOf,
+  boxes,
+  centreOf,
+  heightOf,
+  inMain,
+  leftOf,
+  offScreenFocus,
+  topOf,
+  widthOf,
+} from '../../test-helpers/box';
+import { settled } from '../../test-helpers/driver';
 import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
 import {
   laidOut,
@@ -11,20 +22,14 @@ import {
 } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { narrowThePane, theViewport } from '../../test-helpers/staging';
+import { clickThroughInert, narrowThePane, theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { addASceneUnder } from '../app/app.harness';
 import {
-  addButtonIsFirst,
-  addButtonOf,
   facetOf,
-  firstFieldOf,
   headingOf,
   labelOf,
   legendOf,
-  nameButtonOf,
   nameOf,
-  positionOf,
   sentenceFieldOf,
   shownSentenceOf,
 } from '../card/card.test-page';
@@ -32,56 +37,22 @@ import { type Writer } from './graph.dsl';
 import { graphScenarioSteps, graphWith } from './graph.harness';
 import {
   altKeySeenFor,
-  atFocus,
-  blurTheFocus,
   buttonsFocused,
-  cardAtFocus,
-  cards,
-  currentCards,
-  current,
-  everyCard,
-  focusIn,
-  named,
-  pane,
+  holdsTheFocus,
   theBodyHolds,
+  theGraph,
 } from './graph.test-page';
 
-const centreOf = (card: Element): number => {
-  const box = card.getBoundingClientRect();
-  return box.left + box.width / 2;
-};
+const graph = theGraph();
 
-const inMain = (element: Element): boolean => {
-  const box = element.getBoundingClientRect();
-  const bounds = pane().getBoundingClientRect();
-  return (
-    box.left >= bounds.left &&
-    box.right <= bounds.right &&
-    box.top >= bounds.top &&
-    box.bottom <= bounds.bottom
-  );
-};
-
-const offScreenFocus = (): string[] => {
-  const card = cardAtFocus();
-  if (card === null || inMain(card)) return [];
-  return [nameOf(card)];
-};
-
-const boxes = (): readonly string[] =>
-  everyCard().map((card) => {
-    const box = card.getBoundingClientRect();
-    return `${nameOf(card)} ${box.left} ${box.top} ${box.width} ${box.height}`;
-  });
-
-const shiftTab = (): Promise<void> => browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+const currentName = (): string => nameOf(graph.on('current').card.element());
 
 describe('the graph page', () => {
   it("draws a card's sentence in the muted colour", async () => {
     const { stage } = graphWith();
     await stage.fresh();
 
-    const card = named('card', 'Beat 1');
+    const card = graph.card('card', 'Beat 1').card.element();
     const layer = shownSentenceOf(card);
     const label = labelOf(card);
 
@@ -103,8 +74,8 @@ describe('the graph around the current piece', () => {
       const { stage } = graphWith(0, width);
       await stage.fresh();
 
-      expect(current().getBoundingClientRect().width).toBe(560);
-      expect(centreOf(current())).toBeCloseTo(centreOf(pane()), 0);
+      expect(widthOf(graph.on('current').card.element())).toBe(560);
+      expect(centreOf(graph.on('current').card)).toBeCloseTo(centreOf(graph.pane), 0);
     },
   );
 
@@ -117,10 +88,10 @@ describe('the graph around the current piece', () => {
     );
     await laidOut();
 
-    const field = sentenceFieldOf(current());
+    const field = sentenceFieldOf(graph.on('current').card.element());
     expect(field.clientHeight).toBeGreaterThanOrEqual(field.scrollHeight - 1);
-    expect(current().getBoundingClientRect().height).toBeGreaterThan(
-      named('card', 'Beat 1').getBoundingClientRect().height,
+    expect(heightOf(graph.on('current').card.element())).toBeGreaterThan(
+      heightOf(graph.card('card', 'Beat 1').card.element()),
     );
   });
 
@@ -131,9 +102,9 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Scene 1');
     await settled();
 
-    const story = positionOf(named('hidden', 'The story'));
-    const beat = positionOf(named('hidden', 'Beat 1'));
-    expect([beat.left, beat.top]).toEqual([story.left, story.top]);
+    const story = graph.card('hidden', 'The story').card.element();
+    const beat = graph.card('hidden', 'Beat 1').card.element();
+    expect([leftOf(beat), topOf(beat)]).toEqual([leftOf(story), topOf(story)]);
   });
 
   it('draws a piece hidden under a chip at the chip’s width', async () => {
@@ -142,22 +113,22 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    expect(positionOf(named('hidden', 'Scene 1')).width).toBe(
-      positionOf(named('chip', 'Beat 4')).width,
+    expect(widthOf(graph.card('hidden', 'Scene 1').card.element())).toBe(
+      widthOf(graph.card('chip', 'Beat 4').card.element()),
     );
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
-    const { driver, stage, writer } = graphWith(8);
+    const { stage, sees, writer } = graphWith(8);
     await stage.fresh();
     await writer.clicks('The story');
 
-    expect(cards('hidden')).toHaveLength(8);
-    expect((await driver.tree()).join('\n')).not.toContain('Scene');
+    expect(graph.look('hidden').elements()).toHaveLength(8);
+    expect((await sees.tree()).join('\n')).not.toContain('Scene');
 
     for (let at = 0; at < 12; at += 1) {
-      await driver.press('Tab');
-      expect(focusIn('hidden')).toBeNull();
+      await writer.presses('Tab');
+      expect(holdsTheFocus(graph.look('hidden'))).toBe(false);
     }
   });
 
@@ -166,13 +137,15 @@ describe('the graph around the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 4');
 
-    expect(headingOf(named('card', 'The story')).tagName).toBe('H2');
-    expect(headingOf(named('chip', 'Beat 1')).tagName).toBe('H3');
-    expect(headingOf(named('current', 'Beat 4')).tagName).toBe('H3');
-    expect(headingOf(named('card', 'Scene 1')).tagName).toBe('H4');
+    await expect
+      .element(graph.card('card', 'The story').headingAt(2))
+      .toHaveTextContent('The story');
+    await expect.element(graph.card('chip', 'Beat 1').headingAt(3)).toHaveTextContent('Beat 1');
+    await expect.element(graph.card('current', 'Beat 4').headingAt(3)).toHaveTextContent('Beat 4');
+    await expect.element(graph.card('card', 'Scene 1').headingAt(4)).toHaveTextContent('Scene 1');
 
-    expect(currentCards()).toEqual([current()]);
-    expect(nameOf(current())).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.on('current').card).toHaveAccessibleName('Beat 4');
   });
 
   it("keeps the current piece's card whole and centred when main narrows, with no move", async () => {
@@ -183,11 +156,11 @@ describe('the graph around the current piece', () => {
       narrowThePane(width);
       await laidOut();
 
-      const box = current().getBoundingClientRect();
-      const bounds = pane().getBoundingClientRect();
+      const box = graph.on('current').card.element().getBoundingClientRect();
+      const bounds = graph.pane.element().getBoundingClientRect();
       expect(box.left).toBeGreaterThanOrEqual(bounds.left);
       expect(box.right).toBeLessThanOrEqual(bounds.right);
-      expect(centreOf(current())).toBeCloseTo(centreOf(pane()), 0);
+      expect(centreOf(graph.on('current').card)).toBeCloseTo(centreOf(graph.pane), 0);
     }
   });
 
@@ -200,10 +173,10 @@ describe('the graph around the current piece', () => {
     await writer.types(sentence, { piece: 'The story', facet: 'One-sentence summary' });
     await laidOut();
 
-    const children = cards('card');
+    const children = graph.look('card').elements();
     expect(children).toHaveLength(5);
     const rowTop = Math.min(...children.map((card) => card.getBoundingClientRect().top));
-    expect(rowTop).toBeGreaterThanOrEqual(current().getBoundingClientRect().bottom);
+    expect(rowTop).toBeGreaterThanOrEqual(bottomOf(graph.on('current').card.element()));
   });
 
   it.each([1440, 1100])(
@@ -214,11 +187,11 @@ describe('the graph around the current piece', () => {
       await writer.clicks('Beat 2');
       await settled();
 
-      const bounds = pane().getBoundingClientRect();
-      const box = current().getBoundingClientRect();
+      const bounds = graph.pane.element().getBoundingClientRect();
+      const box = graph.on('current').card.element().getBoundingClientRect();
       expect(box.top + box.height / 2).toBeCloseTo(window.innerHeight / 2, 0);
 
-      const parent = named('card', 'The story').getBoundingClientRect();
+      const parent = graph.card('card', 'The story').card.element().getBoundingClientRect();
       expect(parent.top).toBeGreaterThanOrEqual(bounds.top);
       expect(parent.bottom).toBeLessThanOrEqual(bounds.bottom);
     },
@@ -231,8 +204,8 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    const main = pane().getBoundingClientRect();
-    const parent = named('card', 'The story').getBoundingClientRect();
+    const main = graph.pane.element().getBoundingClientRect();
+    const parent = graph.card('card', 'The story').card.element().getBoundingClientRect();
 
     expect(parent.top).toBeGreaterThanOrEqual(main.top);
   });
@@ -242,10 +215,10 @@ describe('the graph around the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    const card = named('card', 'The story');
+    const card = graph.card('card', 'The story').card.element();
     const sentence = getComputedStyle(shownSentenceOf(card));
     const name = getComputedStyle(headingOf(card));
-    const typed = getComputedStyle(sentenceFieldOf(current()));
+    const typed = getComputedStyle(sentenceFieldOf(graph.on('current').card.element()));
 
     expect(Number.parseFloat(sentence.fontSize)).toBeLessThan(Number.parseFloat(typed.fontSize));
     expect(sentence.fontFamily).toBe(name.fontFamily);
@@ -257,7 +230,7 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 3');
     await settled();
 
-    const chip = named('chip', 'Beat 1');
+    const chip = graph.card('chip', 'Beat 1').card.element();
     const legend = legendOf(chip);
     const box = legend.getBoundingClientRect();
     const inside = {
@@ -277,88 +250,87 @@ describe('the graph around the current piece', () => {
     await writer.clicks('Beat 2');
     await settled();
 
-    const card = current();
-    const body = facetOf(card).getBoundingClientRect();
-    const button = addButtonOf(card).getBoundingClientRect();
+    const body = facetOf(graph.on('current').card.element());
+    const button = graph.on('current').addButton;
 
-    expect(button.top).toBeGreaterThanOrEqual(body.top);
-    expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+    expect(topOf(button.element())).toBeGreaterThanOrEqual(topOf(body));
+    expect(bottomOf(button.element())).toBeLessThanOrEqual(bottomOf(body));
   });
 });
 
 describe('the rows of the graph', () => {
   it('tabbing to a scene off screen brings it into view', async () => {
-    const { driver, stage, writer } = graphWith(8, 1100);
+    const { stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
 
-    expect(inMain(named('card', 'Scene 1'))).toBe(false);
-    const scene1 = centreOf(named('card', 'Scene 1'));
-    const scene2 = centreOf(named('card', 'Scene 2'));
-    const beat4 = centreOf(current());
-    const beat3 = centreOf(named('chip', 'Beat 3'));
-    const story = centreOf(named('card', 'The story'));
+    expect(inMain(graph.card('card', 'Scene 1').card)).toBe(false);
+    const scene1 = centreOf(graph.card('card', 'Scene 1').card);
+    const scene2 = centreOf(graph.card('card', 'Scene 2').card);
+    const beat4 = centreOf(graph.on('current').card);
+    const beat3 = centreOf(graph.card('chip', 'Beat 3').card);
+    const story = centreOf(graph.card('card', 'The story').card);
 
-    await driver.press('Tab');
+    await writer.presses('Tab');
     await settled();
 
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(inMain(named('card', 'Scene 1'))).toBe(true);
-    expect(centreOf(current())).toBeCloseTo(beat4, 0);
-    expect(centreOf(named('chip', 'Beat 3'))).toBeCloseTo(beat3, 0);
-    expect(centreOf(named('card', 'The story'))).toBeCloseTo(story, 0);
-    expect(centreOf(named('card', 'Scene 2'))).toBeCloseTo(
-      scene2 + (centreOf(named('card', 'Scene 1')) - scene1),
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
+    expect(currentName()).toBe('Beat 4');
+    expect(inMain(graph.card('card', 'Scene 1').card)).toBe(true);
+    expect(centreOf(graph.on('current').card)).toBeCloseTo(beat4, 0);
+    expect(centreOf(graph.card('chip', 'Beat 3').card)).toBeCloseTo(beat3, 0);
+    expect(centreOf(graph.card('card', 'The story').card)).toBeCloseTo(story, 0);
+    expect(centreOf(graph.card('card', 'Scene 2').card)).toBeCloseTo(
+      scene2 + (centreOf(graph.card('card', 'Scene 1').card) - scene1),
       0,
     );
   });
 
   it('lands on the first piece of a row with Tab, whatever the cursor was last on in it', async () => {
-    const { driver, stage, writer } = graphWith(8);
+    const { stage, writer } = graphWith(8);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
 
-    nameButtonOf(named('card', 'Scene 5')).focus();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 5')));
-    expect(nameOf(current())).toBe('Beat 4');
+    await writer.putsTheFocusOnNameButtonOf('Scene 5');
+    await expect.element(graph.card('card', 'Scene 5').nameButton).toHaveFocus();
+    expect(currentName()).toBe('Beat 4');
 
-    current().focus();
-    await driver.press('Tab');
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
-    expect(nameOf(current())).toBe('Beat 4');
+    await writer.putsTheFocusOnTheCardOf('Beat 4');
+    await writer.presses('Tab');
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
+    expect(currentName()).toBe('Beat 4');
   });
 
   it('gives a row back its place when the cursor leaves it', async () => {
-    const { driver, stage, writer } = graphWith(8, 1100);
+    const { stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
-    const atRest = centreOf(named('card', 'Scene 1'));
+    const atRest = centreOf(graph.card('card', 'Scene 1').card);
 
-    await driver.press('Tab');
+    await writer.presses('Tab');
     await settled();
-    expect(inMain(named('card', 'Scene 1'))).toBe(true);
-    expect(centreOf(named('card', 'Scene 1'))).not.toBeCloseTo(atRest, 0);
+    expect(inMain(graph.card('card', 'Scene 1').card)).toBe(true);
+    expect(centreOf(graph.card('card', 'Scene 1').card)).not.toBeCloseTo(atRest, 0);
 
-    blurTheFocus();
+    await writer.clicksAwayFromTheGraph();
     await laidOut();
     await settled();
 
-    expect(pane().contains(atFocus())).toBe(false);
-    expect(centreOf(named('card', 'Scene 1'))).toBeCloseTo(atRest, 0);
+    expect(holdsTheFocus(graph.pane)).toBe(false);
+    expect(centreOf(graph.card('card', 'Scene 1').card)).toBeCloseTo(atRest, 0);
   });
 
   it('never puts the cursor on a piece outside main, with eight scenes under the current piece at 1100 px', async () => {
-    const { driver, stage, writer } = graphWith(8, 1100);
+    const { stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
 
-    expect(inMain(named('card', 'Scene 1'))).toBe(false);
-    expect(inMain(named('card', 'Scene 8'))).toBe(false);
+    expect(inMain(graph.card('card', 'Scene 1').card)).toBe(false);
+    expect(inMain(graph.card('card', 'Scene 8').card)).toBe(false);
 
     const offScreen: string[] = [];
     const check = async (): Promise<void> => {
@@ -367,24 +339,24 @@ describe('the rows of the graph', () => {
     };
     const reached = new Set<string>();
     const step = async (key: string): Promise<void> => {
-      await driver.press(key);
+      await writer.presses(key);
       await check();
-      reached.add(nameOf(current()));
+      reached.add(currentName());
     };
 
     await check();
-    await driver.press('Tab');
+    await writer.presses('Tab');
     await check();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
 
     for (let at = 0; at < 9; at += 1) await step('ArrowRight');
     for (let at = 0; at < 9; at += 1) await step('ArrowLeft');
     await step('ArrowUp');
     await step('ArrowDown');
 
-    await shiftTab();
+    await writer.presses('Shift+Tab');
     await check();
-    await shiftTab();
+    await writer.presses('Shift+Tab');
     await check();
 
     expect(offScreen).toEqual([]);
@@ -402,12 +374,12 @@ describe('the rows of the graph', () => {
   });
 
   it('never puts the cursor on a piece outside main, in a fresh graph at 770 px', async () => {
-    const { driver, stage } = graphWith(0, 770);
+    const { stage, writer } = graphWith(0, 770);
     await stage.fresh();
     await settled();
 
-    expect(inMain(named('card', 'Beat 1'))).toBe(false);
-    expect(inMain(named('card', 'Beat 5'))).toBe(false);
+    expect(inMain(graph.card('card', 'Beat 1').card)).toBe(false);
+    expect(inMain(graph.card('card', 'Beat 5').card)).toBe(false);
 
     const offScreen: string[] = [];
     const check = async (): Promise<void> => {
@@ -417,26 +389,26 @@ describe('the rows of the graph', () => {
     const reached = new Set<string>();
 
     await check();
-    current().focus();
-    await driver.press('Tab');
+    await writer.putsTheFocusOnTheCardOf('The story');
+    await writer.presses('Tab');
     await check();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Beat 1')));
-    expect(nameOf(current())).toBe('The story');
-    expect(inMain(named('card', 'Beat 1'))).toBe(true);
+    await expect.element(graph.card('card', 'Beat 1').nameButton).toHaveFocus();
+    expect(currentName()).toBe('The story');
+    expect(inMain(graph.card('card', 'Beat 1').card)).toBe(true);
 
     for (let at = 0; at < 6; at += 1) {
-      await driver.press('ArrowRight');
+      await writer.presses('ArrowRight');
       await check();
-      reached.add(nameOf(current()));
+      reached.add(currentName());
     }
     for (let at = 0; at < 6; at += 1) {
-      await driver.press('ArrowLeft');
+      await writer.presses('ArrowLeft');
       await check();
-      reached.add(nameOf(current()));
+      reached.add(currentName());
     }
 
     for (const key of ['ArrowUp', 'ArrowDown', 'Enter', 'Tab']) {
-      await driver.press(key);
+      await writer.presses(key);
       await check();
     }
 
@@ -445,84 +417,84 @@ describe('the rows of the graph', () => {
   });
 
   it('goes one stop per row with Tab, then out of the graph, and back with Shift+Tab', async () => {
-    const { driver, stage, writer } = graphWith(2);
+    const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
-    expect(atFocus()).toBe(current());
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await driver.press('Tab');
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    await writer.presses('Tab');
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
 
-    await driver.press('Tab');
-    expect(pane().contains(atFocus())).toBe(false);
+    await writer.presses('Tab');
+    expect(holdsTheFocus(graph.pane)).toBe(false);
 
-    await shiftTab();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    await writer.presses('Shift+Tab');
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
 
-    await shiftTab();
-    expect(atFocus()).toBe(current());
+    await writer.presses('Shift+Tab');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await shiftTab();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'The story')));
+    await writer.presses('Shift+Tab');
+    await expect.element(graph.card('card', 'The story').nameButton).toHaveFocus();
 
-    await shiftTab();
-    expect(pane().contains(atFocus())).toBe(false);
+    await writer.presses('Shift+Tab');
+    expect(holdsTheFocus(graph.pane)).toBe(false);
   });
 
   it('makes the next and previous piece in a row the current piece with ← →', async () => {
-    const { driver, stage, writer } = graphWith(2);
+    const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
-    await driver.press('Tab');
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
-    expect(nameOf(current())).toBe('Beat 4');
+    await writer.presses('Tab');
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
+    expect(currentName()).toBe('Beat 4');
 
-    await driver.press('ArrowRight');
-    expect(nameOf(current())).toBe('Scene 2');
-    expect(atFocus()).toBe(current());
+    await writer.presses('ArrowRight');
+    expect(currentName()).toBe('Scene 2');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await driver.press('ArrowLeft');
-    expect(nameOf(current())).toBe('Scene 1');
-    expect(atFocus()).toBe(current());
+    await writer.presses('ArrowLeft');
+    expect(currentName()).toBe('Scene 1');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await driver.press('ArrowRight');
-    expect(nameOf(current())).toBe('Scene 2');
+    await writer.presses('ArrowRight');
+    expect(currentName()).toBe('Scene 2');
 
-    await driver.press('ArrowUp');
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(atFocus()).toBe(current());
+    await writer.presses('ArrowUp');
+    expect(currentName()).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it("leaves the cursor on a row's stop when Esc is pressed there", async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
 
-    await driver.press('Escape');
+    await writer.presses('Escape');
 
-    expect(atFocus()).toBe(nameButtonOf(named('chip', 'Beat 1')));
+    await expect.element(graph.card('chip', 'Beat 1').nameButton).toHaveFocus();
   });
 
   it("takes the current piece's card's field and its add button out of reach once Esc returns to it", async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    await driver.press('Enter');
-    const field = sentenceFieldOf(current());
-    expect(atFocus()).toBe(field);
+    await writer.presses('Enter');
+    const field = graph.on('current').sentence;
+    await expect.element(field).toHaveFocus();
 
-    await driver.press('Escape');
+    await writer.presses('Escape');
 
-    expect(atFocus()).toBe(current());
-    expect(field.tabIndex).toBe(-1);
-    expect(addButtonOf(current()).tabIndex).toBe(-1);
+    await expect.element(graph.on('current').card).toHaveFocus();
+    await expect.element(field).toHaveAttribute('tabindex', '-1');
+    await expect.element(graph.on('current').addButton).toHaveAttribute('tabindex', '-1');
   });
 
   it('gives a row back its stop once a piece of it is on screen again', async () => {
-    const { driver, stage, writer } = graphWith(8, 1100);
+    const { stage, writer } = graphWith(8, 1100);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
@@ -530,173 +502,175 @@ describe('the rows of the graph', () => {
     await laidOut();
     await settled();
 
-    await driver.press('Tab');
-    expect(pane().contains(atFocus())).toBe(false);
+    await writer.presses('Tab');
+    expect(holdsTheFocus(graph.pane)).toBe(false);
 
-    current().focus();
+    await writer.putsTheFocusOnTheCardOf('Beat 4');
     narrowThePane(1440);
     await laidOut();
     await settled();
 
-    await driver.press('Tab');
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Scene 1')));
+    await writer.presses('Tab');
+    await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
   });
 });
 
 describe('moving the current piece', () => {
   it('moves to the parent with ↑, and across the level with → and ←', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    await driver.press('ArrowRight');
-    expect(nameOf(current())).toBe('Beat 3');
+    await writer.presses('ArrowRight');
+    expect(currentName()).toBe('Beat 3');
 
-    await driver.press('ArrowLeft');
-    expect(nameOf(current())).toBe('Beat 2');
+    await writer.presses('ArrowLeft');
+    expect(currentName()).toBe('Beat 2');
 
-    await driver.press('ArrowUp');
-    expect(nameOf(current())).toBe('The story');
+    await writer.presses('ArrowUp');
+    expect(currentName()).toBe('The story');
   });
 
   it('moves the current piece with → from a sibling’s name button', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
-    await driver.press('ArrowRight');
+    await writer.presses('ArrowRight');
 
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(cardAtFocus()).toBe(current());
+    expect(currentName()).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it('moves the current piece with ↓ from the add button', async () => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
-    expect(addButtonIsFirst(current())).toBe(true);
-    await driver.focus('button', 'Add a scene', { role: 'group', name: nameOf(current()) });
-    await driver.press('ArrowDown');
+    expect(graph.on('current').buttons.elements()[0]).toBe(graph.on('current').addButton.element());
+    await writer.putsTheFocusOnTheAddButtonOf('Beat 4');
+    await writer.presses('ArrowDown');
 
-    expect(nameOf(current())).toBe('Scene 1');
-    expect(cardAtFocus()).toBe(current());
+    expect(currentName()).toBe('Scene 1');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it('still presses a name button with Enter and with Space', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
-    await driver.press('Enter');
-    expect(nameOf(current())).toBe('Beat 1');
+    await writer.presses('Enter');
+    expect(currentName()).toBe('Beat 1');
 
     await writer.clicks('Beat 3');
     await writer.putsTheFocusOnNameButtonOf('Beat 5');
-    await driver.press('Space');
-    expect(nameOf(current())).toBe('Beat 5');
+    await writer.presses('Space');
+    expect(currentName()).toBe('Beat 5');
   });
 
   it('leaves the current piece where it is while the cursor is in a sentence', async () => {
-    const { driver, stage, sees, writer } = graphWith();
+    const { stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
-    await driver.press('ArrowRight');
+    await writer.presses('Enter');
+    await writer.presses('ArrowRight');
 
-    expect(nameOf(current())).toBe('Beat 2');
-    await sees.focusIsIn(nameOf(current()), 'One-sentence summary');
+    expect(currentName()).toBe('Beat 2');
+    await sees.focusIsIn('Beat 2', 'One-sentence summary');
   });
 
   it("puts the cursor on the current piece's card with Esc, and the arrows then move the current piece", async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
-    await driver.press('Escape');
+    await writer.presses('Enter');
+    await writer.presses('Escape');
 
-    expect(cardAtFocus()).toBe(current());
-    expect(nameOf(current())).toBe('Beat 2');
+    await expect.element(graph.on('current').card).toHaveFocus();
+    expect(currentName()).toBe('Beat 2');
 
-    await driver.press('ArrowRight');
-    expect(nameOf(current())).toBe('Beat 3');
+    await writer.presses('ArrowRight');
+    expect(currentName()).toBe('Beat 3');
   });
 
   it("puts the cursor in the current piece's sentence with Enter", async () => {
-    const { driver, stage, sees, writer } = graphWith();
+    const { stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
+    await writer.presses('Enter');
 
-    await sees.focusIsIn(nameOf(current()), 'One-sentence summary');
+    await sees.focusIsIn('Beat 2', 'One-sentence summary');
   });
 
   it("leaves the cursor on the new current piece's card after a key, a chip, a card and a story card", async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
 
-    await driver.press('ArrowDown');
-    expect(nameOf(current())).toBe('Beat 1');
-    expect(cardAtFocus()).toBe(current());
+    await writer.presses('ArrowDown');
+    expect(currentName()).toBe('Beat 1');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('Beat 3');
-    expect(nameOf(current())).toBe('Beat 3');
-    expect(cardAtFocus()).toBe(current());
+    expect(currentName()).toBe('Beat 3');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('The story');
-    expect(nameOf(current())).toBe('The story');
-    expect(cardAtFocus()).toBe(current());
+    expect(currentName()).toBe('The story');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('Beat 4');
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(cardAtFocus()).toBe(current());
+    expect(currentName()).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it('leaves the siblings beside the current piece out of the tab order, and moves the current piece along them with the arrows', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 3');
 
-    const siblings = cards('chip');
-    expect(siblings).toHaveLength(4);
-    for (const chip of siblings) {
-      expect(chip.tabIndex).toBe(-1);
-      expect(nameButtonOf(chip).tabIndex).toBe(-1);
+    const siblings = graph.look('chip');
+    expect(siblings.elements()).toHaveLength(4);
+    for (const name of ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5']) {
+      await expect.element(graph.card('chip', name).card).toHaveAttribute('tabindex', '-1');
+      await expect.element(graph.card('chip', name).nameButton).toHaveAttribute('tabindex', '-1');
     }
-    expect(atFocus()).toBe(current());
+    await expect.element(graph.on('current').card).toHaveFocus();
 
     const reached: string[] = [];
     for (let at = 0; at < 10; at += 1) {
-      await driver.press('Tab');
-      const chip = focusIn('chip');
-      if (chip !== null) reached.push(nameOf(chip));
+      await writer.presses('Tab');
+      const chip = ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5'].find((name) =>
+        holdsTheFocus(graph.card('chip', name).card),
+      );
+      if (chip !== undefined) reached.push(chip);
     }
     expect(reached).toEqual([]);
 
     await writer.clicks('Beat 3');
-    await driver.press('ArrowRight');
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(atFocus()).toBe(current());
+    await writer.presses('ArrowRight');
+    expect(currentName()).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await driver.press('ArrowLeft');
-    expect(nameOf(current())).toBe('Beat 3');
-    expect(atFocus()).toBe(current());
+    await writer.presses('ArrowLeft');
+    expect(currentName()).toBe('Beat 3');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it('moves the current piece to a piece another row stops on with Enter', async () => {
-    const { driver, stage, writer } = graphWith(2);
+    const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await writer.clicks('Scene 1');
 
-    await shiftTab();
-    expect(atFocus()).toBe(nameButtonOf(named('card', 'Beat 4')));
+    await writer.presses('Shift+Tab');
+    await expect.element(graph.card('card', 'Beat 4').nameButton).toHaveFocus();
 
-    await driver.press('Enter');
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(cardAtFocus()).toBe(current());
+    await writer.presses('Enter');
+    expect(currentName()).toBe('Beat 4');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 
   it('leaves the current piece where it is when an arrow key is held with a modifier', async () => {
@@ -704,40 +678,33 @@ describe('moving the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    const held = await altKeySeenFor('ArrowRight', () =>
-      browser.userEvent.keyboard('{Alt>}{ArrowRight}{/Alt}'),
-    );
+    const held = await altKeySeenFor('ArrowRight', () => writer.presses('Alt+ArrowRight'));
 
     expect(held).toEqual([true]);
-    expect(nameOf(current())).toBe('Beat 2');
+    expect(currentName()).toBe('Beat 2');
   });
 
   it('moves the current piece to a piece whose sentence is clicked, with the cursor in it', async () => {
-    const { driver, stage, sees } = graphWith();
+    const { stage, sees, writer } = graphWith();
     await stage.fresh();
-    await driver.click('textbox', 'One-sentence summary', {
-      role: 'group',
-      name: 'Beat 2',
-    });
+    await writer.clicksTheSentenceOf('Beat 2');
 
-    expect(nameOf(current())).toBe('Beat 2');
+    expect(currentName()).toBe('Beat 2');
     await sees.focusIsIn('Beat 2', 'One-sentence summary');
   });
 
   it("never tabs into a sentence that is not the current piece's", async () => {
-    const { driver, stage } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
 
     const strayed: string[] = [];
     for (let at = 0; at < 20; at += 1) {
-      await driver.press('Tab');
-      for (const card of [...cards('card'), ...cards('chip')]) {
-        const piece = nameOf(card);
-        const inSentence = await driver.focusIs('textbox', 'One-sentence summary', {
-          role: 'group',
-          name: piece,
-        });
-        if (inSentence) strayed.push(piece);
+      await writer.presses('Tab');
+      for (const look of ['card', 'chip'] as const) {
+        for (const card of graph.look(look).elements()) {
+          const piece = nameOf(card);
+          if (holdsTheFocus(graph.card(look, piece).sentence)) strayed.push(piece);
+        }
       }
     }
 
@@ -745,117 +712,111 @@ describe('moving the current piece', () => {
   });
 
   it('reaches the sentence of the piece it moved to with Enter, and not through the press', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    const left = sentenceFieldOf(named('card', 'The story'));
-    expect(left.tabIndex).toBe(-1);
+    await expect
+      .element(graph.card('card', 'The story').sentence)
+      .toHaveAttribute('tabindex', '-1');
 
     const reached: string[] = [];
     for (let at = 0; at < 10; at += 1) {
-      await driver.press('Tab');
+      await writer.presses('Tab');
       for (const piece of ['Beat 2', 'The story']) {
-        const inSentence = await driver.focusIs('textbox', 'One-sentence summary', {
-          role: 'group',
-          name: piece,
-        });
-        if (inSentence) reached.push(piece);
+        if (holdsTheFocus(graph.piece(piece).sentence)) reached.push(piece);
       }
     }
 
     expect(reached).toEqual([]);
 
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
+    await writer.presses('Enter');
 
-    expect(atFocus()).toBe(sentenceFieldOf(current()));
+    await expect.element(graph.on('current').sentence).toHaveFocus();
   });
 
   it('never puts the cursor on the add button through the press', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    const held = await buttonsFocused(() =>
-      driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' }),
-    );
+    const held = await buttonsFocused(() => writer.addsASceneUnder('Beat 2'));
 
     expect(held).toEqual([]);
   });
 
   it('moves the current piece to the new scene, and ↑ then ↓ returns to it', async () => {
-    const { driver, stage, sees, writer } = graphWith();
+    const { stage, sees, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.click('button', 'Add a scene', { role: 'group', name: 'Beat 2' });
+    await writer.addsASceneUnder('Beat 2');
 
-    expect(nameOf(current())).toBe('Scene 1');
-    await sees.focusIsIn(nameOf(current()), 'List line');
+    expect(currentName()).toBe('Scene 1');
+    await sees.focusIsIn('Scene 1', 'List line');
 
-    await driver.press('Escape');
-    await driver.press('ArrowUp');
-    expect(nameOf(current())).toBe('Beat 2');
+    await writer.presses('Escape');
+    await writer.presses('ArrowUp');
+    expect(currentName()).toBe('Beat 2');
 
-    await driver.press('ArrowDown');
-    expect(nameOf(current())).toBe('Scene 1');
+    await writer.presses('ArrowDown');
+    expect(currentName()).toBe('Scene 1');
   });
 
   it('leaves the fields of the card it leaves out of the tab order, after adding a scene', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
 
-    await driver.press('Enter');
-    await driver.press('Tab');
-    await driver.press('Enter');
+    await writer.presses('Enter');
+    await writer.presses('Tab');
+    await writer.presses('Enter');
 
-    expect(nameOf(current())).toBe('Scene 1');
-    expect(atFocus()).toBe(firstFieldOf(current()));
+    expect(currentName()).toBe('Scene 1');
+    await expect.element(graph.on('current').fields.first()).toHaveFocus();
 
-    const left = named('card', 'Beat 2');
-    expect(sentenceFieldOf(left).tabIndex).toBe(-1);
+    await expect.element(graph.card('card', 'Beat 2').sentence).toHaveAttribute('tabindex', '-1');
 
-    await shiftTab();
-    expect(left.contains(atFocus())).toBe(false);
+    await writer.presses('Shift+Tab');
+    expect(holdsTheFocus(graph.card('card', 'Beat 2').card)).toBe(false);
   });
 
   it("takes the fields of the current piece's card out of the tab order when the cursor leaves with no focusin", async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
-    expect(sentenceFieldOf(current()).tabIndex).toBe(0);
+    await writer.presses('Enter');
+    await expect.element(graph.on('current').sentence).toHaveAttribute('tabindex', '0');
 
-    blurTheFocus();
+    await writer.clicksAwayFromTheGraph();
 
-    expect(sentenceFieldOf(current()).tabIndex).toBe(-1);
+    await expect.element(graph.on('current').sentence).toHaveAttribute('tabindex', '-1');
   });
 
   it('puts the cursor on the card the writer clicks, the current one or another', async () => {
-    const { driver, stage, writer } = graphWith();
+    const { stage, writer } = graphWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await driver.press('Enter');
-    expect(atFocus()).toBe(sentenceFieldOf(current()));
+    await writer.presses('Enter');
+    await expect.element(graph.on('current').sentence).toHaveFocus();
 
-    await browser.userEvent.click(legendOf(current()));
-    expect(atFocus()).toBe(current());
+    await writer.clicksTheNameOf('Beat 2');
+    await expect.element(graph.on('current').card).toHaveFocus();
 
-    await browser.userEvent.click(legendOf(named('card', 'The story')));
-    expect(nameOf(current())).toBe('The story');
-    expect(atFocus()).toBe(current());
+    await writer.clicksTheNameOf('The story');
+    expect(currentName()).toBe('The story');
+    await expect.element(graph.on('current').card).toHaveFocus();
   });
 });
 
 describe('what a tree says about focus', () => {
   it('marks the name button and the field that hold focus, and nothing once the focus leaves the graph', async () => {
-    const { driver, stage, writer } = graphWith(2);
+    const { stage, sees, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicks('Beat 4');
 
     const marked = async (): Promise<readonly string[]> => {
-      const lines = await driver.tree();
+      const lines = await sees.tree();
       const at = lines.findIndex((line) => line.includes('[active]'));
       const markedLine = at < 0 ? undefined : lines[at];
       if (markedLine === undefined) return [];
@@ -867,28 +828,24 @@ describe('what a tree says about focus', () => {
       return [card.trim(), markedLine.trim()];
     };
 
-    await driver.focus('button', 'Scene 2', { role: 'group', name: 'Scene 2' });
+    await writer.putsTheFocusOnNameButtonOf('Scene 2');
     expect(await marked()).toEqual([]);
 
-    expect(await driver.focusIs('button', 'Scene 2', { role: 'group', name: 'Scene 2' })).toBe(
-      true,
-    );
+    await sees.focusIsOnTheName('Scene 2');
     expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
 
-    await driver.focus('textbox', 'List line', { role: 'group', name: 'Scene 1' });
-    expect(await driver.focusIs('textbox', 'List line', { role: 'group', name: 'Scene 1' })).toBe(
-      true,
-    );
+    await writer.putsTheFocusInTheFacetOf('Scene 1', 'List line');
+    await sees.focusIsIn('Scene 1', 'List line');
     expect(await marked()).toEqual(['- group "Scene 1":', '- textbox "List line" [active]']);
 
-    await driver.clickAway();
+    await writer.clicksAwayFromTheGraph();
     expect(await marked()).toEqual([]);
   });
 });
 
 const moves: ReadonlyArray<{
   readonly what: string;
-  readonly play: (writer: Writer, driver: Driver) => Promise<void>;
+  readonly play: (writer: Writer) => Promise<void>;
 }> = [
   {
     what: 'a click on a card',
@@ -906,20 +863,20 @@ const moves: ReadonlyArray<{
   },
   {
     what: 'an arrow key',
-    play: async (writer, driver) => {
+    play: async (writer) => {
       await writer.clicks('Beat 2');
       await settled();
-      await driver.press('ArrowRight');
+      await writer.presses('ArrowRight');
     },
   },
 ];
 
 describe('the motion of a move', () => {
   it.each(moves)('keeps every animation of $what within 400 ms, easing out', async ({ play }) => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
 
-    await play(writer, driver);
+    await play(writer);
     const animations = moving();
 
     expect(animations.length).toBeGreaterThan(0);
@@ -940,13 +897,13 @@ describe('the motion of a move', () => {
   it('changes a card’s look without starting a transition of its own, ending at a fresh draw’s size', async () => {
     const atRest = graphWith(1);
     await atRest.stage.fresh();
-    await addASceneUnder(atRest.driver, 'Beat 4');
+    await atRest.writer.addsASceneUnder('Beat 4');
     await settled();
     const rest = boxes();
 
     const moved = graphWith(1);
     await moved.stage.fresh();
-    await addASceneUnder(moved.driver, 'Beat 4');
+    await moved.writer.addsASceneUnder('Beat 4');
     const started = startedTransitions();
     await settled();
     await laidOut();
@@ -957,7 +914,7 @@ describe('the motion of a move', () => {
   });
 
   it('keeps a piece leaving the graph out of reach while it fades', async () => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
     await writer.clicks('Beat 4');
     await settled();
@@ -965,12 +922,12 @@ describe('the motion of a move', () => {
     await writer.clicks('The story');
 
     for (let at = 0; at < 12; at += 1) {
-      await driver.press('Tab');
-      expect(cardAtFocus()).not.toBe(named('hidden', 'Scene 1'));
+      await writer.presses('Tab');
+      expect(holdsTheFocus(graph.card('hidden', 'Scene 1').card)).toBe(false);
     }
 
-    await browser.userEvent.click(named('hidden', 'Scene 1'), { force: true });
-    expect(nameOf(current())).not.toBe('Scene 1');
+    await clickThroughInert(graph.card('hidden', 'Scene 1').card);
+    expect(currentName()).not.toBe('Scene 1');
   });
 
   it('resizes part-way through a move without cutting it short, ending where a resize at rest does', async () => {
@@ -983,9 +940,9 @@ describe('the motion of a move', () => {
     await settled();
     const rest = boxes();
 
-    const partWay = graphWith(1);
-    await partWay.stage.fresh();
-    await partWay.writer.clicks('Beat 2');
+    const resized = graphWith(1);
+    await resized.stage.fresh();
+    await resized.writer.clicks('Beat 2');
     narrowThePane(720);
     await laidOut();
     expect(moving().length).toBeGreaterThan(0);
@@ -997,13 +954,13 @@ describe('the motion of a move', () => {
   });
 
   it('keeps a move made during a move running, and comes to rest without a jump', async () => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
 
     const frames = await recorded(async () => {
       await writer.clicks('Beat 2');
       await partWay();
-      await driver.press('ArrowRight');
+      await writer.presses('ArrowRight');
       await settled();
     });
 
@@ -1013,7 +970,7 @@ describe('the motion of a move', () => {
   });
 
   it('starts a second move part-way through the first without jumping a card', async () => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
 
     let pressed = 0;
@@ -1021,11 +978,11 @@ describe('the motion of a move', () => {
       await writer.clicks('Beat 2');
       await laidOut();
       pressed = performance.now();
-      await driver.press('ArrowRight');
+      await writer.presses('ArrowRight');
       await settled();
     });
 
-    const story = nameOf(named('card', 'The story'));
+    const story = nameOf(graph.card('card', 'The story').card.element());
     const before = frames.findLast((frame) => frame.at <= pressed)!;
     const after = frames.find((frame) => frame.at > pressed)!;
     const landing = frames.at(-1)!;
@@ -1037,7 +994,7 @@ describe('the motion of a move', () => {
   });
 
   it('takes a click and a key while a move runs, each landing on the piece it aims at and running to its end', async () => {
-    const { driver, stage, writer } = graphWith(1);
+    const { stage, writer } = graphWith(1);
     await stage.fresh();
 
     const landed: string[] = [];
@@ -1047,16 +1004,16 @@ describe('the motion of a move', () => {
       await writer.clicks('Beat 2');
       await partWay();
       clicked = performance.now();
-      await browser.userEvent.click(named('chip', 'Beat 5'), { force: true });
-      landed.push(nameOf(current()));
+      await writer.clicks('Beat 5');
+      landed.push(currentName());
       await settled();
     });
     const keyFrames = await recorded(async () => {
-      await driver.press('ArrowLeft');
+      await writer.presses('ArrowLeft');
       await partWay();
       pressed = performance.now();
-      await driver.press('ArrowLeft');
-      landed.push(nameOf(current()));
+      await writer.presses('ArrowLeft');
+      landed.push(currentName());
       await settled();
     });
 
@@ -1073,11 +1030,11 @@ describe('the motion of a move', () => {
     });
 
     it.each(moves)('moves nothing for $what', async ({ play }) => {
-      const { driver, stage, writer } = graphWith(1);
+      const { stage, writer } = graphWith(1);
       await browser.commands.emulateReducedMotion('reduce');
       await stage.fresh();
 
-      await play(writer, driver);
+      await play(writer);
 
       expect(moving()).toEqual([]);
     });

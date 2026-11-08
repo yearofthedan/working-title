@@ -24,7 +24,7 @@ export const theCard = (name: string) => {
   };
 };
 
-export const headingOf = (card: HTMLElement): HTMLElement => {
+export const headingOf = (card: Element): HTMLElement => {
   const heading = inThePage(
     browser.page.getByRole('heading', { includeHidden: true }).elements(),
   ).find((one) => card.contains(one));
@@ -32,15 +32,15 @@ export const headingOf = (card: HTMLElement): HTMLElement => {
   return heading;
 };
 
-export const nameOf = (card: HTMLElement): string => headingOf(card).textContent ?? '';
+export const nameOf = (card: Element): string => headingOf(card).textContent ?? '';
 
-export const legendOf = (card: HTMLElement): HTMLElement => card.querySelector('legend')!;
+export const legendOf = (card: Element): HTMLElement => card.querySelector('legend')!;
 
-export const facetOf = (card: HTMLElement): HTMLElement => card.querySelector('.facet')!;
+export const facetOf = (card: Element): HTMLElement => card.querySelector('.facet')!;
 
-export const shownSentenceOf = (card: HTMLElement): HTMLElement => card.querySelector('.shown')!;
+export const shownSentenceOf = (card: Element): HTMLElement => card.querySelector('.shown')!;
 
-export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
+export const sentenceFieldOf = (card: Element): HTMLTextAreaElement => {
   const field = browser.page
     .getByLabelText('One-sentence summary', { exact: true })
     .elements()
@@ -51,7 +51,7 @@ export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
   return field;
 };
 
-export const firstFieldOf = (card: HTMLElement): HTMLElement => {
+export const firstFieldOf = (card: Element): HTMLElement => {
   const field = inThePage(
     browser.page.getByRole('textbox', { includeHidden: true }).elements(),
   ).find((element) => card.contains(element));
@@ -59,14 +59,14 @@ export const firstFieldOf = (card: HTMLElement): HTMLElement => {
   return field;
 };
 
-export const labelOf = (card: HTMLElement): HTMLElement => sentenceFieldOf(card).labels![0]!;
+export const labelOf = (card: Element): HTMLElement => sentenceFieldOf(card).labels![0]!;
 
-const buttonsIn = (card: HTMLElement): HTMLElement[] =>
+const buttonsIn = (card: Element): HTMLElement[] =>
   inThePage(browser.page.getByRole('button', { includeHidden: true }).elements()).filter((button) =>
     card.contains(button),
   );
 
-export const addButtonOf = (card: HTMLElement): HTMLElement => {
+export const addButtonOf = (card: Element): HTMLElement => {
   const button = inThePage(
     browser.page.getByRole('button', { name: /^Add a scene$/i, includeHidden: true }).elements(),
   ).find((one) => card.contains(one));
@@ -74,7 +74,7 @@ export const addButtonOf = (card: HTMLElement): HTMLElement => {
   return button;
 };
 
-export const addButtonIsFirst = (card: HTMLElement): boolean =>
+export const addButtonIsFirst = (card: Element): boolean =>
   buttonsIn(card)[0] === addButtonOf(card);
 
 export const positionOf = (
@@ -85,7 +85,7 @@ export const positionOf = (
   width: card.style.width,
 });
 
-export const nameButtonOf = (card: HTMLElement): HTMLElement => {
+export const nameButtonOf = (card: Element): HTMLElement => {
   const button = buttonsIn(card).find((one) => headingOf(card).contains(one));
   if (button === undefined) throw new Error(`${nameOf(card)} is drawn without a name button`);
   return button;
