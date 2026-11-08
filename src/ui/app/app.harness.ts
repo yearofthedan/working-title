@@ -8,6 +8,7 @@ import {
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { type NewVersion } from './app.dom';
 import { appSeesOn, appSteps, appWriterOn } from './app.dsl';
 
 const stageTheApp = async (): Promise<void> => {
@@ -27,6 +28,11 @@ export const appScenarioSteps = (driver: Driver) =>
     appWriterOn(driver, { fresh: stageTheApp, reopen: reopenTheApp }, stageTheSeededApp),
     appSeesOn(driver, appReadsOnThePage()),
   );
+
+export const theAppWaitingForANewVersion = async (newVersion: NewVersion): Promise<void> => {
+  await thePage(1440);
+  await openTheApp(document, inMemory(), newVersion);
+};
 
 export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
   const driver = vitestBrowserDriver(undefined, 'page');

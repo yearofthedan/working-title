@@ -13,6 +13,7 @@ Then the story's one-sentence summary on its card reads "A widow hunts the man w
   - navigation "Where you are":
     - list:
       - listitem: The story
+  - status
 - main:
   - toolbar "The story":
     - group "The story":
@@ -72,6 +73,7 @@ And beat 2's page beside the graph reads "Maren rows out to the wreck at low tid
       - listitem:
         - button "The story"
       - listitem: Beat 2
+  - status
 - main:
   - toolbar "The story":
     - group "The story":
@@ -130,6 +132,7 @@ And scene 2 under beat 2's narrative beside the graph reads "Maren waits for the
       - listitem:
         - button "Beat 2"
       - listitem: Scene 2
+  - status
 - main:
   - toolbar "Beat 2":
     - group "Beat 2":
@@ -179,6 +182,7 @@ And scene 2 under beat 2's narrative beside the graph reads ""
       - listitem:
         - button "Beat 2"
       - listitem: Scene 2
+  - status
 - main:
   - toolbar "Beat 2":
     - group "Beat 2":

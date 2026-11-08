@@ -1,7 +1,7 @@
 import { openProject } from '../application/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
-import { renderApp } from '../ui/app/app.dom';
+import { renderApp, type NewVersion } from '../ui/app/app.dom';
 import { inMemory } from './seed';
 
 const stops = new Map<ParentNode, () => void>();
@@ -16,10 +16,11 @@ export const stopTheApp = (): void => {
 export const openTheApp = async (
   page: ParentNode = document,
   held?: ProjectStore,
+  newVersion?: NewVersion,
 ): Promise<void> => {
   stops.get(page)?.();
   if (held !== undefined) store = held;
-  stops.set(page, await renderApp(page, await openProject(snowflakeExtended, store)));
+  stops.set(page, await renderApp(page, await openProject(snowflakeExtended, store), newVersion));
 };
 
 export const reopenTheApp = async (): Promise<void> => {

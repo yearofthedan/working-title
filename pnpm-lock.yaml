@@ -180,6 +180,10 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      workbox-window:
+        specifier: ^7.4.1
+        version: 7.4.1
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.14.0

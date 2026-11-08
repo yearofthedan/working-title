@@ -21,7 +21,7 @@ import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
-import { appScenarioSteps, pageWith } from './app.harness';
+import { appScenarioSteps, pageWith, theAppWaitingForANewVersion } from './app.harness';
 import { theHeader } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
@@ -49,6 +49,22 @@ describe('starting the app', () => {
     await expect(renderApp(aPageWithoutAnAside(), project)).rejects.toThrow(
       'the page has no <aside>',
     );
+  });
+});
+
+describe('a new version waiting', () => {
+  it('shows the writer a way to reload once a new version is ready to run', async () => {
+    const waiting = Promise.withResolvers<void>();
+    await theAppWaitingForANewVersion({ waiting: waiting.promise, reload: () => undefined });
+
+    const { notice, noticeReload } = theHeader();
+    expect(notice.element().textContent).toBe('');
+    await expect.element(noticeReload).not.toBeInTheDocument();
+
+    waiting.resolve();
+
+    await expect.element(notice).toHaveTextContent('A new version is ready. Reload');
+    await expect.element(noticeReload).toBeInTheDocument();
   });
 });
 

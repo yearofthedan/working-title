@@ -85,6 +85,41 @@ describe('a scenario file', () => {
     expect(printScenarioFile(readScenarioFile(file))).toBe(file);
   });
 
+  it('reads a file that serves a private build, and prints it back unchanged', () => {
+    const file = [
+      'Rule: A toy rule.',
+      'Sees: the app',
+      'Serves: a private build',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(readScenarioFile(file).serves).toBe('a private build');
+    expect(printScenarioFile(readScenarioFile(file))).toBe(file);
+  });
+
+  it('reads the rule with a private build, and no Sees, as a file of its own', () => {
+    const file = [
+      'Rule: A toy rule.',
+      'Serves: a private build',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(readScenarioFile(file).sees).toBeUndefined();
+    expect(printScenarioFile(readScenarioFile(file))).toBe(file);
+  });
+
   it('reads a But after a Then as one more outcome', () => {
     const { scenarios } = readScenarioFile(
       [
@@ -166,6 +201,21 @@ describe('a scenario file', () => {
         '',
       ],
       'sees "the app" or names nothing',
+    ],
+    [
+      'a file that serves anything but a private build',
+      [
+        'Rule: A toy rule.',
+        'Serves: a public build',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        '```',
+        '',
+      ],
+      'serves "a private build" or names nothing',
     ],
     [
       'steps out of order',
