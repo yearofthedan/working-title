@@ -30,6 +30,7 @@ export const findsAnyOtherWay = [
   '$$eval',
   'waitForSelector',
 ];
+export const filesUsingTheWriter = ['card.component.test.ts', 'panel.component.test.ts'];
 export const pageSelectorActions = [
   'check',
   'click',
@@ -69,6 +70,8 @@ const theDomBelongsInADomFile =
   'The DOM belongs in a *.dom.ts beside this one, which holds the logic (docs/standards/testing.md).';
 const theComponentHasATestPage =
   'Reach the component’s markup through its *.test-page.ts beside its *.dom.ts, or stage the page in src/test-helpers/staging.ts (docs/standards/testing.md).';
+const actsThroughTheWriter =
+  'Act through the writer its language gives you, never userEvent (docs/standards/testing.md).';
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -171,6 +174,32 @@ export default defineConfig({
           'no-restricted-globals': [
             'error',
             { name: 'document', message: theComponentHasATestPage },
+          ],
+        },
+      },
+      {
+        files: filesUsingTheWriter.map((name) => `src/**/${name}`),
+        rules: {
+          'no-restricted-properties': [
+            'error',
+            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+            ...componentAndAppTestRefusals.map((property) => ({
+              property,
+              message: theComponentHasATestPage,
+            })),
+            { object: 'browser', property: 'userEvent', message: actsThroughTheWriter },
+          ],
+          'no-restricted-imports': [
+            'error',
+            {
+              paths: [
+                {
+                  name: 'vite-plus/test/browser',
+                  importNames: ['userEvent'],
+                  message: actsThroughTheWriter,
+                },
+              ],
+            },
           ],
         },
       },
