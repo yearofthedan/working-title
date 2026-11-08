@@ -30,6 +30,11 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
+const keysFor = (key: string): string => {
+  if (key === 'Shift+Tab') return '{Shift>}{Tab}{/Shift}';
+  return key.length === 1 && key !== key.toLowerCase() ? `{Shift>}${key}{/Shift}` : `{${key}}`;
+};
+
 export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'main'): Driver => {
   const main =
     graph === undefined
@@ -44,7 +49,7 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
   const assertions = focusAssertions();
   return {
     press: async (key) => {
-      await browser.userEvent.keyboard(key === 'Shift+Tab' ? '{Shift>}{Tab}{/Shift}' : `{${key}}`);
+      await browser.userEvent.keyboard(keysFor(key));
     },
     click: clicking(within),
     focus: async (role, name, group) => {
