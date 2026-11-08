@@ -175,6 +175,27 @@ allowed "a *.dom.ts importing a *.dom.ts, and a component test importing one, ar
 not_out 'logic-not-on-the-dom' "the rule says nothing where the DOM is in a *.dom.ts"
 
 rm -rf "$project/src" "$project/e2e"
+write src/app.ts "export const startApp = (): void => undefined;"
+write src/ui/focus/graph.component.test.ts "import { startApp } from '../../app';
+export const judge = startApp;"
+run_layers
+refused "a component test importing startApp is refused"
+expect_out 'start-app-imported-only-by-its-entry-and-app-tests: src/ui/focus/graph.component.test.ts → src/app.ts' \
+  "the component test and the startApp file it reached are named"
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+rm -rf "$project/src"
+write src/app.ts "export const startApp = (): void => undefined;"
+write src/main.ts "import { startApp } from './app';
+export const start = startApp;"
+write src/app.app.test.ts "import { startApp } from './app';
+export const judge = startApp;"
+run_layers
+allowed "the entry and an app test importing startApp are allowed"
+not_out 'start-app-imported-only-by-its-entry-and-app-tests' \
+  "the rule says nothing where the entry and an app test import startApp"
+
+rm -rf "$project/src" "$project/e2e"
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/test-helpers/raw-glob.ts 'export interface RawGlob { glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, string>; }'
 write src/ui/focus/scenarios/a-rule.approved.md "Rule: A rule
