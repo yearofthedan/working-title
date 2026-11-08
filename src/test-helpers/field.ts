@@ -11,7 +11,7 @@ const textareaIn = (field: Locator): HTMLTextAreaElement => {
 
 export const caretOf = (field: Locator): number => textareaIn(field).selectionStart!;
 
-export const caretLineBottomOf = (located: Locator): number => {
+export const bottomOfTheTextIn = (located: Locator): number => {
   const field = located.element();
   const padding = Number.parseFloat(getComputedStyle(field).paddingBottom);
   return topOf(field) + field.clientTop + field.scrollHeight - padding - field.scrollTop;

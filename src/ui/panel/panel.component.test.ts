@@ -13,7 +13,7 @@ import {
   writerCanScroll,
 } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
-import { caretLineBottomOf, caretOf } from '../../test-helpers/field';
+import { bottomOfTheTextIn, caretOf } from '../../test-helpers/field';
 import { theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
@@ -358,9 +358,10 @@ describe('the panel mounted alone', () => {
     const thePageField = thePanelOn('Beat 2').field(thePage);
 
     await writer.putsTheFocusIn(thePage);
+    expect(caretOf(thePageField)).toBe(aPageOfFortySentences.length);
     await writer.presses(' ');
 
     await expect.element(thePageField).toBeInViewport({ ratio: 1 });
-    expect(caretLineBottomOf(thePageField)).toBeLessThanOrEqual(window.innerHeight);
+    expect(bottomOfTheTextIn(thePageField)).toBeLessThanOrEqual(window.innerHeight);
   });
 });
