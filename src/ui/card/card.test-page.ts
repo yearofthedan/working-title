@@ -3,6 +3,21 @@ import * as browser from 'vite-plus/test/browser';
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
 
+export const theCard = (name: string) => {
+  const card = browser.page.getByRole('group', { name, exact: true, includeHidden: true });
+  return {
+    card,
+    keys: card.getByRole('paragraph', { includeHidden: true }),
+    actions: {
+      addAScene: card.getByRole('button', {
+        name: 'Add a scene',
+        exact: true,
+        includeHidden: true,
+      }),
+    },
+  };
+};
+
 export const headingOf = (card: HTMLElement): HTMLElement => {
   const heading = inThePage(
     browser.page.getByRole('heading', { includeHidden: true }).elements(),
@@ -101,16 +116,6 @@ const visible = (element: Element): boolean => {
   );
 };
 
-export const keysOf = (card: HTMLElement): HTMLElement => {
-  const hint = card.querySelector<HTMLElement>('.keys');
-  if (hint === null) throw new Error('the card draws no keys line');
-  return hint;
-};
-
-export const showsTheKeys = (card: HTMLElement): boolean => visible(keysOf(card));
-
-export const holdsTheFocus = (card: HTMLElement): boolean => card === document.activeElement;
-
 export const timesDrawn = (card: HTMLElement, sentence: string): number =>
   inThePage(browser.page.getByRole('textbox', { includeHidden: true }).elements()).filter(
     (field) =>
@@ -122,10 +127,3 @@ export const timesDrawn = (card: HTMLElement, sentence: string): number =>
   inThePage(browser.page.getByText(sentence, { exact: true }).elements()).filter(
     (element) => card.contains(element) && visible(element),
   ).length;
-
-export const lookOf = (card: HTMLElement): string => card.className;
-
-export const inertOf = (card: HTMLElement): boolean => card.inert;
-
-export const marksCurrent = (card: HTMLElement): boolean =>
-  card.getAttribute('aria-current') === 'location';

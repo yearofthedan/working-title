@@ -1,22 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test';
-import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
 import {
-  addButtonOf,
   facetOf,
   headingOf,
-  holdsTheFocus,
-  inertOf,
   labelOf,
-  lookOf,
-  marksCurrent,
   sentenceFieldOf,
   shownSentenceOf,
-  showsTheKeys,
+  theCard,
   timesDrawn,
 } from './card.test-page';
 import {
@@ -30,19 +24,49 @@ import { cardSeesOn, cardSteps, cardWriterOn } from './card.dsl';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
 
+const writer = cardWriterOn(vitestBrowserDriver(), stageTheCard, stageTheCardUnfocused);
+
 const beatWith = (text: string): PieceView => ({
   ...theBeat,
   facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary', text }],
 });
 
 describe('the card mounted alone', () => {
-  it.each(cardLooks)('is drawn in the %s look without the graph', (as) => {
-    const card = mountTheCard(as);
+  it.each(cardLooks)('is drawn in the %s look without the graph', async (as) => {
+    mountTheCard(as);
 
-    expect(lookOf(card.element)).toBe(as);
-    expect(inertOf(card.element)).toBe(as === 'hidden');
-    expect(marksCurrent(card.element)).toBe(as === 'current');
+    await expect.element(theCard(theBeat.name).card).toHaveClass(as, { exact: true });
   });
+
+  it('makes a hidden card inert', async () => {
+    mountTheCard('hidden');
+
+    await expect.element(theCard(theBeat.name).card).toHaveAttribute('inert');
+  });
+
+  it.each(cardLooks.filter((look) => look !== 'hidden'))(
+    'leaves a %s card reachable',
+    async (as) => {
+      mountTheCard(as);
+
+      await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('inert');
+    },
+  );
+
+  it('marks the current card as where the writer is', async () => {
+    mountTheCard('current');
+
+    await expect.element(theCard(theBeat.name).card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it.each(cardLooks.filter((look) => look !== 'current'))(
+    'marks no %s card as where the writer is',
+    async (as) => {
+      mountTheCard(as);
+
+      await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('aria-current');
+    },
+  );
 
   it("draws the sentence on the current piece's card once", () => {
     const card = mountTheCard('current', { piece: beatWith(theSentence) });
@@ -74,37 +98,37 @@ describe('the card mounted alone', () => {
     const card = mountTheCard('current');
 
     const body = facetOf(card.element).getBoundingClientRect();
-    const button = addButtonOf(card.element).getBoundingClientRect();
+    const button = theCard(theBeat.name).actions.addAScene.element().getBoundingClientRect();
 
     expect(button.top).toBeGreaterThanOrEqual(body.top);
     expect(button.bottom).toBeLessThanOrEqual(body.bottom);
   });
 
   it('shows the keys without resizing the card', async () => {
-    const card = mountTheCard('current');
+    const mounted = mountTheCard('current');
     await theCardSettles();
-    const unfocused = card.size();
+    const unfocused = mounted.size();
+    const { card, keys } = theCard(theBeat.name);
 
-    await browser.userEvent.keyboard('{Tab}');
+    await writer.tabsForward();
 
-    expect(holdsTheFocus(card.element)).toBe(true);
-    expect(showsTheKeys(card.element)).toBe(true);
-    expect(card.size()).toEqual(unfocused);
+    await expect.element(card).toHaveFocus();
+    await expect.element(keys).toBeVisible();
+    expect(mounted.size()).toEqual(unfocused);
   });
 
   it('elaborates the field with its text on each keystroke', async () => {
     const typed: string[] = [];
-    const card = mountTheCard('current', {
+    mountTheCard('current', {
       elaborate: (_piece, _facet, text) => {
         typed.push(text);
         return Promise.resolve();
       },
     });
 
-    const field = sentenceFieldOf(card.element);
-    field.focus();
-    await browser.userEvent.keyboard('m');
-    await browser.userEvent.keyboard('a');
+    await writer.putsTheFocusInTheSummary();
+    await writer.presses('m');
+    await writer.presses('a');
 
     expect(typed).toEqual(['m', 'ma']);
   });
