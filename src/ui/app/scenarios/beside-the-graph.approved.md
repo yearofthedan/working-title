@@ -335,14 +335,14 @@ Then nothing is open beside the graph
         - button "Beat 5"
 ```
 
-### Scenario: a scene opens beside the graph
+### Scenario: a scene opens with its narrative and its prose
 
 ```
 Given a project with two scenes under beat 2
 When the writer clicks beat 2
 And presses ↓
 And opens scene 1 under beat 2 beside the graph
-Then scene 1 under beat 2 is open beside the graph
+Then scene 1 under beat 2 is open beside the graph, with its narrative and then its prose
 - banner:
   - heading [level=1]
   - navigation "Where you are":
@@ -377,4 +377,6 @@ Then scene 1 under beat 2 is open beside the graph
   - textbox "List line"
   - text: Narrative
   - textbox "Narrative"
+  - text: Prose
+  - textbox "Prose"
 ```
