@@ -30,15 +30,18 @@ const copyOfTheBuild = async (): Promise<{
     if (found !== null) resolve(found[1] ?? '');
   });
   server.on('error', reject);
+  server.on('exit', (code) => reject(new Error(`vp preview exited with ${code} before it served`)));
   const url = await promise;
   return {
     dir,
     url,
     stop: async () => {
-      server.kill();
-      const exited = Promise.withResolvers<void>();
-      server.once('exit', () => exited.resolve());
-      await exited.promise;
+      if (server.exitCode === null) {
+        const exited = Promise.withResolvers<void>();
+        server.once('exit', () => exited.resolve());
+        server.kill();
+        await exited.promise;
+      }
       rmSync(dir, { recursive: true, force: true });
     },
   };
