@@ -50,3 +50,4 @@ The **core** terms below name things every method has. They are the only words i
 | Capture | Add a piece outside the flow, linked to the current piece from the start | |
 | Replan | Revisit the plan after drafting: the pieces upstream of the current piece and the pieces linked to it | |
 | Theme | What the novel is about, in the writer's words. It belongs to the project, not to any piece | |
+| New version | A build of the app that has installed in the browser beside the one running and does not run until the writer moves onto it | update, release |
