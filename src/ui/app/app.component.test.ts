@@ -15,7 +15,13 @@ import {
   narrowThePane,
 } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
+import {
+  expectVisuallyShown,
+  expectVisuallyHidden,
+  nameOf,
+  theCard,
+  timesDrawn,
+} from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
@@ -121,7 +127,7 @@ describe('what the app keeps', () => {
     await settled();
     const paragraph = thePanelOn('Beat 2').field('Paragraph');
 
-    await writer.putsTheFocusIn('Beat 2', 'Paragraph');
+    await writer.putsTheFocusIn('Paragraph');
     await writer.typesKeyByKey('ab');
     await writer.presses('ArrowLeft');
     await writer.typesKeyByKey('X');
@@ -252,17 +258,17 @@ describe('opening a piece beside the graph', () => {
     const icon = theCard('Beat 2').actions.openBeside;
 
     await writer.hovers('The story');
-    await expect.element(icon).toHaveStyle({ opacity: '0' });
+    await expectVisuallyHidden(icon);
 
     await writer.hovers('Beat 2');
-    await expect.element(icon).toHaveStyle({ opacity: '1' });
+    await expectVisuallyShown(icon);
 
     await writer.hovers('The story');
-    await expect.element(icon).toHaveStyle({ opacity: '0' });
+    await expectVisuallyHidden(icon);
 
     await writer.clicks('Beat 2');
     await writer.hovers('The story');
-    await expect.element(icon).toHaveStyle({ opacity: '1' });
+    await expectVisuallyShown(icon);
 
     await writer.hovers('Beat 1');
     await expect.element(theCard('Beat 1').actions.openBeside).not.toBeVisible();

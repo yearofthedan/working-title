@@ -1,8 +1,15 @@
+import { expect } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
+
+export const expectVisuallyShown = (part: Locator): Promise<void> =>
+  expect.element(part).toHaveStyle({ opacity: '1' });
+
+export const expectVisuallyHidden = (part: Locator): Promise<void> =>
+  expect.element(part).toHaveStyle({ opacity: '0' });
 
 export const theCard = (name: string) => {
   const card = browser.page.getByRole('group', { name, exact: true, includeHidden: true });

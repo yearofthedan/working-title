@@ -13,19 +13,15 @@ import {
   type Sees,
   type Writer,
 } from '../graph/graph.dsl';
+import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
 
-export interface AppWriter extends Writer {
+export interface AppWriter extends Writer, PanelWriter {
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
   clicksThePathTo(piece: string): Promise<void>;
   hovers(piece: string): Promise<void>;
   clicksOpenBesideOn(piece: string): Promise<void>;
-  presses(key: string): Promise<void>;
-  putsTheFocusOnClose(): Promise<void>;
-  putsTheFocusIn(piece: string, label: string): Promise<void>;
-  typesKeyByKey(text: string): Promise<void>;
-  closesThePanel(): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
   typesBeside(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
@@ -74,14 +70,7 @@ export const appWriterOn = (
     await driver.hover('group', named);
     await driver.click('button', 'Open beside', { role: 'group', name: named });
   },
-  presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
-  putsTheFocusOnClose: () => driver.focus('button', 'Close'),
-  putsTheFocusIn: (piece, label) =>
-    driver.focus('textbox', label, { role: 'complementary', name: pieceNamed(piece) }),
-  typesKeyByKey: async (text) => {
-    for (const character of text) await driver.press(character);
-  },
-  closesThePanel: () => driver.click('button', 'Close'),
+  ...panelWriterOn(driver),
   // shortcut: a facet written "{facet} under {beat}" makes that beat current first, until the table can name a piece and its beat apart.
   types: async (text, at) => {
     const under = underABeat.exec(at.facet)?.groups;
