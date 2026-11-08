@@ -10,18 +10,16 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-// shortcut: this one file's tree reads the whole page, because the panel it asserts on sits outside main; until the tree root comes from the scenario file, every other file stays rooted at main.
-const rootedAtThePage = 'e2e/your-words-survive-a-reload.approved.md';
-
 for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved.md'))) {
   const path = relative(root, join(here, name));
   if (approvingPath !== '' && approvingPath !== path) continue;
 
   const text = readFileSync(join(root, path), 'utf8');
+  const file = readScenarioFile(text);
 
   test.describe(path, () => {
-    test.use({ treeRoot: path === rootedAtThePage ? 'page' : 'main' });
-    for (const { behaviour } of readScenarioFile(text).scenarios) {
+    test.use({ treeRoot: file.sees === 'the app' ? 'page' : 'main' });
+    for (const { behaviour } of file.scenarios) {
       test(behaviour, async ({ writer }) => {
         const tree = async () => writer.sees.tree();
         const runner: Runner =
