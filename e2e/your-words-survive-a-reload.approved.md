@@ -1,4 +1,5 @@
 Rule: what the writer types into a piece is still there after a reload.
+Sees: the app
 
 ### Scenario: the story sentence survives a reload
 
