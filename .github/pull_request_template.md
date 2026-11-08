@@ -16,7 +16,7 @@ After:
 
 ## How to verify
 
-<!-- Numbered steps the builder follows to check the change, starting from the running result rather than the tests: what to run, where to look, and what they should see. Start from "Verify a change" in [CONTRIBUTING](../CONTRIBUTING.md). -->
+<!-- Numbered steps the builder follows to check the change, starting from the running result rather than the tests: what to run, where to look, and what they should see. For a change the writer does not see, the running result is what the changed script prints or the page it renders. Start from "Verify a change" in [CONTRIBUTING](../CONTRIBUTING.md). -->
 
 1.
 

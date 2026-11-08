@@ -37,7 +37,7 @@ How a story is planned, built and handed over is in the [implement skill](https:
 
 ## Where docs go
 
-- `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request and reads `AGENTS.md` once at session start, so a rule that has to outlast a long session or reach a subagent goes here (OMP's `context-files.md`, "Sticky rules vs normal context"; `system-prompt-customization.md`, "Inputs by session type").
+- `.omp/RULES.md`: the rules that hold on every turn. OMP sends it in full with every request, and task subagents do not receive `AGENTS.md`, so a rule that has to outlast a long session or reach a subagent goes here ([OMP's context files](https://github.com/can1357/oh-my-pi/blob/main/docs/context-files.md), "Sticky rules vs normal context").
 - The [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills): a rule or skill shared with the builder's other projects. It is changed there, and this repo keeps no copy.
 - `docs/product.md`: what the product is for, and its design principles.
 - `docs/domain/`: the writer's world: the ubiquitous language, and each method's design, whose built part is in `src/methods/`.

@@ -1,7 +1,7 @@
 # Dev flow
 
 **Audience:** the builder.
-**Purpose:** how a story or task is written, agreed and implemented. The agent's side of each step is a skill in `.agents/skills/`.
+**Purpose:** how a story or task is written, agreed and implemented. The agent's side of each step is a skill, in `.agents/skills/` or the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills).
 
 ## Write a story
 
