@@ -13,12 +13,15 @@ import {
   type Sees,
   type Writer,
 } from '../graph/graph.dsl';
+import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
 
-export interface AppWriter extends Writer {
+export interface AppWriter extends Writer, PanelWriter {
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
-  closesThePanel(): Promise<void>;
+  clicksThePathTo(piece: string): Promise<void>;
+  hovers(piece: string): Promise<void>;
+  clicksOpenBesideOn(piece: string): Promise<void>;
   types(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
   typesBeside(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
@@ -31,9 +34,12 @@ export interface AppSees extends Sees {
   focusIsInTheParagraph(): Promise<void>;
 }
 
+const clickingThePathTo = (driver: Driver, piece: string): Promise<void> =>
+  driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
+
 const reaching = async (driver: Driver, piece: string): Promise<void> => {
   if (!shows(await driver.tree(), pieceNamed(piece))) {
-    await driver.click('button', 'The story', { role: 'navigation', name: 'Where you are' });
+    await clickingThePathTo(driver, 'The story');
   }
   await clicking(driver, piece);
 };
@@ -57,7 +63,14 @@ export const appWriterOn = (
     await driver.click('button', 'Add a scene', { role: 'group', name: named });
   },
   opensBeside: (piece) => openingBeside(driver, piece),
-  closesThePanel: () => driver.click('button', 'Close'),
+  clicksThePathTo: (piece) => clickingThePathTo(driver, piece),
+  hovers: (piece) => driver.hover('group', pieceNamed(piece)),
+  clicksOpenBesideOn: async (piece) => {
+    const named = pieceNamed(piece);
+    await driver.hover('group', named);
+    await driver.click('button', 'Open beside', { role: 'group', name: named });
+  },
+  ...panelWriterOn(driver),
   // shortcut: a facet written "{facet} under {beat}" makes that beat current first, until the table can name a piece and its beat apart.
   types: async (text, at) => {
     const under = underABeat.exec(at.facet)?.groups;

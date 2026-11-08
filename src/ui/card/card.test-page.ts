@@ -1,16 +1,22 @@
 import * as browser from 'vite-plus/test/browser';
+import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
-
 export const theCard = (name: string) => {
   const card = browser.page.getByRole('group', { name, exact: true, includeHidden: true });
   return {
     card,
     keys: card.getByRole('paragraph', { includeHidden: true }),
+    field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
     actions: {
       addAScene: card.getByRole('button', {
         name: 'Add a scene',
+        exact: true,
+        includeHidden: true,
+      }),
+      openBeside: card.getByRole('button', {
+        name: 'Open beside',
         exact: true,
         includeHidden: true,
       }),
@@ -68,27 +74,6 @@ export const addButtonOf = (card: HTMLElement): HTMLElement => {
   return button;
 };
 
-const openBesideIn = (card: HTMLElement): HTMLElement | undefined =>
-  inThePage(
-    browser.page.getByRole('button', { name: /^Open beside$/i, includeHidden: true }).elements(),
-  ).find((one) => card.contains(one));
-
-export const openBesideOf = (card: HTMLElement): HTMLElement => {
-  const button = openBesideIn(card);
-  if (button === undefined) throw new Error('the card draws no "Open beside" button');
-  return button;
-};
-
-export const drawsOpenBeside = (card: HTMLElement): boolean => openBesideIn(card) !== undefined;
-
-export const showsOpenBeside = (card: HTMLElement): boolean => {
-  const button = openBesideIn(card);
-  return button !== undefined && visible(button);
-};
-
-export const openBesideIsPressed = (card: HTMLElement): boolean =>
-  openBesideOf(card).getAttribute('aria-pressed') === 'true';
-
 export const addButtonIsFirst = (card: HTMLElement): boolean =>
   buttonsIn(card)[0] === addButtonOf(card);
 
@@ -116,7 +101,7 @@ const visible = (element: Element): boolean => {
   );
 };
 
-export const timesDrawn = (card: HTMLElement, sentence: string): number =>
+export const timesDrawn = (card: Element, sentence: string): number =>
   inThePage(browser.page.getByRole('textbox', { includeHidden: true }).elements()).filter(
     (field) =>
       card.contains(field) &&

@@ -47,4 +47,15 @@ describe('the app language', () => {
       'click heading "The story" in group "The story"',
     ]);
   });
+
+  it('refuses a scene that is not under the beat named', async () => {
+    const { driver, opening, reads } = recording(storyDrawn);
+    const type = appSteps(appWriterOn(driver, opening), appSeesOn(driver, reads))[
+      'types "{text}" as {scene}\'s list line under {beat}'
+    ]!;
+
+    await expect(
+      Promise.resolve(type({ text: 'Maren rows out', scene: 'Scene 1', beat: 'Beat 2' })),
+    ).rejects.toThrow('Scene 1 is not under Beat 2');
+  });
 });

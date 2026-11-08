@@ -13,10 +13,11 @@ export const renderApp = async (page: ParentNode, project: OpenProject): Promise
   let open: string | undefined;
 
   const relay = async (pieceId: string, facetId: string, text: string): Promise<void> => {
-    await held.elaborate(pieceId, facetId, text);
+    const saved = held.elaborate(pieceId, facetId, text);
     // shortcut: the app passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
     if (panel.isOpenOn(pieceId)) panel.show(facetId, text);
     graph?.show(pieceId, facetId, text);
+    await saved;
   };
 
   const closeBeside = (): void => {

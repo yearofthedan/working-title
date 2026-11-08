@@ -50,6 +50,9 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     focus: async (role, name, within) => {
       await found(role, name, within).focus();
     },
+    hover: async (role, name, within) => {
+      await found(role, name, within).hover();
+    },
     scrollToTheEnd: async (role, name, within) => {
       await found(role, name, within).hover();
       await page.mouse.wheel(0, farEnoughToReachTheEnd);

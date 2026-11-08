@@ -33,9 +33,8 @@ export const appScenarioSteps = (driver: Driver) =>
     appSeesOn(driver, appReadsOnThePage()),
   );
 
-export const pageWith = (scenes = 0, width = 1440) => {
-  const driver = vitestBrowserDriver();
-  const store = inMemory();
+export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
+  const driver = vitestBrowserDriver(undefined, 'page');
   const stage: Opening = {
     fresh: async () => {
       await thePage(width);
@@ -47,7 +46,6 @@ export const pageWith = (scenes = 0, width = 1440) => {
     },
   };
   return {
-    driver,
     stage,
     writer: appWriterOn(driver, stage),
     sees: appSeesOn(driver, appReadsOnThePage()),

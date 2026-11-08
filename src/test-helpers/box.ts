@@ -2,6 +2,11 @@ import type { Locator } from 'vite-plus/test/browser';
 
 export const heightOf = (element: Element): number => element.getBoundingClientRect().height;
 
+export const boxOf = (element: Element): string => {
+  const { left, top, width, height } = element.getBoundingClientRect();
+  return `${left} ${top} ${width} ${height}`;
+};
+
 export const widthOf = (element: Element): number => element.getBoundingClientRect().width;
 
 export const topOf = (element: Element): number => element.getBoundingClientRect().top;
