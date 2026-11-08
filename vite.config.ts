@@ -30,11 +30,6 @@ export const findsAnyOtherWay = [
   '$$eval',
   'waitForSelector',
 ];
-export const filesUsingTheWriter = [
-  'card.component.test.ts',
-  'panel.component.test.ts',
-  'app.component.test.ts',
-];
 export const pageSelectorActions = [
   'check',
   'click',
@@ -174,24 +169,11 @@ export default defineConfig({
               property,
               message: theComponentHasATestPage,
             })),
+            { object: 'browser', property: 'userEvent', message: actsThroughTheWriter },
           ],
           'no-restricted-globals': [
             'error',
             { name: 'document', message: theComponentHasATestPage },
-          ],
-        },
-      },
-      {
-        files: filesUsingTheWriter.map((name) => `src/**/${name}`),
-        rules: {
-          'no-restricted-properties': [
-            'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
-            ...componentAndAppTestRefusals.map((property) => ({
-              property,
-              message: theComponentHasATestPage,
-            })),
-            { object: 'browser', property: 'userEvent', message: actsThroughTheWriter },
           ],
           'no-restricted-imports': [
             'error',

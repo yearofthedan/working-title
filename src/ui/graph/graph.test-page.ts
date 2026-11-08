@@ -1,7 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { inThePage, nameOf } from '../card/card.test-page';
-import { cardLooks, type CardLook } from '../card/card';
+import { inThePage } from '../card/card.test-page';
+import { type CardLook } from '../card/card';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {
@@ -16,45 +16,8 @@ browser.locators.extend({
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());
 
-const kindOf = (card: HTMLElement): CardLook | undefined =>
-  cardLooks.find((kind) => card.classList.contains(kind));
-
-export const cards = (kind: CardLook): HTMLElement[] =>
-  everyCard().filter((card) => kindOf(card) === kind);
-
-export const current = (): HTMLElement => {
-  const [card] = cards('current');
-  if (card === undefined) throw new Error('no piece is drawn as the current piece');
-  return card;
-};
-
-export const named = (kind: CardLook, name: string): HTMLElement => {
-  const card = everyCard().find((one) => kindOf(one) === kind && nameOf(one) === name);
-  if (card === undefined) throw new Error(`no piece named ${name} is drawn as a ${kind}`);
-  return card;
-};
-
-export const currentCards = (): HTMLElement[] =>
-  everyCard().filter((card) => card.getAttribute('aria-current') === 'location');
-
-export const atFocus = (): Element | null => document.activeElement;
-
 export const blurTheFocus = (): void => {
   if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-};
-
-export const cardAtFocus = (): HTMLElement | null =>
-  everyCard().find((card) => card.contains(document.activeElement)) ?? null;
-
-export const focusIn = (kind: CardLook): HTMLElement | null => {
-  const card = cardAtFocus();
-  return card !== null && kindOf(card) === kind ? card : null;
-};
-
-export const pane = (): HTMLElement => {
-  const [main] = inThePage(browser.page.getByRole('main').elements());
-  if (main === undefined) throw new Error('the page has no main');
-  return main;
 };
 
 export const theBodyHolds = (): readonly string[] =>

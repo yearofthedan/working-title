@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
-import * as browser from 'vite-plus/test/browser';
+import { commands } from 'vite-plus/test/browser';
 import {
   bottomOf,
   boxes,
@@ -1026,12 +1026,12 @@ describe('the motion of a move', () => {
 
   describe('under reduced motion', () => {
     afterEach(async () => {
-      await browser.commands.emulateReducedMotion('no-preference');
+      await commands.emulateReducedMotion('no-preference');
     });
 
     it.each(moves)('moves nothing for $what', async ({ play }) => {
       const { stage, writer } = graphWith(1);
-      await browser.commands.emulateReducedMotion('reduce');
+      await commands.emulateReducedMotion('reduce');
       await stage.fresh();
 
       await play(writer);

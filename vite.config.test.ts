@@ -7,7 +7,6 @@ import {
   componentAndAppTestRefusals,
   documentSelectors,
   domGlobals,
-  filesUsingTheWriter,
   findsAnyOtherWay,
   findsByRoleOrLabel,
   pageSelectorActions,
@@ -116,12 +115,12 @@ beforeAll(() => {
   const readingTheCardElement = readingACard.querySelector;
   if (readingTheCardElement === undefined)
     throw new Error('no sample reads a card with querySelector');
-  for (const name of filesUsingTheWriter) {
-    writeInUi(`calling-user-event/${name}`, callingUserEvent);
-    writeInUi(`importing-user-event/${name}`, importingUserEvent);
-    writeInUi(`calling-query-selector/${name}`, readingTheCardElement);
+  for (const level of levels) {
+    writeInUi(`calling-user-event/sample.${level}.test.ts`, callingUserEvent);
+    writeInUi(`importing-user-event/sample.${level}.test.ts`, importingUserEvent);
+    writeInUi(`calling-query-selector/sample.${level}.test.ts`, readingTheCardElement);
   }
-  writeInUi('unlisted/other.component.test.ts', callingUserEvent);
+  writeInUi('unlisted/other.test.ts', callingUserEvent);
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -213,36 +212,33 @@ describe('a component test or an app test', { timeout: 60_000 }, () => {
   });
 });
 
-describe('a file using the writer', { timeout: 60_000 }, () => {
-  it.each(filesUsingTheWriter)(
-    'a %s calling browser.userEvent fails lint, pointing at the writer',
-    (name) => {
-      expect(uiErrorsIn(`calling-user-event/${name}`)).toEqual([
+describe('a component test or an app test using the writer', { timeout: 60_000 }, () => {
+  it.each(levels)(
+    'a %s test calling browser.userEvent fails lint, pointing at the writer',
+    (level) => {
+      expect(uiErrorsIn(`calling-user-event/sample.${level}.test.ts`)).toEqual([
         expect.stringMatching(/writer.*testing\.md/),
       ]);
     },
   );
 
-  it.each(filesUsingTheWriter)(
-    'a %s importing userEvent fails lint, pointing at the writer',
-    (name) => {
-      expect(uiErrorsIn(`importing-user-event/${name}`)).toEqual([
-        expect.stringMatching(/writer.*testing\.md/),
-      ]);
-    },
-  );
+  it.each(levels)('a %s test importing userEvent fails lint, pointing at the writer', (level) => {
+    expect(uiErrorsIn(`importing-user-event/sample.${level}.test.ts`)).toEqual([
+      expect.stringMatching(/writer.*testing\.md/),
+    ]);
+  });
 
-  it.each(filesUsingTheWriter)(
-    'a %s calling querySelector still fails lint, pointing at the test page',
-    (name) => {
-      expect(uiErrorsIn(`calling-query-selector/${name}`)).toEqual([
+  it.each(levels)(
+    'a %s test calling querySelector still fails lint, pointing at the test page',
+    (level) => {
+      expect(uiErrorsIn(`calling-query-selector/sample.${level}.test.ts`)).toEqual([
         expect.stringMatching(/test-page\.ts.*staging\.ts/),
       ]);
     },
   );
 
-  it('an unlisted component test calling browser.userEvent passes lint', () => {
-    expect(uiErrorsIn('unlisted/other.component.test.ts')).toEqual([]);
+  it('a test that is neither a component nor an app test calling browser.userEvent passes lint', () => {
+    expect(uiErrorsIn('unlisted/other.test.ts')).toEqual([]);
   });
 });
 

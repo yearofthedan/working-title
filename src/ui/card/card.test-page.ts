@@ -51,45 +51,7 @@ export const sentenceFieldOf = (card: Element): HTMLTextAreaElement => {
   return field;
 };
 
-export const firstFieldOf = (card: Element): HTMLElement => {
-  const field = inThePage(
-    browser.page.getByRole('textbox', { includeHidden: true }).elements(),
-  ).find((element) => card.contains(element));
-  if (field === undefined) throw new Error('the card has no field');
-  return field;
-};
-
 export const labelOf = (card: Element): HTMLElement => sentenceFieldOf(card).labels![0]!;
-
-const buttonsIn = (card: Element): HTMLElement[] =>
-  inThePage(browser.page.getByRole('button', { includeHidden: true }).elements()).filter((button) =>
-    card.contains(button),
-  );
-
-export const addButtonOf = (card: Element): HTMLElement => {
-  const button = inThePage(
-    browser.page.getByRole('button', { name: /^Add a scene$/i, includeHidden: true }).elements(),
-  ).find((one) => card.contains(one));
-  if (button === undefined) throw new Error('the card has no add button');
-  return button;
-};
-
-export const addButtonIsFirst = (card: Element): boolean =>
-  buttonsIn(card)[0] === addButtonOf(card);
-
-export const positionOf = (
-  card: HTMLElement,
-): { readonly left: string; readonly top: string; readonly width: string } => ({
-  left: card.style.left,
-  top: card.style.top,
-  width: card.style.width,
-});
-
-export const nameButtonOf = (card: Element): HTMLElement => {
-  const button = buttonsIn(card).find((one) => headingOf(card).contains(one));
-  if (button === undefined) throw new Error(`${nameOf(card)} is drawn without a name button`);
-  return button;
-};
 
 const visible = (element: Element): boolean => {
   const { display, opacity, visibility } = getComputedStyle(element);
