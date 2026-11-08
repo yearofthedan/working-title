@@ -13,20 +13,15 @@ import {
 } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
 import { bottomOfTheTextIn, caretOf } from '../../test-helpers/field';
+import { aProjectWithScenesUnder, anInMemoryProject } from '../../test-helpers/seed';
 import { theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
-import {
-  mountThePanel,
-  theAppClosesThePanel,
-  theAppSetsAField,
-  theBeat,
-  theScene,
-} from './panel.harness';
+import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
 import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
 const writer = panelWriterOn(vitestBrowserDriver(), theBeat.name);
-const theSceneWriter = panelWriterOn(vitestBrowserDriver(), theScene.name);
+const theSceneWriter = panelWriterOn(vitestBrowserDriver(), 'Scene 1');
 
 const theMostLinesTheParagraphShows = 6;
 const theLeastLinesThePageShows = 8;
@@ -152,8 +147,9 @@ describe('the panel mounted alone', () => {
   });
 
   it('tabs from the narrative to the prose', async () => {
-    mountThePanel(theScene);
-    const panel = thePanelOn('Scene 2');
+    const { project } = await anInMemoryProject(await aProjectWithScenesUnder('Beat 2', 1));
+    mountThePanel(project.root.children[1]!.children[0]!);
+    const panel = thePanelOn('Scene 1');
 
     await theSceneWriter.putsTheFocusIn(theNarrative);
     await theSceneWriter.tabsForward();
