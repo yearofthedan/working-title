@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
+import { bottomOf, topOf } from '../../test-helpers/box';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
@@ -97,11 +98,11 @@ describe('the card mounted alone', () => {
   it("keeps the add button inside the current piece's card", () => {
     const card = mountTheCard('current');
 
-    const body = facetOf(card.element).getBoundingClientRect();
-    const button = theCard(theBeat.name).actions.addAScene.element().getBoundingClientRect();
+    const body = facetOf(card.element);
+    const button = theCard(theBeat.name).actions.addAScene;
 
-    expect(button.top).toBeGreaterThanOrEqual(body.top);
-    expect(button.bottom).toBeLessThanOrEqual(body.bottom);
+    expect(topOf(button.element())).toBeGreaterThanOrEqual(topOf(body));
+    expect(bottomOf(button.element())).toBeLessThanOrEqual(bottomOf(body));
   });
 
   it('shows the keys without resizing the card', async () => {

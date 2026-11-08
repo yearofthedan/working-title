@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
+import { widthOf } from '../../test-helpers/box';
 import { settled, type Driver } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
 import { laidOut, moving } from '../../test-helpers/graph-page';
@@ -29,7 +30,7 @@ import {
   everyCard,
   named,
 } from '../graph/graph.test-page';
-import { closeButtonOf, fieldFor, panelOf, widthOf } from '../panel/panel.test-page';
+import { closeButtonOf, fieldFor, panelOf } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
 import { appSteps, type AppWriter } from './app.dsl';
 import { appScenarioSteps, pageWith } from './app.harness';

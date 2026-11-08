@@ -1,33 +1,29 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
-import * as browser from 'vite-plus/test/browser';
 import type { PieceView } from '../../application/project';
-import { settled } from '../../test-helpers/driver';
-import { theViewport } from '../../test-helpers/staging';
 import {
-  bottomOf,
-  caretIn,
-  caretLineBottomOf,
-  closeButtonOf,
-  displayOf,
-  fieldFor,
   focusWithoutScrolling,
-  headingOf,
-  holdsTheFocus,
   heightOf,
-  insideTheViewport,
-  keysHeardOnThePage,
   lineHeightOf,
-  nameElementOf,
-  nameOn,
   scrollHeightOf,
-  scrolledTo,
-  scrollToTheEndOf,
+  scrollTo,
   textHeightOf,
-  topOf,
+  whatCoversTheTopOf,
   widthOf,
   writerCanScroll,
-} from './panel.test-page';
-import { mountThePanel, theBeat } from './panel.harness';
+} from '../../test-helpers/box';
+import { settled } from '../../test-helpers/driver';
+import { bottomOfTheTextIn, caretOf } from '../../test-helpers/field';
+import { theViewport } from '../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { panelWriterOn } from './panel.dsl';
+import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
+import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
+
+const writer = panelWriterOn(vitestBrowserDriver(), theBeat.name);
+
+const theMostLinesTheParagraphShows = 6;
+const theLeastLinesThePageShows = 8;
+const onePixelOfRounding = 1;
 
 const theSentence = 'One-sentence summary';
 const theParagraph = 'Paragraph';
@@ -106,74 +102,75 @@ const holdingALongPage = (paragraph: string, page: string): PieceView => ({
 });
 
 describe('the panel mounted alone', () => {
-  it('draws the piece it was opened on, under its name', () => {
-    const panel = mountThePanel();
+  it('draws the piece it was opened on, under its name', async () => {
+    mountThePanel();
+    const panel = thePanelOn('Beat 2');
 
-    expect(nameOn(panel.element)).toBe('Beat 2');
-    expect(fieldFor(panel.element, theSentence).value).toBe('');
-    expect(fieldFor(panel.element, theParagraph).value).toBe('');
+    await expect.element(panel.name).toHaveTextContent('Beat 2');
+    await expect.element(panel.field(theSentence)).toHaveValue('');
+    await expect.element(panel.field(theParagraph)).toHaveValue('');
   });
 
   it('moves the caret inside a field with the arrow keys, and leaves the focus in it', async () => {
-    const panel = mountThePanel(holding('', theText));
-    const field = fieldFor(panel.element, theParagraph);
-    field.focus();
-    field.setSelectionRange(6, 6);
+    mountThePanel(holding('', theText));
+    const field = thePanelOn('Beat 2').field(theParagraph);
 
-    await browser.userEvent.keyboard('{ArrowRight}');
+    await writer.putsTheFocusIn(theParagraph);
+    await writer.presses('ArrowLeft');
 
-    expect(caretIn(field)).toBe(7);
-    expect(holdsTheFocus(field)).toBe(true);
+    expect(caretOf(field)).toBe(theText.length - 1);
+    await expect.element(field).toHaveFocus();
   });
 
   it('tabs from the sentence to the paragraph', async () => {
-    const panel = mountThePanel();
-    fieldFor(panel.element, theSentence).focus();
+    mountThePanel();
+    const panel = thePanelOn('Beat 2');
 
-    await browser.userEvent.keyboard('{Tab}');
+    await writer.putsTheFocusIn(theSentence);
+    await writer.tabsForward();
 
-    expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
+    await expect.element(panel.field(theParagraph)).toHaveFocus();
   });
 
   it('tabs from the paragraph to the page', async () => {
-    const panel = mountThePanel();
-    fieldFor(panel.element, theParagraph).focus();
+    mountThePanel();
+    const panel = thePanelOn('Beat 2');
 
-    await browser.userEvent.keyboard('{Tab}');
+    await writer.putsTheFocusIn(theParagraph);
+    await writer.tabsForward();
 
-    expect(holdsTheFocus(fieldFor(panel.element, thePage))).toBe(true);
+    await expect.element(panel.field(thePage)).toHaveFocus();
   });
 
   it('elaborates the facet it was typed into, with the text typed', async () => {
     const typed: string[] = [];
-    const panel = mountThePanel(theBeat, {
+    mountThePanel(theBeat, {
       elaborate: (pieceId, facetId, text) => {
         typed.push(`${pieceId} ${facetId} ${text}`);
         return Promise.resolve();
       },
     });
 
-    const field = fieldFor(panel.element, theParagraph);
-    field.focus();
-    await browser.userEvent.keyboard('m');
-    await browser.userEvent.keyboard('a');
+    await writer.putsTheFocusIn(theParagraph);
+    await writer.presses('m');
+    await writer.presses('a');
 
     expect(typed).toEqual(['beat-2 paragraph m', 'beat-2 paragraph ma']);
   });
 
   it('grows the paragraph field as the writer types into it', async () => {
-    const panel = mountThePanel();
-    const field = fieldFor(panel.element, theParagraph);
-    const empty = heightOf(field);
+    mountThePanel();
+    const field = thePanelOn('Beat 2').field(theParagraph);
+    const empty = heightOf(field.element());
 
-    field.focus();
-    await browser.userEvent.keyboard(longParagraph);
+    await writer.putsTheFocusIn(theParagraph);
+    await writer.typesKeyByKey(longParagraph);
 
-    expect(field.value).toBe(longParagraph);
-    expect(heightOf(field)).toBeGreaterThan(empty);
+    await expect.element(field).toHaveValue(longParagraph);
+    expect(heightOf(field.element())).toBeGreaterThan(empty);
   });
 
-  it('sets a field’s text from outside with no input fired, leaving the caret where it was', async () => {
+  it('shows the text the app sets in a field, without saving it again', async () => {
     const typed: string[] = [];
     const panel = mountThePanel(holding('', theText), {
       elaborate: (_piece, _facet, text) => {
@@ -181,93 +178,93 @@ describe('the panel mounted alone', () => {
         return Promise.resolve();
       },
     });
-    const field = fieldFor(panel.element, theParagraph);
-    field.focus();
-    field.setSelectionRange(6, 6);
+    const field = thePanelOn('Beat 2').field(theParagraph);
 
-    panel.show('paragraph', theText);
+    await writer.putsTheFocusIn(theParagraph);
 
-    expect(field.value).toBe(theText);
-    expect(caretIn(field)).toBe(6);
+    theAppSetsAField(panel, 'paragraph', theText);
+
+    await expect.element(field).toHaveValue(theText);
     expect(typed).toEqual([]);
 
-    panel.show('paragraph', `${theText} alone`);
+    theAppSetsAField(panel, 'paragraph', `${theText} alone`);
 
-    expect(field.value).toBe(`${theText} alone`);
+    await expect.element(field).toHaveValue(`${theText} alone`);
     expect(typed).toEqual([]);
   });
 
-  it('takes the focus into the one-sentence summary while it holds no text', () => {
-    const panel = mountThePanel();
+  it('takes the focus into the one-sentence summary while it holds no text', async () => {
+    mountThePanel();
 
-    expect(holdsTheFocus(fieldFor(panel.element, theSentence))).toBe(true);
+    await expect.element(thePanelOn('Beat 2').field(theSentence)).toHaveFocus();
   });
 
-  it('takes the focus into the paragraph once the one-sentence summary holds text', () => {
-    const panel = mountThePanel(holding(theText, ''));
+  it('takes the focus into the paragraph once the one-sentence summary holds text', async () => {
+    mountThePanel(holding(theText, ''));
 
-    expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
+    await expect.element(thePanelOn('Beat 2').field(theParagraph)).toHaveFocus();
   });
 
-  it('takes the focus into the page once the sentence and the paragraph hold text', () => {
+  it('takes the focus into the page once the sentence and the paragraph hold text', async () => {
     const filled = holding(theText, theText);
-    const panel = mountThePanel({
+    mountThePanel({
       ...filled,
       longFacets: [...filled.longFacets, { id: 'page', label: thePage, text: '' }],
     });
 
-    expect(holdsTheFocus(fieldFor(panel.element, thePage))).toBe(true);
+    await expect.element(thePanelOn('Beat 2').field(thePage)).toHaveFocus();
   });
 
-  it('takes the focus into the last field when both hold text', () => {
-    const panel = mountThePanel(holding(theText, longParagraph));
+  it('takes the focus into the last field when both hold text', async () => {
+    mountThePanel(holding(theText, longParagraph));
 
-    expect(holdsTheFocus(fieldFor(panel.element, theParagraph))).toBe(true);
+    await expect.element(thePanelOn('Beat 2').field(theParagraph)).toHaveFocus();
   });
 
   it('stands 560 px wide open, and takes no width at all when it is closed', async () => {
     const panel = mountThePanel();
     await settled();
+    const page = thePanelOn('Beat 2');
 
-    expect(widthOf(panel.element)).toBe(560);
+    expect(widthOf(page.panel.element())).toBe(560);
 
-    panel.close();
+    theAppClosesThePanel(panel);
     await settled();
 
-    expect(widthOf(panel.element)).toBe(0);
-    expect(displayOf(panel.element)).toBe('none');
+    expect(widthOf(page.panel.element())).toBe(0);
+    await expect.element(page.panel).toHaveStyle({ display: 'none' });
   });
 
   it('calls back to the graph when Close is pressed', async () => {
     let closed = 0;
-    const panel = mountThePanel(theBeat, {
+    mountThePanel(theBeat, {
       close: () => {
         closed += 1;
       },
     });
 
-    await browser.userEvent.click(closeButtonOf(panel.element));
+    await writer.closesThePanel();
 
     expect(closed).toBe(1);
   });
 
   it('closes when Esc is pressed in the panel', async () => {
     const close = vi.fn();
-    const panel = mountThePanel(theBeat, { close });
-    fieldFor(panel.element, theSentence).focus();
+    mountThePanel(theBeat, { close });
 
-    await browser.userEvent.keyboard('{Escape}');
+    await writer.putsTheFocusIn(theSentence);
+    await writer.presses('Esc');
 
     expect(close).toHaveBeenCalledOnce();
   });
 
   it('stops a key pressed in the panel from reaching a listener on the document', async () => {
-    const panel = mountThePanel();
+    mountThePanel();
     const page = keysHeardOnThePage();
-    fieldFor(panel.element, theSentence).focus();
 
+    await writer.putsTheFocusIn(theSentence);
     try {
-      await browser.userEvent.keyboard('{ArrowRight}');
+      await writer.presses('ArrowRight');
     } finally {
       page.stop();
     }
@@ -276,48 +273,63 @@ describe('the panel mounted alone', () => {
   });
 
   it('keeps the name and Close in the viewport under a long paragraph and a long page', async () => {
-    const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+    mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
     await settled();
+    const panel = thePanelOn('Beat 2');
 
-    expect(insideTheViewport(closeButtonOf(panel.element))).toBe(true);
-    expect(insideTheViewport(nameElementOf(panel.element))).toBe(true);
+    await expect.element(panel.name).toBeInViewport({ ratio: 1 });
+    await expect.element(panel.actions.close).toBeInViewport({ ratio: 1 });
   });
 
   it('scrolls a long page inside its own field, leaving the panel unscrolled', async () => {
-    const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+    mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
     await settled();
+    const panel = thePanelOn('Beat 2');
 
-    const thePageField = fieldFor(panel.element, thePage);
-    expect(scrollHeightOf(thePageField)).toBeGreaterThan(heightOf(thePageField));
-    expect(scrollHeightOf(panel.element)).toBeLessThanOrEqual(heightOf(panel.element) + 1);
+    const thePageField = panel.field(thePage);
+    expect(scrollHeightOf(thePageField.element())).toBeGreaterThan(
+      heightOf(thePageField.element()),
+    );
+    expect(scrollHeightOf(panel.panel.element())).toBeLessThanOrEqual(
+      heightOf(panel.panel.element()) + 1,
+    );
   });
 
   it('caps the paragraph field at six lines of text and scrolls it inside itself', async () => {
-    const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, ''));
+    mountThePanel(holdingALongPage(aParagraphOfTwelveLines, ''));
     await settled();
+    const paragraph = thePanelOn('Beat 2').field(theParagraph);
+    const sixLines = theMostLinesTheParagraphShows * lineHeightOf(paragraph.element());
 
-    const paragraph = fieldFor(panel.element, theParagraph);
-    expect(textHeightOf(paragraph)).toBeLessThanOrEqual(6 * lineHeightOf(paragraph) + 1);
-    expect(textHeightOf(paragraph)).toBeGreaterThanOrEqual(6 * lineHeightOf(paragraph) - 1);
-    expect(scrollHeightOf(paragraph)).toBeGreaterThan(heightOf(paragraph));
+    expect(textHeightOf(paragraph.element())).toBeLessThanOrEqual(sixLines + onePixelOfRounding);
+    expect(textHeightOf(paragraph.element())).toBeGreaterThanOrEqual(sixLines - onePixelOfRounding);
+    expect(scrollHeightOf(paragraph.element())).toBeGreaterThan(heightOf(paragraph.element()));
   });
 
-  it('reaches the bottom of the page in a 420 px window, with the header row still at the top', async () => {
+  it('lets the writer reach the end of a long page in a short window, with the name and Close still in view', async () => {
     const { innerWidth, innerHeight } = window;
     await theViewport(innerWidth, 420);
     try {
-      const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+      mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
       await settled();
+      const panel = thePanelOn('Beat 2');
 
-      expect(scrollHeightOf(panel.element)).toBeGreaterThan(heightOf(panel.element));
-      expect(writerCanScroll(panel.element)).toBe(true);
+      expect(scrollHeightOf(panel.panel.element())).toBeGreaterThan(
+        heightOf(panel.panel.element()),
+      );
+      expect(writerCanScroll(panel.panel.element())).toBe(true);
+      scrollTo(panel.panel, 0);
+      await expect.element(panel.field(thePage)).not.toBeInViewport({ ratio: 1 });
 
-      scrollToTheEndOf(panel.element);
+      await writer.scrollsToTheEnd();
 
-      const thePageField = fieldFor(panel.element, thePage);
-      expect(textHeightOf(thePageField)).toBeGreaterThanOrEqual(8 * lineHeightOf(thePageField) - 1);
-      expect(insideTheViewport(thePageField)).toBe(true);
-      expect(topOf(headingOf(panel.element))).toBeCloseTo(topOf(panel.element), 0);
+      const thePageField = panel.field(thePage);
+      expect(textHeightOf(thePageField.element())).toBeGreaterThanOrEqual(
+        theLeastLinesThePageShows * lineHeightOf(thePageField.element()) - onePixelOfRounding,
+      );
+      await expect.element(thePageField).toBeInViewport({ ratio: 1 });
+      await expect.element(panel.name).toBeInViewport({ ratio: 1 });
+      await expect.element(panel.actions.close).toBeInViewport({ ratio: 1 });
     } finally {
       await theViewport(innerWidth, innerHeight);
     }
@@ -327,34 +339,34 @@ describe('the panel mounted alone', () => {
     const { innerWidth, innerHeight } = window;
     await theViewport(innerWidth, 420);
     try {
-      const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+      mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
       await settled();
-      const theSummary = fieldFor(panel.element, theSentence);
-      const theHeader = headingOf(panel.element);
-      focusWithoutScrolling(fieldFor(panel.element, theParagraph));
-      scrolledTo(panel.element, 100);
-      expect(bottomOf(theSummary)).toBeLessThanOrEqual(bottomOf(theHeader));
+      const panel = thePanelOn('Beat 2');
+      const theSummary = panel.field(theSentence);
 
-      await browser.userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+      focusWithoutScrolling(panel.field(theParagraph));
+      scrollTo(panel.panel, 100);
+      expect(whatCoversTheTopOf(theSummary)).not.toBe(theSummary.element());
 
-      expect(holdsTheFocus(theSummary)).toBe(true);
-      expect(topOf(theSummary)).toBeGreaterThanOrEqual(bottomOf(theHeader));
+      await writer.tabsBackward();
+
+      await expect.element(theSummary).toHaveFocus();
+      expect(whatCoversTheTopOf(theSummary)).toBe(theSummary.element());
     } finally {
       await theViewport(innerWidth, innerHeight);
     }
   });
 
   it('keeps the caret at the end of a long page in the viewport while typing', async () => {
-    const panel = mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
+    mountThePanel(holdingALongPage(aParagraphOfTwelveLines, aPageOfFortySentences));
     await settled();
+    const thePageField = thePanelOn('Beat 2').field(thePage);
 
-    const thePageField = fieldFor(panel.element, thePage);
-    thePageField.focus();
-    thePageField.setSelectionRange(thePageField.value.length, thePageField.value.length);
+    await writer.putsTheFocusIn(thePage);
+    expect(caretOf(thePageField)).toBe(aPageOfFortySentences.length);
+    await writer.presses(' ');
 
-    await browser.userEvent.keyboard(' ');
-
-    expect(insideTheViewport(thePageField)).toBe(true);
-    expect(caretLineBottomOf(thePageField)).toBeLessThanOrEqual(window.innerHeight);
+    await expect.element(thePageField).toBeInViewport({ ratio: 1 });
+    expect(bottomOfTheTextIn(thePageField)).toBeLessThanOrEqual(window.innerHeight);
   });
 });

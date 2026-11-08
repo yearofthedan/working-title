@@ -1,4 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
+import { root } from '../../test-helpers/staging';
 import type { CardLook } from './card';
 import { pieceCard, type Card } from './card.dom';
 
@@ -20,8 +21,7 @@ export interface CardHooks {
 
 export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
   const piece = hooks.piece ?? theBeat;
-  document.body.replaceChildren();
-  const main = document.createElement('main');
+  const main = root('main');
   const card = pieceCard(piece, {
     level: 1,
     current: () => true,
@@ -34,7 +34,6 @@ export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
   card.reachCard(true);
   card.reachFields(true);
   main.append(card.element);
-  document.body.append(main);
   return card;
 };
 

@@ -3,6 +3,7 @@ import { cardLooks } from '../ui/card/card';
 import {
   clicking,
   drawn,
+  farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
@@ -11,6 +12,7 @@ import {
   wholeNameAnyCase,
   type AppReads,
   type ReloadingDriver,
+  type Role,
   type Within,
 } from './driver';
 
@@ -34,6 +36,8 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     within === undefined
       ? page
       : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
+  const found = (role: Role, name: string, within?: Within) =>
+    rootIn(within).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
   return {
     reload: async () => {
@@ -44,9 +48,11 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     },
     click: clicking(page),
     focus: async (role, name, within) => {
-      await rootIn(within)
-        .getByRole(role, { name: wholeNameAnyCase(name) })
-        .focus();
+      await found(role, name, within).focus();
+    },
+    scrollToTheEnd: async (role, name, within) => {
+      await found(role, name, within).hover();
+      await page.mouse.wheel(0, farEnoughToReachTheEnd);
     },
     type: typing(page),
     clickAway: async () => {
@@ -56,8 +62,7 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
     focusIs: async (role, name, within) => {
       assertions.note();
-      return rootIn(within)
-        .getByRole(role, { name: wholeNameAnyCase(name) })
+      return found(role, name, within)
         .first()
         .evaluate((element) => element === document.activeElement);
     },

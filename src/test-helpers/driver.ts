@@ -59,11 +59,14 @@ export const drawn = (
     box: card.getBoundingClientRect(),
   }));
 
+export const farEnoughToReachTheEnd = 1_000_000;
+
 export interface Driver {
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
   click(role: Role, name: string, within?: Within): Promise<void>;
   focus(role: Role, name: string, within?: Within): Promise<void>;
+  scrollToTheEnd(role: Role, name: string, within?: Within): Promise<void>;
   type(text: string, label: string, within: Within): Promise<void>;
   clickAway(): Promise<void>;
   value(label: string, within: Within): Promise<string>;

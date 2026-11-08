@@ -1,4 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
+import { root } from '../../test-helpers/staging';
 import { thePanel, type Panel } from './panel.dom';
 
 export const theBeat: PieceView = {
@@ -19,13 +20,18 @@ export interface PanelHooks {
 }
 
 export const mountThePanel = (piece: PieceView = theBeat, hooks: PanelHooks = {}): Panel => {
-  document.body.replaceChildren();
-  const aside = document.createElement('aside');
-  document.body.append(aside);
-  const panel = thePanel(aside, {
+  const panel = thePanel(root('aside'), {
     elaborate: hooks.elaborate ?? (() => Promise.resolve()),
     close: hooks.close ?? (() => undefined),
   });
   panel.open(piece);
   return panel;
+};
+
+export const theAppSetsAField = (panel: Panel, facetId: string, text: string): void => {
+  panel.show(facetId, text);
+};
+
+export const theAppClosesThePanel = (panel: Panel): void => {
+  panel.close();
 };

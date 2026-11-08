@@ -7,6 +7,7 @@ import {
   aProjectWithScenesUnderBeatFour,
   type SeededProject,
 } from '../../test-helpers/seed';
+import { root } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import { renderGraph } from './graph.dom';
@@ -46,9 +47,8 @@ export const mountTheGraph = async (
   await browser.page.viewport(width, 900);
   stopTheGraphs();
 
-  const main = document.createElement('main');
+  const main = root('main');
   main.style.width = `${width}px`;
-  document.body.replaceChildren(main);
 
   const { project: opened } = await anInMemoryProject(
     scenes > 0 ? aProjectWithScenesUnderBeatFour(scenes) : project,

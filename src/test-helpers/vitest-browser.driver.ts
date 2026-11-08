@@ -1,6 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
+  farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
@@ -8,6 +9,7 @@ import {
   typing,
   wholeNameAnyCase,
   type Driver,
+  type Role,
   type Within,
 } from './driver';
 
@@ -30,6 +32,11 @@ interface Aria {
 
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
+const keysFor = (key: string): string => {
+  if (key === 'Shift+Tab') return '{Shift>}{Tab}{/Shift}';
+  return key.length === 1 && key !== key.toLowerCase() ? `{Shift>}${key}{/Shift}` : `{${key}}`;
+};
+
 export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'main'): Driver => {
   const main =
     graph === undefined
@@ -41,18 +48,19 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     group === undefined
       ? within
       : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
+  const found = (role: Role, name: string, group?: Within) =>
+    rootIn(group).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
   return {
     press: async (key) => {
-      await browser.userEvent.keyboard(key === 'Shift+Tab' ? '{Shift>}{Tab}{/Shift}' : `{${key}}`);
+      await browser.userEvent.keyboard(keysFor(key));
     },
     click: clicking(within),
     focus: async (role, name, group) => {
-      (
-        rootIn(group)
-          .getByRole(role, { name: wholeNameAnyCase(name) })
-          .element() as HTMLElement
-      ).focus();
+      (found(role, name, group).element() as HTMLElement).focus();
+    },
+    scrollToTheEnd: async (role, name, group) => {
+      await found(role, name, group).wheel({ delta: { y: farEnoughToReachTheEnd } });
     },
     type: typing(within),
     clickAway: async () => {
@@ -63,12 +71,7 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
         .value,
     focusIs: async (role, name, group) => {
       assertions.note();
-      return (
-        rootIn(group)
-          .getByRole(role, { name: wholeNameAnyCase(name) })
-          .first()
-          .element() === document.activeElement
-      );
+      return found(role, name, group).first().element() === document.activeElement;
     },
     tree: async () => {
       await settled();
