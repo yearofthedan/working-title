@@ -86,6 +86,21 @@ describe('opening a project', () => {
 
     expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
       { id: 'narrative', label: 'Narrative', text: typed },
+      { id: 'prose', label: 'Prose', text: '' },
+    ]);
+  });
+
+  it("saves a scene's prose, line breaks and all, and reads it back on the next open", async () => {
+    const store = copyingStore();
+    const first = await openProject(snowflakeExtended, store, ids());
+    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await project.elaborate(added, 'prose', typed);
+
+    const reopened = await openProject(snowflakeExtended, store, ids());
+
+    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+      { id: 'narrative', label: 'Narrative', text: '' },
+      { id: 'prose', label: 'Prose', text: typed },
     ]);
   });
 

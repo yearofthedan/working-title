@@ -154,4 +154,55 @@ And scene 2 under beat 2's narrative beside the graph reads "Maren waits for the
   - textbox "List line": Maren bribes the harbourmaster for the log
   - text: Narrative
   - textbox "Narrative": Maren waits for the harbourmaster's shift to end and finds him at the tavern. He wants more than she has. She puts her husband's watch on the table, and he slides the log across without looking at it.
+  - text: Prose
+  - textbox "Prose"
+```
+
+### Scenario: a scene's prose survives a reload
+
+```
+Given a project with two scenes under beat 2
+When the writer clicks beat 2
+And the writer opens scene 2 under beat 2 beside the graph
+And the writer types "The tavern was half empty. Hollis sat where he always sat, back to the wall, and didn't look up when she pulled out the chair." as scene 2 under beat 2's prose beside the graph
+And reloads the app
+And the writer clicks beat 2
+And the writer opens scene 2 under beat 2 beside the graph
+Then scene 2 under beat 2's prose beside the graph reads "The tavern was half empty. Hollis sat where he always sat, back to the wall, and didn't look up when she pulled out the chair."
+And scene 2 under beat 2's narrative beside the graph reads ""
+- banner:
+  - heading "working-title" [level=1]
+  - navigation "Where you are":
+    - list:
+      - listitem:
+        - button "The story"
+      - listitem:
+        - button "Beat 2"
+      - listitem: Scene 2
+- main:
+  - toolbar "Beat 2":
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]:
+        - button "Beat 2"
+      - text: One-sentence summary
+      - textbox "One-sentence summary"
+      - button "Open beside"
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1":
+      - heading "Scene 1" [level=4]:
+        - button "Scene 1"
+    - group "Scene 2":
+      - heading "Scene 2" [level=4]
+      - text: List line
+      - textbox "List line"
+      - button "Open beside" [pressed]
+- complementary "Scene 2":
+  - heading "Scene 2" [level=2]
+  - button "Close"
+  - text: List line
+  - textbox "List line"
+  - text: Narrative
+  - textbox "Narrative"
+  - text: Prose
+  - textbox "Prose": The tavern was half empty. Hollis sat where he always sat, back to the wall, and didn't look up when she pulled out the chair.
 ```

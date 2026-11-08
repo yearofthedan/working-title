@@ -125,7 +125,9 @@ export const appSteps = (writer: AppWriter, sees: AppSees): Record<string, StepA
     await writer.opensBeside('beat 2');
   },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
-  '{scene} under {beat} is open beside the graph': ({ scene }) => sees.panelIsOpenOn(scene),
+  '{scene} under {beat} is open beside the graph, with its narrative and then its prose': ({
+    scene,
+  }) => sees.panelIsOpenOn(scene),
   "{piece}'s paragraph is open beside the graph": ({ piece }) => sees.panelIsOpenOn(piece),
   '{piece} is open beside the graph, with its paragraph and then its page': ({ piece }) =>
     sees.panelIsOpenOn(piece),

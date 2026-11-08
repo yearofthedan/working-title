@@ -25,6 +25,7 @@ export const snowflakeExtended: Method = {
         facets: [
           { id: 'list-line', label: 'List line' },
           { id: 'narrative', label: 'Narrative', long: true },
+          { id: 'prose', label: 'Prose', long: true },
         ],
       },
     },
