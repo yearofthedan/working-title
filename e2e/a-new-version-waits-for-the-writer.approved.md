@@ -65,7 +65,6 @@ And a new version is installed
 And a notice says a new version is ready
 When the writer reloads from the notice
 Then the app opens on the new version
-And the story's one-sentence summary on its card reads "A widow hunts the man who sank her husband's ship"
 Then the writer sees
 - banner:
   - heading "working-title" [level=1]

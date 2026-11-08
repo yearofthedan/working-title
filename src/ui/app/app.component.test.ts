@@ -58,7 +58,7 @@ describe('a new version waiting', () => {
     await theAppWaitingForANewVersion({ waiting: waiting.promise, reload: () => undefined });
 
     const { notice, noticeReload } = theHeader();
-    expect(notice.element().textContent).toBe('');
+    await expect.element(notice).toBeEmptyDOMElement();
     await expect.element(noticeReload).not.toBeInTheDocument();
 
     waiting.resolve();
