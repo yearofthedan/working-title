@@ -8,7 +8,6 @@ import {
   scrollTo,
   scrollToTheEnd,
   textHeightOf,
-  topOf,
   whatCoversTheTopOf,
   widthOf,
   writerCanScroll,
@@ -19,7 +18,7 @@ import { theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
 import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
-import { insideTheViewport, keysHeardOnThePage, thePanelOn } from './panel.test-page';
+import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
 const writer = panelWriterOn(vitestBrowserDriver());
 
@@ -276,7 +275,7 @@ describe('the panel mounted alone', () => {
     const panel = thePanelOn('Beat 2');
 
     await expect.element(panel.name).toBeInViewport({ ratio: 1 });
-    expect(insideTheViewport(panel.actions.close.element())).toBe(true);
+    await expect.element(panel.actions.close).toBeInViewport({ ratio: 1 });
   });
 
   it('scrolls a long page inside its own field, leaving the panel unscrolled', async () => {
@@ -304,7 +303,7 @@ describe('the panel mounted alone', () => {
     expect(scrollHeightOf(paragraph.element())).toBeGreaterThan(heightOf(paragraph.element()));
   });
 
-  it('reaches the bottom of the page in a 420 px window, with the header row still at the top', async () => {
+  it('reaches the bottom of the page in a 420 px window, with the name and Close still in view', async () => {
     const { innerWidth, innerHeight } = window;
     await theViewport(innerWidth, 420);
     try {
@@ -323,8 +322,9 @@ describe('the panel mounted alone', () => {
       expect(textHeightOf(thePageField.element())).toBeGreaterThanOrEqual(
         8 * lineHeightOf(thePageField.element()) - 1,
       );
-      expect(insideTheViewport(thePageField.element())).toBe(true);
-      expect(topOf(panel.header.element())).toBeCloseTo(topOf(panel.panel.element()), 0);
+      await expect.element(thePageField).toBeInViewport({ ratio: 1 });
+      await expect.element(panel.name).toBeInViewport({ ratio: 1 });
+      await expect.element(panel.actions.close).toBeInViewport({ ratio: 1 });
     } finally {
       await theViewport(innerWidth, innerHeight);
     }
@@ -360,7 +360,7 @@ describe('the panel mounted alone', () => {
     await writer.putsTheFocusIn(thePage);
     await writer.presses(' ');
 
-    expect(insideTheViewport(thePageField.element())).toBe(true);
+    await expect.element(thePageField).toBeInViewport({ ratio: 1 });
     expect(caretLineBottomOf(thePageField.element())).toBeLessThanOrEqual(window.innerHeight);
   });
 });

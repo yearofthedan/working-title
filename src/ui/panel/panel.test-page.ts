@@ -1,20 +1,13 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { bottomOf, topOf } from '../../test-helpers/box';
-import { inThePage } from '../card/card.test-page';
 
-const headerRowIn = (panel: Locator): HTMLElement => {
-  const row = panel.element().querySelector('div.heading');
-  if (!(row instanceof HTMLElement)) throw new Error('the panel draws no header row');
-  return row;
-};
+import { inThePage } from '../card/card.test-page';
 
 export const thePanelOn = (name: string) => {
   const panel = browser.page.getByRole('complementary', { name, exact: true, includeHidden: true });
   return {
     panel,
     name: panel.getByRole('heading', { level: 2, includeHidden: true }),
-    header: browser.page.elementLocator(headerRowIn(panel)),
     actions: {
       close: panel.getByRole('button', { name: 'Close', exact: true, includeHidden: true }),
     },
@@ -57,6 +50,3 @@ export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop()
   document.addEventListener('keydown', listener);
   return { keys, stop: () => document.removeEventListener('keydown', listener) };
 };
-
-export const insideTheViewport = (element: Element): boolean =>
-  topOf(element) >= 0 && bottomOf(element) <= window.innerHeight;

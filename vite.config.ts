@@ -258,6 +258,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
+            viewport: { width: 1280, height: 896 },
             instances: [{ browser: 'chromium' }],
             commands: {
               emulateReducedMotion: async ({ page }, motion: 'reduce' | 'no-preference') => {
