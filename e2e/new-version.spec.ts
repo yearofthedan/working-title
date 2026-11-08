@@ -1,29 +1,11 @@
-import type { Page } from '@playwright/test';
 import { expect } from './writer';
-import { newVersionTitle, test } from './private-build';
-
-const registrationOf = (page: Page) =>
-  page.evaluate(async () => {
-    const registration = await navigator.serviceWorker.getRegistration();
-    return {
-      active: registration?.active?.scriptURL ?? null,
-      waiting: registration?.waiting?.scriptURL ?? null,
-      controller: navigator.serviceWorker.controller?.scriptURL ?? null,
-    };
-  });
-
-const waitForTheFirstVersionToControl = async (page: Page): Promise<void> => {
-  await expect
-    .poll(async () => {
-      const { active, controller } = await registrationOf(page);
-      return active !== null && controller === active;
-    })
-    .toBe(true);
-};
-
-const waitForWaiting = async (page: Page): Promise<void> => {
-  await expect.poll(async () => (await registrationOf(page)).waiting).not.toBeNull();
-};
+import {
+  newVersionTitle,
+  privateBuildOn,
+  test,
+  waitForTheFirstVersionToControl,
+  waitForWaiting,
+} from './private-build';
 
 const summary = "A widow hunts the man who sank her husband's ship";
 
@@ -52,32 +34,57 @@ test('a new version waits while the tab is open', async ({ writer, page, build }
   await writer.sees.readsOnTheCard('The story', 'One-sentence summary', summary);
 });
 
-test('a tab opened at first install moves to a new version when told to', async ({
+test('a tab that was already controlled moves to the new version from the notice', async ({
   writer,
   page,
   build,
 }) => {
   await writer.opensANewProject();
-  await waitForTheFirstVersionToControl(page);
-
-  await build.publishNewVersion();
-  await page.evaluate(async () => {
-    const registration = await navigator.serviceWorker.getRegistration();
-    await registration?.update();
-  });
-  await waitForWaiting(page);
-
-  const changed = page.evaluate(() => {
-    const { promise, resolve } = Promise.withResolvers<void>();
-    navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true });
-    return promise;
-  });
-  await page.evaluate(async () => {
-    const registration = await navigator.serviceWorker.getRegistration();
-    registration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
-  });
-  await changed;
   await writer.reloads();
+  const version = privateBuildOn(page, build);
 
-  expect(await page.title()).toBe(newVersionTitle);
+  await version.installsANewVersion();
+  await version.driver.click('button', 'Reload');
+
+  await version.opensOnTheNewVersion();
+});
+
+test('reloading from the notice leaves another open tab on the version it loaded', async ({
+  writer,
+  page,
+  context,
+  build,
+}) => {
+  await writer.opensANewProject();
+  await waitForTheFirstVersionToControl(page);
+  await writer.reloads();
+  const other = await context.newPage();
+  await other.goto('/');
+  await expect
+    .poll(() => other.evaluate(() => navigator.serviceWorker.controller !== null))
+    .toBe(true);
+  await other.evaluate(() => {
+    Object.assign(window, { controllerChanges: 0, stillHere: true });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      Object.assign(window, {
+        controllerChanges: Number(Reflect.get(window, 'controllerChanges')) + 1,
+      });
+    });
+  });
+  const version = privateBuildOn(page, build);
+  const otherVersion = privateBuildOn(other, build);
+  await version.installsANewVersion();
+  await otherVersion.showsTheNotice();
+
+  await version.driver.click('button', 'Reload');
+  await version.opensOnTheNewVersion();
+
+  await expect
+    .poll(() => other.evaluate(() => Reflect.get(window, 'controllerChanges')))
+    .toBeGreaterThan(0);
+  expect(await other.evaluate(() => Reflect.get(window, 'stillHere'))).toBe(true);
+  expect(await other.title()).not.toBe(newVersionTitle);
+
+  await otherVersion.driver.click('button', 'Reload');
+  await otherVersion.opensOnTheNewVersion();
 });

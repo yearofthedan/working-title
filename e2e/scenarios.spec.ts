@@ -1,14 +1,32 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readScenarioFile } from '../src/test-helpers/scenario-file';
 import { playScenarios, type Runner } from '../src/test-helpers/play';
+import { readScenarioFile } from '../src/test-helpers/scenario-file';
 import { journeySteps } from './journey.dsl';
-import { test } from './writer';
+import { newVersionSteps } from './new-version.dsl';
+import { privateBuildOn, test as privateBuildTest } from './private-build';
+import { test as writerTest } from './writer';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
+
+const runnerFor = (tree: () => Promise<readonly string[]>): Runner =>
+  approvingPath === ''
+    ? { tree }
+    : {
+        tree,
+        read: async (where) => readFileSync(join(root, where), 'utf8'),
+        write: async (where, what) => {
+          writeFileSync(join(root, where), what);
+        },
+      };
+
+const playing = (behaviour: string) => ({
+  only: behaviour,
+  ...(approvingPath === '' ? {} : { approve: true }),
+});
 
 for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved.md'))) {
   const path = relative(root, join(here, name));
@@ -16,27 +34,40 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
 
   const text = readFileSync(join(root, path), 'utf8');
   const file = readScenarioFile(text);
+  const treeRoot = file.sees === 'the app' ? 'page' : 'main';
 
-  test.describe(path, () => {
-    test.use({ treeRoot: file.sees === 'the app' ? 'page' : 'main' });
-    for (const { behaviour } of file.scenarios) {
-      test(behaviour, async ({ writer }) => {
-        const tree = async () => writer.sees.tree();
-        const runner: Runner =
-          approvingPath === ''
-            ? { tree }
-            : {
-                tree,
-                read: async (where) => readFileSync(join(root, where), 'utf8'),
-                write: async (where, what) => {
-                  writeFileSync(join(root, where), what);
-                },
-              };
-
-        await playScenarios({ path, text }, runner, journeySteps(writer, writer.sees), {
-          only: behaviour,
-          ...(approvingPath === '' ? {} : { approve: true }),
+  if (file.serves === 'a private build') {
+    privateBuildTest.describe(path, () => {
+      privateBuildTest.use({ treeRoot });
+      for (const { behaviour } of file.scenarios) {
+        privateBuildTest(behaviour, async ({ writer, page, build }) => {
+          const tree = async () => writer.sees.tree();
+          await playScenarios(
+            { path, text },
+            runnerFor(tree),
+            {
+              ...journeySteps(writer, writer.sees),
+              ...newVersionSteps(privateBuildOn(page, build)),
+            },
+            playing(behaviour),
+          );
         });
+      }
+    });
+    continue;
+  }
+
+  writerTest.describe(path, () => {
+    writerTest.use({ treeRoot });
+    for (const { behaviour } of file.scenarios) {
+      writerTest(behaviour, async ({ writer }) => {
+        const tree = async () => writer.sees.tree();
+        await playScenarios(
+          { path, text },
+          runnerFor(tree),
+          journeySteps(writer, writer.sees),
+          playing(behaviour),
+        );
       });
     }
   });

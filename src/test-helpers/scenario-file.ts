@@ -16,6 +16,7 @@ export const OBSERVED = 'the writer sees';
 export interface ScenarioFile {
   readonly rule: string;
   readonly sees?: 'the app';
+  readonly serves?: 'a private build';
   readonly scenarios: readonly Scenario[];
 }
 
@@ -59,17 +60,6 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
   throw new Error(`Line ${at} reads as a step but is not one: ${JSON.stringify(line)}`);
 };
 
-const seesIn = (line: string | undefined): 'the app' | undefined => {
-  if (line === undefined || !line.startsWith('Sees: ')) return undefined;
-  const value = line.slice('Sees: '.length);
-  if (value !== 'the app') {
-    throw new Error(
-      `A scenario file sees "the app" or names nothing, not ${JSON.stringify(value)}`,
-    );
-  }
-  return value;
-};
-
 const isStepLine = (line: string): boolean => stepLine.test(line);
 
 const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
@@ -91,7 +81,29 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     throw new Error(`A scenario file opens with "Rule: ", not ${JSON.stringify(ruleLine)}`);
   }
   const rule = oneLine('A rule', ruleLine.slice('Rule: '.length));
-  const sees = seesIn(lines[1]);
+  let sees: 'the app' | undefined;
+  let serves: 'a private build' | undefined;
+  let first = 1;
+  for (const line of lines.slice(1, 3)) {
+    if (line?.startsWith('Sees: ') === true) {
+      const value = line.slice('Sees: '.length);
+      if (value !== 'the app') {
+        throw new Error(
+          `A scenario file sees "the app" or names nothing, not ${JSON.stringify(value)}`,
+        );
+      }
+      sees = value;
+    } else if (line?.startsWith('Serves: ') === true) {
+      const value = line.slice('Serves: '.length);
+      if (value !== 'a private build') {
+        throw new Error(
+          `A scenario file serves "a private build" or names nothing, not ${JSON.stringify(value)}`,
+        );
+      }
+      serves = value;
+    } else break;
+    first += 1;
+  }
 
   const scenarios: Scenario[] = [];
   let behaviour: string | undefined;
@@ -117,8 +129,6 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     steps = [];
     observed = undefined;
   };
-
-  const first = sees === undefined ? 1 : 2;
 
   for (const [index, line] of lines.slice(first).entries()) {
     const at = index + first + 1;
@@ -192,7 +202,12 @@ export const readScenarioFile = (text: string): ScenarioFile => {
   close();
   if (scenarios.length === 0) throw new Error('A scenario file holds at least one scenario');
 
-  const file = { rule, ...(sees === undefined ? {} : { sees }), scenarios };
+  const file = {
+    rule,
+    ...(sees === undefined ? {} : { sees }),
+    ...(serves === undefined ? {} : { serves }),
+    scenarios,
+  };
   const printed = printScenarioFile(file);
   if (printed !== text) {
     throw new Error(
@@ -202,10 +217,11 @@ export const readScenarioFile = (text: string): ScenarioFile => {
   return file;
 };
 
-export const printScenarioFile = ({ rule, sees, scenarios }: ScenarioFile): string =>
+export const printScenarioFile = ({ rule, sees, serves, scenarios }: ScenarioFile): string =>
   [
     `Rule: ${rule}`,
     ...(sees === undefined ? [] : [`Sees: ${sees}`]),
+    ...(serves === undefined ? [] : [`Serves: ${serves}`]),
     ...scenarios.flatMap(({ behaviour, steps, observed }) => [
       '',
       `### Scenario: ${behaviour}`,

@@ -2,7 +2,29 @@ import type { OpenProject, PieceView } from '../../application/project';
 import { renderGraph } from '../graph/graph.dom';
 import { thePanel } from '../panel/panel.dom';
 
-export const renderApp = async (page: ParentNode, project: OpenProject): Promise<() => void> => {
+export interface NewVersion {
+  readonly waiting: Promise<void>;
+  reload(): void;
+}
+
+const announceWhenWaiting = (header: HTMLElement, newVersion: NewVersion): void => {
+  const notice = document.createElement('p');
+  notice.setAttribute('role', 'status');
+  header.append(notice);
+  void newVersion.waiting.then(() => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Reload';
+    button.addEventListener('click', () => newVersion.reload());
+    notice.append('A new version is ready. ', button);
+  });
+};
+
+export const renderApp = async (
+  page: ParentNode,
+  project: OpenProject,
+  newVersion?: NewVersion,
+): Promise<() => void> => {
   const header = page.querySelector<HTMLElement>('header');
   if (header === null) throw new Error('the page has no <header>');
   const main = page.querySelector<HTMLElement>('main');
@@ -74,6 +96,8 @@ export const renderApp = async (page: ParentNode, project: OpenProject): Promise
       panel.open(held.read(pieceId));
     },
   });
+
+  if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
 
   return () => graph.stop();
 };
