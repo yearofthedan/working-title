@@ -58,7 +58,5 @@ export const keysHeardOnThePage = (): { readonly keys: readonly string[]; stop()
   return { keys, stop: () => document.removeEventListener('keydown', listener) };
 };
 
-export const displayOf = (element: Element): string => getComputedStyle(element).display;
-
 export const insideTheViewport = (element: Element): boolean =>
   topOf(element) >= 0 && bottomOf(element) <= window.innerHeight;

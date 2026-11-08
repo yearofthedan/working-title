@@ -13,6 +13,12 @@ export const thePage = async (width: number): Promise<Document> => {
   return document;
 };
 
+export const root = (tag: string): HTMLElement => {
+  const element = document.createElement(tag);
+  document.body.replaceChildren(element);
+  return element;
+};
+
 export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
 };

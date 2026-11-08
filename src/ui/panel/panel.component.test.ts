@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
 import {
-  bottomOf,
   focusWithoutScrolling,
   heightOf,
   lineHeightOf,
@@ -10,6 +9,7 @@ import {
   scrollToTheEnd,
   textHeightOf,
   topOf,
+  whatCoversTheTopOf,
   widthOf,
   writerCanScroll,
 } from '../../test-helpers/box';
@@ -19,7 +19,7 @@ import { theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
 import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
-import { displayOf, insideTheViewport, keysHeardOnThePage, thePanelOn } from './panel.test-page';
+import { insideTheViewport, keysHeardOnThePage, thePanelOn } from './panel.test-page';
 
 const writer = panelWriterOn(vitestBrowserDriver());
 
@@ -230,7 +230,7 @@ describe('the panel mounted alone', () => {
     await settled();
 
     expect(widthOf(page.panel.element())).toBe(0);
-    expect(displayOf(page.panel.element())).toBe('none');
+    await expect.element(page.panel).toHaveStyle({ display: 'none' });
   });
 
   it('calls back to the graph when Close is pressed', async () => {
@@ -275,8 +275,8 @@ describe('the panel mounted alone', () => {
     await settled();
     const panel = thePanelOn('Beat 2');
 
+    await expect.element(panel.name).toBeInViewport({ ratio: 1 });
     expect(insideTheViewport(panel.actions.close.element())).toBe(true);
-    expect(insideTheViewport(panel.name.element())).toBe(true);
   });
 
   it('scrolls a long page inside its own field, leaving the panel unscrolled', async () => {
@@ -338,16 +338,15 @@ describe('the panel mounted alone', () => {
       await settled();
       const panel = thePanelOn('Beat 2');
       const theSummary = panel.field(theSentence);
-      const theHeader = panel.header;
 
       focusWithoutScrolling(panel.field(theParagraph));
       scrollTo(panel.panel, 100);
-      expect(bottomOf(theSummary.element())).toBeLessThanOrEqual(bottomOf(theHeader.element()));
+      expect(whatCoversTheTopOf(theSummary)).not.toBe(theSummary.element());
 
       await writer.tabsBackward();
 
       await expect.element(theSummary).toHaveFocus();
-      expect(topOf(theSummary.element())).toBeGreaterThanOrEqual(bottomOf(theHeader.element()));
+      expect(whatCoversTheTopOf(theSummary)).toBe(theSummary.element());
     } finally {
       await theViewport(innerWidth, innerHeight);
     }

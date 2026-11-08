@@ -37,3 +37,8 @@ export const scrollToTheEnd = (element: Locator): void => {
 export const focusWithoutScrolling = (field: Locator): void => {
   field.element().focus({ preventScroll: true });
 };
+
+export const whatCoversTheTopOf = (element: Locator): Element | null => {
+  const { left, top, width } = element.element().getBoundingClientRect();
+  return document.elementFromPoint(left + width / 2, Math.max(top, 0) + 1);
+};
