@@ -32,7 +32,7 @@ git ls-files | while IFS= read -r file; do
   printf '%s' "$(( $(cat "$work/count") + 1 ))" >"$work/count"
   base=${file##*/}
   case "$base" in
-  AGENTS.md | README.md | SKILL.md | RULES.md) continue ;;
+  AGENTS.md | CONTRIBUTING.md | README.md | SKILL.md | RULES.md) continue ;;
   esac
   [ "$file" = .github/pull_request_template.md ] && continue
   [ "$file" = 'patches/@stryker-mutator__vitest-runner@10.0.0.patch' ] && continue
@@ -47,7 +47,7 @@ done
 
 if [ -s "$work/bad" ]; then
   cat "$work/bad"
-  echo "A file's name is lowercase kebab-case in every dot-separated part, after any leading dot. The exceptions: names a tool looks for (AGENTS.md, README.md, SKILL.md, RULES.md, .github/pull_request_template.md); a leading _ on a file in scripts/, which marks it as not a task; and the patch pnpm-workspace.yaml names." >&2
+  echo "A file's name is lowercase kebab-case in every dot-separated part, after any leading dot. The exceptions: names a tool looks for (AGENTS.md, CONTRIBUTING.md, README.md, SKILL.md, RULES.md, .github/pull_request_template.md); a leading _ on a file in scripts/, which marks it as not a task; and the patch pnpm-workspace.yaml names." >&2
   exit 1
 fi
 

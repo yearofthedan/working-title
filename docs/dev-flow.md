@@ -20,7 +20,7 @@ Adding the `ready` label is the agreement. Until you add it, nothing is built: a
 
 ## Have it implemented
 
-In a fresh session, run `/skill:implement <issue number>`, or ask the agent to pick up, resume or carry on with it. The [implement skill](../.agents/skills/implement/SKILL.md) is what the agent works to. From there it:
+In a fresh session, run `/skill:implement <issue number>`, or ask the agent to pick up, resume or carry on with it. The [implement skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/implement/SKILL.md) is what the agent works to; this repo's commands for it are in [CONTRIBUTING](../CONTRIBUTING.md). From there it:
 
 - probes the open questions the plan depends on, outside the working tree, then proposes the story's pull requests with what it found and what is still open, and posts them on the issue as a checklist once you confirm;
 - sets out each planned pull request's approach when it starts, such as tooling, architecture, scope and test strategy, and builds nothing until you say yes;
