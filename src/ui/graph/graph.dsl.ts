@@ -24,6 +24,13 @@ export interface Writer {
   clicks(piece: string): Promise<void>;
   clicksAwayFromTheGraph(): Promise<void>;
   putsTheFocusOnNameButtonOf(piece: string): Promise<void>;
+  putsTheFocusOnTheCardOf(piece: string): Promise<void>;
+  putsTheFocusOnTheAddButtonOf(piece: string): Promise<void>;
+  putsTheFocusInTheFacetOf(piece: string, facet: string): Promise<void>;
+  clicksTheSentenceOf(piece: string): Promise<void>;
+  clicksTheNameOf(piece: string): Promise<void>;
+  addsASceneUnder(piece: string): Promise<void>;
+  presses(key: string): Promise<void>;
   moves(direction: string): Promise<void>;
   tabsForward(): Promise<void>;
   tabsBackward(): Promise<void>;
@@ -95,6 +102,19 @@ export const writerOn = (
       const named = pieceNamed(piece);
       return driver.focus('button', named, { role: 'group', name: named });
     },
+    putsTheFocusOnTheCardOf: (piece) => driver.focus('group', pieceNamed(piece)),
+    putsTheFocusOnTheAddButtonOf: (piece) =>
+      driver.focus('button', 'Add a scene', { role: 'group', name: pieceNamed(piece) }),
+    putsTheFocusInTheFacetOf: (piece, facet) =>
+      driver.focus('textbox', facet, { role: 'group', name: pieceNamed(piece) }),
+    clicksTheSentenceOf: (piece) =>
+      driver.click('textbox', 'One-sentence summary', { role: 'group', name: pieceNamed(piece) }),
+    clicksTheNameOf: (piece) => clicking(driver, piece),
+    addsASceneUnder: async (piece) => {
+      await clicking(driver, piece);
+      await driver.click('button', 'Add a scene', { role: 'group', name: pieceNamed(piece) });
+    },
+    presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
     moves: (direction) => driver.press(keys[direction] ?? direction),
     tabsForward: () => driver.press('Tab'),
     tabsBackward: () => driver.press('Shift+Tab'),

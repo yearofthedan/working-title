@@ -6,7 +6,13 @@ const themeColor = '#f4f2ed';
 
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
-export const componentAndAppTestRefusals = ['querySelector', 'querySelectorAll', 'style'];
+export const findsByElement = ['getByElement'];
+export const componentAndAppTestRefusals = [
+  'querySelector',
+  'querySelectorAll',
+  'style',
+  ...findsByElement,
+];
 export const domGlobals = [
   'document',
   'window',
@@ -29,11 +35,6 @@ export const findsAnyOtherWay = [
   '$eval',
   '$$eval',
   'waitForSelector',
-];
-export const filesUsingTheWriter = [
-  'card.component.test.ts',
-  'panel.component.test.ts',
-  'app.component.test.ts',
 ];
 export const pageSelectorActions = [
   'check',
@@ -137,7 +138,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay, ...findsByElement],
+              findsElementsInADriver,
+            ),
             ...documentSelectors.map((property) => ({
               object: 'document',
               property,
@@ -174,24 +178,11 @@ export default defineConfig({
               property,
               message: theComponentHasATestPage,
             })),
+            { object: 'browser', property: 'userEvent', message: actsThroughTheWriter },
           ],
           'no-restricted-globals': [
             'error',
             { name: 'document', message: theComponentHasATestPage },
-          ],
-        },
-      },
-      {
-        files: filesUsingTheWriter.map((name) => `src/**/${name}`),
-        rules: {
-          'no-restricted-properties': [
-            'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
-            ...componentAndAppTestRefusals.map((property) => ({
-              property,
-              message: theComponentHasATestPage,
-            })),
-            { object: 'browser', property: 'userEvent', message: actsThroughTheWriter },
           ],
           'no-restricted-imports': [
             'error',
@@ -212,7 +203,10 @@ export default defineConfig({
         rules: {
           'no-restricted-properties': [
             'error',
-            ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], theLanguageCallsTheDriver),
+            ...restricted(
+              [...findsByRoleOrLabel, ...findsAnyOtherWay, ...findsByElement],
+              theLanguageCallsTheDriver,
+            ),
             ...documentSelectors.map((property) => ({
               object: 'document',
               property,
@@ -227,7 +221,7 @@ export default defineConfig({
           'no-restricted-properties': [
             'error',
             ...restricted(
-              findsAnyOtherWay,
+              [...findsAnyOtherWay, ...findsByElement],
               'A driver finds elements by role or label, as the writer does.',
             ),
           ],
@@ -256,7 +250,7 @@ export default defineConfig({
           name: 'browser',
           include: ['**/*.{component,app}.test.ts'],
           exclude: ['src/ui/lint-sample-*/**'],
-          setupFiles: ['src/shell.css'],
+          setupFiles: ['src/shell.css', 'src/test-helpers/locators.ts'],
           ...(approving ? { api: { allowWrite: true } } : {}),
           browser: {
             enabled: true,

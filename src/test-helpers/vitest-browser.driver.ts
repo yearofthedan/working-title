@@ -33,7 +33,8 @@ interface Aria {
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
 const keysFor = (key: string): string => {
-  if (key === 'Shift+Tab') return '{Shift>}{Tab}{/Shift}';
+  const [modifier, rest] = key.length > 1 ? key.split('+') : [key];
+  if (rest !== undefined && modifier !== '') return `{${modifier}>}{${rest}}{/${modifier}}`;
   return key.length === 1 && key !== key.toLowerCase() ? `{Shift>}${key}{/Shift}` : `{${key}}`;
 };
 

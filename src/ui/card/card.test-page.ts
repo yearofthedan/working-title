@@ -3,28 +3,39 @@ import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
-export const theCard = (name: string) => {
-  const card = browser.page.getByRole('group', { name, exact: true, includeHidden: true });
-  return {
-    card,
-    keys: card.getByRole('paragraph', { includeHidden: true }),
-    field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
-    actions: {
-      addAScene: card.getByRole('button', {
-        name: 'Add a scene',
-        exact: true,
-        includeHidden: true,
-      }),
-      openBeside: card.getByRole('button', {
-        name: 'Open beside',
-        exact: true,
-        includeHidden: true,
-      }),
-    },
-  };
-};
 
-export const headingOf = (card: HTMLElement): HTMLElement => {
+export const partsOf = (card: Locator) => ({
+  card,
+  // shortcut: the card's body has no role or name, so it is found by class, until the card marks its facets as a named region.
+  facet: card.getByElement('.facet'),
+  shown: (sentence: string): Locator => card.getByText(sentence, { exact: true }),
+  label: card.getByText('One-sentence summary', { exact: true }).first(),
+  keys: card.getByRole('paragraph', { includeHidden: true }),
+  field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
+  heading: card.getByRole('heading', { includeHidden: true }),
+  headingAt: (level: number): Locator => card.getByRole('heading', { level, includeHidden: true }),
+  nameButton: card.getByRole('button', { includeHidden: true }).first(),
+  buttons: card.getByRole('button', { includeHidden: true }),
+  sentence: card.getByLabelText('One-sentence summary', { exact: true }),
+  fields: card.getByRole('textbox', { includeHidden: true }),
+  actions: {
+    addAScene: card.getByRole('button', {
+      name: 'Add a scene',
+      exact: true,
+      includeHidden: true,
+    }),
+    openBeside: card.getByRole('button', {
+      name: 'Open beside',
+      exact: true,
+      includeHidden: true,
+    }),
+  },
+});
+
+export const theCard = (name: string) =>
+  partsOf(browser.page.getByRole('group', { name, exact: true, includeHidden: true }));
+
+export const headingOf = (card: Element): HTMLElement => {
   const heading = inThePage(
     browser.page.getByRole('heading', { includeHidden: true }).elements(),
   ).find((one) => card.contains(one));
@@ -32,64 +43,7 @@ export const headingOf = (card: HTMLElement): HTMLElement => {
   return heading;
 };
 
-export const nameOf = (card: HTMLElement): string => headingOf(card).textContent ?? '';
-
-export const legendOf = (card: HTMLElement): HTMLElement => card.querySelector('legend')!;
-
-export const facetOf = (card: HTMLElement): HTMLElement => card.querySelector('.facet')!;
-
-export const shownSentenceOf = (card: HTMLElement): HTMLElement => card.querySelector('.shown')!;
-
-export const sentenceFieldOf = (card: HTMLElement): HTMLTextAreaElement => {
-  const field = browser.page
-    .getByLabelText('One-sentence summary', { exact: true })
-    .elements()
-    .find((element) => card.contains(element));
-  if (!(field instanceof HTMLTextAreaElement)) {
-    throw new Error('the card has no one-sentence summary field');
-  }
-  return field;
-};
-
-export const firstFieldOf = (card: HTMLElement): HTMLElement => {
-  const field = inThePage(
-    browser.page.getByRole('textbox', { includeHidden: true }).elements(),
-  ).find((element) => card.contains(element));
-  if (field === undefined) throw new Error('the card has no field');
-  return field;
-};
-
-export const labelOf = (card: HTMLElement): HTMLElement => sentenceFieldOf(card).labels![0]!;
-
-const buttonsIn = (card: HTMLElement): HTMLElement[] =>
-  inThePage(browser.page.getByRole('button', { includeHidden: true }).elements()).filter((button) =>
-    card.contains(button),
-  );
-
-export const addButtonOf = (card: HTMLElement): HTMLElement => {
-  const button = inThePage(
-    browser.page.getByRole('button', { name: /^Add a scene$/i, includeHidden: true }).elements(),
-  ).find((one) => card.contains(one));
-  if (button === undefined) throw new Error('the card has no add button');
-  return button;
-};
-
-export const addButtonIsFirst = (card: HTMLElement): boolean =>
-  buttonsIn(card)[0] === addButtonOf(card);
-
-export const positionOf = (
-  card: HTMLElement,
-): { readonly left: string; readonly top: string; readonly width: string } => ({
-  left: card.style.left,
-  top: card.style.top,
-  width: card.style.width,
-});
-
-export const nameButtonOf = (card: HTMLElement): HTMLElement => {
-  const button = buttonsIn(card).find((one) => headingOf(card).contains(one));
-  if (button === undefined) throw new Error(`${nameOf(card)} is drawn without a name button`);
-  return button;
-};
+export const nameOf = (card: Element): string => headingOf(card).textContent ?? '';
 
 const visible = (element: Element): boolean => {
   const { display, opacity, visibility } = getComputedStyle(element);

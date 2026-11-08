@@ -5,15 +5,7 @@ import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
-import {
-  facetOf,
-  headingOf,
-  labelOf,
-  sentenceFieldOf,
-  shownSentenceOf,
-  theCard,
-  timesDrawn,
-} from './card.test-page';
+import { theCard, timesDrawn } from './card.test-page';
 import {
   mountTheCard,
   stageTheCard,
@@ -76,33 +68,33 @@ describe('the card mounted alone', () => {
   });
 
   it("draws a card's sentence in the muted colour", () => {
-    const card = mountTheCard('card', { piece: beatWith(theSentence) });
+    mountTheCard('card', { piece: beatWith(theSentence) });
 
-    const sentence = getComputedStyle(shownSentenceOf(card.element));
-    const label = getComputedStyle(labelOf(card.element));
+    const { shown, label } = theCard(theBeat.name);
 
-    expect(sentence.color).toBe(label.color);
+    expect(getComputedStyle(shown(theSentence).element()).color).toBe(
+      getComputedStyle(label.element()).color,
+    );
   });
 
   it('shows a card’s sentence small and in the interface font', () => {
-    const card = mountTheCard('card', { piece: beatWith(theSentence) });
+    mountTheCard('card', { piece: beatWith(theSentence) });
 
-    const sentence = getComputedStyle(shownSentenceOf(card.element));
-    const name = getComputedStyle(headingOf(card.element));
-    const typed = getComputedStyle(sentenceFieldOf(card.element));
+    const { shown, heading, sentence } = theCard(theBeat.name);
+    const shownStyle = getComputedStyle(shown(theSentence).element());
+    const typed = getComputedStyle(sentence.element());
 
-    expect(Number.parseFloat(sentence.fontSize)).toBeLessThan(Number.parseFloat(typed.fontSize));
-    expect(sentence.fontFamily).toBe(name.fontFamily);
+    expect(Number.parseFloat(shownStyle.fontSize)).toBeLessThan(Number.parseFloat(typed.fontSize));
+    expect(shownStyle.fontFamily).toBe(getComputedStyle(heading.element()).fontFamily);
   });
 
   it("keeps the add button inside the current piece's card", () => {
-    const card = mountTheCard('current');
+    mountTheCard('current');
 
-    const body = facetOf(card.element);
-    const button = theCard(theBeat.name).actions.addAScene;
+    const { facet, actions } = theCard(theBeat.name);
 
-    expect(topOf(button.element())).toBeGreaterThanOrEqual(topOf(body));
-    expect(bottomOf(button.element())).toBeLessThanOrEqual(bottomOf(body));
+    expect(topOf(actions.addAScene.element())).toBeGreaterThanOrEqual(topOf(facet.element()));
+    expect(bottomOf(actions.addAScene.element())).toBeLessThanOrEqual(bottomOf(facet.element()));
   });
 
   it('shows the keys without resizing the card', async () => {

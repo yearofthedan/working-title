@@ -7,13 +7,18 @@ import {
   componentAndAppTestRefusals,
   documentSelectors,
   domGlobals,
-  filesUsingTheWriter,
   findsAnyOtherWay,
+  findsByElement,
   findsByRoleOrLabel,
   pageSelectorActions,
 } from './vite.config';
 
-const calls = [...findsByRoleOrLabel, ...findsAnyOtherWay, ...pageSelectorActions];
+const calls = [
+  ...findsByRoleOrLabel,
+  ...findsAnyOtherWay,
+  ...findsByElement,
+  ...pageSelectorActions,
+];
 
 const levels = ['component', 'app'] as const;
 
@@ -29,6 +34,8 @@ const readingACard: Record<string, string> = {
   querySelector: "export const sample = (card: HTMLElement) => card.querySelector('h2');\n",
   querySelectorAll: "export const sample = (card: HTMLElement) => card.querySelectorAll('h2');\n",
   style: 'export const sample = (card: HTMLElement) => card.style.width;\n',
+  getByElement:
+    "import type { Locator } from 'vite-plus/test/browser';\nexport const sample = (card: Locator) => card.getByElement('.x');\n",
 };
 
 const usingTheDom: Record<string, string> = {
@@ -113,15 +120,12 @@ beforeAll(() => {
       `${level}-document.${level}.test.ts`,
       'export const sample = (): number => document.body.childElementCount;\n',
     );
-  const readingTheCardElement = readingACard.querySelector;
-  if (readingTheCardElement === undefined)
-    throw new Error('no sample reads a card with querySelector');
-  for (const name of filesUsingTheWriter) {
-    writeInUi(`calling-user-event/${name}`, callingUserEvent);
-    writeInUi(`importing-user-event/${name}`, importingUserEvent);
-    writeInUi(`calling-query-selector/${name}`, readingTheCardElement);
+  for (const level of levels) {
+    writeInUi(`calling-user-event/sample.${level}.test.ts`, callingUserEvent);
+    writeInUi(`importing-user-event/sample.${level}.test.ts`, importingUserEvent);
   }
-  writeInUi('unlisted/other.component.test.ts', callingUserEvent);
+  writeInUi('finding-by-element.test-page.ts', readingACard.getByElement ?? '');
+  writeInUi('unlisted/other.test.ts', callingUserEvent);
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
@@ -166,7 +170,7 @@ describe('e2e locators', { timeout: 60_000 }, () => {
     expect(errorsIn('driver-acting-on-a-locator/sample.driver.ts')).toEqual([]);
   });
 
-  it.each([...findsAnyOtherWay, ...pageSelectorActions])(
+  it.each([...findsAnyOtherWay, ...findsByElement, ...pageSelectorActions])(
     'the driver calling page.%s fails lint',
     (call) => {
       expect(errorsIn(`driver-${call}/sample.driver.ts`)).toEqual([
@@ -211,38 +215,30 @@ describe('a component test or an app test', { timeout: 60_000 }, () => {
         expect.stringMatching(/test-page\.ts.*staging\.ts/),
       ]);
   });
+
+  it('finding by getByElement in a test page passes lint', () => {
+    expect(uiErrorsIn('finding-by-element.test-page.ts')).toEqual([]);
+  });
 });
 
-describe('a file using the writer', { timeout: 60_000 }, () => {
-  it.each(filesUsingTheWriter)(
-    'a %s calling browser.userEvent fails lint, pointing at the writer',
-    (name) => {
-      expect(uiErrorsIn(`calling-user-event/${name}`)).toEqual([
+describe('a component test or an app test using the writer', { timeout: 60_000 }, () => {
+  it.each(levels)(
+    'a %s test calling browser.userEvent fails lint, pointing at the writer',
+    (level) => {
+      expect(uiErrorsIn(`calling-user-event/sample.${level}.test.ts`)).toEqual([
         expect.stringMatching(/writer.*testing\.md/),
       ]);
     },
   );
 
-  it.each(filesUsingTheWriter)(
-    'a %s importing userEvent fails lint, pointing at the writer',
-    (name) => {
-      expect(uiErrorsIn(`importing-user-event/${name}`)).toEqual([
-        expect.stringMatching(/writer.*testing\.md/),
-      ]);
-    },
-  );
+  it.each(levels)('a %s test importing userEvent fails lint, pointing at the writer', (level) => {
+    expect(uiErrorsIn(`importing-user-event/sample.${level}.test.ts`)).toEqual([
+      expect.stringMatching(/writer.*testing\.md/),
+    ]);
+  });
 
-  it.each(filesUsingTheWriter)(
-    'a %s calling querySelector still fails lint, pointing at the test page',
-    (name) => {
-      expect(uiErrorsIn(`calling-query-selector/${name}`)).toEqual([
-        expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
-    },
-  );
-
-  it('an unlisted component test calling browser.userEvent passes lint', () => {
-    expect(uiErrorsIn('unlisted/other.component.test.ts')).toEqual([]);
+  it('a test that is neither a component nor an app test calling browser.userEvent passes lint', () => {
+    expect(uiErrorsIn('unlisted/other.test.ts')).toEqual([]);
   });
 });
 

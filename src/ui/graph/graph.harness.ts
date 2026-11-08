@@ -77,7 +77,7 @@ const graphDriver = (name?: string): Driver => ({
 export const graphWith = (
   scenes = 0,
   width = 1440,
-): { driver: Driver; stage: Opening; writer: Writer; sees: Sees } => {
+): { stage: Opening; writer: Writer; sees: Sees } => {
   const driver = graphDriver();
   const stage: Opening = {
     fresh: async () => {
@@ -86,7 +86,6 @@ export const graphWith = (
     reopen: () => reopenTheGraph(),
   };
   return {
-    driver,
     stage,
     writer: writerOn(driver, stage),
     sees: seesOn(

@@ -10,11 +10,6 @@ import { openTheApp, reopenTheApp } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { appSeesOn, appSteps, appWriterOn } from './app.dsl';
 
-export const addASceneUnder = async (driver: Driver, beat: string): Promise<void> => {
-  await driver.click('heading', beat, { role: 'group', name: beat });
-  await driver.click('button', 'Add a scene', { role: 'group', name: beat });
-};
-
 const stageTheApp = async (): Promise<void> => {
   await thePage(1440);
   await openTheApp(document, inMemory());
