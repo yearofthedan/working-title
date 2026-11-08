@@ -4,16 +4,6 @@ import type { Locator } from 'vite-plus/test/browser';
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
 
-declare module 'vite-plus/test/browser' {
-  interface LocatorSelectors {
-    getByElement(css: string): Locator;
-  }
-}
-
-browser.locators.extend({
-  getByElement: (css: string) => `css=${css}`,
-});
-
 export const partsOf = (card: Locator) => ({
   card,
   legend: card.getByElement('legend'),
