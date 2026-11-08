@@ -96,10 +96,7 @@ export default defineConfig({
       ],
     },
     VitePWA({
-      /* shortcut: assets are swapped without the tab asking, which is safe while every keystroke is
-         saved and nothing here reloads the tab on its own; prompt instead once something in the app
-         is transient (https://vite-pwa-org.netlify.app/guide/auto-update). */
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'working-title',
@@ -114,6 +111,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,woff2}'],
       },
     }),
