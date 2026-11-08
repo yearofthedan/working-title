@@ -51,6 +51,14 @@ export default {
       to: { path: '\\.dom\\.ts$' },
     },
     {
+      name: 'app-started-only-by-its-entry-and-app-tests',
+      severity: 'error',
+      comment:
+        'Only the entry and an app test start the whole app, because a test that starts the whole app is an app test (docs/standards/testing.md).',
+      from: { path: '^src/', pathNot: ['^src/main\\.ts$', '\\.app\\.test\\.ts$'] },
+      to: { path: '^src/app\\.ts$' },
+    },
+    {
       name: 'no-circular',
       severity: 'error',
       comment:
