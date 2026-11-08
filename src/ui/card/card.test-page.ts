@@ -1,4 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
+import type { Locator } from 'vite-plus/test/browser';
 
 export const inThePage = (elements: readonly (HTMLElement | SVGElement)[]): HTMLElement[] =>
   elements.filter((element) => element instanceof HTMLElement);
@@ -8,9 +9,15 @@ export const theCard = (name: string) => {
   return {
     card,
     keys: card.getByRole('paragraph', { includeHidden: true }),
+    field: (label: string): Locator => card.getByLabelText(label, { exact: true }),
     actions: {
       addAScene: card.getByRole('button', {
         name: 'Add a scene',
+        exact: true,
+        includeHidden: true,
+      }),
+      openBeside: card.getByRole('button', {
+        name: 'Open beside',
         exact: true,
         includeHidden: true,
       }),
@@ -116,7 +123,7 @@ const visible = (element: Element): boolean => {
   );
 };
 
-export const timesDrawn = (card: HTMLElement, sentence: string): number =>
+export const timesDrawn = (card: Element, sentence: string): number =>
   inThePage(browser.page.getByRole('textbox', { includeHidden: true }).elements()).filter(
     (field) =>
       card.contains(field) &&

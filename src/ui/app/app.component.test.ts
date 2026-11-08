@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
-import { widthOf } from '../../test-helpers/box';
-import { settled, type Driver } from '../../test-helpers/driver';
+import { bottomOf, boxOf, heightOf, topOf, widthOf } from '../../test-helpers/box';
+import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
 import { laidOut, moving } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
@@ -14,48 +14,17 @@ import {
   narrowThePane,
 } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import {
-  drawsOpenBeside,
-  nameOf,
-  openBesideIsPressed,
-  openBesideOf,
-  showsOpenBeside,
-  timesDrawn,
-} from '../card/card.test-page';
-import {
-  atFocus,
-  blurTheFocus,
-  cardAtFocus,
-  current,
-  everyCard,
-  named,
-} from '../graph/graph.test-page';
-import { closeButtonOf, fieldFor, panelOf } from '../panel/panel.test-page';
+import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
+import { everyCard } from '../graph/graph.test-page';
+import { thePanelOn } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
 import { appScenarioSteps, pageWith } from './app.harness';
-import { headerOf } from './app.test-page';
+import { theHeader } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
-const pathTo = (driver: Driver, piece: string): Promise<void> =>
-  driver.click('button', piece, { role: 'navigation', name: 'Where you are' });
-
-const boxes = (): readonly string[] =>
-  everyCard().map((card) => {
-    const box = card.getBoundingClientRect();
-    return `${nameOf(card)} ${box.left} ${box.top} ${box.width} ${box.height}`;
-  });
-
-const thePanelIsOpen = async (): Promise<boolean> =>
-  (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
-    line.includes('- complementary'),
-  );
-
-const thePanelIsOn = async (piece: string): Promise<boolean> =>
-  (await vitestBrowserDriver(undefined, 'page').tree()).some((line) =>
-    line.includes(`- complementary "${piece}"`),
-  );
+const boxes = (): readonly string[] => everyCard().map((card) => `${nameOf(card)} ${boxOf(card)}`);
 
 describe('starting the app', () => {
   it('refuses a page with no main', async () => {
@@ -98,13 +67,13 @@ describe('the writer’s words reach the application', () => {
     await stage.fresh();
     await writer.types(theStory, { piece: 'The story', facet: 'One-sentence summary' });
 
-    expect(timesDrawn(current(), theStory)).toBe(1);
+    expect(timesDrawn(theCard('The story').card.element(), theStory)).toBe(1);
   });
 });
 
 describe('what the app keeps', () => {
   it('writes nothing to storage', async () => {
-    const { driver, stage, store, writer } = pageWith();
+    const { stage, store, writer } = pageWith();
     await stage.fresh();
     await writer.types("Maren finds the ship's log", {
       piece: 'Beat 2',
@@ -113,8 +82,8 @@ describe('what the app keeps', () => {
     const before = await store.load();
     expect(before).not.toBeUndefined();
 
-    await driver.press('ArrowRight');
-    await driver.press('ArrowUp');
+    await writer.moves('→');
+    await writer.moves('↑');
     await writer.clicks('Beat 1');
 
     expect(await store.load()).toBe(before);
@@ -124,15 +93,15 @@ describe('what the app keeps', () => {
     const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    expect(nameOf(current())).toBe('Beat 2');
+    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
 
     await stage.reopen();
 
-    expect(nameOf(current())).toBe('The story');
+    await expect.element(theCard('The story').card).toHaveAttribute('aria-current', 'location');
   });
 
   it('saves a sentence typed into a card after clicking it, read back by a fresh page', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer } = pageWith();
     await stage.fresh();
     const sentence = "Maren finds the ship's log";
     await writer.types(sentence, { piece: 'Beat 4', facet: 'One-sentence summary' });
@@ -140,23 +109,22 @@ describe('what the app keeps', () => {
     await stage.reopen();
     await writer.clicks('Beat 4');
 
-    const held = await driver.value('One-sentence summary', { role: 'group', name: 'Beat 4' });
-    expect(held).toBe(sentence);
+    await expect.element(theCard('Beat 4').field('One-sentence summary')).toHaveValue(sentence);
   });
 });
 
 describe('the path in the header', () => {
   it("leaves the cursor on the new current piece's card after a path click", async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.clicks('Beat 4');
-    expect(nameOf(current())).toBe('Beat 4');
-    expect(cardAtFocus()).toBe(current());
+    await expect.element(theCard('Beat 4').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 4').card).toHaveFocus();
 
-    await pathTo(driver, 'The story');
+    await writer.clicksThePathTo('The story');
 
-    expect(nameOf(current())).toBe('The story');
-    expect(cardAtFocus()).toBe(current());
+    await expect.element(theCard('The story').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('The story').card).toHaveFocus();
   });
 });
 
@@ -166,37 +134,32 @@ describe('opening a piece beside the graph', () => {
     await stage.fresh();
 
     await writer.opensBeside('Beat 2');
-    await settled();
 
-    expect(panelOf().contains(atFocus())).toBe(true);
+    await expect.element(thePanelOn('Beat 2').field('One-sentence summary')).toHaveFocus();
   });
 
   it('keeps the icon of the beat beside pressed, and unpressed once it is closed', async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer, sees } = pageWith();
     await stage.fresh();
 
     await writer.opensBeside('Beat 2');
-    await settled();
-    expect(openBesideIsPressed(named('current', 'Beat 2'))).toBe(true);
+    const icon = theCard('Beat 2').actions.openBeside;
+    await expect.element(icon).toHaveAttribute('aria-pressed', 'true');
 
     await writer.closesThePanel();
-    await settled();
 
-    expect(openBesideIsPressed(named('current', 'Beat 2'))).toBe(false);
-    expect(await thePanelIsOpen()).toBe(false);
+    await expect.element(icon).toHaveAttribute('aria-pressed', 'false');
+    await sees.noPanelIsOpen();
   });
 
   it('closes the panel when the lit icon is clicked again', async () => {
-    const { stage, writer } = pageWith();
+    const { stage, writer, sees } = pageWith();
     await stage.fresh();
     await writer.opensBeside('Beat 2');
-    await settled();
-    const card = named('current', 'Beat 2');
 
-    await browser.userEvent.click(openBesideOf(card));
-    await settled();
+    await writer.clicksOpenBesideOn('Beat 2');
 
-    expect(await thePanelIsOpen()).toBe(false);
+    await sees.noPanelIsOpen();
   });
 
   it('runs the panel the full height of the page, past the header', async () => {
@@ -205,28 +168,26 @@ describe('opening a piece beside the graph', () => {
     await writer.opensBeside('Beat 2');
     await settled();
 
-    const panel = panelOf().getBoundingClientRect();
-    const header = headerOf().getBoundingClientRect();
+    const panel = thePanelOn('Beat 2').panel;
+    const { header } = theHeader();
 
-    expect(panel.top).toBe(0);
-    expect(panel.height).toBe(window.innerHeight);
-    expect(header.top).toBeGreaterThanOrEqual(panel.top);
-    expect(header.bottom).toBeLessThanOrEqual(panel.bottom);
+    expect(topOf(panel.element())).toBe(0);
+    expect(heightOf(panel.element())).toBe(window.innerHeight);
+    expect(topOf(header.element())).toBeGreaterThanOrEqual(topOf(panel.element()));
+    expect(bottomOf(header.element())).toBeLessThanOrEqual(bottomOf(panel.element()));
   });
 
   it('leaves the focus on the Close button when an arrow key is pressed there', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.opensBeside('Beat 2');
     await settled();
-    const close = closeButtonOf(panelOf());
-    close.focus();
+    await writer.putsTheFocusOnClose();
 
-    await driver.press('ArrowRight');
-    await settled();
+    await writer.presses('ArrowRight');
 
-    expect(atFocus()).toBe(close);
-    expect(nameOf(current())).toBe('Beat 2');
+    await expect.element(thePanelOn('Beat 2').actions.close).toHaveFocus();
+    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
   });
 
   it('puts the focus back on the icon that opened it, and on the focus card when that beat is a chip', async () => {
@@ -236,31 +197,29 @@ describe('opening a piece beside the graph', () => {
     await settled();
 
     await writer.closesThePanel();
-    await settled();
-    expect(atFocus()).toBe(openBesideOf(named('current', 'Beat 2')));
+
+    await expect.element(theCard('Beat 2').actions.openBeside).toHaveFocus();
 
     await writer.opensBeside('Beat 2');
     await writer.clicks('Beat 4');
     await settled();
 
     await writer.closesThePanel();
-    await settled();
 
-    expect(atFocus()).toBe(named('current', 'Beat 4'));
+    await expect.element(theCard('Beat 4').card).toHaveFocus();
   });
 
   it('closes the panel on Esc, putting the focus back on the icon', async () => {
-    const { driver, stage, writer } = pageWith();
+    const { stage, writer, sees } = pageWith();
     await stage.fresh();
     await writer.opensBeside('Beat 2');
     await settled();
-    closeButtonOf(panelOf()).focus();
+    await writer.putsTheFocusOnClose();
 
-    await driver.press('Escape');
-    await settled();
+    await writer.presses('Esc');
 
-    expect(await thePanelIsOpen()).toBe(false);
-    expect(atFocus()).toBe(openBesideOf(named('current', 'Beat 2')));
+    await sees.noPanelIsOpen();
+    await expect.element(theCard('Beat 2').actions.openBeside).toHaveFocus();
   });
 
   it('shows the icon while the pointer is over the card or the focus is within it, and draws none on a chip or the story card', async () => {
@@ -268,30 +227,31 @@ describe('opening a piece beside the graph', () => {
     await stage.fresh();
     await writer.clicks('Beat 2');
     await settled();
-    const card = named('current', 'Beat 2');
-    blurTheFocus();
+    await writer.clicksAwayFromTheGraph();
+    const icon = theCard('Beat 2').actions.openBeside;
 
-    await browser.userEvent.hover(named('card', 'The story'));
-    expect(showsOpenBeside(card)).toBe(false);
+    await writer.hovers('The story');
+    await expect.element(icon).toHaveStyle({ opacity: '0' });
 
-    await browser.userEvent.hover(card);
-    expect(showsOpenBeside(card)).toBe(true);
+    await writer.hovers('Beat 2');
+    await expect.element(icon).toHaveStyle({ opacity: '1' });
 
-    await browser.userEvent.hover(named('card', 'The story'));
-    expect(showsOpenBeside(card)).toBe(false);
+    await writer.hovers('The story');
+    await expect.element(icon).toHaveStyle({ opacity: '0' });
 
-    card.focus();
-    expect(showsOpenBeside(card)).toBe(true);
+    await writer.clicks('Beat 2');
+    await writer.hovers('The story');
+    await expect.element(icon).toHaveStyle({ opacity: '1' });
 
-    await browser.userEvent.hover(named('chip', 'Beat 1'));
-    expect(showsOpenBeside(named('chip', 'Beat 1'))).toBe(false);
+    await writer.hovers('Beat 1');
+    await expect.element(theCard('Beat 1').actions.openBeside).not.toBeVisible();
 
-    await browser.userEvent.hover(named('card', 'The story'));
-    expect(drawsOpenBeside(named('card', 'The story'))).toBe(false);
+    await writer.hovers('The story');
+    await expect.element(theCard('The story').actions.openBeside).not.toBeInTheDocument();
   });
 
   it('keeps a scene open beside the graph while the focus moves off it', async () => {
-    const { stage, writer } = pageWith(1);
+    const { stage, writer, sees } = pageWith(1);
     await stage.fresh();
     await writer.makesCurrent('Beat 4');
     await writer.opensBeside('Scene 1');
@@ -300,11 +260,11 @@ describe('opening a piece beside the graph', () => {
     await writer.makesCurrent('The story');
     await settled();
 
-    expect(await thePanelIsOn('Scene 1')).toBe(true);
+    await sees.panelIsOpenOn('Scene 1');
   });
 
   it('replaces the beat beside the graph when a scene opens', async () => {
-    const { stage, writer } = pageWith(1);
+    const { stage, writer, sees } = pageWith(1);
     await stage.fresh();
     await writer.makesCurrent('Beat 4');
     await writer.opensBeside('Beat 4');
@@ -313,39 +273,37 @@ describe('opening a piece beside the graph', () => {
     await writer.opensBeside('Scene 1');
     await settled();
 
-    expect(await thePanelIsOn('Scene 1')).toBe(true);
-    expect(fieldFor(panelOf(), 'Narrative')).toBeDefined();
-    expect(() => fieldFor(panelOf(), 'Page')).toThrow();
+    await sees.panelIsOpenOn('Scene 1');
+    await expect.element(thePanelOn('Scene 1').field('Narrative')).toBeInTheDocument();
+    await expect.element(thePanelOn('Scene 1').field('Page')).not.toBeInTheDocument();
   });
 
   it('replaces the scene beside the graph when a beat opens', async () => {
-    const { stage, writer } = pageWith(1);
+    const { stage, writer, sees } = pageWith(1);
     await stage.fresh();
     await writer.makesCurrent('Beat 4');
     await writer.opensBeside('Scene 1');
     await settled();
-    const card = named('card', 'Beat 4');
 
-    await browser.userEvent.hover(card);
-    await browser.userEvent.click(openBesideOf(card));
+    await writer.clicksOpenBesideOn('Beat 4');
     await settled();
 
-    expect(await thePanelIsOn('Beat 4')).toBe(true);
-    expect(fieldFor(panelOf(), 'Page')).toBeDefined();
-    expect(() => fieldFor(panelOf(), 'Narrative')).toThrow();
+    await sees.panelIsOpenOn('Beat 4');
+    await expect.element(thePanelOn('Beat 4').field('Page')).toBeInTheDocument();
+    await expect.element(thePanelOn('Beat 4').field('Narrative')).not.toBeInTheDocument();
   });
 });
 
 const moves: ReadonlyArray<{
   readonly what: string;
-  readonly play: (writer: AppWriter, driver: Driver) => Promise<void>;
+  readonly play: (writer: AppWriter) => Promise<void>;
 }> = [
   {
     what: 'a step of the path',
-    play: async (writer, driver) => {
+    play: async (writer) => {
       await writer.clicks('Beat 2');
       await settled();
-      await pathTo(driver, 'The story');
+      await writer.clicksThePathTo('The story');
     },
   },
   {
@@ -360,10 +318,10 @@ const moves: ReadonlyArray<{
 
 describe('the motion of a move the app makes', () => {
   it.each(moves)('keeps every animation of $what within 400 ms, easing out', async ({ play }) => {
-    const { driver, stage, writer } = pageWith(1);
+    const { stage, writer } = pageWith(1);
     await stage.fresh();
 
-    await play(writer, driver);
+    await play(writer);
     const animations = moving();
 
     expect(animations.length).toBeGreaterThan(0);
@@ -380,11 +338,11 @@ describe('the motion of a move the app makes', () => {
     });
 
     it.each(moves)('moves nothing for $what', async ({ play }) => {
-      const { driver, stage, writer } = pageWith(1);
+      const { stage, writer } = pageWith(1);
       await browser.commands.emulateReducedMotion('reduce');
       await stage.fresh();
 
-      await play(writer, driver);
+      await play(writer);
 
       expect(moving()).toEqual([]);
     });
@@ -468,7 +426,7 @@ describe('the motion of the panel beside the graph', () => {
       await writer.opensBeside('Beat 2');
 
       expect(moving()).toEqual([]);
-      expect(widthOf(panelOf())).toBe(560);
+      expect(widthOf(thePanelOn('Beat 2').panel.element())).toBe(560);
     });
   });
 });

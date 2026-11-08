@@ -34,7 +34,7 @@ export const appScenarioSteps = (driver: Driver) =>
   );
 
 export const pageWith = (scenes = 0, width = 1440) => {
-  const driver = vitestBrowserDriver();
+  const driver = vitestBrowserDriver(undefined, 'page');
   const store = inMemory();
   const stage: Opening = {
     fresh: async () => {
@@ -47,7 +47,6 @@ export const pageWith = (scenes = 0, width = 1440) => {
     },
   };
   return {
-    driver,
     stage,
     writer: appWriterOn(driver, stage),
     sees: appSeesOn(driver, appReadsOnThePage()),
