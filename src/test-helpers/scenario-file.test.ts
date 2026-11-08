@@ -68,6 +68,39 @@ describe('a scenario file', () => {
     expect(scenarios[0]?.observed).toEqual(['- main:', '  - text: A toy']);
   });
 
+  it('reads a file that sees the app as the app, and prints it back unchanged', () => {
+    const file = [
+      'Rule: A toy rule.',
+      'Sees: the app',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(readScenarioFile(file).sees).toBe('the app');
+    expect(printScenarioFile(readScenarioFile(file))).toBe(file);
+  });
+
+  it('reads a file with no line as the graph, and prints it with no line', () => {
+    const file = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(readScenarioFile(file).sees).toBeUndefined();
+    expect(printScenarioFile(readScenarioFile(file))).not.toContain('Sees:');
+  });
+
   it('reads a But after a Then as one more outcome', () => {
     const { scenarios } = readScenarioFile(
       [
@@ -135,6 +168,21 @@ describe('a scenario file', () => {
       'not closed',
     ],
     ['a line in no scenario', ['Rule: A toy rule.', '', 'stray', ''], 'outside its block'],
+    [
+      'a file that sees anything but the app',
+      [
+        'Rule: A toy rule.',
+        'Sees: the moon',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        '```',
+        '',
+      ],
+      'sees "the app" or names nothing',
+    ],
     [
       'steps out of order',
       [
@@ -386,6 +434,14 @@ describe('replacing what one scenario observed', () => {
   it('gives a scenario observed text where it had none', () => {
     const withoutObserved = withObserved(two, 'One', ['- main:', '  - text: New']);
     expect(withoutObserved).toContain('Then the writer sees\n- main:\n  - text: New');
+  });
+
+  it('keeps the line that says what the file sees', () => {
+    const appRooted = two.replace('Rule: A toy rule.\n', 'Rule: A toy rule.\nSees: the app\n');
+
+    expect(withObserved(appRooted, 'Two', ['- main:', '  - text: As it is now'])).toBe(
+      appRooted.replace('  - text: As it was', '  - text: As it is now'),
+    );
   });
 
   it('refuses a scenario the file does not hold', () => {

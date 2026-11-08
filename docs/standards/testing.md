@@ -48,7 +48,7 @@ A spec drives the app through the language, over a driver, so what it says is th
 
 The harness comes from the [Approved Scenarios](https://lexler.github.io/augmented-coding-patterns/patterns/approved-scenarios/) pattern: an approval file holds the input and the expected output, the runner regenerates it from what it observes, and the execution logic is written once.
 
-- **A scenario file is the story template's acceptance criteria**, copied as agreed: a `Rule:` line, then per scenario a heading and one fenced block holding its steps and, after them, what the runner observed. A file that does not read as it prints is refused, so what was agreed is never silently rewritten.
+- **A scenario file is the story template's acceptance criteria**, copied as agreed: a `Rule:` line, an optional `Sees: the app` line after it when the file's tree starts at the whole app rather than the graph, then per scenario a heading and one fenced block holding its steps and, after them, what the runner observed. A file that does not read as it prints is refused, so what was agreed is never silently rewritten.
 - **A step names what plays it**, and a phrase nothing plays or several play is refused.
 - **What is observed is what the runner prints**, and a difference is refused as lines; replacing it is what approving means, and an approving run is one played with that option set.
 - **A tree marks the element that holds focus when the scenario asserts focus**, and prints as it always has when it asserts none: a marker on a line is a claim the scenario made, never one it did not.
