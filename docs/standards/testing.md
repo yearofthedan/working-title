@@ -22,28 +22,25 @@ Most cases are unit or component tests; a journey is kept for what only the buil
 
 ## Where test code goes
 
-A test says what the writer does and sees; the code below it turns that into finding, clicking and reading in a browser. A scenario's steps, or a test's own calls, go to a **language**, which names each action in the writer's words. The language asks the **driver contract** to find a part by role or label and act on it, and a **protocol driver** does that in whichever runner is playing: Vitest's browser mode for a component test, Playwright for a journey. So a language is written once, whatever runs it. Beside that chain, a component's **test page** finds its parts for a check, its **harness** mounts it alone, and **staging** sets up what the writer cannot. Each piece of test code is one of these kinds:
+A language names what the writer does over the driver contract, so one language runs under either protocol driver.
 
 | Kind | File | Holds |
 | --- | --- | --- |
-| Language | `*.dsl.ts` beside a page or component, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's or a component's language sits beside it, a journey's in the runner's folder, and each step phrase calls it. The graph's language holds the steps a graph alone can play, and the app's language builds on it and on the panel's, adding only the steps that need the header or more than one component |
-| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
-| Protocol driver | `*.driver.ts` in `src/test-helpers/` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
-| Test page | `*.test-page.ts` beside a component | A component's page objects for its markup, the app's holding the header: a Locator for each part, by role or label where one exists, and the names that have no role |
-| Part reads | `field.ts`, `box.ts` and `look.ts` in `src/test-helpers/` | A read of, or an arrangement on, a part a test page has already found, grouped by subject: an offset in a field, and where a box is or what it does, and whether a part is drawn shown or hidden by its opacity. `whatCoversTheTopOf` names the element on top at a point of a part |
-| Staging | `staging.ts` and `seed.ts` in `src/test-helpers/` | An arrangement the writer cannot make: a page, such as one with a narrowed pane, or the project a scenario starts from, such as one with fewer beats than the method starts a project with. A component mounted alone is staged by its own harness |
-| Component harness | `*.harness.ts` beside a component | A component's staging, mounted alone: the one component, with the data and hooks a scenario needs, and the root its recorded tree is taken from. The app's harness mounts `renderApp` on the shell's header, main and aside over a project in memory |
-| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver. `private-build.ts` extends it with a served copy of the build that a spec can publish a new version into, and holds the Playwright side of the steps `e2e/new-version.dsl.ts` names |
+| Language | `*.dsl.ts` beside its component, `e2e/journey.dsl.ts` | What the writer does and sees, in the [ubiquitous language](../domain/ubiquitous-language.md). The app's builds on the graph's and the panel's |
+| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and finding by role and label |
+| Protocol driver | `*.driver.ts` in `src/test-helpers/` | One per runner: Vitest's browser mode, Playwright |
+| Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
+| Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
+| Measures | `field.ts`, `box.ts`, `look.ts` in `src/test-helpers/` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
+| Staging | `staging.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make |
+| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
-- **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver, a harness or the contract: a test, another language file, a driver, a harness and `src/test-helpers/` are what may. `./do layers` refuses the rest.
-- **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
-- **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a page's element-finding calls and `document.querySelector` and `document.querySelectorAll` in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
-- **A component test reaches a component's markup only through that component's `*.test-page.ts`**, beside its `*.dom.ts`: the test page finds each part by role or label where one exists, and writes out the names that have no role itself. A test builds a page no writer can make in `src/test-helpers/staging.ts`, and starts a scenario from a project no writer can make with `src/test-helpers/seed.ts`.
-- **A test page or a language file that holds another component builds on that component's own**, and writes none of its parts or verbs again: the graph's test page takes `theCard` from `card.test-page.ts`, and the app's language builds on `panelWriterOn` from `panel.dsl.ts`. A part or a verb the owner lacks is added to the owner's file, and reached from there.
-- **A registration every browser test shares**, such as a custom locator or an augmentation of `vite-plus/test/browser`, sits in a file the browser project's `setupFiles` loads, such as `src/test-helpers/locators.ts`, not in the first file that needs it.
-- **A test page returns Locators**, each found inside the part it belongs to and grouped by what the writer does with them, such as a card's `actions`, so a check made on one retries until the page settles. An element read at one moment goes stale as the page moves.
-- **A component test asserts with `expect.element` and an aria matcher wherever one exists**: `toHaveFocus`, `toBeVisible`, `toHaveAccessibleName`, or `toHaveAttribute` for a state such as `aria-pressed` or `aria-current`. It reads computed style, a box or an animation only when the case is about style, geometry or timing, which no matcher shows.
-- **A component test acts only through the writer its language gives it**, never through `userEvent` or the driver directly. A writer action the language lacks gets a verb in the `*.dsl.ts` of the component whose markup it acts on.
+- **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
+- **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing.
+- **A test page returns Locators**, each found inside its part and grouped by what the writer does with them, such as a card's `actions`, so a check retries until the page settles.
+- **A spec and a language find no element; a driver finds one only by role or label**, as [the markup standard](markup.md) says.
+- **A language imports the driver contract and no driver, and the app imports no test code.**
+- **A registration every browser test shares** goes in a file `setupFiles` loads, such as `src/test-helpers/locators.ts`.
 
 ## Names and cases
 
