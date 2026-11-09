@@ -51,11 +51,11 @@ export default {
       to: { path: '\\.dom\\.ts$' },
     },
     {
-      name: 'start-app-imported-only-by-its-entry-and-app-tests',
+      name: 'start-app-imported-only-by-its-entry',
       severity: 'error',
       comment:
-        'Only the entry and an app test import startApp, because a test that starts the whole app through it is an app test (docs/standards/testing.md).',
-      from: { path: '^src/', pathNot: ['^src/main\\.ts$', '\\.app\\.test\\.ts$'] },
+        'Only the entry imports startApp: a test that needs the whole app with its browser storage is a journey, and one that needs the app component mounts it through its harness (docs/standards/testing.md).',
+      from: { path: '^src/', pathNot: ['^src/main\\.ts$'] },
       to: { path: '^src/app\\.ts$' },
     },
     {
