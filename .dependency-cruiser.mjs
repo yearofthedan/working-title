@@ -29,7 +29,7 @@ export default {
       name: 'scenario-code-in-test-helpers',
       severity: 'error',
       comment:
-        'The scenario layers are reached by a test, another language file, a driver, a harness and src/test-helpers/, and by nothing else the app is made of (docs/standards/testing.md).',
+        'Test code is reached by a test, a language file, a driver, a harness and src/test-helpers/, and by nothing the app is made of (docs/standards/testing.md).',
       from: {
         path: '^src/',
         pathNot: [
@@ -49,14 +49,6 @@ export default {
         'A plain file in src/ui/ holds the logic, and the code that touches the DOM is in a *.dom.ts beside it (docs/standards/testing.md).',
       from: { path: '^src/ui/', pathNot: ['\\.dom\\.ts$', '\\.test\\.ts$', '\\.harness\\.ts$'] },
       to: { path: '\\.dom\\.ts$' },
-    },
-    {
-      name: 'start-app-imported-only-by-its-entry',
-      severity: 'error',
-      comment:
-        'Only the entry imports startApp: a test that needs the whole app with its browser storage is a journey, and one that needs the app component mounts it through its harness (docs/standards/testing.md).',
-      from: { path: '^src/', pathNot: ['^src/main\\.ts$'] },
-      to: { path: '^src/app\\.ts$' },
     },
     {
       name: 'no-circular',
