@@ -7,7 +7,7 @@ const themeColor = '#f4f2ed';
 export const findsByRoleOrLabel = ['getByRole', 'getByLabel', 'getByLabelText'];
 export const documentSelectors = ['querySelector', 'querySelectorAll'];
 export const findsByElement = ['getByElement'];
-export const componentAndAppTestRefusals = [
+export const componentTestRefusals = [
   'querySelector',
   'querySelectorAll',
   'style',
@@ -167,12 +167,12 @@ export default defineConfig({
         rules: { 'no-restricted-globals': 'off' },
       },
       {
-        files: ['src/**/*.{component,app}.test.ts'],
+        files: ['src/**/*.component.test.ts'],
         rules: {
           'no-restricted-properties': [
             'error',
             ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
-            ...componentAndAppTestRefusals.map((property) => ({
+            ...componentTestRefusals.map((property) => ({
               property,
               message: theComponentHasATestPage,
             })),
@@ -238,7 +238,7 @@ export default defineConfig({
           exclude: [
             ...configDefaults.exclude,
             'e2e/**',
-            '**/*.{component,app}.test.ts',
+            '**/*.component.test.ts',
             'src/ui/lint-sample-*/**',
           ],
         },
@@ -246,7 +246,7 @@ export default defineConfig({
       {
         test: {
           name: 'browser',
-          include: ['**/*.{component,app}.test.ts'],
+          include: ['**/*.component.test.ts'],
           exclude: ['src/ui/lint-sample-*/**'],
           setupFiles: ['src/shell.css', 'src/test-helpers/locators.ts'],
           ...(approving ? { api: { allowWrite: true } } : {}),

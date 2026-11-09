@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import {
-  componentAndAppTestRefusals,
+  componentTestRefusals,
   documentSelectors,
   domGlobals,
   findsAnyOtherWay,
@@ -19,8 +19,6 @@ const calls = [
   ...findsByElement,
   ...pageSelectorActions,
 ];
-
-const levels = ['component', 'app'] as const;
 
 const callingOnPage = (call: string) =>
   `import type { Page } from '@playwright/test';\nexport const sample = (page: Page) => page.${call}('x');\n`;
@@ -66,11 +64,7 @@ beforeAll(() => {
   samples = mkdtempSync('e2e/lint-sample-');
   uiSamples = mkdtempSync('src/ui/lint-sample-');
   testFileSamples = realpathSync(mkdtempSync(join(tmpdir(), 'test-file-sample-')));
-  for (const name of [
-    'component-test.component.test.ts',
-    'app-test.app.test.ts',
-    'mis-named-test.browser.test.ts',
-  ])
+  for (const name of ['component-test.component.test.ts', 'mis-named-test.browser.test.ts'])
     writeFileSync(join(testFileSamples, name), aTestFile);
   const files: string[] = [];
   const writeIn = (root: string) => (file: string, content: string) => {
@@ -110,20 +104,17 @@ beforeAll(() => {
   write('comment-plain.ts', '// what the next line does\nexport const sample = 1;\n');
   write('comment-shortcut.ts', '// shortcut: one, until two\nexport const sample = 1;\n');
 
-  for (const property of componentAndAppTestRefusals) {
+  for (const property of componentTestRefusals) {
     const use = readingACard[property];
     if (use === undefined) throw new Error(`no sample reads a card with ${property}`);
-    for (const level of levels) writeInUi(`${level}-${property}.${level}.test.ts`, use);
+    writeInUi(`component-${property}.component.test.ts`, use);
   }
-  for (const level of levels)
-    writeInUi(
-      `${level}-document.${level}.test.ts`,
-      'export const sample = (): number => document.body.childElementCount;\n',
-    );
-  for (const level of levels) {
-    writeInUi(`calling-user-event/sample.${level}.test.ts`, callingUserEvent);
-    writeInUi(`importing-user-event/sample.${level}.test.ts`, importingUserEvent);
-  }
+  writeInUi(
+    'component-document.component.test.ts',
+    'export const sample = (): number => document.body.childElementCount;\n',
+  );
+  writeInUi('calling-user-event/sample.component.test.ts', callingUserEvent);
+  writeInUi('importing-user-event/sample.component.test.ts', importingUserEvent);
   writeInUi('finding-by-element.test-page.ts', readingACard.getByElement ?? '');
   writeInUi('unlisted/other.test.ts', callingUserEvent);
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
@@ -198,22 +189,20 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
   });
 });
 
-describe('a component test or an app test', { timeout: 60_000 }, () => {
-  it.each(componentAndAppTestRefusals)(
+describe('a component test', { timeout: 60_000 }, () => {
+  it.each(componentTestRefusals)(
     'calling card.%s fails lint, pointing at the test page and staging',
     (property) => {
-      for (const level of levels)
-        expect(uiErrorsIn(`${level}-${property}.${level}.test.ts`)).toEqual([
-          expect.stringMatching(/test-page\.ts.*staging\.ts/),
-        ]);
+      expect(uiErrorsIn(`component-${property}.component.test.ts`)).toEqual([
+        expect.stringMatching(/test-page\.ts.*staging\.ts/),
+      ]);
     },
   );
 
   it('reading document fails lint, pointing at the test page and staging', () => {
-    for (const level of levels)
-      expect(uiErrorsIn(`${level}-document.${level}.test.ts`)).toEqual([
-        expect.stringMatching(/test-page\.ts.*staging\.ts/),
-      ]);
+    expect(uiErrorsIn('component-document.component.test.ts')).toEqual([
+      expect.stringMatching(/test-page\.ts.*staging\.ts/),
+    ]);
   });
 
   it('finding by getByElement in a test page passes lint', () => {
@@ -221,29 +210,26 @@ describe('a component test or an app test', { timeout: 60_000 }, () => {
   });
 });
 
-describe('a component test or an app test using the writer', { timeout: 60_000 }, () => {
-  it.each(levels)(
-    'a %s test calling browser.userEvent fails lint, pointing at the writer',
-    (level) => {
-      expect(uiErrorsIn(`calling-user-event/sample.${level}.test.ts`)).toEqual([
-        expect.stringMatching(/writer.*testing\.md/),
-      ]);
-    },
-  );
-
-  it.each(levels)('a %s test importing userEvent fails lint, pointing at the writer', (level) => {
-    expect(uiErrorsIn(`importing-user-event/sample.${level}.test.ts`)).toEqual([
+describe('a component test using the writer', { timeout: 60_000 }, () => {
+  it('calling browser.userEvent fails lint, pointing at the writer', () => {
+    expect(uiErrorsIn('calling-user-event/sample.component.test.ts')).toEqual([
       expect.stringMatching(/writer.*testing\.md/),
     ]);
   });
 
-  it('a test that is neither a component nor an app test calling browser.userEvent passes lint', () => {
+  it('importing userEvent fails lint, pointing at the writer', () => {
+    expect(uiErrorsIn('importing-user-event/sample.component.test.ts')).toEqual([
+      expect.stringMatching(/writer.*testing\.md/),
+    ]);
+  });
+
+  it('a test that is not a component test calling browser.userEvent passes lint', () => {
     expect(uiErrorsIn('unlisted/other.test.ts')).toEqual([]);
   });
 });
 
 describe('the test files a project runs', { timeout: 60_000 }, () => {
-  it('runs a component test and an app test in the browser project, and a file named otherwise in node', () => {
+  it('runs a component test in the browser project, and a file named otherwise in node', () => {
     const run = spawnSync(
       'vp',
       [
@@ -263,7 +249,6 @@ describe('the test files a project runs', { timeout: 60_000 }, () => {
       listed.find((entry) => entry.file === resolve(testFileSamples, file))?.projectName;
 
     expect(projectOf('component-test.component.test.ts')).toBe('browser (chromium)');
-    expect(projectOf('app-test.app.test.ts')).toBe('browser (chromium)');
     expect(projectOf('mis-named-test.browser.test.ts')).toBe('node');
   });
 });

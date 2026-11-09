@@ -3,7 +3,7 @@
 scenario_entry() {
   folder=$1
   parent=$(dirname -- "$folder")
-  for test in "$parent"/*.component.test.ts "$parent"/*.app.test.ts; do
+  for test in "$parent"/*.component.test.ts; do
     [ -f "$test" ] || continue
     if grep -qF "/$folder/*.approved.md" "$test"; then
       printf '%s\n' "$test"

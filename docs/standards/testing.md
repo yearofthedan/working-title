@@ -4,38 +4,46 @@
 **Purpose:** where a test goes, what it is named, what runs it, and how a scenario's approved file is kept.
 
 - **A test sits beside the code it tests**, named after it: `piece.test.ts` beside `piece.ts`, `scripts/audit.test.sh` beside `scripts/audit`.
-- **A journey drives the built app in `e2e/`**, as `<name>.spec.ts`, and runs in Playwright ([ADR 7](../adr/0007-playwright-for-browser-specs.md)). It drives the whole product, so no one file owns it.
-- **The level a test starts at decides its name and the project that runs it**: a unit test is `*.test.ts`; a component test is `*.component.test.ts` and mounts one component alone; an app test is `*.app.test.ts` and starts the whole app from source on a staged shell; a journey is `e2e/*.spec.ts`. A journey needs the built app, so Playwright runs it and Vitest excludes `e2e/` ([ADR 7](../adr/0007-playwright-for-browser-specs.md)). The suffix decides the project: a `*.component.test.ts` or `*.app.test.ts` runs in the browser project, and a test file with any other name runs in node.
 - `./do test` runs the tests, `./do e2e` the journeys, and `./do check` every local check, the tests and the journeys among them. A shell suite beside a task runs under `./do test`, and so under `./do check`: `do.test.ts` spawns each one. What the checks are is `scripts/check`, which is what `./do` lists.
 - **Every commit runs the checks first**: all of them, or only the docs, links and names checks for a change to Markdown alone outside `src/` and `e2e/`. An agent's commit that would skip them is refused.
 
-## The layers
+## Levels
 
-A spec drives the app through the language, over a driver, so what it says is the writer's words and what it touches is one file. The code that plays a scenario sits in one of eight layers:
+Most cases are unit or component tests; a journey is kept for what only the built app can show.
 
-| Layer | File | Holds |
+| Level | File | Starts | Runs in | Written as | Uses |
+| --- | --- | --- | --- | --- | --- |
+| Unit | `*.test.ts` beside the code | the code it tests, alone | node | `describe`/`it` | the code it tests |
+| Component | `*.component.test.ts` beside a component | one component, mounted by its `*.harness.ts`. The app component's harness mounts the header, graph and panel together over a project in memory | Vitest browser mode | scenario files in its `scenarios/` folder, or `describe`/`it` for style, geometry or timing | its `*.test-page.ts`, its `*.dsl.ts`, and the Vitest driver |
+| Journey | `e2e/*.spec.ts`, since it drives the whole product and no one file owns it | the built app, with the browser's own storage | Playwright ([ADR 7](../adr/0007-playwright-for-browser-specs.md)) | scenario files in `e2e/`, played by `e2e/scenarios.spec.ts`, or `test` | `e2e/journey.dsl.ts`, the `writer` fixture, and the Playwright driver |
+
+- **A case is tested at the lowest level that can catch it.** Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen. A component test is for what only the rendered page shows. A journey is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break.
+- **The file's name decides what runs it**: a `*.component.test.ts` runs in Vitest's browser project, any other test file under `src/` in node, and Playwright runs `e2e/`, which Vitest excludes.
+
+## Where test code goes
+
+A language names what the writer does over the driver contract, so one language runs under either protocol driver.
+
+| Kind | File | Holds |
 | --- | --- | --- |
-| Language | `*.dsl.ts` beside a page or component, `e2e/journey.dsl.ts` | What the writer does and sees on a page, in the [ubiquitous language](../domain/ubiquitous-language.md), written once over the driver contract. A page's or a component's language sits beside it, a journey's in the runner's folder, and each step phrase calls it. The graph's language holds the steps a graph alone can play, and the app's language builds on it with the steps that need the header or the panel |
-| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and the finding by role and label that both drivers share |
-| Protocol driver | `*.driver.ts` in `src/test-helpers/` | One per runner: the page in Vitest's browser mode, the built app in Playwright |
-| Test page | `*.test-page.ts` beside a component | A component test's page objects for its component's markup, and an app test's for the header: a Locator for each part, by role or label where one exists, and the names that have no role |
-| Part reads | `field.ts`, `box.ts` and `look.ts` in `src/test-helpers/` | A read of, or an arrangement on, a part a test page has already found, grouped by subject: an offset in a field, and where a box is or what it does, and whether a part is drawn shown or hidden by its opacity. `whatCoversTheTopOf` names the element on top at a point of a part |
-| Staging | `staging.ts` and `seed.ts` in `src/test-helpers/` | An arrangement the writer cannot make: a page, such as one with a narrowed pane, or the project a scenario starts from, such as one with fewer beats than the method starts a project with. A component mounted alone is staged by its own harness |
-| Component harness | `*.harness.ts` beside a component | A component's staging, mounted alone: the one component, with the data and hooks a scenario needs, and the root its recorded tree is taken from. The app's harness mounts `renderApp` on the shell's header, main and aside over a project in memory |
-| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | The Playwright `writer` fixture, and the helpers only a spec needs, built on the Playwright driver. `private-build.ts` extends it with a served copy of the build that a spec can publish a new version into, and holds the Playwright side of the steps `e2e/new-version.dsl.ts` names |
+| Language | `*.dsl.ts` beside its component, `e2e/journey.dsl.ts` | What the writer does and sees, in the [ubiquitous language](../domain/ubiquitous-language.md). The app's builds on the graph's and the panel's |
+| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and finding by role and label |
+| Protocol driver | `*.driver.ts` in `src/test-helpers/` | One per runner: Vitest's browser mode, Playwright |
+| Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
+| Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
+| Measures | `field.ts`, `box.ts`, `look.ts` in `src/test-helpers/` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
+| Staging | `staging.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make |
+| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
-- **A `*.dsl.ts` imports the driver contract and no `*.driver.ts`**, and nothing the app is made of imports a language file, a driver, a harness or the contract: a test, another language file, a driver, a harness and `src/test-helpers/` are what may. `./do layers` refuses the rest.
-- **A file naming `StepAction` is a `*.dsl.ts`**, except under `src/test-helpers/`, where the runner and its tests live. `./do check-names` refuses the rest.
-- **A spec and a language file find no element, and a driver finds one only by role or label**, as [the markup standard](markup.md) names it: an element says what the thing is, and its name means something to the writer hearing it. Lint fails a page's element-finding calls and `document.querySelector` and `document.querySelectorAll` in `e2e/` and in a `*.dsl.ts`, and in a driver anything but `getByRole` and `getByLabel`; `vite.config.test.ts` shows each case failing. Page's selector actions, such as `page.click('#id')`, are caught only on a variable named `page`, so a driver closes over `page` rather than holding `this.page`. An element found inside `page.evaluate`, where the rules cannot see it, is the driver's job too.
-- **A component test or an app test reaches a component's markup only through that component's `*.test-page.ts`**, beside its `*.dom.ts`: the test page finds each part by role or label where one exists, and writes out the names that have no role itself. A test builds a page no writer can make in `src/test-helpers/staging.ts`, and starts a scenario from a project no writer can make with `src/test-helpers/seed.ts`.
-- **A test page returns Locators**, each found inside the part it belongs to and grouped by what the writer does with them, such as a card's `actions`, so a check made on one retries until the page settles. An element read at one moment goes stale as the page moves.
-- **A component test or an app test asserts with `expect.element` and an aria matcher wherever one exists**: `toHaveFocus`, `toBeVisible`, `toHaveAccessibleName`, or `toHaveAttribute` for a state such as `aria-pressed` or `aria-current`. It reads computed style, a box or an animation only when the case is about style, geometry or timing, which no matcher shows.
-- **A component test or an app test acts only through the writer its language gives it**, never through `userEvent` or the driver directly. A writer action the language lacks gets a verb in that page's or component's `*.dsl.ts`.
+- **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
+- **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing.
+- **A test page returns Locators**, each found inside its part and grouped by what the writer does with them, such as a card's `actions`, so a check retries until the page settles.
+- **A spec and a language find no element; a driver finds one only by role or label**, as [the markup standard](markup.md) says.
+- **A language imports the driver contract and no driver, and the app imports no test code.**
+- **A registration every browser test shares** goes in a file `setupFiles` loads, such as `src/test-helpers/locators.ts`.
 
-## Levels and names
+## Names and cases
 
-- **A case is tested at the lowest level that can catch it.** A journey is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break. An app test comes next, for behaviour only the whole app can show. A component test mounts one component alone, in its own tier, wherever no page-level behaviour is needed. Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen.
-- **Where a test lives follows from what it is about**: a journey through the whole built app is a scenario file in `e2e/`, played by Playwright; behaviour within one page or one component is a scenario file in the page's or the component's `scenarios/` folder, played by the component test or app test beside it in Vitest browser mode; a logic contract is a `describe`/`it` test beside the code.
 - **A case is a scenario when the recorded tree can show the outcome, and a hand-written test when it cannot**, such as style, geometry or timing.
 - **Code in `src/ui/` that touches the DOM is in a `*.dom.ts` file**, and its logic is in a plain file beside it, with a `describe`/`it` test the node project runs. A plain file uses no DOM global and imports no `*.dom.ts`. A component's `*.test-page.ts` and its `*.harness.ts` are test code, and may use DOM globals and reach the component's `*.dom.ts`.
 - **A unit test is `describe` and `it`**: the subject, then the behaviour — "it refuses a value that parses but is not a project". The name says what the code does, so the body needs no comment saying it.
@@ -53,7 +61,7 @@ The harness comes from the [Approved Scenarios](https://lexler.github.io/augment
 - **What is observed is what the runner prints**, and a difference is refused as lines; replacing it is what approving means, and an approving run is one played with that option set.
 - **A tree marks the element that holds focus when the scenario asserts focus**, and prints as it always has when it asserts none: a marker on a line is a claim the scenario made, never one it did not.
 - **A scenario file is named for what it is about** — `focus-interactions`, `your-words-survive-a-reload` — **and ends `.approved.md`**; its `Rule:` line carries the claim verbatim from the story, so the name stays short while the claim stays exact.
-- **Each `scenarios/` folder has one entry beside it**, the `*.component.test.ts` or `*.app.test.ts` that globs the folder and gives `playScenarioFiles` the driver and that language's steps. It generates a test per scenario, so a story adds no hand-written test code. The journeys in `e2e/` have `e2e/scenarios.spec.ts`.
+- **Each `scenarios/` folder has one entry beside it**, the `*.component.test.ts` that globs the folder and gives `playScenarioFiles` the driver and that language's steps. It generates a test per scenario, so a story adds no hand-written test code. The journeys in `e2e/` have `e2e/scenarios.spec.ts`.
 - **Only `./do approve <scenario file>` writes an observed block.** It finds the entry beside the folder and runs that entry with the file named, so only that file records; `./do test` refuses `--update`, and a browser run may write a file only when approving set API allowWrite for it.
 - **A scenario file holds one rule**, and a case the format cannot express is a `describe`/`it` test against the same driver, with nothing built for it.
 - **A scenario lands in the file for the behaviour it specifies**, whichever story brings it, and that file changes when the behaviour does: a story that extends or changes a recorded scenario quotes it as it will read there, and a story whose scenario restates a recorded one adds none, since a copy can fail only when the original does. The issue is the dated record of what each story asked for; the file holds what is true now.
