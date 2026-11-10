@@ -111,9 +111,9 @@ export const writerOn = (
     clicksTheSentenceOf: (piece) =>
       driver.click('textbox', 'One-sentence summary', { role: 'group', name: pieceNamed(piece) }),
     clicksTheNameOf: (piece) => clicking(driver, piece),
-    // shortcut: 2 px inside the card's left edge, on its legend, since a click names a part or a point on one and the card's own parts are its fields; upgrade when the card names its border.
+    // shortcut: the legend's left border, 16 px down, since a click names a part or a point on one and the card's own parts are its fields; upgrade when the card names its border.
     clicksTheBorderOf: (piece) =>
-      driver.click('group', pieceNamed(piece), undefined, { x: 2, y: 16 }),
+      driver.click('group', pieceNamed(piece), undefined, { x: 0, y: 16 }),
     addsASceneUnder: async (piece) => {
       await clicking(driver, piece);
       await driver.click('button', 'Add a scene', { role: 'group', name: pieceNamed(piece) });

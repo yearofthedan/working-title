@@ -871,12 +871,13 @@ describe('moving the current piece', () => {
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
-  it('draws the ring on the card whose name the writer clicks', async () => {
+  it('draws the ring on the card whose name the writer clicks, and keeps the keys hint hidden', async () => {
     const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicksTheNameOf('Beat 2');
 
     await expectRingDrawn(graph.on('current').card);
+    await expectHidden(graph.on('current').keys);
   });
 
   it('draws the ring on the card the writer clicks at its border', async () => {
@@ -885,15 +886,6 @@ describe('moving the current piece', () => {
     await writer.clicksTheBorderOf('Beat 2');
 
     await expectRingDrawn(graph.on('current').card);
-  });
-
-  it('shows the ring on the card the writer clicks, and keeps the keys hint hidden', async () => {
-    const { stage, writer } = graphWith(2);
-    await stage.fresh();
-    await writer.clicks('Beat 2');
-
-    await expectRingDrawn(graph.on('current').card);
-    await expectHidden(graph.on('current').keys);
   });
 });
 
