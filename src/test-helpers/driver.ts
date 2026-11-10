@@ -14,6 +14,11 @@ export interface Within {
   readonly name: string;
 }
 
+export interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface Box {
   readonly top: number;
   readonly left: number;
@@ -64,7 +69,7 @@ export const farEnoughToReachTheEnd = 1_000_000;
 export interface Driver {
   reload?(): Promise<void>;
   press(key: string): Promise<void>;
-  click(role: Role, name: string, within?: Within): Promise<void>;
+  click(role: Role, name: string, within?: Within, at?: Point): Promise<void>;
   focus(role: Role, name: string, within?: Within): Promise<void>;
   hover(role: Role, name: string, within?: Within): Promise<void>;
   scrollToTheEnd(role: Role, name: string, within?: Within): Promise<void>;
@@ -80,7 +85,7 @@ export interface ReloadingDriver extends Driver {
 }
 
 interface Clickable {
-  click(): Promise<void>;
+  click(options?: { readonly position?: Point }): Promise<void>;
 }
 
 interface Found extends Clickable {
@@ -102,10 +107,10 @@ const rootIn = (page: Finds, within?: Within): Finds =>
 
 export const clicking =
   (page: Finds): Driver['click'] =>
-  async (role, name, within) => {
+  async (role, name, within, at) => {
     await rootIn(page, within)
       .getByRole(role, { name: wholeNameAnyCase(name) })
-      .click();
+      .click(at === undefined ? undefined : { position: at });
   };
 
 export const typing =
