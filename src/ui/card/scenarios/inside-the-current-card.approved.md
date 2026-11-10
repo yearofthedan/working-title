@@ -67,6 +67,7 @@ Then focus moves to the card
 Given a beat card is current
 When the writer clicks the card
 Then focus moves to the card
+And the keys show
 - main:
   - group "Beat 2" [active]:
     - heading "Beat 2" [level=3]

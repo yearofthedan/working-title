@@ -23,6 +23,7 @@ export interface CardSees {
   focusIsInTheSummary(): Promise<void>;
   focusIsOnTheAction(): Promise<void>;
   focusIsOnTheCard(): Promise<void>;
+  keysShow(): Promise<void>;
 }
 
 export const cardWriterOn = (
@@ -59,6 +60,12 @@ export const cardSeesOn = (driver: Driver): CardSees => ({
   focusIsOnTheAction: () =>
     insistTheFocusIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard),
   focusIsOnTheCard: () => insistTheFocusIs(driver, 'group', beat, `on ${beat}'s card`),
+  keysShow: async () => {
+    const lines = await driver.tree();
+    if (!lines.some((line) => line.includes('- paragraph:'))) {
+      throw new Error(`${beat}'s keys are not shown`);
+    }
+  },
 });
 
 export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, StepAction> => ({
@@ -83,4 +90,5 @@ export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, St
   'focus moves to the one-sentence summary': () => sees.focusIsInTheSummary(),
   'focus moves to "Add a scene"': () => sees.focusIsOnTheAction(),
   'focus moves to the card': () => sees.focusIsOnTheCard(),
+  'the keys show': () => sees.keysShow(),
 });
