@@ -19,6 +19,7 @@ export interface Card {
   reachName(on: boolean): void;
   enter(): void;
   minWidth(): number;
+  ownWidth(): number;
   observe(watcher: ResizeObserver): void;
   placeAt(x: number, y: number): void;
   slideTo(x: number): void;
@@ -272,6 +273,8 @@ export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
         parseFloat(style.borderRightWidth)
       );
     },
+    ownWidth: () =>
+      parseFloat(getComputedStyle(element).getPropertyValue('--card-width-short-facet')),
     observe: (watcher) => {
       watcher.observe(element);
       for (const facet of element.querySelectorAll('.facet')) watcher.observe(facet);

@@ -23,6 +23,10 @@ export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
 };
 
+export const redefineTheCardWidth = (width: string): void => {
+  document.querySelector('main')!.style.setProperty('--card-width-short-facet', width);
+};
+
 export const theViewport = async (width: number, height: number): Promise<void> => {
   await browser.page.viewport(width, height);
 };
