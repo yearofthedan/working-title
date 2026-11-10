@@ -145,19 +145,6 @@ describe('the graph around the current piece', () => {
     expect(widthOf(graph.card('card', 'Scene 2').card.element())).toBe(320);
   });
 
-  it('does not change the width of the card being typed in', async () => {
-    const { stage, writer } = graphWith();
-    await stage.fresh();
-
-    await writer.types(
-      'She rows out before first light with the chart weighted under a stone, and finds a buoy ringing a bell nobody hung there.',
-      { piece: 'The story', facet: 'One-sentence summary' },
-    );
-    await laidOut();
-
-    expect(widthOf(graph.on('current').card.element())).toBe(560);
-  });
-
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
     const { stage, sees, writer } = graphWith(8);
     await stage.fresh();

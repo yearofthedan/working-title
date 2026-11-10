@@ -2,8 +2,6 @@
 @import '@fontsource-variable/literata';
 @import '@fontsource-variable/inter';
 
-/* shortcut: initial-value is px while the token on :root is rem, because Chromium drops the whole
-   rule when initial-value is not computationally independent; revisit if the token leaves :root. */
 @property --card-width-short-facet {
   syntax: '<length>';
   inherits: true;
@@ -34,8 +32,6 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --space-12: 3rem;
-
-  --card-width-short-facet: 15rem;
 
   --move: 250ms;
   --move-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
