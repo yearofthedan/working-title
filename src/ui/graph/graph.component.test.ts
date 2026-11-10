@@ -23,7 +23,7 @@ import {
   recorded,
   startedTransitions,
 } from '../../test-helpers/graph-page';
-import { expectHidden, expectRingDrawn } from '../../test-helpers/look';
+import { expectRingDrawn } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { narrowThePane, theViewport } from '../../test-helpers/staging';
@@ -877,7 +877,7 @@ describe('moving the current piece', () => {
     await writer.clicksTheNameOf('Beat 2');
 
     await expectRingDrawn(graph.on('current').card);
-    await expectHidden(graph.on('current').keys);
+    await expect.element(graph.on('current').keys).not.toBeVisible();
   });
 
   it('draws the ring on the card the writer clicks at its border', async () => {
