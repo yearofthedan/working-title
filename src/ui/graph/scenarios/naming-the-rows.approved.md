@@ -22,6 +22,7 @@ Then the writer sees
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
   - toolbar "Scenes under Beat 2":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:

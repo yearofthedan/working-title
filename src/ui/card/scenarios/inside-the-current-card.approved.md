@@ -61,7 +61,7 @@ Then focus moves to the card
     - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
-### Scenario: a click on the card shows no keys
+### Scenario: a click on the card shows its keys
 
 ```
 Given a beat card is current
@@ -74,4 +74,5 @@ Then focus moves to the card
     - textbox "One-sentence summary"
     - button "Add a scene"
     - button "Open beside"
+    - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```

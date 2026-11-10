@@ -871,13 +871,13 @@ describe('moving the current piece', () => {
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
-  it('draws the ring on the card whose name the writer clicks, and keeps the keys hint hidden', async () => {
+  it('draws the ring on the card whose name the writer clicks, with the keys hint inside it', async () => {
     const { stage, writer } = graphWith(2);
     await stage.fresh();
     await writer.clicksTheNameOf('Beat 2');
 
     await expectRingDrawn(graph.on('current').card);
-    await expect.element(graph.on('current').keys).not.toBeVisible();
+    await expect.element(graph.on('current').keys).toBeVisible();
   });
 
   it('draws the ring on the card the writer clicks at its border', async () => {
