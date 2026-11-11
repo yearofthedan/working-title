@@ -2,8 +2,12 @@ import { childrenOf, drawnAs, shownAncestor, type Entry } from './graph';
 
 export interface Sizes {
   readonly current: number;
-  readonly cards: readonly number[];
   readonly gap: number;
+}
+
+export interface Widths {
+  readonly chip: (id: string) => number;
+  readonly card: (id: string) => number;
 }
 
 export interface Pane {
@@ -18,12 +22,12 @@ export const widthOf = (
   id: string,
   pane: Pane,
   sizes: Sizes,
-  chipWidth: (id: string) => number,
+  widths: Widths,
 ): number => {
   const kind = drawnAs(entries, current, id);
   if (kind === 'current') return Math.min(sizes.current, pane.mainWidth);
-  if (kind === 'chip') return chipWidth(id);
-  return sizes.cards[shownAncestor(entries, current, id).level] ?? sizes.cards.at(-1)!;
+  if (kind === 'chip') return widths.chip(id);
+  return widths.card(shownAncestor(entries, current, id).piece.id);
 };
 
 export const centresOf = (
