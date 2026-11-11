@@ -19,12 +19,14 @@ export const root = (tag: string): HTMLElement => {
   return element;
 };
 
+const styleOfMain = (): CSSStyleDeclaration => document.querySelector('main')!.style;
+
 export const narrowThePane = (width: number): void => {
-  document.querySelector('main')!.style.width = `${width}px`;
+  styleOfMain().width = `${width}px`;
 };
 
 export const redefineTheCardWidth = (width: string): void => {
-  document.querySelector('main')!.style.setProperty('--card-width-short-facet', width);
+  styleOfMain().setProperty('--card-width-short-facet', width);
 };
 
 export const theViewport = async (width: number, height: number): Promise<void> => {
