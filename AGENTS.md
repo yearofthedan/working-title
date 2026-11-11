@@ -19,6 +19,7 @@ The words to use in code, tests, scenarios and UI:
 ## Read before changing code
 
 - [docs/architecture.md](docs/architecture.md): the shape of the system, its parts and constraints, and the quality targets.
+- [docs/project-structure.md](docs/project-structure.md): where each folder and file suffix lives.
 - [docs/adr/](docs/adr/README.md): why each architecture decision was made. Read the record before changing what it decided.
 
 ## Running tasks
