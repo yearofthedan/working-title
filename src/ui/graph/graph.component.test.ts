@@ -25,7 +25,7 @@ import {
 } from '../../test-helpers/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { narrowThePane, redefineTheCardWidth, theViewport } from '../../test-helpers/staging';
+import { narrowThePane, setStyleOn, theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf } from '../card/card.test-page';
 import { type Writer } from './graph.dsl';
@@ -136,7 +136,7 @@ describe('the graph around the current piece', () => {
     const { stage, writer } = graphWith(2);
     await stage.fresh();
 
-    redefineTheCardWidth('20rem');
+    setStyleOn(graph.pane, '--card-width-short-facet', '20rem');
     await writer.clicks('Beat 4');
     await settled();
 

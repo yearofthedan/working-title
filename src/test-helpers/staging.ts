@@ -1,3 +1,4 @@
+import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
 import { stopTheApp } from './the-app';
 
@@ -19,14 +20,12 @@ export const root = (tag: string): HTMLElement => {
   return element;
 };
 
-const styleOfMain = (): CSSStyleDeclaration => document.querySelector('main')!.style;
-
 export const narrowThePane = (width: number): void => {
-  styleOfMain().width = `${width}px`;
+  document.querySelector('main')!.style.width = `${width}px`;
 };
 
-export const redefineTheCardWidth = (width: string): void => {
-  styleOfMain().setProperty('--card-width-short-facet', width);
+export const setStyleOn = (part: Locator, property: string, value: string): void => {
+  part.element().style.setProperty(property, value);
 };
 
 export const theViewport = async (width: number, height: number): Promise<void> => {
