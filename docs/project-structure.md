@@ -3,10 +3,11 @@
 **Audience:** anyone looking for where a file lives, or deciding where a new one goes.
 **Purpose:** maps the code repository's folders and the suffixes of the files in them. The glossary's **project** is the writer's novel, so this page says repository for the code.
 
-## The layers
+## The parts
 
 | Folder | Part |
 | --- | --- |
+| [src/ui/](../src/ui/) | UI: one folder per component, shaped [as below](#a-components-folder) |
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
 | [src/ports/](../src/ports/) | Ports |
@@ -17,7 +18,7 @@ The [Parts table](architecture.md#parts) says what each part is, what it may imp
 
 ## A component's folder
 
-`src/ui/<component>/` holds the component and its test code, each file named after the component:
+`src/ui/<component>/` holds the component and its test code, each file named after the component. What a language, a test page and a harness are is in [where test code goes](standards/testing.md#where-test-code-goes).
 
 | Suffix | Holds |
 | --- | --- |
@@ -35,25 +36,24 @@ A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/
 
 ## Test code
 
-[src/test-helpers/](../src/test-helpers/) holds the runner every level shares: the driver contract and its protocol drivers, the measures, staging and seed, and the scenario file and step table.
+[src/test-helpers/](../src/test-helpers/) holds the code every level shares: the driver contract and its protocol drivers, the measures (including `frames.ts`, the boxes sampled frame by frame for motion), staging and seed, the scenario file, step table and runner, the helpers that mount, open and read the app (`the-app.ts`, `graph-page.ts`, `recording.ts`), and small fixtures such as `toy-method.ts` and `ids.ts`. `locators.ts` is the registration every browser test loads.
 
-[Testing](standards/testing.md#levels) says what each level is and what runs it, and [where test code goes](standards/testing.md#where-test-code-goes) what each kind holds.
+[Testing](standards/testing.md#levels) says what each level is and what runs it.
 
 ## `e2e/`
+
+[Where test code goes](standards/testing.md#where-test-code-goes) names the language, the `writer` fixture and the private-build fixture. Beyond them:
 
 | File | Holds |
 | --- | --- |
 | `*.spec.ts` | A journey, or a check only the built app can make |
 | `*.approved.md` | A journey's approved scenario file |
-| [journey.dsl.ts](../e2e/journey.dsl.ts) | The journey's language |
 | [new-version.dsl.ts](../e2e/new-version.dsl.ts) | The language for a new version |
-| [writer.ts](../e2e/writer.ts) | The `writer` fixture |
-| [private-build.ts](../e2e/private-build.ts) | The fixture that serves a private build |
 | [scenarios.spec.ts](../e2e/scenarios.spec.ts) | The entry that plays the approved files |
 
 ## `scripts/`
 
-One file per `./do` task, named for it: `./do check` runs [scripts/check](../scripts/check). A leading `_` marks a file that is not a task: a helper the tasks source, or a test. A `*.test.sh` beside a task tests it.
+One file per `./do` task, named for it: `./do check` runs [scripts/check](../scripts/check). A leading `_` marks a file that is not a task: a helper or its data, or a test. A `*.test.sh` beside a task tests it.
 
 ## The rest of `src/`
 
@@ -77,3 +77,12 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [.github/](../.github/) | The issue and pull request templates, and the workflows |
 | [.omp/](../.omp/) | The rules and settings OMP reads |
 | [.agents/](../.agents/) | The skills an agent uses: the repository's own, and weaver's, which `./do setup` installs |
+
+| File | Holds |
+| --- | --- |
+| [index.html](../index.html) | The page `src/main.ts` loads into |
+| [vite.config.ts](../vite.config.ts) | The build, including the service worker |
+| [.dependency-cruiser.mjs](../.dependency-cruiser.mjs) | The import rules `./do layers` enforces |
+| [do](../do) | The entry to every task |
+
+The other root files are configuration for a tool: `package.json`, `tsconfig.json`, `playwright.config.ts`, `stryker.*`, `renovate.json` and `pnpm-workspace.yaml`.
