@@ -36,7 +36,7 @@ A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/
 
 ## Test code
 
-[src/test-helpers/](../src/test-helpers/) holds the code every level shares: the driver contract and its protocol drivers, the measures (including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion), staging and seed, the scenario file, step table and runner, [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which every `scenarios/` entry calls, the helpers that mount, open and read the app ([the-app.ts](../src/test-helpers/the-app.ts), [graph-page.ts](../src/test-helpers/graph-page.ts)), and small fixtures: [recording.ts](../src/test-helpers/recording.ts), a driver that records its calls, [toy-method.ts](../src/test-helpers/toy-method.ts) and [ids.ts](../src/test-helpers/ids.ts). [locators.ts](../src/test-helpers/locators.ts) is the registration every browser test loads.
+[src/test-helpers/](../src/test-helpers/) holds the code every level shares: the driver contract and its protocol drivers, the measures (including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion), staging and seed, the scenario file, step table and runner, [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which each component test with a `scenarios/` folder calls, the helpers that mount, open and read the app ([the-app.ts](../src/test-helpers/the-app.ts), [graph-page.ts](../src/test-helpers/graph-page.ts)), and small fixtures: [recording.ts](../src/test-helpers/recording.ts), a driver that records its calls, [toy-method.ts](../src/test-helpers/toy-method.ts) and [ids.ts](../src/test-helpers/ids.ts). [locators.ts](../src/test-helpers/locators.ts) is the registration every browser test loads.
 
 [Testing](standards/testing.md#levels) says what each level is and what runs it.
 
@@ -49,7 +49,7 @@ A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/
 | `*.spec.ts` | A journey, or a check only the built app can make |
 | `*.approved.md` | A journey's approved scenario file |
 | [new-version.dsl.ts](../e2e/new-version.dsl.ts) | The language for a new version |
-| [scenarios.spec.ts](../e2e/scenarios.spec.ts) | The entry that plays the approved files |
+| [scenarios.spec.ts](../e2e/scenarios.spec.ts) | The journeys' entry: it plays the approved files in `e2e/` through the runner directly |
 
 ## `scripts/`
 
@@ -62,7 +62,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: opens the project and calls `renderApp` |
 | [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
-| [src/tokens.css](../src/tokens.css) | The colours and typefaces |
+| [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |
 
 ## Top level
