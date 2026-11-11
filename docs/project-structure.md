@@ -73,7 +73,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [e2e/](../e2e/) | The journeys |
 | [scripts/](../scripts/) | The `./do` tasks |
 | [docs/](README.md) | The pages, and where a new one goes |
-| [public/](../public/) | The icons the manifest names |
+| [public/](../public/) | The app's icons: the page's favicon and the manifest's |
 | [.github/](../.github/) | The issue and pull request templates, and the workflows |
 | [.omp/](../.omp/) | The rules and settings OMP reads |
 | [.agents/](../.agents/) | The skills an agent uses: the repository's own, and weaver's, which `./do setup` installs |
