@@ -32,17 +32,17 @@ The [Parts table](architecture.md#parts) says what each part is, what it may imp
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
 
-A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds `layout.ts` and its test. [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 ## Test code
 
-[src/test-helpers/](../src/test-helpers/) holds the code every level shares: the driver contract and its protocol drivers, the measures (including `frames.ts`, the boxes sampled frame by frame for motion), staging and seed, the scenario file, step table and runner, the helpers that mount, open and read the app (`the-app.ts`, `graph-page.ts`, `recording.ts`), and small fixtures such as `toy-method.ts` and `ids.ts`. `locators.ts` is the registration every browser test loads.
+[src/test-helpers/](../src/test-helpers/) holds the code every level shares: the driver contract and its protocol drivers, the measures (including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion), staging and seed, the scenario file, step table and runner, [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which every `scenarios/` entry calls, the helpers that mount, open and read the app ([the-app.ts](../src/test-helpers/the-app.ts), [graph-page.ts](../src/test-helpers/graph-page.ts)), and small fixtures: [recording.ts](../src/test-helpers/recording.ts), a driver that records its calls, [toy-method.ts](../src/test-helpers/toy-method.ts) and [ids.ts](../src/test-helpers/ids.ts). [locators.ts](../src/test-helpers/locators.ts) is the registration every browser test loads.
 
 [Testing](standards/testing.md#levels) says what each level is and what runs it.
 
 ## `e2e/`
 
-[Where test code goes](standards/testing.md#where-test-code-goes) names the language, the `writer` fixture and the private-build fixture. Beyond them:
+[Where test code goes](standards/testing.md#where-test-code-goes) names the language ([journey.dsl.ts](../e2e/journey.dsl.ts)), the `writer` fixture ([writer.ts](../e2e/writer.ts)) and the private-build fixture ([private-build.ts](../e2e/private-build.ts)). Beyond them:
 
 | File | Holds |
 | --- | --- |
@@ -77,12 +77,13 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [.github/](../.github/) | The issue and pull request templates, and the workflows |
 | [.omp/](../.omp/) | The rules and settings OMP reads |
 | [.agents/](../.agents/) | The skills an agent uses: the repository's own, and weaver's, which `./do setup` installs |
+| [.vite-hooks/](../.vite-hooks/) | The git hooks, which call `./do precommit` and `./do commit-msg` |
 
 | File | Holds |
 | --- | --- |
 | [index.html](../index.html) | The page `src/main.ts` loads into |
-| [vite.config.ts](../vite.config.ts) | The build, including the service worker |
+| [vite.config.ts](../vite.config.ts) | The build, including the service worker, and the test, lint and format settings |
 | [.dependency-cruiser.mjs](../.dependency-cruiser.mjs) | The import rules `./do layers` enforces |
 | [do](../do) | The entry to every task |
 
-The other root files are configuration for a tool: `package.json`, `tsconfig.json`, `playwright.config.ts`, `stryker.*`, `renovate.json` and `pnpm-workspace.yaml`.
+The other root files are not code the app runs: the tests of the root configuration and of `./do` ([do.test.ts](../do.test.ts), [do.test.sh](../do.test.sh), [pnpm-workspace.test.ts](../pnpm-workspace.test.ts), [vite.config.test.ts](../vite.config.test.ts)), the docs ([README.md](../README.md), [AGENTS.md](../AGENTS.md), [CONTRIBUTING.md](../CONTRIBUTING.md)), the lockfile ([pnpm-lock.yaml](../pnpm-lock.yaml)), and configuration for a tool: [package.json](../package.json), [tsconfig.json](../tsconfig.json), [playwright.config.ts](../playwright.config.ts), [stryker.config.mjs](../stryker.config.mjs), [stryker.vitest.config.ts](../stryker.vitest.config.ts), [renovate.json](../renovate.json), [pnpm-workspace.yaml](../pnpm-workspace.yaml), [.node-version](../.node-version), [.gitignore](../.gitignore) and [.secretlintrc.json](../.secretlintrc.json).
