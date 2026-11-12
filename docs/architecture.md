@@ -57,7 +57,7 @@ start-up ──► any of the layers, and the method definition
 service worker ──► the built app, cached on the first load
 ```
 
-Start-up and the service worker are not layers.
+Start-up and the service worker are not layers, and neither is the method definition above.
 
 ### Start-up
 
