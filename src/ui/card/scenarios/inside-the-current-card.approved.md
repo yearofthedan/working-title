@@ -60,18 +60,3 @@ Then focus moves to the card
     - button "Open beside"
     - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
-
-### Scenario: a click on the card shows no keys
-
-```
-Given a beat card is current
-When the writer clicks the card
-Then focus moves to the card
-- main:
-  - group "Beat 2" [active]:
-    - heading "Beat 2" [level=3]
-    - text: One-sentence summary
-    - textbox "One-sentence summary"
-    - button "Add a scene"
-    - button "Open beside"
-```

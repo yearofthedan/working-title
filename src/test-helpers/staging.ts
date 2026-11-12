@@ -1,3 +1,4 @@
+import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
 import { stopTheApp } from './the-app';
 
@@ -21,6 +22,10 @@ export const root = (tag: string): HTMLElement => {
 
 export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
+};
+
+export const setStyleOn = (part: Locator, property: string, value: string): void => {
+  part.element().style.setProperty(property, value);
 };
 
 export const theViewport = async (width: number, height: number): Promise<void> => {

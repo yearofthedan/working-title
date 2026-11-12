@@ -71,7 +71,7 @@ const remember = (st: State): void => {
 
 const entryOf = (st: State, id: string): Entry | undefined => st.byId.get(id);
 
-const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
+const sizes: Sizes = { current: 560, gap: 32 };
 
 const paneOf = (st: State): Pane => {
   const mainTop = st.main.getBoundingClientRect().top;
@@ -258,9 +258,10 @@ const place = (st: State): void => {
   const pieces = st.entries;
   const pane = paneOf(st);
   const widthOf = (id: string): number =>
-    layoutWidthOf(st.entries, st.current, id, pane, sizes, (chip) =>
-      st.cards.get(chip)!.minWidth(),
-    );
+    layoutWidthOf(st.entries, st.current, id, pane, sizes, {
+      chip: (chip) => st.cards.get(chip)!.minWidth(),
+      card: (card) => st.cards.get(card)!.ownWidth(),
+    });
 
   const was = new Map([...st.cards].map(([id, card]) => [id, card.size()]));
 

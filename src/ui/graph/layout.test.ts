@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../application/project';
 import { treeOf } from './graph';
-import { centresOf, onScreen, slideFor, widthOf, type Pane, type Sizes } from './layout';
+import {
+  centresOf,
+  onScreen,
+  slideFor,
+  widthOf,
+  type Pane,
+  type Sizes,
+  type Widths,
+} from './layout';
 
 const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
   id: name,
@@ -32,7 +40,7 @@ const eightScenes = piece('The story', [
   ),
 ]);
 
-const sizes: Sizes = { current: 560, cards: [200, 180, 120], gap: 32 };
+const sizes: Sizes = { current: 560, gap: 32 };
 
 const pane = (over: Partial<Pane> = {}): Pane => ({
   width: 1440,
@@ -83,30 +91,38 @@ const storyHeights = {
 
 describe('the width of a piece', () => {
   const entries = treeOf(story);
-  const chip = (): number => 137;
+  const cardWidths: Readonly<Record<string, number>> = {
+    'The story': 240,
+    'Beat 2': 260,
+    'Line 1': 280,
+  };
+  const widths: Widths = {
+    chip: (): number => 137,
+    card: (id: string): number => cardWidths[id]!,
+  };
 
   it('gives the current piece the current width, or main when that is narrower', () => {
-    expect(widthOf(entries, 'Beat 2', 'Beat 2', pane(), sizes, chip)).toBe(560);
+    expect(widthOf(entries, 'Beat 2', 'Beat 2', pane(), sizes, widths)).toBe(560);
     expect(
-      widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400, mainWidth: 400 }), sizes, chip),
+      widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400, mainWidth: 400 }), sizes, widths),
     ).toBe(400);
   });
 
-  it('gives a card the width of its level, and the last width past the end', () => {
-    expect(widthOf(entries, 'Beat 2', 'The story', pane(), sizes, chip)).toBe(200);
-    expect(widthOf(entries, 'Scene 1', 'Line 1', pane(), sizes, chip)).toBe(120);
+  it('gives a card the width its own piece is given, so its level does not decide it', () => {
+    expect(widthOf(entries, 'Beat 2', 'The story', pane(), sizes, widths)).toBe(240);
+    expect(widthOf(entries, 'Scene 1', 'Line 1', pane(), sizes, widths)).toBe(280);
   });
 
   it('measures a chip', () => {
-    expect(widthOf(entries, 'Beat 2', 'Beat 1', pane(), sizes, chip)).toBe(137);
+    expect(widthOf(entries, 'Beat 2', 'Beat 1', pane(), sizes, widths)).toBe(137);
   });
 
-  it('measures a hidden piece at the card width of its shown ancestor’s level', () => {
-    expect(widthOf(entries, 'Beat 1', 'Scene 1', pane(), sizes, chip)).toBe(180);
+  it('measures a hidden piece at the width its shown ancestor is given', () => {
+    expect(widthOf(entries, 'Beat 1', 'Scene 1', pane(), sizes, widths)).toBe(260);
   });
 
-  it('gives a hidden piece that is its own shown ancestor the width of its own level', () => {
-    expect(widthOf(entries, 'Scene 1', 'The story', pane(), sizes, chip)).toBe(200);
+  it('gives a hidden piece that is its own shown ancestor the width of its own piece', () => {
+    expect(widthOf(entries, 'Scene 1', 'The story', pane(), sizes, widths)).toBe(240);
   });
 });
 

@@ -6,3 +6,6 @@ export const expectVisuallyShown = (part: Locator): Promise<void> =>
 
 export const expectVisuallyHidden = (part: Locator): Promise<void> =>
   expect.element(part).toHaveStyle({ opacity: '0' });
+
+export const expectRingDrawn = (part: Locator): Promise<void> =>
+  expect.element(part).toHaveStyle({ outlineStyle: 'solid' });

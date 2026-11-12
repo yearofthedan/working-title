@@ -8,6 +8,7 @@ import { cardLooks } from './card';
 import { theCard, timesDrawn } from './card.test-page';
 import {
   mountTheCard,
+  placeInTheMiddle,
   stageTheCard,
   stageTheCardUnfocused,
   theBeat,
@@ -97,13 +98,17 @@ describe('the card mounted alone', () => {
     expect(bottomOf(actions.addAScene.element())).toBeLessThanOrEqual(bottomOf(facet.element()));
   });
 
-  it('shows the keys without resizing the card', async () => {
+  it.each([
+    ['tabbing', () => writer.tabsForward()],
+    ['a click', () => writer.clicksTheCard()],
+  ])('shows the keys without resizing the card when focus arrives by %s', async (_how, arrive) => {
     const mounted = mountTheCard('current');
+    placeInTheMiddle(mounted);
     await theCardSettles();
     const unfocused = mounted.size();
     const { card, keys } = theCard(theBeat.name);
 
-    await writer.tabsForward();
+    await arrive();
 
     await expect.element(card).toHaveFocus();
     await expect.element(keys).toBeVisible();

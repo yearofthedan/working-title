@@ -23,9 +23,10 @@ import {
   recorded,
   startedTransitions,
 } from '../../test-helpers/graph-page';
+import { expectRingDrawn } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { narrowThePane, theViewport } from '../../test-helpers/staging';
+import { narrowThePane, setStyleOn, theViewport } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf } from '../card/card.test-page';
 import { type Writer } from './graph.dsl';
@@ -115,6 +116,34 @@ describe('the graph around the current piece', () => {
     expect(widthOf(graph.card('hidden', 'Scene 1').card.element())).toBe(
       widthOf(graph.card('chip', 'Beat 4').card.element()),
     );
+  });
+
+  it('draws a story card, a beat card and a scene card the same width', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+    await writer.clicks('Beat 4');
+    await settled();
+
+    expect(widthOf(graph.card('card', 'The story').card.element())).toBe(240);
+    expect(widthOf(graph.card('card', 'Scene 1').card.element())).toBe(240);
+
+    await writer.clicks('Scene 1');
+    await settled();
+
+    expect(widthOf(graph.card('card', 'Beat 4').card.element())).toBe(240);
+  });
+
+  it('takes every card’s width from the token on main, so redefining it changes them', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+
+    setStyleOn(graph.pane, '--card-width-short-facet', '20rem');
+    await writer.clicks('Beat 4');
+    await settled();
+
+    expect(widthOf(graph.card('card', 'The story').card.element())).toBe(320);
+    expect(widthOf(graph.card('card', 'Scene 1').card.element())).toBe(320);
+    expect(widthOf(graph.card('card', 'Scene 2').card.element())).toBe(320);
   });
 
   it('keeps a piece off the graph out of the tree and out of the tab order', async () => {
@@ -235,7 +264,7 @@ describe('the graph around the current piece', () => {
 
     expect(topOf(name)).toBeGreaterThanOrEqual(topOf(box));
     expect(bottomOf(name)).toBeLessThanOrEqual(bottomOf(box));
-    expect(widthOf(box)).toBeLessThan(180);
+    expect(widthOf(box)).toBeLessThan(240);
   });
 
   it("keeps the add button inside the current piece's card", async () => {
@@ -868,6 +897,22 @@ describe('moving the current piece', () => {
       .element(graph.card('current', 'The story').card)
       .toHaveAttribute('aria-current', 'location');
     await expect.element(graph.on('current').card).toHaveFocus();
+  });
+
+  it('draws the ring on the card whose name the writer clicks', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+    await writer.clicksTheNameOf('Beat 2');
+
+    await expectRingDrawn(graph.on('current').card);
+  });
+
+  it('draws the ring on the card the writer clicks at its border', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+    await writer.clicksTheBorderOf('Beat 2');
+
+    await expectRingDrawn(graph.on('current').card);
   });
 });
 
