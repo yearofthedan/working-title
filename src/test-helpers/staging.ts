@@ -10,7 +10,7 @@ export const thePage = async (width: number): Promise<Document> => {
   header.append(document.createElement('h1'));
   const main = document.createElement('main');
   main.style.width = `${width}px`;
-  document.body.append(header, main, document.createElement('aside'));
+  document.body.append(header, main);
   return document;
 };
 
@@ -38,10 +38,5 @@ export const aPageWithoutAMain = (): Document => {
 
 export const aPageWithoutAHeader = (): Document => {
   document.body.replaceChildren(document.createElement('main'));
-  return document;
-};
-
-export const aPageWithoutAnAside = (): Document => {
-  document.body.replaceChildren(document.createElement('header'), document.createElement('main'));
   return document;
 };

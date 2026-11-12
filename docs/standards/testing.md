@@ -14,7 +14,7 @@ Most cases are unit or component tests; a journey is kept for what only the buil
 | Level | File | Starts | Runs in | Written as | Uses |
 | --- | --- | --- | --- | --- | --- |
 | Unit | `*.test.ts` beside the code | the code it tests, alone | node | `describe`/`it` | the code it tests |
-| Component | `*.component.test.ts` beside a component | one component, mounted by its `*.harness.ts`. The app component's harness mounts the header, graph and panel together over a project in memory | Vitest browser mode | scenario files in its `scenarios/` folder, or `describe`/`it` for style, geometry or timing | its `*.test-page.ts`, its `*.dsl.ts`, and the Vitest driver |
+| Component | `*.component.test.ts` beside a component | one component, mounted by its `*.harness.ts`. The app component's harness mounts `renderApp` on the shell's header and main over a project in memory | Vitest browser mode | scenario files in its `scenarios/` folder, or `describe`/`it` for style, geometry or timing | its `*.test-page.ts`, its `*.dsl.ts`, and the Vitest driver |
 | Journey | `e2e/*.spec.ts`, since it drives the whole product and no one file owns it | the built app, with the browser's own storage | Playwright ([ADR 7](../adr/0007-playwright-for-browser-specs.md)) | scenario files in `e2e/`, played by `e2e/scenarios.spec.ts`, or `test` | `e2e/journey.dsl.ts`, the `writer` fixture, and the Playwright driver |
 
 - **A case is tested at the lowest level that can catch it.** Everything a unit test can reach is pushed down, where it runs in milliseconds and reads in one screen. A component test is for what only the rendered page shows. A journey is the last resort: it is worth its cost only where the built app, a driver, or the browser's own storage is what could break.

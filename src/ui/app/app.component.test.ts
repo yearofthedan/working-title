@@ -9,12 +9,7 @@ import { expectVisuallyHidden, expectVisuallyShown } from '../../test-helpers/lo
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { anInMemoryProject, holdingSaves } from '../../test-helpers/seed';
-import {
-  aPageWithoutAHeader,
-  aPageWithoutAMain,
-  aPageWithoutAnAside,
-  narrowThePane,
-} from '../../test-helpers/staging';
+import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
@@ -40,14 +35,6 @@ describe('starting the app', () => {
 
     await expect(renderApp(aPageWithoutAHeader(), project)).rejects.toThrow(
       'the page has no <header>',
-    );
-  });
-
-  it('refuses a page with no aside to open a piece beside', async () => {
-    const { project } = await anInMemoryProject();
-
-    await expect(renderApp(aPageWithoutAnAside(), project)).rejects.toThrow(
-      'the page has no <aside>',
     );
   });
 });
@@ -116,6 +103,17 @@ describe('what the app keeps', () => {
     await stage.reopen();
 
     await expect.element(theCard('The story').card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it('opens with nothing beside the graph when the page is drawn again', async () => {
+    const { stage, writer, sees } = pageWith();
+    await stage.fresh();
+    await writer.opensBeside('Beat 2');
+    await settled();
+
+    await stage.reopen();
+
+    await sees.noPanelIsOpen();
   });
 
   it('saves a sentence typed into a card after clicking it, read back by a fresh page', async () => {

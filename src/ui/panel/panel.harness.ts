@@ -1,5 +1,4 @@
 import type { OpenProject, PieceView } from '../../application/project';
-import { root } from '../../test-helpers/staging';
 import { thePanel, type Panel } from './panel.dom';
 
 export const theBeat: PieceView = {
@@ -20,10 +19,11 @@ export interface PanelHooks {
 }
 
 export const mountThePanel = (piece: PieceView = theBeat, hooks: PanelHooks = {}): Panel => {
-  const panel = thePanel(root('aside'), {
+  const panel = thePanel({
     elaborate: hooks.elaborate ?? (() => Promise.resolve()),
     close: hooks.close ?? (() => undefined),
   });
+  document.body.replaceChildren(panel.element);
   panel.open(piece);
   return panel;
 };

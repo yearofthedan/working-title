@@ -14,7 +14,8 @@ export interface Panel {
   isOpenOn(pieceId: string): boolean;
 }
 
-export const thePanel = (element: HTMLElement, hooks: PanelHooks): Panel => {
+export const thePanel = (hooks: PanelHooks): Panel => {
+  const element = document.createElement('aside');
   let openOn: string | undefined;
   let fields = new Map<string, HTMLTextAreaElement>();
 
