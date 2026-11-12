@@ -7,69 +7,54 @@ working-title is a web app that runs entirely in the writer's desktop browser. T
 
 ## The layers
 
-Dependencies point inward ([ADR 2](adr/0002-hexagonal-layers.md)).
+The code is split into layers, and dependencies point inward ([ADR 2](adr/0002-hexagonal-layers.md)): the UI calls only the application, the application and the adapters meet only at the ports, and the domain depends on nothing outside itself. Where each layer's folder is: [project structure](project-structure.md#the-parts).
 
 ```
 UI ──► application ──► domain
             │
-          ports
-            │
-   browser working copy ──► folder mirror
+            ▼
+          ports ◄── adapters
 ```
 
 ### UI
 
-What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Its folder is `src/ui/`; why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
 
 ### Application
 
-The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. Its folder is `src/application/`.
+The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports.
 
 ### Domain
 
-Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/`.
+Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself.
 
 ### Ports
 
-What the application asks of storage. Its folder is `src/ports/`.
+What the application asks of storage.
 
-### Browser working copy
+### Adapters
 
-Where every change is saved first, so typing never waits on a file. Its folder is `src/adapters/`.
-
-### Folder mirror
-
-The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet.
-
-## Method definition
-
-```
-domain ◄── method definition
-```
-
-Not a layer. Snowflake, extended, as data the engine reads. The code never names a method. Its folder is `src/methods/` ([ADR 5](adr/0005-method-as-data.md)).
+What implements the ports. The **browser working copy** is where every change is saved first, so typing never waits on a file. The **folder mirror** is the writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost; it is not built yet. How the two fit together is under [Persistence](#problems-solved).
 
 ## Outside the layers
 
-```
-start-up ──► any of the layers, and the method definition
+The method definition, start-up and the service worker are not layers.
 
-service worker ──► the built app, cached on the first load
-```
+### Method definition
 
-Start-up and the service worker are not layers, and neither is the method definition above.
+Snowflake, extended, as data the engine reads. The code never names a method ([ADR 5](adr/0005-method-as-data.md)).
 
 ### Start-up
 
-Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts`.
+Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
 
 ### Service worker
 
-Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. Its setting is in `vite.config.ts`.
+Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice.
 
 ## Development environment
 
-The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds. Its folders are `scripts/`, `.omp/` and `.github/workflows/`.
+The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds.
 
 ## Problems solved
 
