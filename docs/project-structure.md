@@ -1,7 +1,7 @@
-# Repository structure
+# Project structure
 
 **Audience:** anyone looking for where a file lives, or deciding where a new one goes.
-**Purpose:** maps the code repository's folders and the suffixes of the files in them. The glossary's **project** is the writer's novel, so this page says repository for the code.
+**Purpose:** maps the code repository's folders and the suffixes of the files in them. The glossary's **project** is the writer's novel, so the page's name is the only place it says project for the code; the text says repository.
 
 ## The parts
 
