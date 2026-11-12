@@ -165,7 +165,7 @@ describe('the path in the header', () => {
 });
 
 describe('the arrow keys on the page', () => {
-  it('moves to the next beat with nothing focused right after the app opens', async () => {
+  it('moves to the next beat with nothing focused, right after the app opens and after clicking away', async () => {
     const { stage, writer } = pageWith();
     await stage.fresh();
 
