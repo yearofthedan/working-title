@@ -45,8 +45,11 @@ export const stageTheCard = async (): Promise<void> => {
   mountTheCard('current').focus();
 };
 
-export const stageTheCardUnfocused = async (): Promise<void> => {
-  const card = mountTheCard('current');
+export const placeInTheMiddle = (card: Card): void => {
   const main = document.querySelector('main')!;
   card.placeAt(main.clientWidth / 2, main.clientHeight / 2);
+};
+
+export const stageTheCardUnfocused = async (): Promise<void> => {
+  placeInTheMiddle(mountTheCard('current'));
 };

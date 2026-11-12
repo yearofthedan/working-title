@@ -23,6 +23,7 @@ import {
   recorded,
   startedTransitions,
 } from '../../test-helpers/graph-page';
+import { expectRingDrawn } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { narrowThePane, setStyleOn, theViewport } from '../../test-helpers/staging';
@@ -896,6 +897,22 @@ describe('moving the current piece', () => {
       .element(graph.card('current', 'The story').card)
       .toHaveAttribute('aria-current', 'location');
     await expect.element(graph.on('current').card).toHaveFocus();
+  });
+
+  it('draws the ring on the card whose name the writer clicks', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+    await writer.clicksTheNameOf('Beat 2');
+
+    await expectRingDrawn(graph.on('current').card);
+  });
+
+  it('draws the ring on the card the writer clicks at its border', async () => {
+    const { stage, writer } = graphWith(2);
+    await stage.fresh();
+    await writer.clicksTheBorderOf('Beat 2');
+
+    await expectRingDrawn(graph.on('current').card);
   });
 });
 

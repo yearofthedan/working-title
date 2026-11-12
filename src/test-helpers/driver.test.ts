@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { markingFocus, type Focus } from './driver';
+import { clicking, markingFocus, type Finds, type Focus, type Point } from './driver';
 
 const tree = [
   '- main:',
@@ -53,5 +53,28 @@ describe('marking what holds focus in a tree', () => {
 
   it('leaves a tree with no focus as it was printed', () => {
     expect(markingFocus(tree, undefined)).toEqual(tree);
+  });
+});
+
+describe('clicking a part', () => {
+  const clicksSeenBy = async (at?: Point): Promise<unknown[]> => {
+    const seen: unknown[] = [];
+    const part = {
+      click: (options?: unknown): Promise<void> => {
+        seen.push(options);
+        return Promise.resolve();
+      },
+    };
+    const page = { getByRole: () => ({ ...part, getByRole: () => part }) } as unknown as Finds;
+    await clicking(page)('group', 'Beat 2', undefined, at);
+    return seen;
+  };
+
+  it('clicks at the point it is given', async () => {
+    expect(await clicksSeenBy({ x: 0, y: 16 })).toEqual([{ position: { x: 0, y: 16 } }]);
+  });
+
+  it('clicks the middle of the part when it is given no point', async () => {
+    expect(await clicksSeenBy()).toEqual([undefined]);
   });
 });
