@@ -11,10 +11,10 @@
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
 | [src/ports/](../src/ports/) | Ports |
-| [src/adapters/](../src/adapters/) | Browser working copy |
+| [src/adapters/](../src/adapters/) | Adapters: the browser working copy |
 | [src/methods/](../src/methods/) | Method definition |
 
-The [Parts table](architecture.md#parts) says what each part is, what it may import and why it is shaped that way.
+The [layers](architecture.md#the-layers), the [method definition](architecture.md#method-definition) and what sits [outside the layers](architecture.md#outside-the-layers) are described in the architecture page: what each is, what it may import and why it is shaped that way.
 
 ## A component's folder
 
