@@ -23,7 +23,7 @@ service worker ──► the built app, cached on the first load
 
 ### The layers
 
-Dependencies point inward. The method definition is not a layer: it is data the domain's engine reads.
+Dependencies point inward.
 
 #### UI
 
@@ -37,10 +37,6 @@ The use cases (move, elaborate, branch, link, capture) and queries (next moves, 
 
 Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/` ([ADR 2](adr/0002-hexagonal-layers.md)).
 
-#### Method definition
-
-Snowflake, extended, as data the engine reads. The code never names a method. Its folder is `src/methods/` ([ADR 5](adr/0005-method-as-data.md)).
-
 #### Ports
 
 What the application asks of storage. Its folder is `src/ports/` ([ADR 2](adr/0002-hexagonal-layers.md)).
@@ -52,6 +48,10 @@ Where every change is saved first, so typing never waits on a file. Its folder i
 #### Folder mirror
 
 The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+
+### Method definition
+
+Not a layer. Snowflake, extended, as data the engine reads. The code never names a method. Its folder is `src/methods/` ([ADR 5](adr/0005-method-as-data.md)).
 
 ### Outside the layers
 
@@ -71,7 +71,7 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** The writer's work is saved in the browser first and mirrored to a folder they choose once the mirror is built. It spans ports, the browser working copy and the folder mirror, and until the mirror exists the browser copy is the only one ([ADR 1](adr/0001-no-backend-in-v1.md), [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+- **Persistence.** The writer's work is saved in the browser as they type and, once the mirror is built, mirrored to a folder they choose, one Markdown file per piece. It spans ports, the browser working copy and the folder mirror. Until the mirror exists the browser copy is the only one ([ADR 1](adr/0001-no-backend-in-v1.md), [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
 
 ## Constraints
 
