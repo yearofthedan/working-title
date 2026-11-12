@@ -16,7 +16,7 @@ UI ──► application ──► domain ◄── method definition
             │
    browser working copy ──► folder mirror
 
-start-up ──► any of the layers
+start-up ──► any of the layers, and the method definition
 
 service worker ──► the built app, cached on the first load
 ```
@@ -59,7 +59,7 @@ Start-up and the service worker are not layers.
 
 #### Start-up
 
-Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts` ([ADR 2](adr/0002-hexagonal-layers.md)).
+Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts` ([ADR 2](adr/0002-hexagonal-layers.md)).
 
 #### Service worker
 
