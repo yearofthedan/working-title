@@ -7,7 +7,7 @@ working-title is a web app that runs entirely in the writer's desktop browser. T
 
 ## The layers
 
-Dependencies point inward.
+Dependencies point inward ([ADR 2](adr/0002-hexagonal-layers.md)).
 
 ```
 UI ──► application ──► domain
@@ -19,27 +19,27 @@ UI ──► application ──► domain
 
 ### UI
 
-What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Its folder is `src/ui/` ([ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md)).
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Its folder is `src/ui/`; why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
 
 ### Application
 
-The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. Its folder is `src/application/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. Its folder is `src/application/`.
 
 ### Domain
 
-Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/`.
 
 ### Ports
 
-What the application asks of storage. Its folder is `src/ports/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+What the application asks of storage. Its folder is `src/ports/`.
 
 ### Browser working copy
 
-Where every change is saved first, so typing never waits on a file. Its folder is `src/adapters/` ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md)).
+Where every change is saved first, so typing never waits on a file. Its folder is `src/adapters/`.
 
 ### Folder mirror
 
-The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet.
 
 ## Method definition
 
@@ -61,11 +61,11 @@ Start-up and the service worker are not layers, and neither is the method defini
 
 ### Start-up
 
-Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts` ([ADR 2](adr/0002-hexagonal-layers.md)).
+Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts`.
 
 ### Service worker
 
-Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. Its setting is in `vite.config.ts` ([ADR 1](adr/0001-no-backend-in-v1.md)).
+Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. Its setting is in `vite.config.ts`.
 
 ## Development environment
 
@@ -73,7 +73,7 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** The writer's work is saved in the browser as they type and, once the mirror is built, mirrored to a folder they choose, one Markdown file per piece. It spans ports, the browser working copy and the folder mirror. Until the mirror exists the browser copy is the only one ([ADR 1](adr/0001-no-backend-in-v1.md), [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+- **Persistence.** The writer's work is saved in the browser as they type and, once the mirror is built, mirrored to a folder they choose, one Markdown file per piece. It spans ports, the browser working copy and the folder mirror. Until the mirror exists the browser copy is the only one ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
 
 ## Constraints
 
