@@ -55,7 +55,7 @@ Opens the project with the method and the browser working copy and calls `render
 
 ### Service worker
 
-Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. It is `vite.config.ts` ([ADR 1](adr/0001-no-backend-in-v1.md)).
+Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. Its setting is in `vite.config.ts` ([ADR 1](adr/0001-no-backend-in-v1.md)).
 
 ## Development environment
 
@@ -63,7 +63,7 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** The writer's work is saved in the browser as they type and mirrored to a folder they choose, so a crash or a cleared store loses little and the copy stays theirs to read elsewhere. It spans ports, the browser working copy and the folder mirror, and the folder holds one Markdown file per piece. The mirror is not built yet ([ADR 1](adr/0001-no-backend-in-v1.md), [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+- **Persistence.** The writer's work is saved in the browser first and mirrored to a folder they choose once the mirror is built. It spans ports, the browser working copy and the folder mirror, and until the mirror exists the browser copy is the only one ([ADR 1](adr/0001-no-backend-in-v1.md), [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
 
 ## Constraints
 
