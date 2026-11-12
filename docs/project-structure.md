@@ -14,7 +14,7 @@
 | [src/adapters/](../src/adapters/) | Browser working copy |
 | [src/methods/](../src/methods/) | Method definition |
 
-The [Parts table](architecture.md#parts) says what each part is, what it may import and why it is shaped that way.
+The [Parts](architecture.md#parts) section says what each part is, what it may import and why it is shaped that way.
 
 ## A component's folder
 
