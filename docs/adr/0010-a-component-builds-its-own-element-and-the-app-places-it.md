@@ -29,7 +29,7 @@ Handing every component a container to fill loses on all three: the parent choos
 
 - A component's harness creates the component and appends its element, so the app and the harness mount a component the same way.
 - The app holds where each component goes. A component is placed without changing it, and its markup is read whole in its own file.
-- The app owns every placement, so a component that needs its parent to exist before it can draw, such as one that measures itself, is drawn after the app places it, in a step of its own.
+- A component that measures itself can do so only once its element is attached to the document, so whoever creates it places it first and then asks it to draw, and its harness does the same. That is a second step to remember, and it asks only that the element be in the document, not where.
 - Ruled out: a component that knows where it is placed, and a parent choosing a component's root element.
 - What would show the rule is wrong: a parent wrapping a component's element in a host of its own to place it, or a component that needs to know where it is placed to work.
 - No check enforces the rule.
