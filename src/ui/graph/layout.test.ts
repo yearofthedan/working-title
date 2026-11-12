@@ -44,7 +44,6 @@ const sizes: Sizes = { current: 560, gap: 32 };
 
 const pane = (over: Partial<Pane> = {}): Pane => ({
   width: 1440,
-  mainWidth: 1440,
   middle: 450,
   ...over,
 });
@@ -103,9 +102,7 @@ describe('the width of a piece', () => {
 
   it('gives the current piece the current width, or main when that is narrower', () => {
     expect(widthOf(entries, 'Beat 2', 'Beat 2', pane(), sizes, widths)).toBe(560);
-    expect(
-      widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400, mainWidth: 400 }), sizes, widths),
-    ).toBe(400);
+    expect(widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400 }), sizes, widths)).toBe(400);
   });
 
   it('gives a card the width its own piece is given, so its level does not decide it', () => {
@@ -267,7 +264,7 @@ describe('where the pieces are centred', () => {
     expect(inside.get('Scene 1')).toEqual({ x: 188, y: 632 });
     expect(inside.get('Scene 8')).toEqual({ x: 1252, y: 632 });
 
-    const cut = centresOf(row, 'Beat 4', size, pane({ width: 1100, mainWidth: 1100 }), sizes);
+    const cut = centresOf(row, 'Beat 4', size, pane({ width: 1100 }), sizes);
     const left = cut.get('Scene 1')!.x - 60;
     const right = cut.get('Scene 8')!.x + 60;
     expect(left).toBe(-42);

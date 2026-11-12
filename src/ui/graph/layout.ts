@@ -12,7 +12,6 @@ export interface Widths {
 
 export interface Pane {
   readonly width: number;
-  readonly mainWidth: number;
   readonly middle: number;
 }
 
@@ -25,7 +24,7 @@ export const widthOf = (
   widths: Widths,
 ): number => {
   const kind = drawnAs(entries, current, id);
-  if (kind === 'current') return Math.min(sizes.current, pane.mainWidth);
+  if (kind === 'current') return Math.min(sizes.current, pane.width);
   if (kind === 'chip') return widths.chip(id);
   return widths.card(shownAncestor(entries, current, id).piece.id);
 };

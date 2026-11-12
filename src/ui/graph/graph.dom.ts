@@ -30,6 +30,9 @@ export interface GraphHooks {
 }
 
 export interface Graph {
+  readonly element: HTMLElement;
+  draw(): Promise<void>;
+  keys(event: KeyboardEvent): void;
   goTo(pieceId: string): void;
   show(pieceId: string, facetId: string, text: string): void;
   showOpen(pieceId: string): void;
@@ -46,8 +49,7 @@ const arrowKeys: Readonly<Record<string, 'up' | 'down' | 'left' | 'right'>> = {
 
 interface State {
   readonly hooks: GraphHooks;
-  readonly main: HTMLElement;
-  readonly wrapper: HTMLElement;
+  readonly element: HTMLElement;
   readonly signal: AbortSignal;
   root: PieceView;
   current: string;
@@ -74,11 +76,10 @@ const entryOf = (st: State, id: string): Entry | undefined => st.byId.get(id);
 const sizes: Sizes = { current: 560, gap: 32 };
 
 const paneOf = (st: State): Pane => {
-  const mainTop = st.main.getBoundingClientRect().top;
+  const top = st.element.getBoundingClientRect().top;
   return {
-    width: st.wrapper.clientWidth,
-    mainWidth: st.main.clientWidth,
-    middle: window.innerHeight / 2 - mainTop,
+    width: st.element.clientWidth,
+    middle: window.innerHeight / 2 - top,
   };
 };
 
@@ -112,7 +113,7 @@ const moved = (st: State): void => {
 };
 
 const skipToEnd = (st: State): void => {
-  for (const animation of st.wrapper.getAnimations({ subtree: true })) animation.finish();
+  for (const animation of st.element.getAnimations({ subtree: true })) animation.finish();
 };
 
 const watch = (st: State): void => {
@@ -124,7 +125,7 @@ const watch = (st: State): void => {
     st.replacing = true;
     const placeWhenStill = (): void => {
       if (st.signal.aborted) return;
-      const running = st.wrapper
+      const running = st.element
         .getAnimations({ subtree: true })
         .filter((animation) => animation.playState === 'running');
       if (running.length === 0) {
@@ -137,7 +138,7 @@ const watch = (st: State): void => {
     };
     placeWhenStill();
   });
-  st.watcher.observe(st.main);
+  st.watcher.observe(st.element);
   current.observe(st.watcher);
   st.watching = current;
 };
@@ -169,19 +170,22 @@ const keepOrder = (container: HTMLElement, wanted: readonly HTMLElement[]): void
 const rowOf = (st: State, id: string | undefined): Row | undefined =>
   id === undefined ? undefined : st.rows.find((row) => row.ids.includes(id));
 
-const cursorCard = (st: State): Card | null => {
-  const at = document.activeElement;
-  const element = at instanceof Element ? at.closest<HTMLElement>('fieldset') : null;
-  const card = element === null ? undefined : st.cards.get(element.dataset.piece ?? '');
-  return card === undefined || card === st.cards.get(st.current) ? null : card;
+const pieceHolding = (st: State, node: EventTarget | null): string | undefined => {
+  if (!(node instanceof Node)) return undefined;
+  for (const [id, card] of st.cards) if (card.contains(node)) return id;
+  return undefined;
+};
+
+const cursorPiece = (st: State): string | undefined => {
+  const id = pieceHolding(st, document.activeElement);
+  return id === st.current ? undefined : id;
 };
 
 const slide = (st: State): void => {
-  const card = cursorCard(st);
-  const id = card === null ? undefined : card.element.dataset.piece;
+  const id = cursorPiece(st);
   const row = rowOf(st, id);
   const here = id === undefined ? undefined : st.places.get(id);
-  const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
+  const pane = { width: st.element.clientWidth, height: st.element.clientHeight };
   const offset = here === undefined ? 0 : (slideFor(here, pane) ?? 0);
   for (const [pieceId, box] of st.places) {
     const target = st.cards.get(pieceId);
@@ -216,7 +220,7 @@ const setRoving = (st: State): void => {
 };
 
 const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
-  const pane = { width: st.main.clientWidth, height: st.main.clientHeight };
+  const pane = { width: st.element.clientWidth, height: st.element.clientHeight };
   const showable = new Set<string>();
   const off: Card[] = [];
   for (const { piece } of st.entries) {
@@ -235,7 +239,7 @@ const arrangeRows = (st: State, places: ReadonlyMap<string, Box>): void => {
   st.places = places;
   st.rows = rowsAround(st.entries, st.current);
 
-  keepOrder(st.wrapper, [
+  keepOrder(st.element, [
     ...st.rows.map((row) => rowElement(st, row)),
     ...off.map((card) => card.element),
   ]);
@@ -283,7 +287,7 @@ const place = (st: State): void => {
     card.setWidth(from.w);
     card.setHeight(from.h);
   }
-  void st.wrapper.offsetWidth;
+  void st.element.offsetWidth;
   for (const { piece } of pieces) {
     const card = st.cards.get(piece.id)!;
     card.afterMeasuring();
@@ -322,7 +326,7 @@ const place = (st: State): void => {
 const draw = (st: State): void => {
   remember(st);
   st.cards.clear();
-  st.wrapper.replaceChildren(
+  st.element.replaceChildren(
     ...st.entries.map(({ piece }) => {
       const card = cardFor(st, piece);
       st.cards.set(piece.id, card);
@@ -343,7 +347,7 @@ const addUnder = async (st: State, pieceId: string): Promise<void> => {
   const under = entry.parentId === undefined ? undefined : st.cards.get(entry.parentId);
   if (under !== undefined) card.startAt(under);
   st.cards.set(added, card);
-  st.wrapper.append(card.element);
+  st.element.append(card.element);
   moveTo(st, added);
   card.enter();
 };
@@ -357,17 +361,16 @@ const keysOn = (st: State): ((event: KeyboardEvent) => void) => {
     if (where === undefined) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
-    const element = target instanceof Element ? target.closest<HTMLElement>('fieldset') : null;
-    const row = element === null ? undefined : rowOf(st, element.dataset.piece);
+    const focused = pieceHolding(st, target);
+    const row = rowOf(st, focused);
     if (
-      element !== null &&
-      element !== st.cards.get(st.current)?.element &&
+      focused !== undefined &&
+      focused !== st.current &&
       row !== undefined &&
       !row.ids.includes(st.current)
     ) {
       if (where === 'up' || where === 'down') return;
-      const id = element.dataset.piece;
-      const to = id === undefined ? undefined : along(row, id, where);
+      const to = along(row, focused, where);
       if (to !== undefined) goTo(st, to);
       return;
     }
@@ -386,19 +389,13 @@ const focusOn = (st: State): (() => void) => {
   return onFocusMove;
 };
 
-export const renderGraph = async (
-  main: HTMLElement,
-  root: PieceView,
-  hooks: GraphHooks,
-): Promise<Graph> => {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'graph';
-  main.replaceChildren(wrapper);
+export const renderGraph = (root: PieceView, hooks: GraphHooks): Graph => {
+  const element = document.createElement('div');
+  element.className = 'graph';
   const controller = new AbortController();
   const st: State = {
     hooks,
-    main,
-    wrapper,
+    element,
     signal: controller.signal,
     root,
     current: root.id,
@@ -414,13 +411,18 @@ export const renderGraph = async (
     watching: undefined,
     replacing: false,
   };
-  document.addEventListener('keydown', keysOn(st), { signal: controller.signal });
+  const keys = keysOn(st);
+  element.addEventListener('keydown', keys, { signal: controller.signal });
   const onFocusMove = focusOn(st);
-  document.addEventListener('focusin', onFocusMove, { signal: controller.signal });
-  document.addEventListener('focusout', onFocusMove, { signal: controller.signal });
-  await document.fonts.ready;
-  draw(st);
+  element.addEventListener('focusin', onFocusMove, { signal: controller.signal });
+  element.addEventListener('focusout', onFocusMove, { signal: controller.signal });
   return {
+    element,
+    draw: async () => {
+      await document.fonts.ready;
+      draw(st);
+    },
+    keys,
     goTo: (pieceId) => goTo(st, pieceId),
     show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),
     showOpen: (pieceId) => {

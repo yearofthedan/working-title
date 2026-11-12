@@ -22,7 +22,7 @@ const stopTheGraphs = (): void => {
 
 const drawOn = async (main: HTMLElement, project: OpenProject): Promise<void> => {
   let held = project;
-  const graph = await renderGraph(main, held.root, {
+  const graph = renderGraph(held.root, {
     moved: () => undefined,
     elaborate: (pieceId, facetId, text) => held.elaborate(pieceId, facetId, text),
     branch: async (pieceId) => {
@@ -32,6 +32,8 @@ const drawOn = async (main: HTMLElement, project: OpenProject): Promise<void> =>
     },
     toggleBeside: () => undefined,
   });
+  main.replaceChildren(graph.element);
+  await graph.draw();
   stops.push(() => graph.stop());
   drawn = { main, project: () => held };
 };
