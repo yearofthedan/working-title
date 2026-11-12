@@ -29,8 +29,6 @@ export const renderApp = async (
   if (header === null) throw new Error('the page has no <header>');
   const main = page.querySelector<HTMLElement>('main');
   if (main === null) throw new Error('the page has no <main>');
-  const element = page.querySelector<HTMLElement>('aside');
-  if (element === null) throw new Error('the page has no <aside>');
   let held = project;
   let open: string | undefined;
 
@@ -49,7 +47,8 @@ export const renderApp = async (
     if (id !== undefined) graph?.closedBeside(id);
   };
 
-  const panel = thePanel(element, { elaborate: relay, close: closeBeside });
+  const panel = thePanel({ elaborate: relay, close: closeBeside });
+  main.after(panel.element);
 
   const pathNav = (path: readonly PieceView[]): void => {
     let nav = header.querySelector('nav');
@@ -99,5 +98,8 @@ export const renderApp = async (
 
   if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
 
-  return () => graph.stop();
+  return () => {
+    graph.stop();
+    panel.element.remove();
+  };
 };

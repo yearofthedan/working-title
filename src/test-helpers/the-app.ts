@@ -35,11 +35,9 @@ export const reopenTheApp = async (): Promise<void> => {
   const freshMain = document.createElement('main');
   freshMain.style.width = width;
   if (label !== null && label !== undefined) freshMain.setAttribute('aria-label', label);
-  const aside = document.createElement('aside');
 
   document.querySelector('header')?.replaceWith(header);
   main?.replaceWith(freshMain);
-  document.querySelector('aside')?.replaceWith(aside);
 
   await openTheApp();
 };

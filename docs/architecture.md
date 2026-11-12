@@ -46,7 +46,7 @@ Snowflake, extended, as data the engine reads. The code never names a method ([A
 
 ### Start-up
 
-Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
+Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header and main, places the panel it builds beside main, draws the app and returns the function that stops it ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
 
 ### Service worker
 
