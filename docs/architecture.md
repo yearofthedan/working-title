@@ -18,15 +18,15 @@ UI ──► application ──► domain
 
 ### UI
 
-What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
 
 ### Application
 
-The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports.
+The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here).
 
 ### Domain
 
-Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself.
+Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language.
 
 ### Ports
 
@@ -34,7 +34,7 @@ What the application asks of storage.
 
 ### Adapters
 
-What implements the ports. The **browser working copy** is where every change is saved first, so typing never waits on a file. The **folder mirror** is the writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost; it is not built yet. How the two fit together is under [Persistence](#problems-solved).
+The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder mirror** is the writer's own copy, written in the background from the working copy, one Markdown file per piece, and the source the app restores from when browser storage is lost; it is not built yet.
 
 ## Outside the layers
 
@@ -42,7 +42,7 @@ The method definition, start-up and the service worker are not layers.
 
 ### Method definition
 
-Snowflake, extended, as data the engine reads. The code never names a method ([ADR 5](adr/0005-method-as-data.md)).
+Snowflake, extended, as data the engine reads. The code never names a method ([ADR 5](adr/0005-method-as-data.md)). It is built on the domain's types, so a change to the domain can break it.
 
 ### Start-up
 
@@ -58,7 +58,7 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** The writer's work is saved in the browser as they type and, once the mirror is built, mirrored to a folder they choose, one Markdown file per piece. It spans ports, the browser working copy and the folder mirror. Until the mirror exists the browser copy is the only one ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+- **Persistence.** Spans the ports, the browser working copy and the folder mirror. Until the mirror is built the browser copy is the only copy ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
 
 ## Constraints
 
