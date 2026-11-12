@@ -7,3 +7,5 @@ Needs Node.js 26 and pnpm, which [`corepack enable`](https://nodejs.org/api/core
 Run `./do setup` once per machine. It installs Ponytail and the [dev-skills plugin](https://github.com/yearofthedan/snippets/tree/main/plugins/dev-skills), which the build work runs under, into your OMP.
 
 How a story is written, agreed and implemented: [docs/dev-flow.md](docs/dev-flow.md).
+
+Where each folder and file suffix lives: [docs/project-structure.md](docs/project-structure.md).

@@ -10,6 +10,7 @@
 | [product.md](product.md) | What the product is for, and its design principles |
 | [domain/](domain/) | The writer's world: the [ubiquitous language](domain/ubiquitous-language.md) and each method's design |
 | [architecture.md](architecture.md) | The shape of the system |
+| [project-structure.md](project-structure.md) | Where each folder and file suffix lives |
 | [adr/](adr/README.md) | Why each architecture decision was made |
 | [standards/](standards/README.md) | The conventions a change has to satisfy |
 | [dev-flow.md](dev-flow.md) | The builder's page for writing, agreeing and implementing a story. The agent's side, with the build rules and the definition of done, is the plugin's [implement skill](https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/skills/implement/SKILL.md) |
