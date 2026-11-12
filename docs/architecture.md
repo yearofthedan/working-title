@@ -5,63 +5,65 @@
 
 working-title is a web app that runs entirely in the writer's desktop browser. The writer's work is saved in browser storage as they type and mirrored in the background to a folder they choose, as readable Markdown. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
 
-## Parts
+## The layers
 
-The layers, and what sits outside them:
+Dependencies point inward.
 
 ```
-UI ──► application ──► domain ◄── method definition
+UI ──► application ──► domain
             │
           ports
             │
    browser working copy ──► folder mirror
+```
 
+### UI
+
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Its folder is `src/ui/` ([ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md)).
+
+### Application
+
+The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. Its folder is `src/application/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+
+### Domain
+
+Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+
+### Ports
+
+What the application asks of storage. Its folder is `src/ports/` ([ADR 2](adr/0002-hexagonal-layers.md)).
+
+### Browser working copy
+
+Where every change is saved first, so typing never waits on a file. Its folder is `src/adapters/` ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md)).
+
+### Folder mirror
+
+The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+
+## Method definition
+
+```
+domain ◄── method definition
+```
+
+Not a layer. Snowflake, extended, as data the engine reads. The code never names a method. Its folder is `src/methods/` ([ADR 5](adr/0005-method-as-data.md)).
+
+## Outside the layers
+
+```
 start-up ──► any of the layers, and the method definition
 
 service worker ──► the built app, cached on the first load
 ```
 
-### The layers
-
-Dependencies point inward.
-
-#### UI
-
-What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. Its folder is `src/ui/` ([ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md)).
-
-#### Application
-
-The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. Its folder is `src/application/` ([ADR 2](adr/0002-hexagonal-layers.md)).
-
-#### Domain
-
-Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. Its folder is `src/domain/` ([ADR 2](adr/0002-hexagonal-layers.md)).
-
-#### Ports
-
-What the application asks of storage. Its folder is `src/ports/` ([ADR 2](adr/0002-hexagonal-layers.md)).
-
-#### Browser working copy
-
-Where every change is saved first, so typing never waits on a file. Its folder is `src/adapters/` ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md)).
-
-#### Folder mirror
-
-The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. It is not built yet ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
-
-### Method definition
-
-Not a layer. Snowflake, extended, as data the engine reads. The code never names a method. Its folder is `src/methods/` ([ADR 5](adr/0005-method-as-data.md)).
-
-### Outside the layers
-
 Start-up and the service worker are not layers.
 
-#### Start-up
+### Start-up
 
 Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header, main and panel, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. It is `src/app.ts`, entered from `src/main.ts` ([ADR 2](adr/0002-hexagonal-layers.md)).
 
-#### Service worker
+### Service worker
 
 Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. Its setting is in `vite.config.ts` ([ADR 1](adr/0001-no-backend-in-v1.md)).
 
