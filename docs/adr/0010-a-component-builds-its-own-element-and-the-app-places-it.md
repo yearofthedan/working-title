@@ -7,7 +7,7 @@ Status: Proposed, 2026-11-12
 Where does a component's root element come from?
 
 - **A piece's element.** A piece is a named boundary in the accessibility tree, and its element says what it is ([the markup standard](../standards/markup.md)). A component handed a container draws into an element it did not choose, which is then its root; one that builds its element chooses its own tag and role.
-- **Moving pieces.** The app decides where each part of the page sits: the header, the graph in `main`, and the panel beside it ([architecture: parts](../architecture.md#parts)). A component's root is the element that moves when a part does.
+- **Moving pieces.** The app decides where each part of the page sits: the header, the graph in `main`, and the panel beside it ([architecture: UI](../architecture.md#ui)). A component's root is the element that moves when a part does.
 - **Tests.** A component is tested alone, mounted by its `*.harness.ts` ([the testing standard](../standards/testing.md)). Whatever container a component takes from its parent, its harness has to supply, and keep in step with the one the app supplies.
 
 ## Options considered

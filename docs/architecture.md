@@ -5,30 +5,60 @@
 
 working-title is a web app that runs entirely in the writer's desktop browser. The writer's work is saved in browser storage as they type and mirrored in the background to a folder they choose, as readable Markdown. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
 
-## Parts
+## The layers
+
+The code is split into layers, and dependencies point inward ([ADR 2](adr/0002-hexagonal-layers.md)): the UI calls only the application, the application and the adapters meet only at the ports, and the domain depends on nothing outside itself. Where each layer's folder is: [project structure](project-structure.md#the-parts).
 
 ```
-UI ──► application ──► domain ◄── method definition
+UI ──► application ──► domain
             │
-          ports
-            │
-   browser working copy ──► folder mirror
-
-service worker ──► the built app, cached on the first load
+            ▼
+          ports ◄── adapters
 ```
 
-| Part | What it is | Where | Decided by |
-| --- | --- | --- | --- |
-| UI | What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. The UI calls only the application. | `src/ui/` | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md) |
-| Application | The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here). It reaches storage only through ports. | `src/application/` | [ADR 2](adr/0002-hexagonal-layers.md) |
-| Domain | Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language. It depends on nothing outside itself. | `src/domain/` | [ADR 2](adr/0002-hexagonal-layers.md) |
-| Method definition | Snowflake, extended, as data the engine reads. The code never names a method. | `src/methods/` | [ADR 5](adr/0005-method-as-data.md) |
-| Ports | What the application asks of storage. | `src/ports/` | [ADR 2](adr/0002-hexagonal-layers.md) |
-| Browser working copy | Where every change is saved first, so typing never waits on a file. | `src/adapters/` | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md) |
-| Folder mirror | The writer's own copy, one Markdown file per piece, and the source the app restores from when browser storage is lost. | not built yet | [ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md) |
-| Start-up | Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header and main, draws the app and returns the function that stops it. It sits outside the layers, so it may import each of them. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it | `src/app.ts`, entered from `src/main.ts` | [ADR 2](adr/0002-hexagonal-layers.md), [ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md) |
-| Service worker | Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice. | `vite.config.ts` | [ADR 1](adr/0001-no-backend-in-v1.md) |
-| Development environment | The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds. | `scripts/`, `.omp/`, `.github/workflows/` | |
+### UI
+
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph owns `main`, where it arranges the pieces around the current piece, which it holds in memory alone, and reports what happened through hooks. A component is handed the parts of the page it draws into and reports through hooks, and the app, which sees them all, is their one parent. Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
+
+### Application
+
+The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here).
+
+### Domain
+
+Pieces, facets, links, chapters and the engine that runs a method, named in the ubiquitous language.
+
+### Ports
+
+What the application asks of storage.
+
+### Adapters
+
+The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder mirror** is the writer's own copy, written in the background from the working copy, one Markdown file per piece, and the source the app restores from when browser storage is lost; it is not built yet.
+
+## Outside the layers
+
+The method definition, start-up and the service worker are not layers.
+
+### Method definition
+
+Snowflake, extended, as data the engine reads. The code never names a method ([ADR 5](adr/0005-method-as-data.md)). It is built on the domain's types, so a change to the domain can break it.
+
+### Start-up
+
+Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header and main, places the panel it builds beside main, draws the app and returns the function that stops it ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
+
+### Service worker
+
+Serves the app's own files. The app is static files from one build, and the service worker caches all of it, fonts included, on the first load, so the app opens with no network after that. A new version installs beside the running one and stays waiting: a reload alone does not replace the running one ([service worker lifecycle](https://web.dev/articles/service-worker-lifecycle#waiting)), so it takes over once every tab is closed. It tells the open tab when a new version waits, and the tab moves onto it when the writer reloads from the notice.
+
+## Development environment
+
+The builder's machine, the agents working in worktrees on it, and CI. Code from the package registry and commands from agents run here with the machine's credentials, which the app never holds.
+
+## Problems solved
+
+- **Persistence.** Spans the ports, the browser working copy and the folder mirror. Until the mirror is built the browser copy is the only copy ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
 
 ## Constraints
 
