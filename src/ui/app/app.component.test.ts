@@ -98,11 +98,11 @@ describe('what the app keeps', () => {
     const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.clicks('Beat 2');
-    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 2').card).toBeCurrent();
 
     await stage.reopen();
 
-    await expect.element(theCard('The story').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('The story').card).toBeCurrent();
   });
 
   it('opens with nothing beside the graph when the page is drawn again', async () => {
@@ -154,12 +154,12 @@ describe('the path in the header', () => {
     const { stage, writer } = pageWith();
     await stage.fresh();
     await writer.clicks('Beat 4');
-    await expect.element(theCard('Beat 4').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 4').card).toBeCurrent();
     await expect.element(theCard('Beat 4').card).toHaveFocus();
 
     await writer.clicksThePathTo('The story');
 
-    await expect.element(theCard('The story').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('The story').card).toBeCurrent();
     await expect.element(theCard('The story').card).toHaveFocus();
   });
 });
@@ -173,7 +173,7 @@ describe('the arrow keys on the page', () => {
     await writer.clicksAwayFromTheGraph();
     await writer.moves('→');
 
-    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 2').card).toBeCurrent();
   });
 
   it('moves to the next beat with nothing focused after clicking a card and clicking away', async () => {
@@ -184,7 +184,7 @@ describe('the arrow keys on the page', () => {
     await writer.clicksAwayFromTheGraph();
     await writer.moves('→');
 
-    await expect.element(theCard('Beat 3').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 3').card).toBeCurrent();
   });
 
   it('moves a level down with the focus on a path button in the header', async () => {
@@ -198,7 +198,7 @@ describe('the arrow keys on the page', () => {
 
     await writer.moves('↓');
 
-    await expect.element(theCard('Scene 1').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Scene 1').card).toBeCurrent();
   });
 
   it('leaves the current piece where it is with the focus in the panel', async () => {
@@ -209,7 +209,7 @@ describe('the arrow keys on the page', () => {
 
     await writer.moves('→');
 
-    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 2').card).toBeCurrent();
   });
 
   it('moves exactly one step with the focus on a card', async () => {
@@ -219,7 +219,7 @@ describe('the arrow keys on the page', () => {
 
     await writer.moves('→');
 
-    await expect.element(theCard('Beat 3').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 3').card).toBeCurrent();
   });
 });
 
@@ -282,7 +282,7 @@ describe('opening a piece beside the graph', () => {
     await writer.presses('ArrowRight');
 
     await expect.element(thePanelOn('Beat 2').actions.close).toHaveFocus();
-    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard('Beat 2').card).toBeCurrent();
   });
 
   it('puts the focus back on the icon that opened it, and on the focus card when that beat is a chip', async () => {

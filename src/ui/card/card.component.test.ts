@@ -50,7 +50,7 @@ describe('the card mounted alone', () => {
   it('marks the current card as where the writer is', async () => {
     mountTheCard('current');
 
-    await expect.element(theCard(theBeat.name).card).toHaveAttribute('aria-current', 'location');
+    await expect.element(theCard(theBeat.name).card).toBeCurrent();
   });
 
   it.each(cardLooks.filter((look) => look !== 'current'))(
@@ -58,7 +58,7 @@ describe('the card mounted alone', () => {
     async (as) => {
       mountTheCard(as);
 
-      await expect.element(theCard(theBeat.name).card).not.toHaveAttribute('aria-current');
+      await expect.element(theCard(theBeat.name).card).not.toBeCurrent();
     },
   );
 
