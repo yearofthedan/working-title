@@ -11,7 +11,9 @@ describe('isCurrent', () => {
   });
 });
 
-const withAriaCurrent = (value: string | null) => ({ getAttribute: () => value });
+const withAriaCurrent = (value: string | null) => ({
+  getAttribute: (name: string) => (name === 'aria-current' ? value : null),
+});
 
 describe('toBeCurrent', () => {
   it('says the card is not the current piece, and what aria-current held', () => {
