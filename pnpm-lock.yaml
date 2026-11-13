@@ -210,11 +210,14 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@types/node@24.19.2)(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/language-core@3.3.11)(playwright@1.65.0)(terser@5.51.2)(typescript@7.0.2)(vitest@5.1.0)
       '@yearofthedan/weaver':
-        specifier: ^0.1.13
+        specifier: 0.1.13
         version: 0.1.13
       dependency-cruiser:
         specifier: 18.7.2
         version: 18.7.2
+      oxlint-plugin-eslint:
+        specifier: 1.93.0
+        version: 1.93.0
       secretlint:
         specifier: 13.0.7
         version: 13.0.7(supports-color@10.2.2)
@@ -3069,6 +3072,10 @@ packages:
         optional: true
       vite-plus:
         optional: true
+
+  oxlint-plugin-eslint@1.93.0:
+    resolution: {integrity: sha512-NN1PcS4IUrxeDQqBCOpqa8qhsTcxR5j7l0kTqp8Le+904FeIYwkG4qwbYtpR7e3G8JlKi6qaZ0VEsooPi++wSA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   oxlint-tsgolint@7.0.2005:
     resolution: {integrity: sha512-6ccPGu4u4J9bwYPHXBFPee3RZrX3BboRdU7k14zRDDB1lvN3O7J/vPRFdaEfa1+CWx4xnQQOp4ctoaF66oO0uw==}
@@ -6699,6 +6706,8 @@ snapshots:
       '@oxfmt/binding-win32-ia32-msvc': 0.76.0
       '@oxfmt/binding-win32-x64-msvc': 0.76.0
       vite-plus: 1.5.0(@types/node@24.19.2)(@vitest/browser-playwright@5.1.0)(@vitest/ui@5.1.0)(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/language-core@3.3.11)(playwright@1.65.0)(terser@5.51.2)(typescript@7.0.2)
+
+  oxlint-plugin-eslint@1.93.0: {}
 
   oxlint-tsgolint@7.0.2005:
     optionalDependencies:
