@@ -100,8 +100,7 @@ const drawingAndReadingAsAllowed = [
   '',
 ].join('\n');
 
-const reachingThePageInTheApp =
-  "export const sample = (el: HTMLElement): unknown => [document.querySelector('main'), window.scrollY, el.closest('div')];\n";
+const theAppsOwnFile = 'src/ui/app/app.dom.ts';
 
 const outsideTheRoot = (name: string) => `outside-${name.replaceAll('.', '-')}.dom.ts`;
 
@@ -157,7 +156,6 @@ beforeAll(() => {
     writeInUi(`outside-${name}.dom.ts`, use);
   }
   writeInUi('drawing-the-document.dom.ts', drawingAndReadingAsAllowed);
-  writeInUi('app/app.dom.ts', reachingThePageInTheApp);
   write('sample-no-locator.ts', callingOnPage('reload'));
   write(
     'driver-acting-on-a-locator/sample.driver.ts',
@@ -184,7 +182,9 @@ beforeAll(() => {
   writeInUi('importing-user-event/sample.component.test.ts', importingUserEvent);
   writeInUi('finding-by-element.test-page.ts', readingACard.getByElement ?? '');
   writeInUi('unlisted/other.test.ts', callingUserEvent);
-  const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
+  const run = spawnSync('vp', ['lint', '--format', 'json', ...files, theAppsOwnFile], {
+    encoding: 'utf8',
+  });
   const { diagnostics } = JSON.parse(run.stdout) as {
     diagnostics: { code: string; filename: string; help: string; message: string }[];
   };
@@ -275,8 +275,8 @@ describe('the DOM in src/ui/', { timeout: 60_000 }, () => {
     expect(uiErrorsIn('drawing-the-document.dom.ts')).toEqual([]);
   });
 
-  it('a *.dom.ts under app/ passes lint, where start-up finds the page’s elements', () => {
-    expect(uiErrorsIn('app/app.dom.ts')).toEqual([]);
+  it('the app’s own app.dom.ts, where start-up finds the page’s elements, passes lint', () => {
+    expect(lintErrors.get(theAppsOwnFile) ?? []).toEqual([]);
   });
 });
 
