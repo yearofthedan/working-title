@@ -36,7 +36,7 @@ export const renderApp = async (
     const saved = held.elaborate(pieceId, facetId, text);
     // shortcut: the app passes a change from the card to the panel and back, until a third consumer needs to know about a change; then move it to an observable on OpenProject.
     if (panel.isOpenOn(pieceId)) panel.show(facetId, text);
-    graph?.show(pieceId, facetId, text);
+    graph.show(pieceId, facetId, text);
     await saved;
   };
 
@@ -44,7 +44,7 @@ export const renderApp = async (
     const id = open;
     open = undefined;
     panel.close();
-    if (id !== undefined) graph?.closedBeside(id);
+    if (id !== undefined) graph.closedBeside(id);
   };
 
   const panel = thePanel({ elaborate: relay, close: closeBeside });
@@ -69,7 +69,7 @@ export const renderApp = async (
         const button = document.createElement('button');
         button.type = 'button';
         button.textContent = piece.name;
-        button.addEventListener('click', () => graph?.goTo(piece.id));
+        button.addEventListener('click', () => graph.goTo(piece.id));
         item.append(button);
       }
       list.append(item);
@@ -77,7 +77,7 @@ export const renderApp = async (
     nav.replaceChildren(list);
   };
 
-  const graph = await renderGraph(main, held.root, {
+  const graph = renderGraph(held.root, {
     moved: pathNav,
     elaborate: relay,
     branch: async (pieceId) => {
@@ -91,15 +91,31 @@ export const renderApp = async (
         return;
       }
       open = pieceId;
-      graph?.showOpen(pieceId);
+      graph.showOpen(pieceId);
       panel.open(held.read(pieceId));
     },
   });
 
+  main.replaceChildren(graph.element);
+  await graph.draw();
+
+  const documentKeys = new AbortController();
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      const target = event.target instanceof Node ? event.target : null;
+      if (graph.element.contains(target)) return;
+      graph.keys(event);
+    },
+    { signal: documentKeys.signal },
+  );
+
   if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
 
   return () => {
+    documentKeys.abort();
     graph.stop();
+    graph.element.remove();
     panel.element.remove();
   };
 };

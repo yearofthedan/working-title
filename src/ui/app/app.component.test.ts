@@ -164,6 +164,65 @@ describe('the path in the header', () => {
   });
 });
 
+describe('the arrow keys on the page', () => {
+  it('moves to the next beat with nothing focused, right after the app opens and after clicking away', async () => {
+    const { stage, writer } = pageWith();
+    await stage.fresh();
+
+    await writer.moves('↓');
+    await writer.clicksAwayFromTheGraph();
+    await writer.moves('→');
+
+    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it('moves to the next beat with nothing focused after clicking a card and clicking away', async () => {
+    const { stage, writer } = pageWith();
+    await stage.fresh();
+
+    await writer.clicks('Beat 2');
+    await writer.clicksAwayFromTheGraph();
+    await writer.moves('→');
+
+    await expect.element(theCard('Beat 3').card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it('moves a level down with the focus on a path button in the header', async () => {
+    const { stage, writer } = pageWith(1);
+    await stage.fresh();
+    await writer.clicks('Beat 4');
+    await writer.presses('ArrowDown');
+    await writer.clicksThePathTo('Beat 4');
+    await writer.tabsBackward();
+    await writer.tabsBackward();
+
+    await writer.moves('↓');
+
+    await expect.element(theCard('Scene 1').card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it('leaves the current piece where it is with the focus in the panel', async () => {
+    const { stage, writer } = pageWith();
+    await stage.fresh();
+    await writer.opensBeside('Beat 2');
+    await settled();
+
+    await writer.moves('→');
+
+    await expect.element(theCard('Beat 2').card).toHaveAttribute('aria-current', 'location');
+  });
+
+  it('moves exactly one step with the focus on a card', async () => {
+    const { stage, writer } = pageWith();
+    await stage.fresh();
+    await writer.clicks('Beat 2');
+
+    await writer.moves('→');
+
+    await expect.element(theCard('Beat 3').card).toHaveAttribute('aria-current', 'location');
+  });
+});
+
 describe('opening a piece beside the graph', () => {
   it('puts the focus inside the panel when a beat opens beside the graph', async () => {
     const { stage, writer } = pageWith();

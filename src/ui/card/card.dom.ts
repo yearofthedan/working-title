@@ -205,7 +205,6 @@ const keysOnTheCard = (card: Card, current: () => boolean): ((event: KeyboardEve
 export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
   const element = document.createElement('fieldset');
   element.tabIndex = -1;
-  element.dataset.piece = piece.id;
   const legend = document.createElement('legend');
   const heading = document.createElement(`h${hooks.level + 2}`);
   heading.textContent = piece.name;

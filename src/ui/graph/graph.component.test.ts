@@ -671,6 +671,7 @@ describe('moving the current piece', () => {
   it("leaves the cursor on the new current piece's card after a key, a chip, a card and a story card", async () => {
     const { stage, writer } = graphWith();
     await stage.fresh();
+    await writer.clicks('The story');
 
     await writer.presses('ArrowDown');
     await expect
