@@ -210,7 +210,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@types/node@24.19.2)(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/language-core@3.3.11)(playwright@1.65.0)(terser@5.51.2)(typescript@7.0.2)(vitest@5.1.0)
       '@yearofthedan/weaver':
-        specifier: ^0.1.13
+        specifier: 0.1.13
         version: 0.1.13
       dependency-cruiser:
         specifier: 18.7.2
