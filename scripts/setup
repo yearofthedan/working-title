@@ -1,42 +1,12 @@
 #!/bin/sh
-# help: Install Ponytail and the dev-skills plugin into your OMP, and weaver's skills into .agents/skills.
+# help: Install weaver's skills into .agents/skills. The harness, OMP's plugins, is set up from snippets: see CONTRIBUTING.
 
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-installed=
 
-install_plugin() {
-  name=$1
-  id=$2
-  source=$3
-  if omp plugin list --json 2>/dev/null | grep -qF "$id"; then
-    echo "$name is already installed."
-    return 0
-  fi
-  if ! omp plugin marketplace list 2>/dev/null | grep -qF "$source"; then
-    omp plugin marketplace add "$source"
-  fi
-  omp plugin install "$id"
-  echo "Installed $name."
-  installed=1
-}
-
-setup() {
-  if ! command -v omp >/dev/null 2>&1; then
-    echo "omp is not on your PATH. Install OMP, then run ./do setup again." >&2
-    return 1
-  fi
-  install_plugin Ponytail ponytail@ponytail DietrichGebert/ponytail
-  install_plugin dev-skills dev-skills@snippets yearofthedan/snippets
-  if [ -n "$installed" ]; then
-    echo "Run /reload-plugins in an open OMP session to load it."
-  fi
-  if command -v weaver >/dev/null 2>&1; then
-    weaver skills install --dir "$root/.agents/skills" --force
-  else
-    echo "weaver is not installed; skipped its skills. Run pnpm install, then ./do setup again."
-  fi
-}
-
-setup
+if ! command -v weaver >/dev/null 2>&1; then
+  echo "weaver is not installed. Run pnpm install, then ./do setup again." >&2
+  exit 1
+fi
+weaver skills install --dir "$root/.agents/skills" --force
