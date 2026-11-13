@@ -1,6 +1,6 @@
 # 4. One Markdown file per piece, in flat folders
 
-Status: Accepted, 2026-10-04
+Status: Superseded by [12](0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)
 
 ## Context
 
