@@ -3,8 +3,6 @@
 
 set -eu
 
-zero=0000000000000000000000000000000000000000
-
 refuse() {
   echo "push refused: $1 A push adds commits to a story branch, named <issue number>-…; see docs/standards/commits.md" >&2
   exit 1
