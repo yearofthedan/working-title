@@ -77,7 +77,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [.github/](../.github/) | The issue and pull request templates, and the workflows |
 | [.omp/](../.omp/) | The rules and settings OMP reads |
 | [.agents/](../.agents/) | The skills an agent uses: the repository's own, and weaver's, which `./do setup` installs |
-| [.vite-hooks/](../.vite-hooks/) | The git hooks, which call `./do precommit` and `./do commit-msg` |
+| [.vite-hooks/](../.vite-hooks/) | The git hooks, which call `./do precommit`, `./do commit-msg` and `./do pre-push` |
 
 | File | Holds |
 | --- | --- |

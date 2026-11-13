@@ -1,0 +1,26 @@
+#!/bin/sh
+# help: Refuse a push to anything but a story branch, a push that rewrites what the remote holds, and a push that deletes a ref.
+
+set -eu
+
+refuse() {
+  echo "push refused: $1 A push adds commits to a story branch, named <issue number>-…; see docs/standards/commits.md" >&2
+  exit 1
+}
+
+while read -r _local_ref local_sha remote_ref remote_sha; do
+  case $local_sha in
+  *[!0]*) ;;
+  *) refuse "it deletes $remote_ref." ;;
+  esac
+  branch=${remote_ref#refs/heads/}
+  [ "$branch" != "$remote_ref" ] && printf '%s\n' "$branch" | grep -Eq '^[0-9]+-' ||
+    refuse "$remote_ref is not a story branch."
+  case $remote_sha in
+  *[!0]*)
+    git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null ||
+      refuse "it would rewrite $branch, whose remote head is not in what you push. Fetch and build on it instead."
+    ;;
+  esac
+done
+exit 0
