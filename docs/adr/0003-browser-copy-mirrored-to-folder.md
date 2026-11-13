@@ -1,6 +1,6 @@
 # 3. Browser working copy, mirrored to the writer's folder
 
-Status: Accepted, 2026-10-04
+Status: Superseded by [11](0011-the-writers-folder-is-the-project.md)
 
 ## Context
 

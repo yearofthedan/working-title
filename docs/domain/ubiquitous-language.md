@@ -24,6 +24,7 @@ The **core** terms below name things every method has. They are the only words i
 | Term | Meaning | Not |
 | --- | --- | --- |
 | Project | One novel being planned and written, with the method it follows | |
+| Title | The novel's name. It belongs to the project, not to any piece | |
 | Method | A way of planning a novel: its kinds of piece, their facets and its stages. The built-in one is Snowflake, extended | |
 | Stage | One step of the method. It either elaborates a piece or branches it | level |
 | Flow | The method's stages in the order the writer meets them | |

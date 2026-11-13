@@ -3,7 +3,7 @@
 **Audience:** anyone changing code or deciding where something new belongs.
 **Purpose:** shows the shape of the system and how its decisions fit together. Why each decision was made is in its [record](adr/README.md); terms are in the [ubiquitous language](domain/ubiquitous-language.md).
 
-working-title is a web app that runs entirely in the writer's desktop browser. The writer's work is saved in browser storage as they type and mirrored in the background to a folder they choose, as readable Markdown. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
+working-title is a web app that runs entirely in the writer's desktop browser. Each novel is a folder the writer chooses, holding readable Markdown; the app saves their work in browser storage as they type and writes it to the folder in the background. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
 
 ## The layers
 
@@ -34,7 +34,7 @@ What the application asks of storage.
 
 ### Adapters
 
-The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder mirror** is the writer's own copy, written in the background from the working copy, one Markdown file per piece, and the source the app restores from when browser storage is lost; it is not built yet.
+The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder** is the project: the app writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). The folder is not built yet.
 
 ## Outside the layers
 
@@ -58,12 +58,12 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** Spans the ports, the browser working copy and the folder mirror. Until the mirror is built the browser copy is the only copy ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md), [ADR 4](adr/0004-one-markdown-file-per-piece.md)).
+- **Persistence.** Spans the ports, the browser working copy and the folder. Until the folder is built the browser copy is the only copy ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)).
 
 ## Constraints
 
 - No backend: no server, no accounts, one writer on one device. ([ADR 1](adr/0001-no-backend-in-v1.md))
-- Desktop Chromium only, because writing to a folder the writer picks needs the File System Access API. ([ADR 3](adr/0003-browser-copy-mirrored-to-folder.md))
+- Desktop Chromium only, because reading and writing a folder the writer picks needs the File System Access API. ([ADR 11](adr/0011-the-writers-folder-is-the-project.md))
 
 ## Quality targets
 
@@ -76,7 +76,7 @@ Design size is about 300 pieces and 2,000 links.
 | Attribute | Target | Checked by | Confidence |
 | --- | --- | --- | --- |
 | Durability | A crash loses at most about 2 s of typing | [`your-words-survive-a-reload`](../e2e/your-words-survive-a-reload.approved.md) | Medium: a reload is checked, a crash mid-typing is not |
-| Disaster recovery | The folder mirror is at most about 10 s behind while typing | nothing yet | Low: the folder mirror is not built |
+| Disaster recovery | The folder is at most about 10 s behind while typing | nothing yet | Low: writing to the folder is not built |
 | Typing | Every keystroke renders within one frame (16 ms) | nothing yet | Low: no test times a keystroke at the design size |
 | Movement | A change of the current piece or of level starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | nothing yet | Low: nothing times a move or a frame at the design size; the motion a move brings is built, and the test below checks how long it takes, but not the 100 ms or the frame time |
 | Motion | Motion meets WCAG 2.2 at AA, and stops when the writer's system asks for reduced motion (2.3.3), as the [motion standard](standards/motion.md) sets out | [`graph.component.test.ts`](../src/ui/graph/graph.component.test.ts), whose tests read `document.getAnimations()` for every kind of move, with the system asking for reduced motion and without, [`app.component.test.ts`](../src/ui/app/app.component.test.ts), whose tests read it for a step of the path, for adding a scene and for the panel's slide, and whose case for the panel compares the cards' boxes with a pane narrowed at rest, and [`motion.spec.ts`](../e2e/motion.spec.ts), which reads the graph's boxes every frame as the built app opens in a browser without the web font yet | Medium: every kind of move is timed in the browser — no animation over 400 ms, each easing out — the panel's slide is timed and ends where a resize at rest does, and nothing moves at open or under reduced motion; motion on an action that is not a move, such as a card's field taking focus, is not checked |
