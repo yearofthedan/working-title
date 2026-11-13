@@ -172,7 +172,7 @@ describe('the graph around the current piece', () => {
     await expect.element(graph.card('current', 'Beat 4').headingAt(3)).toHaveTextContent('Beat 4');
     await expect.element(graph.card('card', 'Scene 1').headingAt(4)).toHaveTextContent('Scene 1');
 
-    await expect.element(graph.on('current').card).toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.on('current').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveAccessibleName('Beat 4');
   });
 
@@ -299,9 +299,7 @@ describe('the rows of the graph', () => {
     await settled();
 
     await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     expect(inMain(graph.card('card', 'Scene 1').card)).toBe(true);
     expect(centreOf(graph.on('current').card)).toBeCloseTo(beat4, 0);
     expect(centreOf(graph.card('chip', 'Beat 3').card)).toBeCloseTo(beat3, 0);
@@ -320,16 +318,12 @@ describe('the rows of the graph', () => {
 
     await writer.putsTheFocusOnNameButtonOf('Scene 5');
     await expect.element(graph.card('card', 'Scene 5').nameButton).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
 
     await writer.putsTheFocusOnTheCardOf('Beat 4');
     await writer.presses('Tab');
     await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
   });
 
   it('gives a row back its place when the cursor leaves it', async () => {
@@ -422,9 +416,7 @@ describe('the rows of the graph', () => {
     await writer.presses('Tab');
     await check();
     await expect.element(graph.card('card', 'Beat 1').nameButton).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'The story').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'The story').card).toBeCurrent();
     expect(inMain(graph.card('card', 'Beat 1').card)).toBe(true);
 
     for (let at = 0; at < 6; at += 1) {
@@ -479,31 +471,21 @@ describe('the rows of the graph', () => {
 
     await writer.presses('Tab');
     await expect.element(graph.card('card', 'Scene 1').nameButton).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
 
     await writer.presses('ArrowRight');
-    await expect
-      .element(graph.card('current', 'Scene 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 2').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.presses('ArrowLeft');
-    await expect
-      .element(graph.card('current', 'Scene 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.presses('ArrowRight');
-    await expect
-      .element(graph.card('current', 'Scene 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 2').card).toBeCurrent();
 
     await writer.presses('ArrowUp');
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -563,19 +545,13 @@ describe('moving the current piece', () => {
     await writer.clicks('Beat 2');
 
     await writer.presses('ArrowRight');
-    await expect
-      .element(graph.card('current', 'Beat 3').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 3').card).toBeCurrent();
 
     await writer.presses('ArrowLeft');
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
 
     await writer.presses('ArrowUp');
-    await expect
-      .element(graph.card('current', 'The story').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'The story').card).toBeCurrent();
   });
 
   it('moves the current piece with → from a sibling’s name button', async () => {
@@ -586,9 +562,7 @@ describe('moving the current piece', () => {
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
     await writer.presses('ArrowRight');
 
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -603,9 +577,7 @@ describe('moving the current piece', () => {
     await writer.putsTheFocusOnTheAddButtonOf('Beat 4');
     await writer.presses('ArrowDown');
 
-    await expect
-      .element(graph.card('current', 'Scene 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -616,16 +588,12 @@ describe('moving the current piece', () => {
 
     await writer.putsTheFocusOnNameButtonOf('Beat 1');
     await writer.presses('Enter');
-    await expect
-      .element(graph.card('current', 'Beat 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 1').card).toBeCurrent();
 
     await writer.clicks('Beat 3');
     await writer.putsTheFocusOnNameButtonOf('Beat 5');
     await writer.presses('Space');
-    await expect
-      .element(graph.card('current', 'Beat 5').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 5').card).toBeCurrent();
   });
 
   it('leaves the current piece where it is while the cursor is in a sentence', async () => {
@@ -635,9 +603,7 @@ describe('moving the current piece', () => {
     await writer.presses('Enter');
     await writer.presses('ArrowRight');
 
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
     await sees.focusIsIn('Beat 2', 'One-sentence summary');
   });
 
@@ -649,14 +615,10 @@ describe('moving the current piece', () => {
     await writer.presses('Escape');
 
     await expect.element(graph.on('current').card).toHaveFocus();
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
 
     await writer.presses('ArrowRight');
-    await expect
-      .element(graph.card('current', 'Beat 3').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 3').card).toBeCurrent();
   });
 
   it("puts the cursor in the current piece's sentence with Enter", async () => {
@@ -674,27 +636,19 @@ describe('moving the current piece', () => {
     await writer.clicks('The story');
 
     await writer.presses('ArrowDown');
-    await expect
-      .element(graph.card('current', 'Beat 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 1').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('Beat 3');
-    await expect
-      .element(graph.card('current', 'Beat 3').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 3').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('The story');
-    await expect
-      .element(graph.card('current', 'The story').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'The story').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicks('Beat 4');
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -723,15 +677,11 @@ describe('moving the current piece', () => {
 
     await writer.clicks('Beat 3');
     await writer.presses('ArrowRight');
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.presses('ArrowLeft');
-    await expect
-      .element(graph.card('current', 'Beat 3').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 3').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -745,9 +695,7 @@ describe('moving the current piece', () => {
     await expect.element(graph.card('card', 'Beat 4').nameButton).toHaveFocus();
 
     await writer.presses('Enter');
-    await expect
-      .element(graph.card('current', 'Beat 4').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 4').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -759,9 +707,7 @@ describe('moving the current piece', () => {
     const held = await altKeySeenFor('ArrowRight', () => writer.presses('Alt+ArrowRight'));
 
     expect(held).toEqual([true]);
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
   });
 
   it('moves the current piece to a piece whose sentence is clicked, with the cursor in it', async () => {
@@ -769,9 +715,7 @@ describe('moving the current piece', () => {
     await stage.fresh();
     await writer.clicksTheSentenceOf('Beat 2');
 
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
     await sees.focusIsIn('Beat 2', 'One-sentence summary');
   });
 
@@ -834,21 +778,15 @@ describe('moving the current piece', () => {
     await writer.clicks('Beat 2');
     await writer.addsASceneUnder('Beat 2');
 
-    await expect
-      .element(graph.card('current', 'Scene 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
     await sees.focusIsIn('Scene 1', 'List line');
 
     await writer.presses('Escape');
     await writer.presses('ArrowUp');
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
 
     await writer.presses('ArrowDown');
-    await expect
-      .element(graph.card('current', 'Scene 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
   });
 
   it('leaves the fields of the card it leaves out of the tab order, after adding a scene', async () => {
@@ -860,9 +798,7 @@ describe('moving the current piece', () => {
     await writer.presses('Tab');
     await writer.presses('Enter');
 
-    await expect
-      .element(graph.card('current', 'Scene 1').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
     await expect.element(graph.on('current').fields.first()).toHaveFocus();
 
     await expect.element(graph.card('card', 'Beat 2').sentence).toHaveAttribute('tabindex', '-1');
@@ -894,9 +830,7 @@ describe('moving the current piece', () => {
     await expect.element(graph.on('current').card).toHaveFocus();
 
     await writer.clicksTheNameOf('The story');
-    await expect
-      .element(graph.card('current', 'The story').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'The story').card).toBeCurrent();
     await expect.element(graph.on('current').card).toHaveFocus();
   });
 
@@ -1116,9 +1050,7 @@ describe('the motion of a move', () => {
       await settled();
     });
 
-    await expect
-      .element(graph.card('current', 'Beat 2').card)
-      .toHaveAttribute('aria-current', 'location');
+    await expect.element(graph.card('current', 'Beat 2').card).toBeCurrent();
     const after = frames.filter((frame) => frame.at > pressed && frame.running > 0);
     expect((after.at(-1)?.at ?? pressed) - pressed).toBeGreaterThan(160);
   });

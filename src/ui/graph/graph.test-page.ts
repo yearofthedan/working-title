@@ -46,18 +46,18 @@ export const buttonsFocused = async (what: () => Promise<void>): Promise<string[
 const groups = (): Locator => browser.page.getByRole('group', { includeHidden: true });
 const toolbars = (): Locator => browser.page.getByRole('toolbar', { includeHidden: true });
 
+const theCurrentPiece = (): Locator => browser.page.getByElement('[aria-current="location"]');
+
 const looks: Readonly<Record<CardLook, () => Locator>> = {
-  current: () => groups().and(browser.page.getByElement('[aria-current="location"]')),
+  current: () => groups().and(theCurrentPiece()),
   hidden: () => groups().and(browser.page.getByElement('[inert]')),
   chip: () =>
     toolbars()
-      .filter({ has: browser.page.getByElement('[aria-current="location"]') })
+      .filter({ has: theCurrentPiece() })
       .getByRole('group', { includeHidden: true })
       .and(browser.page.getByElement(':not([aria-current])')),
   card: () =>
-    toolbars()
-      .filter({ hasNot: browser.page.getByElement('[aria-current="location"]') })
-      .getByRole('group', { includeHidden: true }),
+    toolbars().filter({ hasNot: theCurrentPiece() }).getByRole('group', { includeHidden: true }),
 };
 
 export const holdsTheFocus = (part: Locator): boolean =>

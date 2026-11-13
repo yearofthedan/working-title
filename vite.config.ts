@@ -248,7 +248,11 @@ export default defineConfig({
           name: 'browser',
           include: ['**/*.component.test.ts'],
           exclude: ['src/ui/lint-sample-*/**'],
-          setupFiles: ['src/shell.css', 'src/test-helpers/locators.ts'],
+          setupFiles: [
+            'src/shell.css',
+            'src/test-helpers/locators.ts',
+            'src/test-helpers/matchers.ts',
+          ],
           ...(approving ? { api: { allowWrite: true } } : {}),
           browser: {
             enabled: true,
