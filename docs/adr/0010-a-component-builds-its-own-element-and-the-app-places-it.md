@@ -32,4 +32,3 @@ Handing every component a container to fill loses on all three: the parent choos
 - A component that measures itself can do so only once its element is attached to the document and its parent gives it a size, so whoever creates it places it first and then asks it to draw, and its harness does the same. That is a second step to remember. The graph also needs a sized, positioned `main` around it, because its styles are scoped to `main` in `src/shell.css`.
 - Ruled out: a component that knows where it is placed, and a parent choosing a component's root element.
 - What would show the rule is wrong: a parent wrapping a component's element in a host of its own to place it, or a component that needs to know where it is placed to work.
-- `./do check` refuses a lookup or listener outside a component's root in its `*.dom.ts`. `app.dom.ts` alone is exempt, since start-up finds the page's elements.
