@@ -1,6 +1,6 @@
 # 10. A component builds its own element and the app places it
 
-Status: Proposed, 2026-11-12
+Status: Accepted, 2026-11-13
 
 ## Context
 
@@ -32,4 +32,4 @@ Handing every component a container to fill loses on all three: the parent choos
 - A component that measures itself can do so only once its element is attached to the document and its parent gives it a size, so whoever creates it places it first and then asks it to draw, and its harness does the same. That is a second step to remember. The graph also needs a sized, positioned `main` around it, because its styles are scoped to `main` in `src/shell.css`.
 - Ruled out: a component that knows where it is placed, and a parent choosing a component's root element.
 - What would show the rule is wrong: a parent wrapping a component's element in a host of its own to place it, or a component that needs to know where it is placed to work.
-- No check enforces the rule.
+- `./do check` enforces the rule: in a component's `*.dom.ts`, the lint refuses a lookup or listener outside its root — anything on `document` or `window` other than creating an element, reading focus or fonts, and the viewport height, and `closest`, `parentElement`, `parentNode`, `getRootNode` and `ownerDocument` on any object. Its limits: the selectors match `document` and `window` by name, so `const d = document; d.body` is not refused, and the element-walking names are refused on any object, not only an element. The rule is off for an `app.dom.ts` in any `app/` folder under `src/ui/`, so the app's own file is exempt.
