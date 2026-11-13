@@ -21,6 +21,21 @@ export const domGlobals = [
   'ResizeObserver',
   'localStorage',
 ];
+export const createsInTheDocument = [
+  'createElement',
+  'createElementNS',
+  'createTextNode',
+  'createDocumentFragment',
+];
+export const readsFromTheDocument = ['fonts', 'activeElement'];
+export const readsTheViewport = 'innerHeight';
+export const walksFromAnElement = [
+  'closest',
+  'parentElement',
+  'parentNode',
+  'getRootNode',
+  'ownerDocument',
+];
 export const findsAnyOtherWay = [
   'getByText',
   'getByPlaceholder',
@@ -77,6 +92,14 @@ const theComponentHasATestPage =
   'Reach the component’s markup through its *.test-page.ts beside its *.dom.ts, or stage the page in src/test-helpers/staging.ts (docs/standards/testing.md).';
 const actsThroughTheWriter =
   'Act through the writer its language gives you, never userEvent (docs/standards/testing.md).';
+const looksOutsideItsRoot =
+  'A component looks up and listens on nothing outside its root; it may create elements and read focus, fonts and the viewport height (docs/adr/0010).';
+const allowedInTheDocument = [...createsInTheDocument, ...readsFromTheDocument].join('|');
+const outsideLookups = [
+  `MemberExpression[object.name='document']:not([property.name=/^(${allowedInTheDocument})$/])`,
+  `MemberExpression[object.name='window']:not([property.name='${readsTheViewport}'])`,
+  `MemberExpression[property.name=/^(${walksFromAnElement.join('|')})$/]`,
+].map((selector) => ({ selector, message: looksOutsideItsRoot }));
 
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
@@ -125,7 +148,10 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
-    jsPlugins: ['./scripts/_lint-comments.mjs'],
+    jsPlugins: [
+      './scripts/_lint-comments.mjs',
+      { name: 'eslint-js', specifier: 'oxlint-plugin-eslint' },
+    ],
     rules: {
       'comments/allowed-prefix': 'error',
       'unicorn/no-thenable': 'error',
@@ -165,6 +191,14 @@ export default defineConfig({
           'src/ui/**/*.harness.ts',
         ],
         rules: { 'no-restricted-globals': 'off' },
+      },
+      {
+        files: ['src/ui/**/*.dom.ts'],
+        rules: { 'eslint-js/no-restricted-syntax': ['error', ...outsideLookups] },
+      },
+      {
+        files: ['src/ui/**/app/app.dom.ts'],
+        rules: { 'eslint-js/no-restricted-syntax': 'off' },
       },
       {
         files: ['src/**/*.component.test.ts'],
