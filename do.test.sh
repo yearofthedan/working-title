@@ -6,7 +6,7 @@ root=$(cd "$(dirname "$0")" && pwd)
 run_do
 expect_status 0 "no task exits zero"
 expect_out 'usage: ./do' "no task prints the usage"
-expect_out 'setup  *Install Ponytail' "no task lists each task with its summary"
+expect_out "setup  *Install weaver's skills" "no task lists each task with its summary"
 
 for file in "$root"/scripts/*; do
   name=$(basename "$file")
