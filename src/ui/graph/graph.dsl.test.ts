@@ -24,9 +24,26 @@ describe('what a graph step returns', () => {
       seesOn(driver, reads),
     )['{piece}\'s {facet} on its card reads "{text}"']!;
 
-    expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual([
-      { role: 'group', name: 'The story' },
-    ]);
+    expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'The story' }],
+    });
+  });
+
+  it('returns the part that holds focus, telling the runner to mark it', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => true }, reads);
+
+    expect(await sees.focusIsOnTheName('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+    expect(await sees.focusIsIn('Beat 4', 'One-sentence summary')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
   });
 
   const box = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
@@ -39,9 +56,10 @@ describe('what a graph step returns', () => {
   it('returns the piece it checked is no longer current', async () => {
     const { driver } = recording(storyDrawn);
 
-    expect(await seesOn(driver, drawing(false)).isNoLongerCurrent('Beat 4')).toEqual([
-      { role: 'group', name: 'Beat 4' },
-    ]);
+    expect(await seesOn(driver, drawing(false)).isNoLongerCurrent('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+    });
   });
 
   it('refuses a piece that is still current', async () => {
@@ -55,9 +73,10 @@ describe('what a graph step returns', () => {
   it('returns the pieces it checked as current', async () => {
     const { driver } = recording(storyDrawn);
 
-    expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual([
-      { role: 'group', name: 'Beat 4' },
-    ]);
+    expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+    });
   });
 });
 

@@ -13,16 +13,18 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-const runnerFor = (sees: Pick<AppSees, 'tree'>): Runner =>
-  approvingPath === ''
-    ? { tree: () => sees.tree() }
+const runnerFor = (sees: Pick<AppSees, 'tree'>, pageMeta: () => Promise<string>): Runner => ({
+  tree: (markFocus) => sees.tree(markFocus),
+  pageMeta,
+  ...(approvingPath === ''
+    ? {}
     : {
-        tree: () => sees.tree(),
-        read: async (where) => readFileSync(join(root, where), 'utf8'),
-        write: async (where, what) => {
+        read: async (where: string) => readFileSync(join(root, where), 'utf8'),
+        write: async (where: string, what: string) => {
           writeFileSync(join(root, where), what);
         },
-      };
+      }),
+});
 
 const playing = (behaviour: string) => ({
   only: behaviour,
@@ -44,7 +46,7 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
         privateBuildTest(behaviour, async ({ writer, page, build }) => {
           await playScenarios(
             { path, text },
-            runnerFor(writer.sees),
+            runnerFor(writer.sees, () => writer.pageMeta()),
             {
               ...journeySteps(writer, writer.sees),
               ...newVersionSteps(privateBuildOn(page, build)),
@@ -63,7 +65,7 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
       writerTest(behaviour, async ({ writer }) => {
         await playScenarios(
           { path, text },
-          runnerFor(writer.sees),
+          runnerFor(writer.sees, () => writer.pageMeta()),
           journeySteps(writer, writer.sees),
           playing(behaviour),
         );

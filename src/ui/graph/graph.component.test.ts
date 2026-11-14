@@ -858,7 +858,7 @@ describe('what a tree says about focus', () => {
     await writer.clicks('Beat 4');
 
     const marked = async (): Promise<readonly string[]> => {
-      const lines = await sees.tree();
+      const lines = await sees.tree(true);
       const at = lines.findIndex((line) => line.includes('[active]'));
       const markedLine = at < 0 ? undefined : lines[at];
       if (markedLine === undefined) return [];
@@ -871,8 +871,6 @@ describe('what a tree says about focus', () => {
     };
 
     await writer.putsTheFocusOnNameButtonOf('Scene 2');
-    expect(await marked()).toEqual([]);
-
     await sees.focusIsOnTheName('Scene 2');
     expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
 

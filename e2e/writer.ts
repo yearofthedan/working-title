@@ -19,6 +19,7 @@ export interface Fixture extends Journey {
   opensWatchingTheGraph(): Promise<readonly string[]>;
   descriptionOfTheCard(piece: string): Promise<string>;
   theKeysLine(): Promise<string>;
+  pageMeta(): Promise<string>;
 }
 
 const openingOn = (page: Page): Opening => ({
@@ -80,6 +81,7 @@ const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
 
     theAppsName: driver.theAppsName,
     opensWatchingTheGraph: () => driver.opensWatchingTheGraph(),
+    pageMeta: () => driver.pageMeta(),
   };
 };
 

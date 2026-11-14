@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { stepTable } from './steps';
+import { pageMeta, reporting, reportingFocus, stepTable, wholeTree } from './steps';
 
 const step = (phrase: string) => ({ keyword: 'When' as const, phrase });
 
@@ -20,14 +20,27 @@ describe('a step table', () => {
     expect(played).toEqual(['a new project', 'the one-sentence summary <- "a widow hunts"']);
   });
 
-  it('returns the parts an action returned, and nothing for an action that returns none', async () => {
+  it('returns the evidence an action reported, and nothing for an action that reports none', async () => {
     const table = stepTable({
-      'a named toy': () => [{ role: 'group', name: 'A toy' }],
+      'a named toy': () => reporting({ role: 'group', name: 'A toy' }),
+      'a focused toy': () => reportingFocus({ role: 'group', name: 'A toy' }),
+      'the whole toy': () => wholeTree(),
+      'the toy page': () => pageMeta(),
       'a reload': () => {},
     });
 
-    expect(await table.play(step('a named toy'))).toEqual([{ role: 'group', name: 'A toy' }]);
-    expect(await table.play(step('a reload'))).toEqual([]);
+    expect(await table.play(step('a named toy'))).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'A toy' }],
+    });
+    expect(await table.play(step('a focused toy'))).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'A toy' }],
+      focus: true,
+    });
+    expect(await table.play(step('the whole toy'))).toEqual({ kind: 'whole' });
+    expect(await table.play(step('the toy page'))).toEqual({ kind: 'pageMeta' });
+    expect(await table.play(step('a reload'))).toBeUndefined();
   });
 
   it('plays a quoted placeholder that holds nothing', async () => {

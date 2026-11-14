@@ -55,7 +55,6 @@ Given beat 2 is open beside the graph
 When the writer clicks beat 2
 And presses →
 Then beat 3 is in focus
-And beat 2 is still open beside the graph
 - group "Beat 3" [active]:
   - heading "Beat 3" [level=3]
   - text: One-sentence summary
@@ -63,6 +62,7 @@ And beat 2 is still open beside the graph
   - button "Add a scene"
   - button "Open beside"
   - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And beat 2 is still open beside the graph
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
   - button "Close"
