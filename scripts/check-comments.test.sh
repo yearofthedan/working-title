@@ -72,6 +72,21 @@ expect_out '^linkless\.css:1$' "that comment is named"
 rm "$project/linkless.css"
 stage
 
+write triggered.css '/* workaround: Playwright 1.65 prints no aria-current; remove when a snapshot prints it. */\nbody { color: red; }\n'
+stage
+comments
+expect_status 0 "a CSS workaround: with a remove-when trigger passes"
+rm "$project/triggered.css"
+stage
+
+write empty-trigger.css '/* workaround: patched here; remove when */\nbody { color: red; }\n'
+stage
+comments
+expect_status 1 "a CSS workaround: whose trigger names nothing is refused"
+expect_out '^empty-trigger\.css:1$' "that comment is named"
+rm "$project/empty-trigger.css"
+stage
+
 write shebang.sh '#!/bin/sh\necho hi # not at the start of the line\n'
 stage
 comments
