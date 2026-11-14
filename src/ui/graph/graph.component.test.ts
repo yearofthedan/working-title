@@ -871,8 +871,6 @@ describe('what a tree says about focus', () => {
     };
 
     await writer.putsTheFocusOnNameButtonOf('Scene 2');
-    expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
-
     await sees.focusIsOnTheName('Scene 2');
     expect(await marked()).toEqual(['- group "Scene 2":', '- button "Scene 2" [active]']);
 
