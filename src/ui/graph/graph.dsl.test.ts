@@ -53,6 +53,62 @@ describe('what a graph step returns', () => {
     ],
   });
 
+  it('returns the card that is current and holds focus, telling the runner to mark it', async () => {
+    const { driver } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => true }, drawing(true));
+
+    expect(await sees.becomesCurrentAndHasFocus('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+  });
+
+  it('returns the card of a piece that is neither current nor holding focus', async () => {
+    const { driver } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => false }, drawing(false));
+
+    expect(await sees.isNoLongerCurrentAndHasNoFocus('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+  });
+
+  it('refuses a piece that is not current, or whose card does not hold focus', async () => {
+    const { driver } = recording(storyDrawn);
+
+    await expect(
+      seesOn({ ...driver, focusIs: async () => true }, drawing(false)).becomesCurrentAndHasFocus(
+        'Beat 4',
+      ),
+    ).rejects.toThrow('the current piece is nothing, not Beat 4');
+
+    await expect(
+      seesOn({ ...driver, focusIs: async () => false }, drawing(true)).becomesCurrentAndHasFocus(
+        'Beat 4',
+      ),
+    ).rejects.toThrow("the focus is not on Beat 4's card");
+  });
+
+  it('refuses a piece that is still current, or still holding focus', async () => {
+    const { driver } = recording(storyDrawn);
+
+    await expect(
+      seesOn(
+        { ...driver, focusIs: async () => false },
+        drawing(true),
+      ).isNoLongerCurrentAndHasNoFocus('Beat 4'),
+    ).rejects.toThrow('Beat 4 is still the current piece');
+
+    await expect(
+      seesOn(
+        { ...driver, focusIs: async () => true },
+        drawing(false),
+      ).isNoLongerCurrentAndHasNoFocus('Beat 4'),
+    ).rejects.toThrow("the focus is still on Beat 4's card");
+  });
+
   it('returns the piece it checked is no longer current', async () => {
     const { driver } = recording(storyDrawn);
 

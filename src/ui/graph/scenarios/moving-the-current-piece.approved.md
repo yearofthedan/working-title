@@ -85,14 +85,7 @@ And the writer sees
 ```
 Given a current beat with two scenes
 When the writer clicks the first scene's card
-Then the first scene becomes current
-- group "Scene 1":
-  - heading "Scene 1" [level=4]
-  - text: List line
-  - textbox "List line"
-  - button "Open beside"
-  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-And it has focus
+Then the first scene becomes current, and has focus
 - group "Scene 1" [active]:
   - heading "Scene 1" [level=4]
   - text: List line
@@ -106,15 +99,7 @@ And it has focus
 ```
 Given two beats, the first current with tab focus
 When the writer presses →
-Then the second beat becomes current
-- group "Beat 2":
-  - heading "Beat 2" [level=3]
-  - text: One-sentence summary
-  - textbox "One-sentence summary"
-  - button "Add a scene"
-  - button "Open beside"
-  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-And focus moves to its card
+Then the second beat becomes current, and has focus
 - group "Beat 2" [active]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
@@ -122,7 +107,7 @@ And focus moves to its card
   - button "Add a scene"
   - button "Open beside"
   - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-And the first beat is no longer current
+And the first beat is no longer current, and no longer has focus
 - group "Beat 1":
   - heading "Beat 1" [level=3]:
     - button "Beat 1"
@@ -134,14 +119,7 @@ And the first beat is no longer current
 Given a beat with two scenes, the beat current
 And focus on its first scene
 When the writer presses →
-Then the second scene becomes current
-- group "Scene 2":
-  - heading "Scene 2" [level=4]
-  - text: List line
-  - textbox "List line"
-  - button "Open beside"
-  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-And focus moves to its card
+Then the second scene becomes current, and has focus
 - group "Scene 2" [active]:
   - heading "Scene 2" [level=4]
   - text: List line
