@@ -73,7 +73,10 @@ const actions: Record<string, StepAction> = {
     played.push('reloads');
   },
   'a named toy': () => reporting({ role: 'group', name: 'A toy' }),
-  'another toy': () => reporting({ role: 'group', name: 'A toy' }),
+  'another toy': () => {
+    theToy.text = 'Maren rows out';
+    return reporting({ role: 'group', name: 'A toy' });
+  },
 };
 
 const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
@@ -117,7 +120,7 @@ describe('playing a scenario file', () => {
         '  - text: Maren',
         'And another toy',
         '- group "A toy":',
-        '  - text: Maren',
+        '  - text: Maren rows out',
       ),
     );
   });

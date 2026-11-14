@@ -121,7 +121,7 @@ export const linesOf = (tree: string): readonly string[] =>
   tree.replace(/^\n/, '').replace(/\n$/, '').split('\n');
 
 export interface Focus {
-  readonly element: Named;
+  readonly element: Named | undefined;
   readonly inside: Named | undefined;
 }
 
@@ -181,24 +181,17 @@ export const focusAndCurrentIn = (root: Element = document.body): Marks => {
     return undefined;
   };
 
-  const marksOf = (at: Element | null | undefined, what: string): Focus | undefined => {
+  const marksOf = (at: Element | null | undefined): Focus | undefined => {
     if (at === null || at === undefined || at === root || !root.contains(at)) return undefined;
-    const element = named(at);
-    if (element === undefined) {
-      throw new Error(
-        `${what} is <${at.tagName.toLowerCase()}>, whose role or name this reader cannot read: name it in focusAndCurrentIn`,
-      );
-    }
-    return { element, inside: namedAround(at) };
+    return { element: named(at), inside: namedAround(at) };
   };
 
   return {
-    focus: marksOf(document.activeElement, 'the focused element'),
+    focus: marksOf(document.activeElement),
     current: marksOf(
       [...root.querySelectorAll('main fieldset')].find(
         (card) => card.getAttribute('aria-current') === 'location',
       ),
-      'the current piece',
     ),
   };
 };
@@ -210,6 +203,11 @@ const marking = (
   holding: string,
 ): readonly string[] => {
   if (marked === undefined) return lines;
+  if (marked.element === undefined) {
+    throw new Error(
+      `the element that holds ${holding} is one whose role or name this reader cannot read: name it in focusAndCurrentIn`,
+    );
+  }
   const enclosing: (Named | undefined)[] = [];
   let seen = false;
   const markedLines = lines.map((line) => {

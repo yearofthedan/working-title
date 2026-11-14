@@ -6,7 +6,6 @@ Serves: a private build
 
 ```
 Given a new project
-And the writer types "A widow hunts the man who sank her husband's ship" as the story's one-sentence summary
 When a new version is installed
 Then a notice says a new version is ready
 - status:
