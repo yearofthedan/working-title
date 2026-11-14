@@ -2,13 +2,11 @@ import { type Locator, type Page } from '@playwright/test';
 import { cardLooks } from '../ui/card/card';
 import {
   clicking,
-  declarations,
   drawn,
   farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
-  narrowing,
   settled,
   typing,
   wholeNameAnyCase,
@@ -41,7 +39,6 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
   const found = (role: Role, name: string, within?: Within) =>
     rootIn(within).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
-  const declared = declarations();
   const tree = async (): Promise<readonly string[]> => {
     await page.evaluate(settled);
     const wholePage = reads === 'page';
@@ -82,8 +79,6 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
         .first()
         .evaluate((element) => element === document.activeElement);
     },
-    asserts: (role, name) => declared.asserts(role, name),
-    observed: async () => narrowing(await tree(), declared.parts()),
     tree,
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {

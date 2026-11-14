@@ -1,12 +1,10 @@
 import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
-  declarations,
   farEnoughToReachTheEnd,
   focusAssertions,
   focusedIn,
   markingFocusWhenAsserted,
-  narrowing,
   settled,
   typing,
   wholeNameAnyCase,
@@ -54,7 +52,6 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
   const found = (role: Role, name: string, group?: Within) =>
     rootIn(group).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
-  const declared = declarations();
   const tree = async (): Promise<readonly string[]> => {
     await settled();
     return markingFocusWhenAsserted(
@@ -88,8 +85,6 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
       assertions.note();
       return found(role, name, group).first().element() === document.activeElement;
     },
-    asserts: (role, name) => declared.asserts(role, name),
-    observed: async () => narrowing(await tree(), declared.parts()),
     tree,
   };
 };

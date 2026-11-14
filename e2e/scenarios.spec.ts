@@ -13,11 +13,10 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-const runnerFor = (sees: Pick<AppSees, 'tree' | 'observed'>): Runner =>
+const runnerFor = (sees: Pick<AppSees, 'tree'>): Runner =>
   approvingPath === ''
-    ? { observed: () => sees.observed(), tree: () => sees.tree() }
+    ? { tree: () => sees.tree() }
     : {
-        observed: () => sees.observed(),
         tree: () => sees.tree(),
         read: async (where) => readFileSync(join(root, where), 'utf8'),
         write: async (where, what) => {

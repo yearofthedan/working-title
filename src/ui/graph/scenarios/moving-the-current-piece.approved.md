@@ -68,7 +68,7 @@ Given two beats, the first current with tab focus
 When the writer presses →
 Then the second beat becomes current
 And focus moves to its card
-And the first beat is beside it
+And the first beat is no longer current
 - group "Beat 1":
   - heading "Beat 1" [level=3]:
     - button "Beat 1"

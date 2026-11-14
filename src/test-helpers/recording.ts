@@ -1,4 +1,4 @@
-import { narrowing, type AppReads, type Driver, type Opening, type Part } from './driver';
+import { type AppReads, type Driver, type Opening } from './driver';
 import type { SeededProject } from './seed';
 
 export const storyDrawn = [
@@ -12,7 +12,6 @@ export const storyDrawn = [
 export const recording = (tree: readonly string[]) => {
   const calls: string[] = [];
   const started: SeededProject[] = [];
-  const declared: Part[] = [];
   const driver: Driver = {
     press: async (key) => {
       calls.push(`press ${key}`);
@@ -48,10 +47,6 @@ export const recording = (tree: readonly string[]) => {
       calls.push(`focusIs ${role} "${name}"${root}`);
       return false;
     },
-    asserts: (role, name) => {
-      declared.push({ role, name });
-    },
-    observed: async () => narrowing(tree, declared),
     tree: async () => tree,
   };
   const opening: Opening = {

@@ -8,7 +8,6 @@ import type { StepAction } from './steps';
 declare const __SCENARIO_APPROVE__: string;
 
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({
-  observed: () => driver.observed(),
   tree: async () => driver.tree(),
   ...(approving
     ? {

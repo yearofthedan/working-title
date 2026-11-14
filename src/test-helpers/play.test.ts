@@ -36,10 +36,6 @@ const runnerSeeing = (...trees: readonly (readonly string[])[]) => {
       called.push('tree');
       return trees[at++] ?? [];
     },
-    observed: async () => {
-      called.push('observed');
-      return trees[at++] ?? [];
-    },
     read: async () => held,
     write: async (path, text) => {
       held = text;
@@ -93,11 +89,35 @@ describe('playing a scenario file', () => {
     expect(runner.called).toEqual(['tree']);
   });
 
-  it('asks for what its steps asserted on where no step plays "the writer sees"', async () => {
+  it('narrows the tree to the parts its steps returned', async () => {
     const named = [
       'Rule: A toy rule.',
       '',
       '### Scenario: A behaviour that names what it saw',
+      '',
+      '```',
+      'Given a toy',
+      'Then a named toy',
+      '- group "A toy":',
+      '  - text: A toy',
+      '```',
+      '',
+    ].join('\n');
+    const runner = runnerSeeing(['- main:', '  - group "A toy":', '    - text: A toy']);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: named }, runner, {
+      ...actions,
+      'a named toy': () => [{ role: 'group', name: 'A toy' }],
+    });
+
+    expect(runner.called).toEqual(['tree']);
+  });
+
+  it('keeps the whole tree where the steps return nothing', async () => {
+    const named = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A behaviour that saw nothing',
       '',
       '```',
       'Given a toy',
@@ -110,7 +130,33 @@ describe('playing a scenario file', () => {
 
     await playScenarios({ path: 'a/toy.approved.md', text: named }, runner, actions);
 
-    expect(runner.called).toEqual(['observed']);
+    expect(runner.called).toEqual(['tree']);
+  });
+
+  it('keeps the whole tree where the scenario plays "the writer sees"', async () => {
+    const named = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A behaviour that sees the whole tree',
+      '',
+      '```',
+      'Given a toy',
+      'Then a named toy',
+      'Then the writer sees',
+      '- main:',
+      '  - group "A toy":',
+      '    - text: A toy',
+      '```',
+      '',
+    ].join('\n');
+    const runner = runnerSeeing(['- main:', '  - group "A toy":', '    - text: A toy']);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: named }, runner, {
+      ...actions,
+      'a named toy': () => [{ role: 'group', name: 'A toy' }],
+    });
+
+    expect(runner.called).toEqual(['tree']);
   });
 
   it('plays the one scenario it is asked for, and only that one', async () => {
