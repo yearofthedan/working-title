@@ -1,4 +1,4 @@
-import { type AppReads, type Driver, type Opening } from './driver';
+import type { AppReads, Driver, Opening } from './driver';
 import type { SeededProject } from './seed';
 
 export const storyDrawn = [
