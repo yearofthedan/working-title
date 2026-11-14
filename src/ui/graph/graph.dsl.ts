@@ -154,24 +154,26 @@ const sameNames = (what: string, found: readonly string[], wanted: readonly stri
   }
 };
 
-const above = (pieces: readonly DrawnCard[], current: DrawnCard, name: string): void => {
+const above = (pieces: readonly DrawnCard[], current: DrawnCard, name: string): DrawnCard => {
   const parent = pieces.find((piece) => piece.kind === 'card' && piece.name === name);
   if (parent === undefined || parent.box.bottom > current.box.top) {
     throw new Error(`${name} is not on the graph above the current piece`);
   }
+  return parent;
 };
 
 const beside = (
   pieces: readonly DrawnCard[],
   current: DrawnCard,
   names: readonly string[],
-): void => {
+): readonly DrawnCard[] => {
   const at = pieces.findIndex((piece) => piece.kind === 'current');
   sameNames(
     'pieces beside the current piece',
     pieces.filter((piece) => piece.kind === 'chip').map((piece) => piece.name),
     names,
   );
+  const checked: DrawnCard[] = [];
   for (const [index, piece] of pieces.entries()) {
     if (piece.kind !== 'chip') continue;
     if (
@@ -182,14 +184,16 @@ const beside = (
     const wrongSide =
       index < at ? piece.box.right > current.box.left : piece.box.left < current.box.right;
     if (wrongSide) throw new Error(`${piece.name} is on the wrong side of the current piece`);
+    checked.push(piece);
   }
+  return checked;
 };
 
 const under = (
   pieces: readonly DrawnCard[],
   current: DrawnCard,
   names: readonly string[],
-): void => {
+): readonly DrawnCard[] => {
   const children = pieces.filter(
     (piece) => piece.kind === 'card' && piece.box.top >= current.box.bottom,
   );
@@ -208,6 +212,7 @@ const under = (
       throw new Error(`${child.name} is not drawn after ${before.name}`);
     }
   }
+  return children;
 };
 
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
@@ -222,23 +227,20 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     return reporting({ role: 'group', name: pieceNamed(piece) });
   };
 
-  const partsOfTheCurrent = async (piece: string, around: Around = {}): Promise<Part[]> => {
+  const cardsOfTheCurrent = async (piece: string, around: Around = {}): Promise<DrawnCard[]> => {
     const pieces = await reads.drawn();
     const current = theCurrent(pieces, piece);
-    const parts: Part[] = [{ role: 'group', name: pieceNamed(piece) }];
+    const checked = [current];
     if (around.above !== undefined) {
-      parts.push({ role: 'group', name: pieceNamed(around.above) });
-      above(pieces, current, around.above);
+      checked.push(above(pieces, current, pieceNamed(around.above)));
     }
     if (around.beside !== undefined) {
-      for (const name of around.beside) parts.push({ role: 'group', name: pieceNamed(name) });
-      beside(pieces, current, around.beside);
+      checked.push(...beside(pieces, current, around.beside.map(pieceNamed)));
     }
     if (around.under !== undefined) {
-      for (const name of around.under) parts.push({ role: 'group', name: pieceNamed(name) });
-      under(pieces, current, around.under);
+      checked.push(...under(pieces, current, around.under.map(pieceNamed)));
     }
-    return parts;
+    return checked;
   };
 
   const insistTheFocusIsOnTheCurrentCard = async (): Promise<Part> => {
@@ -262,9 +264,15 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
   };
 
   return {
-    currentIs: async (piece, around = {}) => reporting(...(await partsOfTheCurrent(piece, around))),
+    currentIs: async (piece, around = {}) =>
+      reporting(
+        ...(await cardsOfTheCurrent(piece, around)).map((card): Part => ({
+          role: 'toolbar',
+          name: card.row,
+        })),
+      ),
     becomesCurrentAndHasFocus: async (piece) => {
-      await partsOfTheCurrent(piece);
+      await cardsOfTheCurrent(piece);
       return reportingFocus(await insistTheFocusIsOnTheCurrentCard());
     },
     tree: (markFocus = false) => driver.tree(markFocus),

@@ -49,8 +49,47 @@ describe('what a graph step returns', () => {
   const box = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
   const drawing = (current: boolean) => ({
     drawn: async () => [
-      { name: 'Beat 4', kind: current ? ('current' as const) : ('chip' as const), current, box },
+      {
+        name: 'Beat 4',
+        kind: current ? ('current' as const) : ('chip' as const),
+        current,
+        box,
+        row: 'Beats under The story',
+      },
     ],
+  });
+
+  const rowOfSceneOne = { top: 100, bottom: 200, left: 0, right: 240, width: 240, height: 100 };
+  const rowOfScenes = { top: 100, bottom: 200, left: 300, right: 540, width: 240, height: 100 };
+  const twoScenes = {
+    drawn: async () => [
+      {
+        name: 'Scene 1',
+        kind: 'current' as const,
+        current: true,
+        box: rowOfSceneOne,
+        row: 'Scene 1',
+      },
+      {
+        name: 'Scene 2',
+        kind: 'chip' as const,
+        current: false,
+        box: rowOfScenes,
+        row: 'Scenes under Beat 2',
+      },
+    ],
+  };
+
+  it('returns a toolbar for each row it checked a piece in', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, twoScenes).currentIs('Scene 1', { beside: ['Scene 2'] })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'toolbar', name: 'Scene 1' },
+        { role: 'toolbar', name: 'Scenes under Beat 2' },
+      ],
+    });
   });
 
   it('returns the card that is current and holds focus, telling the runner to mark it', async () => {
@@ -126,12 +165,12 @@ describe('what a graph step returns', () => {
     );
   });
 
-  it('returns the pieces it checked as current', async () => {
+  it('returns the toolbar of the row it checked the current piece in', async () => {
     const { driver } = recording(storyDrawn);
 
     expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual({
       kind: 'part',
-      parts: [{ role: 'group', name: 'Beat 4' }],
+      parts: [{ role: 'toolbar', name: 'Beats under The story' }],
     });
   });
 });

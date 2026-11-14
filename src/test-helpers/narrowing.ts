@@ -5,6 +5,7 @@ export type Role =
   | 'main'
   | 'navigation'
   | 'textbox'
+  | 'toolbar'
   | 'complementary';
 
 export interface Named {

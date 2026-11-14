@@ -27,6 +27,7 @@ export interface DrawnCard {
   readonly kind: CardLook;
   readonly current: boolean;
   readonly box: Box;
+  readonly row: string;
 }
 
 export interface Opening {
@@ -56,6 +57,7 @@ export const drawn = (
     kind: kinds.find((kind) => card.classList.contains(kind)) ?? 'hidden',
     current: card.getAttribute('aria-current') === 'location',
     box: card.getBoundingClientRect(),
+    row: card.closest<HTMLElement>('[role="toolbar"]')?.getAttribute('aria-label') ?? '',
   }));
 
 export const farEnoughToReachTheEnd = 1_000_000;
