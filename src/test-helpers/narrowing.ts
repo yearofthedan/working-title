@@ -6,6 +6,7 @@ export type Role =
   | 'navigation'
   | 'textbox'
   | 'toolbar'
+  | 'status'
   | 'complementary';
 
 export interface Named {
@@ -15,7 +16,7 @@ export interface Named {
 
 export interface Part {
   readonly role: Role;
-  readonly name: string;
+  readonly name?: string;
 }
 
 export const namedOn = (line: string): Named | undefined => {
@@ -28,22 +29,24 @@ export const same = (found: Named | undefined, wanted: Named | undefined): boole
     ? found === undefined && wanted === undefined
     : found.role === wanted.role && found.name === wanted.name;
 
+const roleOn = (line: string): string | undefined => /^\s*- ([\w-]+)/.exec(line)?.[1];
+
 export const narrowing = (lines: readonly string[], parts: readonly Part[]): readonly string[] => {
   if (parts.length === 0) return lines;
-  const key = (part: Part): string => `${part.role} ${part.name}`.toLowerCase();
+  const key = (part: Part): string => `${part.role} ${part.name ?? ''}`.toLowerCase();
   const read = new Set<string>();
   const kept: string[] = [];
   let base = -1;
   for (const line of lines) {
     const indent = line.length - line.trimStart().length;
+    const role = roleOn(line);
     const here = namedOn(line);
-    const matching =
-      here === undefined
-        ? []
-        : parts.filter(
-            (part) =>
-              part.role === here.role && part.name.toLowerCase() === here.name.toLowerCase(),
-          );
+    const matching = parts.filter(
+      (part) =>
+        part.role === role &&
+        (part.name === undefined ||
+          (here !== undefined && part.name.toLowerCase() === here.name.toLowerCase())),
+    );
     for (const part of matching) read.add(key(part));
     if (base >= 0 && indent > base) {
       kept.push(line.slice(base));
@@ -56,7 +59,9 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
   }
   const missing = parts.filter((part) => !read.has(key(part)));
   if (missing.length > 0) {
-    const reads = missing.map((part) => `${part.role} "${part.name}"`).join(' or ');
+    const reads = missing
+      .map((part) => `${part.role}${part.name === undefined ? '' : ` "${part.name}"`}`)
+      .join(' or ');
     throw new Error(`no line reads ${reads}, so a scenario cannot record what it checked`);
   }
   return kept;

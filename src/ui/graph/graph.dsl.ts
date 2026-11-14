@@ -255,7 +255,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     return checked;
   };
 
-  const insistTheFocusIsOnTheCurrentCard = async (): Promise<DrawnCard> => {
+  const insistTheFocusIsOnTheCurrentCard = async (): Promise<Part> => {
     const cards = (await reads.drawn()).filter((piece) => piece.current);
     const [only] = cards;
     if (cards.length !== 1 || only === undefined) {
@@ -264,7 +264,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     if (!(await driver.focusIs('group', only.name))) {
       throw new Error(`the focus is not on ${only.name}'s card`);
     }
-    return only;
+    return { role: 'group', name: only.name };
   };
 
   const insistNoLongerCurrent = async (piece: string): Promise<string> => {
@@ -280,7 +280,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       reporting(...theRowsOf(await cardsOfTheCurrent(piece, around))),
     becomesCurrentAndHasFocus: async (piece) => {
       await cardsOfTheCurrent(piece);
-      return reportingFocus(...theRowsOf([await insistTheFocusIsOnTheCurrentCard()]));
+      return reportingFocus(await insistTheFocusIsOnTheCurrentCard());
     },
     tree: (markFocus = false) => driver.tree(markFocus),
     focusIsIn: async (piece, facet) => {
@@ -301,8 +301,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       }
       return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
-    focusIsOnTheCard: async () =>
-      reportingFocus({ role: 'group', name: (await insistTheFocusIsOnTheCurrentCard()).name }),
+    focusIsOnTheCard: async () => reportingFocus(await insistTheFocusIsOnTheCurrentCard()),
     isNoLongerCurrent: async (piece) =>
       reporting({ role: 'group', name: await insistNoLongerCurrent(piece) }),
     isNoLongerCurrentAndHasNoFocus: async (piece) => {

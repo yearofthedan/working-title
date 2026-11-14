@@ -8,50 +8,8 @@ Serves: a private build
 Given a new project
 And the writer types "A widow hunts the man who sank her husband's ship" as the story's one-sentence summary
 When a new version is installed
-Then the writer sees
-- banner:
-  - heading "working-title" [level=1]
-  - navigation "Where you are":
-    - list:
-      - listitem: The story
-  - status:
-    - text: A new version is ready.
-    - button "Reload"
-- main:
-  - toolbar "The story":
-    - group "The story" [current]:
-      - heading "The story" [level=2]
-      - text: One-sentence summary
-      - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
-  - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
+Then a notice says a new version is ready
+- status:
+  - text: A new version is ready.
+  - button "Reload"
 ```

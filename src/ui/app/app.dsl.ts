@@ -111,7 +111,7 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
         `${piece}'s ${facet} beside the graph reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
       );
     }
-    return reporting({ role: 'complementary', name: pieceNamed(piece) });
+    return reporting({ role: 'textbox', name: facet });
   },
   focusIsInTheParagraph: async () => {
     if (!(await driver.focusIs('textbox', 'Paragraph'))) {

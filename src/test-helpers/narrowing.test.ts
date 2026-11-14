@@ -70,3 +70,58 @@ describe('narrowing a tree to the parts a scenario asserted on', () => {
     ).toEqual(theSecondScene);
   });
 });
+
+describe('narrowing to a part that names a role alone', () => {
+  const banner = [
+    '- banner:',
+    '  - heading "working-title" [level=1]',
+    '  - status:',
+    '    - text: A new version is ready.',
+    '    - button "Reload"',
+  ];
+
+  it('keeps the unnamed line of that role and what is under it', () => {
+    expect(narrowing(banner, [{ role: 'status' }])).toEqual([
+      '- status:',
+      '  - text: A new version is ready.',
+      '  - button "Reload"',
+    ]);
+  });
+
+  it('keeps a named line of that role too, since the name is not asked for', () => {
+    expect(narrowing(tree, [{ role: 'group' }])).toEqual([
+      '- group "Scene 1":',
+      '  - heading "Scene 1" [level=4]:',
+      '    - button "Scene 1"',
+      '  - text: List line',
+      '  - textbox "List line"',
+      '- group "Scene 2":',
+      '  - heading "Scene 2" [level=4]:',
+      '    - button "Scene 2"',
+      '  - text: List line',
+      '  - textbox "List line": Maren bribes the harbourmaster',
+    ]);
+  });
+
+  it('keeps every line of that role where the tree holds more than one', () => {
+    const two = [
+      '- banner:',
+      '  - status:',
+      '    - text: A new version is ready.',
+      '- main:',
+      '  - status:',
+      '    - text: Saved.',
+    ];
+
+    expect(narrowing(two, [{ role: 'status' }])).toEqual([
+      '- status:',
+      '  - text: A new version is ready.',
+      '- status:',
+      '  - text: Saved.',
+    ]);
+  });
+
+  it('refuses a role the tree holds no line of, so a record cannot silently empty', () => {
+    expect(() => narrowing(banner, [{ role: 'toolbar' }])).toThrow('no line reads toolbar');
+  });
+});
