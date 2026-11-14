@@ -9,11 +9,12 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
 link='^workaround: https://github\.com/[^/ ]+/[^/ ]+/issues/[0-9]+'
+trigger='^workaround: .+; remove when [^ ]'
 allowed() {
   case "$1" in
   'shortcut: '* | 'help: '* | '@ts-expect-error'* | 'oxlint-disable'* | '@type'*) return 0 ;;
   esac
-  printf '%s\n' "$1" | grep -Eq "$link"
+  printf '%s\n' "$1" | grep -Eq "$link|$trigger"
 }
 
 : >"$work/bad"
@@ -81,7 +82,7 @@ done
 
 if [ -s "$work/bad" ]; then
   cat "$work/bad"
-  echo "A comment is allowed only with one of the prefixes this repo allows: shortcut:, workaround: with a GitHub issue link, help:, @ts-expect-error, oxlint-disable or @type. Why there is almost never a reason for a comment: https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/comments.md" >&2
+  echo "A comment is allowed only with one of the prefixes this repo allows: shortcut:, workaround: with a GitHub issue link or with \"; remove when <what to check>\", help:, @ts-expect-error, oxlint-disable or @type. Why there is almost never a reason for a comment: https://github.com/yearofthedan/snippets/blob/main/plugins/dev-skills/rules/comments.md" >&2
   exit 1
 fi
 
