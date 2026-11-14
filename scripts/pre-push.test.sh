@@ -21,6 +21,16 @@ cp -R "$root/.vite-hooks/_" "$root/.vite-hooks/pre-push" "$repo/.vite-hooks/"
   git push -q --no-verify origin main
 )
 
+GH_PRS="$work/gh-prs"
+export GH_PRS
+: >"$GH_PRS"
+printf '#!/bin/sh\n' >"$work/bin/gh"
+cat >>"$work/bin/gh" <<'STUB'
+[ -e "$GH_PRS" ] || { echo 'HTTP 401: Bad credentials' >&2; exit 1; }
+cat "$GH_PRS"
+STUB
+chmod +x "$work/bin/gh"
+
 push() {
   status=0
   git -C "$repo" push -q origin "$@" >"$work/out" 2>"$work/err" || status=$?
@@ -35,6 +45,26 @@ expect_status 0 "a new story branch is pushed"
 commit 'two'
 push 76-a-story
 expect_status 0 "a story branch that moves forward is pushed"
+expect_err 'no open pull request carries 76-a-story; open one' "a branch with no pull request yet is told to open one"
+
+echo 'open #77' >"$GH_PRS"
+commit 'three'
+push 76-a-story
+expect_status 0 "a branch with an open pull request is pushed"
+if [ -s "$work/err" ]; then no "a branch with an open pull request gets no note"; else ok "a branch with an open pull request gets no note"; fi
+
+echo 'merged #216' >"$GH_PRS"
+commit 'four'
+push 76-a-story
+expect_status 0 "a branch whose pull request merged is still pushed"
+expect_err 'no open pull request carries 76-a-story (merged #216); open one' "the note names the merged pull request"
+
+rm "$GH_PRS"
+commit 'five'
+push 76-a-story
+expect_status 0 "a push goes through when gh cannot read the pull requests"
+expect_err 'gh could not read its pull requests' "the note says gh could not read them"
+: >"$GH_PRS"
 
 push HEAD:main
 expect_status 1 "a push to main is refused"
