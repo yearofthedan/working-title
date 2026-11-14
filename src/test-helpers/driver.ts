@@ -235,6 +235,7 @@ export const markingFocus = (
   focus: Focus | undefined,
 ): readonly string[] => marking(lines, focus, '[active]', 'focus');
 
+// workaround: Playwright 1.65 and Vitest 5.1 aria snapshots print no aria-current; remove when a snapshot prints it, which the "leaves a marker the renderer printed itself" case in driver.test.ts guards.
 export const markingCurrent = (
   lines: readonly string[],
   current: Focus | undefined,
