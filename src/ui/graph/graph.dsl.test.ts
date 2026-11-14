@@ -119,13 +119,13 @@ describe('what a graph step returns', () => {
     });
   });
 
-  it('returns the card that is current and holds focus, telling the runner to mark it', async () => {
+  it('returns the row the card that is current and holds focus is in', async () => {
     const { driver } = recording(storyDrawn);
     const sees = seesOn({ ...driver, focusIs: async () => true }, drawing(true));
 
     expect(await sees.becomesCurrentAndHasFocus('Beat 4')).toEqual({
       kind: 'part',
-      parts: [{ role: 'group', name: 'Beat 4' }],
+      parts: [{ role: 'toolbar', name: 'Beats under The story' }],
       focus: true,
     });
   });

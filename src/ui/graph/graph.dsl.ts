@@ -255,7 +255,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     return checked;
   };
 
-  const insistTheFocusIsOnTheCurrentCard = async (): Promise<Part> => {
+  const insistTheFocusIsOnTheCurrentCard = async (): Promise<DrawnCard> => {
     const cards = (await reads.drawn()).filter((piece) => piece.current);
     const [only] = cards;
     if (cards.length !== 1 || only === undefined) {
@@ -264,7 +264,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     if (!(await driver.focusIs('group', only.name))) {
       throw new Error(`the focus is not on ${only.name}'s card`);
     }
-    return { role: 'group', name: only.name };
+    return only;
   };
 
   const insistNoLongerCurrent = async (piece: string): Promise<string> => {
@@ -280,7 +280,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       reporting(...theRowsOf(await cardsOfTheCurrent(piece, around))),
     becomesCurrentAndHasFocus: async (piece) => {
       await cardsOfTheCurrent(piece);
-      return reportingFocus(await insistTheFocusIsOnTheCurrentCard());
+      return reportingFocus(...theRowsOf([await insistTheFocusIsOnTheCurrentCard()]));
     },
     tree: (markFocus = false) => driver.tree(markFocus),
     focusIsIn: async (piece, facet) => {
@@ -301,7 +301,8 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       }
       return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
-    focusIsOnTheCard: async () => reportingFocus(await insistTheFocusIsOnTheCurrentCard()),
+    focusIsOnTheCard: async () =>
+      reportingFocus({ role: 'group', name: (await insistTheFocusIsOnTheCurrentCard()).name }),
     isNoLongerCurrent: async (piece) =>
       reporting({ role: 'group', name: await insistNoLongerCurrent(piece) }),
     isNoLongerCurrentAndHasNoFocus: async (piece) => {
@@ -375,5 +376,5 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.currentIs('Scene 1', { above: 'Beat 2', beside: ['Scene 2'] }),
   'beat 2 is current, with scenes 1 and 2 under it': () =>
     sees.currentIs('Beat 2', { under: ['Scene 1', 'Scene 2'] }),
-  'scene 2 under beat 2 is current': () => sees.currentIs('Scene 2'),
+  'scene 2 under beat 2 is current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 2'),
 });
