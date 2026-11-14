@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a push to anything but a story branch, a push that rewrites what the remote holds, and a push that deletes a ref.
+# help: Refuse a push to anything but a story branch, a push that rewrites what the remote holds, and a push that deletes a ref; say when no open pull request carries the branch.
 
 set -eu
 
@@ -21,6 +21,12 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null ||
       refuse "it would rewrite $branch, whose remote head is not in what you push. Fetch and build on it instead."
     ;;
+  esac
+  prs=$(gh pr list --head "$branch" --state all --json number,state -q '.[] | "\(.state | ascii_downcase) #\(.number)"' 2>/dev/null) ||
+    prs='gh could not read its pull requests'
+  case $prs in
+  *open\ \#*) ;;
+  *) echo "note: no open pull request carries $branch${prs:+ ($(echo $prs))}; open one for this push to reach main." >&2 ;;
   esac
 done
 exit 0
