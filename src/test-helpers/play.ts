@@ -9,7 +9,6 @@ export interface ScenarioSource {
 
 export interface Runner {
   tree(markFocus: boolean): Promise<readonly string[]>;
-  pageMeta?(): Promise<string>;
   read?(path: string): Promise<string>;
   write?(path: string, text: string): Promise<void>;
 }
@@ -47,14 +46,6 @@ const refuse = (scenario: Scenario, blocks: readonly (readonly string[])[], path
 };
 
 const print = async (evidence: Evidence, runner: Runner): Promise<readonly string[]> => {
-  if (evidence.kind === 'pageMeta') {
-    if (runner.pageMeta === undefined) {
-      throw new Error(
-        'This runner reads no page meta, and a step reported some: only the Playwright runner has a page to read it from.',
-      );
-    }
-    return [`- page title: ${await runner.pageMeta()}`];
-  }
   const lines = await runner.tree(evidence.kind === 'part' && evidence.focus === true);
   return evidence.kind === 'whole' ? lines : narrowing(lines, evidence.parts);
 };

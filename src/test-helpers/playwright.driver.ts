@@ -19,7 +19,6 @@ import {
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theAppsName: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
-  pageMeta(): Promise<string>;
 }
 
 export const playwrightReads = (page: Page): AppReads => ({
@@ -75,7 +74,6 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
         .first()
         .evaluate((element) => element === document.activeElement),
     tree,
-    pageMeta: async () => page.title(),
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {
         const frames: string[] = [];

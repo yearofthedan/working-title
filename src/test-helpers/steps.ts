@@ -3,8 +3,7 @@ import type { Step } from './scenario-file';
 
 export type Evidence =
   | { readonly kind: 'part'; readonly parts: readonly Part[]; readonly focus?: true }
-  | { readonly kind: 'whole' }
-  | { readonly kind: 'pageMeta' };
+  | { readonly kind: 'whole' };
 
 export const reporting = (...parts: readonly Part[]): Evidence => ({ kind: 'part', parts });
 
@@ -15,8 +14,6 @@ export const reportingFocus = (...parts: readonly Part[]): Evidence => ({
 });
 
 export const wholeTree = (): Evidence => ({ kind: 'whole' });
-
-export const pageMeta = (): Evidence => ({ kind: 'pageMeta' });
 
 export type StepAction = (
   vars: Record<string, string>,

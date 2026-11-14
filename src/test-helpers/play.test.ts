@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { playScenarios, type Runner, type ScenarioSource } from './play';
-import { pageMeta, reporting, reportingFocus, type StepAction } from './steps';
+import { reporting, reportingFocus, type StepAction } from './steps';
 
-const theToy = { text: 'Nothing yet', title: 'working-title' };
+const theToy = { text: 'Nothing yet' };
 
 const toyTree = (markFocus: boolean): readonly string[] => [
   '- group "A toy":',
@@ -48,7 +48,6 @@ const runnerFor = (text: string) => {
       marked.push(markFocus);
       return toyTree(markFocus);
     },
-    pageMeta: async () => theToy.title,
     read: async () => held,
     write: async (path, next) => {
       held = next;
@@ -65,7 +64,6 @@ const actions: Record<string, StepAction> = {
   'a toy': () => {
     played.push('a toy');
     theToy.text = 'Nothing yet';
-    theToy.title = 'working-title';
   },
   'the writer types "{text}"': ({ text }) => {
     played.push(`types ${text}`);
@@ -76,11 +74,6 @@ const actions: Record<string, StepAction> = {
   },
   'a named toy': () => reporting({ role: 'group', name: 'A toy' }),
   'another toy': () => reporting({ role: 'group', name: 'A toy' }),
-  'the toy page': () => pageMeta(),
-  'the toy page again': () => pageMeta(),
-  'a new version is installed': () => {
-    theToy.title = 'working-title (new version)';
-  },
 };
 
 const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
@@ -125,31 +118,6 @@ describe('playing a scenario file', () => {
         'And another toy',
         '- group "A toy":',
         '  - text: Maren',
-      ),
-    );
-  });
-
-  it('reads the page meta right after each assertion, so each line shows the title its steps left', async () => {
-    const two = aScenario(
-      'Given a toy',
-      'When a new version is installed',
-      'Then the toy page',
-      'Then the toy page again',
-    );
-    const runner = runnerFor(two);
-
-    await playScenarios({ path: 'a/toy.approved.md', text: two }, runner, actions, {
-      approve: true,
-    });
-
-    expect(runner.written.at(-1)?.text).toBe(
-      aScenario(
-        'Given a toy',
-        'When a new version is installed',
-        'Then the toy page',
-        '- page title: working-title (new version)',
-        'Then the toy page again',
-        '- page title: working-title (new version)',
       ),
     );
   });
@@ -317,16 +285,6 @@ describe('playing a scenario file', () => {
     await expect(
       playScenarios({ path: 'a/toy.approved.md', text: nothing }, runnerFor(nothing), actions),
     ).rejects.toThrow('"And a toy" is a Then and reports nothing');
-  });
-
-  it('refuses page meta where the runner reads none', async () => {
-    const meta = aScenario('Given a toy', 'Then the toy page', '- page title: working-title');
-    const runner = runnerFor(meta);
-    delete runner.pageMeta;
-
-    await expect(
-      playScenarios({ path: 'a/toy.approved.md', text: meta }, runner, actions),
-    ).rejects.toThrow('reads no page meta');
   });
 
   it('plays the one scenario it is asked for, and only that one', async () => {

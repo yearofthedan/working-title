@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { pageMeta, reporting, reportingFocus, stepTable, wholeTree } from './steps';
+import { reporting, reportingFocus, stepTable, wholeTree } from './steps';
 
 const step = (phrase: string) => ({ keyword: 'When' as const, phrase });
 
@@ -25,7 +25,6 @@ describe('a step table', () => {
       'a named toy': () => reporting({ role: 'group', name: 'A toy' }),
       'a focused toy': () => reportingFocus({ role: 'group', name: 'A toy' }),
       'the whole toy': () => wholeTree(),
-      'the toy page': () => pageMeta(),
       'a reload': () => {},
     });
 
@@ -39,7 +38,6 @@ describe('a step table', () => {
       focus: true,
     });
     expect(await table.play(step('the whole toy'))).toEqual({ kind: 'whole' });
-    expect(await table.play(step('the toy page'))).toEqual({ kind: 'pageMeta' });
     expect(await table.play(step('a reload'))).toBeUndefined();
   });
 
