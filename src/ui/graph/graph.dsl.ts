@@ -215,6 +215,18 @@ const under = (
   return children;
 };
 
+const theRowsOf = (cards: readonly DrawnCard[]): readonly Part[] => {
+  const rows = new Set<string>();
+  return cards
+    .map((card): Part => ({ role: 'toolbar', name: card.row }))
+    .filter((part) => {
+      const row = `${part.role} ${part.name}`;
+      if (rows.has(row)) return false;
+      rows.add(row);
+      return true;
+    });
+};
+
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
   const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<Evidence> => {
     const field = underABeat.exec(facet)?.groups?.['facet'] ?? facet;
@@ -265,12 +277,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
 
   return {
     currentIs: async (piece, around = {}) =>
-      reporting(
-        ...(await cardsOfTheCurrent(piece, around)).map((card): Part => ({
-          role: 'toolbar',
-          name: card.row,
-        })),
-      ),
+      reporting(...theRowsOf(await cardsOfTheCurrent(piece, around))),
     becomesCurrentAndHasFocus: async (piece) => {
       await cardsOfTheCurrent(piece);
       return reportingFocus(await insistTheFocusIsOnTheCurrentCard());

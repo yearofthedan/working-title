@@ -80,6 +80,33 @@ describe('what a graph step returns', () => {
     ],
   };
 
+  it('reports a row once where it checked two pieces drawn in it', async () => {
+    const { driver } = recording(storyDrawn);
+    const oneRow = {
+      drawn: async () => [
+        {
+          name: 'Scene 1',
+          kind: 'current' as const,
+          current: true,
+          box: rowOfSceneOne,
+          row: 'Scenes under Beat 2',
+        },
+        {
+          name: 'Scene 2',
+          kind: 'chip' as const,
+          current: false,
+          box: rowOfScenes,
+          row: 'Scenes under Beat 2',
+        },
+      ],
+    };
+
+    expect(await seesOn(driver, oneRow).currentIs('Scene 1', { beside: ['Scene 2'] })).toEqual({
+      kind: 'part',
+      parts: [{ role: 'toolbar', name: 'Scenes under Beat 2' }],
+    });
+  });
+
   it('returns a toolbar for each row it checked a piece in', async () => {
     const { driver } = recording(storyDrawn);
 
