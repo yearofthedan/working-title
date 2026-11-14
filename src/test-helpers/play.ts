@@ -29,17 +29,21 @@ const difference = (recorded: readonly string[], observed: readonly string[]): s
   return lines.join('\n');
 };
 
-const refuse = (scenario: Scenario, observed: readonly string[], path: string): void => {
-  const recorded = scenario.steps.flatMap((step) => step.observed ?? []);
-  if (recorded.join('\n') === observed.join('\n')) return;
-  throw new Error(
-    [
-      `${path}: ${scenario.behaviour} does not see what is recorded:`,
-      difference(recorded, observed),
-      '',
-      `Approve it with ./do approve ${path} if the change is the one you meant.`,
-    ].join('\n'),
-  );
+const refuse = (scenario: Scenario, blocks: readonly (readonly string[])[], path: string): void => {
+  const assertions = scenario.steps.filter((_, at) => kindOf(scenario.steps, at) === 'Then');
+  for (const [at, step] of assertions.entries()) {
+    const recorded = step.observed ?? [];
+    const observed = blocks[at] ?? [];
+    if (recorded.join('\n') === observed.join('\n')) continue;
+    throw new Error(
+      [
+        `${path}: ${scenario.behaviour} does not see what is recorded for "${step.keyword} ${step.phrase}":`,
+        difference(recorded, observed),
+        '',
+        `Approve it with ./do approve ${path} if the change is the one you meant.`,
+      ].join('\n'),
+    );
+  }
 };
 
 const print = async (evidence: Evidence, runner: Runner): Promise<readonly string[]> => {
@@ -74,7 +78,6 @@ export const playScenarios = async (
 
   for (const scenario of file.scenarios) {
     if (options.only !== undefined && scenario.behaviour !== options.only) continue;
-    const observed: string[] = [];
     const blocks: string[][] = [];
     for (const [at, step] of scenario.steps.entries()) {
       const kind = kindOf(scenario.steps, at);
@@ -94,14 +97,13 @@ export const playScenarios = async (
       }
       const block = [...(await print(reported, runner))];
       blocks.push(block);
-      observed.push(...block);
     }
 
     if (options.approve) {
       approved = withObserved(approved, scenario.behaviour, blocks);
       continue;
     }
-    refuse(scenario, observed, source.path);
+    refuse(scenario, blocks, source.path);
   }
 
   if (options.approve) await runner.write?.(source.path, approved);

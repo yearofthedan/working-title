@@ -2,6 +2,16 @@ import { describe, expect, it } from 'vite-plus/test';
 import { playScenarios, type Runner, type ScenarioSource } from './play';
 import { pageMeta, reporting, reportingFocus, type StepAction } from './steps';
 
+const theToy = { text: 'Nothing yet', title: 'working-title' };
+
+const toyTree = (markFocus: boolean): readonly string[] => [
+  '- group "A toy":',
+  `  - text: ${theToy.text}`,
+  ...(markFocus ? ['  - button "A toy" [active]'] : []),
+  '- group "Another toy":',
+  '  - text: Not this one',
+];
+
 const file = [
   'Rule: A toy rule.',
   '',
@@ -13,7 +23,7 @@ const file = [
   'And reloads',
   'Then a named toy',
   '- group "A toy":',
-  '  - text: A toy',
+  '  - text: the line',
   '```',
   '',
   '### Scenario: Another behaviour',
@@ -21,27 +31,24 @@ const file = [
   '```',
   'Given a toy',
   'Then the writer sees',
-  '- main:',
+  '- group "A toy":',
+  '  - text: Nothing yet',
+  '- group "Another toy":',
+  '  - text: Not this one',
   '```',
   '',
 ].join('\n');
 
-const runnerFor = (
-  text: string,
-  trees: readonly (readonly string[])[],
-  titles: readonly string[] = [],
-) => {
-  let at = 0;
-  let page = 0;
+const runnerFor = (text: string) => {
   let held = text;
   const written: { path: string; text: string }[] = [];
   const marked: boolean[] = [];
   const runner: Runner & { written: typeof written; marked: typeof marked } = {
     tree: async (markFocus) => {
       marked.push(markFocus);
-      return trees[at++] ?? [];
+      return toyTree(markFocus);
     },
-    pageMeta: async () => titles[page++] ?? '',
+    pageMeta: async () => theToy.title,
     read: async () => held,
     write: async (path, next) => {
       held = next;
@@ -57,15 +64,23 @@ const played: string[] = [];
 const actions: Record<string, StepAction> = {
   'a toy': () => {
     played.push('a toy');
+    theToy.text = 'Nothing yet';
+    theToy.title = 'working-title';
   },
-  'the writer types {text}': ({ text }) => {
+  'the writer types "{text}"': ({ text }) => {
     played.push(`types ${text}`);
+    theToy.text = text ?? '';
   },
   reloads: () => {
     played.push('reloads');
   },
   'a named toy': () => reporting({ role: 'group', name: 'A toy' }),
   'another toy': () => reporting({ role: 'group', name: 'A toy' }),
+  'the toy page': () => pageMeta(),
+  'the toy page again': () => pageMeta(),
+  'a new version is installed': () => {
+    theToy.title = 'working-title (new version)';
+  },
 };
 
 const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
@@ -78,28 +93,22 @@ const aScenario = (...lines: readonly string[]): string =>
 describe('playing a scenario file', () => {
   it('plays each scenario to the world the runner made for it, in the order it is written', async () => {
     played.length = 0;
-    await playScenarios(
-      source(),
-      runnerFor(file, [['- group "A toy":', '  - text: A toy'], ['- main:']]),
-      actions,
-    );
-    expect(played).toEqual(['a toy', 'types "the line"', 'reloads', 'a toy']);
+    await playScenarios(source(), runnerFor(file), actions);
+    expect(played).toEqual(['a toy', 'types the line', 'reloads', 'a toy']);
   });
 
   it('passes when every scenario sees what the file records', async () => {
-    await playScenarios(
-      source(),
-      runnerFor(file, [['- group "A toy":', '  - text: A toy'], ['- main:']]),
-      actions,
-    );
+    await playScenarios(source(), runnerFor(file), actions);
   });
 
-  it('reads the tree right after each assertion, and prints its block under it', async () => {
-    const two = aScenario('Given a toy', 'Then a named toy', 'And another toy');
-    const runner = runnerFor(two, [
-      ['- group "A toy":', '  - text: Before the next step'],
-      ['- group "A toy":', '  - text: After the next step'],
-    ]);
+  it('reads the tree right after each assertion, so each block shows the page its steps left', async () => {
+    const two = aScenario(
+      'Given a toy',
+      'When the writer types "Maren"',
+      'Then a named toy',
+      'And another toy',
+    );
+    const runner = runnerFor(two);
 
     await playScenarios({ path: 'a/toy.approved.md', text: two }, runner, actions, {
       approve: true,
@@ -109,12 +118,38 @@ describe('playing a scenario file', () => {
     expect(runner.written.at(-1)?.text).toBe(
       aScenario(
         'Given a toy',
+        'When the writer types "Maren"',
         'Then a named toy',
         '- group "A toy":',
-        '  - text: Before the next step',
+        '  - text: Maren',
         'And another toy',
         '- group "A toy":',
-        '  - text: After the next step',
+        '  - text: Maren',
+      ),
+    );
+  });
+
+  it('reads the page meta right after each assertion, so each line shows the title its steps left', async () => {
+    const two = aScenario(
+      'Given a toy',
+      'When a new version is installed',
+      'Then the toy page',
+      'Then the toy page again',
+    );
+    const runner = runnerFor(two);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: two }, runner, actions, {
+      approve: true,
+    });
+
+    expect(runner.written.at(-1)?.text).toBe(
+      aScenario(
+        'Given a toy',
+        'When a new version is installed',
+        'Then the toy page',
+        '- page title: working-title (new version)',
+        'Then the toy page again',
+        '- page title: working-title (new version)',
       ),
     );
   });
@@ -124,10 +159,13 @@ describe('playing a scenario file', () => {
       'Given a toy',
       'Then a named toy',
       '- group "A toy":',
+      '  - text: Nothing yet',
       'And the focus is on it',
-      '- group "A toy" [active]:',
+      '- group "A toy":',
+      '  - text: Nothing yet',
+      '  - button "A toy" [active]',
     );
-    const runner = runnerFor(two, [['- group "A toy":'], ['- group "A toy" [active]:']]);
+    const runner = runnerFor(two);
 
     await playScenarios({ path: 'a/toy.approved.md', text: two }, runner, {
       ...actions,
@@ -138,34 +176,41 @@ describe('playing a scenario file', () => {
   });
 
   it('narrows a block to the parts that step reported', async () => {
-    const named = aScenario('Given a toy', 'Then a named toy', '- group "A toy":');
-    const runner = runnerFor(named, [['- main:', '  - group "A toy":', '    - text: A toy']]);
+    const named = aScenario('Given a toy', 'Then a named toy');
+    const runner = runnerFor(named);
 
     await playScenarios({ path: 'a/toy.approved.md', text: named }, runner, actions, {
       approve: true,
     });
 
     expect(runner.written.at(-1)?.text).toBe(
-      aScenario('Given a toy', 'Then a named toy', '- group "A toy":', '  - text: A toy'),
+      aScenario('Given a toy', 'Then a named toy', '- group "A toy":', '  - text: Nothing yet'),
     );
   });
 
   it('takes "the writer sees" as an assertion reporting the whole tree', async () => {
-    const sees = aScenario('Given a toy', 'Then the writer sees', '- main:');
-    const runner = runnerFor(sees, [['- main:', '  - group "A toy":']]);
+    const sees = aScenario('Given a toy', 'Then the writer sees');
+    const runner = runnerFor(sees);
 
     await playScenarios({ path: 'a/toy.approved.md', text: sees }, runner, actions, {
       approve: true,
     });
 
     expect(runner.written.at(-1)?.text).toBe(
-      aScenario('Given a toy', 'Then the writer sees', '- main:', '  - group "A toy":'),
+      aScenario(
+        'Given a toy',
+        'Then the writer sees',
+        '- group "A toy":',
+        '  - text: Nothing yet',
+        '- group "Another toy":',
+        '  - text: Not this one',
+      ),
     );
   });
 
   it('takes "And the writer sees" under a Then as the whole tree too', async () => {
     const sees = aScenario('Given a toy', 'Then a named toy', 'And the writer sees');
-    const runner = runnerFor(sees, [['- group "A toy":'], ['- main:']]);
+    const runner = runnerFor(sees);
 
     await playScenarios({ path: 'a/toy.approved.md', text: sees }, runner, actions, {
       approve: true,
@@ -176,25 +221,62 @@ describe('playing a scenario file', () => {
         'Given a toy',
         'Then a named toy',
         '- group "A toy":',
+        '  - text: Nothing yet',
         'And the writer sees',
-        '- main:',
+        '- group "A toy":',
+        '  - text: Nothing yet',
+        '- group "Another toy":',
+        '  - text: Not this one',
       ),
     );
   });
 
-  it('refuses a difference, showing it as lines and naming the file', async () => {
+  it('refuses a difference, showing it as lines and naming the step', async () => {
+    const wrong = aScenario(
+      'Given a toy',
+      'Then a named toy',
+      '- group "A toy":',
+      '  - text: Something else',
+    );
     const message = await playScenarios(
-      source(),
-      runnerFor(file, [['- group "A toy":', '  - text: Something else'], ['- main:']]),
+      { path: 'a/toy.approved.md', text: wrong },
+      runnerFor(wrong),
       actions,
     ).catch((error: Error) => error.message);
 
     expect(message).toBe(
       [
-        'a/toy.approved.md: A toy behaviour does not see what is recorded:',
+        'a/toy.approved.md: A toy behaviour does not see what is recorded for "Then a named toy":',
         ' - group "A toy":',
-        '-  - text: A toy',
-        '+  - text: Something else',
+        '-  - text: Something else',
+        '+  - text: Nothing yet',
+        '',
+        'Approve it with ./do approve a/toy.approved.md if the change is the one you meant.',
+      ].join('\n'),
+    );
+  });
+
+  it('refuses a block line a hand-edited file moved to another assertion', async () => {
+    const moved = aScenario(
+      'Given a toy',
+      'Then a named toy',
+      '- group "A toy":',
+      'And another toy',
+      '  - text: Nothing yet',
+      '- group "A toy":',
+      '  - text: Nothing yet',
+    );
+    const message = await playScenarios(
+      { path: 'a/toy.approved.md', text: moved },
+      runnerFor(moved),
+      actions,
+    ).catch((error: Error) => error.message);
+
+    expect(message).toBe(
+      [
+        'a/toy.approved.md: A toy behaviour does not see what is recorded for "Then a named toy":',
+        ' - group "A toy":',
+        '+  - text: Nothing yet',
         '',
         'Approve it with ./do approve a/toy.approved.md if the change is the one you meant.',
       ].join('\n'),
@@ -205,11 +287,7 @@ describe('playing a scenario file', () => {
     const named = aScenario('Given a toy', 'Then a toy');
 
     await expect(
-      playScenarios(
-        { path: 'a/toy.approved.md', text: named },
-        runnerFor(named, [['- main:']]),
-        actions,
-      ),
+      playScenarios({ path: 'a/toy.approved.md', text: named }, runnerFor(named), actions),
     ).rejects.toThrow(
       'A toy behaviour: "Then a toy" is a Then and reports nothing, and a Then reports the evidence it asserted on',
     );
@@ -219,11 +297,7 @@ describe('playing a scenario file', () => {
     const given = aScenario('Given a named toy', 'Then a named toy');
 
     await expect(
-      playScenarios(
-        { path: 'a/toy.approved.md', text: given },
-        runnerFor(given, [['- group "A toy":'], ['- group "A toy":']]),
-        actions,
-      ),
+      playScenarios({ path: 'a/toy.approved.md', text: given }, runnerFor(given), actions),
     ).rejects.toThrow(
       'A toy behaviour: "Given a named toy" is a Given and reports evidence, and only a Then reports the evidence it asserted on',
     );
@@ -233,11 +307,7 @@ describe('playing a scenario file', () => {
     const when = aScenario('Given a toy', 'When a named toy', 'Then a named toy');
 
     await expect(
-      playScenarios(
-        { path: 'a/toy.approved.md', text: when },
-        runnerFor(when, [['- group "A toy":']]),
-        actions,
-      ),
+      playScenarios({ path: 'a/toy.approved.md', text: when }, runnerFor(when), actions),
     ).rejects.toThrow('"When a named toy" is a When and reports evidence');
   });
 
@@ -245,68 +315,38 @@ describe('playing a scenario file', () => {
     const nothing = aScenario('Given a toy', 'Then a named toy', 'And a toy');
 
     await expect(
-      playScenarios(
-        { path: 'a/toy.approved.md', text: nothing },
-        runnerFor(nothing, [['- group "A toy":']]),
-        actions,
-      ),
+      playScenarios({ path: 'a/toy.approved.md', text: nothing }, runnerFor(nothing), actions),
     ).rejects.toThrow('"And a toy" is a Then and reports nothing');
   });
 
-  it('prints the page title a step reported where the file records it', async () => {
-    const meta = aScenario(
-      'Given a toy',
-      'Then the app opens on the new version',
-      '- page title: working-title (new version)',
-    );
-    const runner = runnerFor(meta, [], ['working-title (new version)']);
-
-    await playScenarios({ path: 'a/toy.approved.md', text: meta }, runner, {
-      ...actions,
-      'the app opens on the new version': () => pageMeta(),
-    });
-  });
-
   it('refuses page meta where the runner reads none', async () => {
-    const meta = aScenario(
-      'Given a toy',
-      'Then the app opens on the new version',
-      '- page title: working-title (new version)',
-    );
-    const runner = runnerFor(meta, []);
+    const meta = aScenario('Given a toy', 'Then the toy page', '- page title: working-title');
+    const runner = runnerFor(meta);
     delete runner.pageMeta;
 
     await expect(
-      playScenarios({ path: 'a/toy.approved.md', text: meta }, runner, {
-        ...actions,
-        'the app opens on the new version': () => pageMeta(),
-      }),
+      playScenarios({ path: 'a/toy.approved.md', text: meta }, runner, actions),
     ).rejects.toThrow('reads no page meta');
   });
 
   it('plays the one scenario it is asked for, and only that one', async () => {
     played.length = 0;
-    await playScenarios(source(), runnerFor(file, [['- main:']]), actions, {
-      only: 'Another behaviour',
-    });
+    await playScenarios(source(), runnerFor(file), actions, { only: 'Another behaviour' });
     expect(played).toEqual(['a toy']);
   });
 
   it('keeps both recorded blocks where two plays approve two scenarios of one file', async () => {
-    const runner = runnerFor(file, [
-      ['- group "A toy":', '  - text: As it is now'],
-      ['- main:', '  - text: A toy again'],
-    ]);
+    const runner = runnerFor(file);
     await playScenarios(source(), runner, actions, { only: 'A toy behaviour', approve: true });
     await playScenarios(source(), runner, actions, { only: 'Another behaviour', approve: true });
 
     const written = runner.written.at(-1)?.text ?? '';
-    expect(written).toContain('  - text: As it is now');
-    expect(written).toContain('  - text: A toy again');
+    expect(written).toContain('  - text: the line');
+    expect(written).toContain('  - text: Not this one');
   });
 
   it('replaces what it saw where it is approving, and writes the file through the runner', async () => {
-    const runner = runnerFor(file, [['- group "A toy":', '  - text: A toy'], ['- main:']]);
+    const runner = runnerFor(file);
     await playScenarios(source('a/wanted.approved.md'), runner, actions, { approve: true });
 
     expect(runner.written).toEqual([{ path: 'a/wanted.approved.md', text: file }]);
