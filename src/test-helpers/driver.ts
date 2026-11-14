@@ -125,8 +125,13 @@ export interface Focus {
   readonly inside: Named | undefined;
 }
 
-export const focusedIn = (root: Element = document.body): Focus | undefined => {
-  // shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
+export interface Marks {
+  readonly focus?: Focus;
+  readonly current?: Focus;
+}
+
+// shortcut: the roles and the name sources below are the markup the app renders today; anything else throws, so add it here then
+export const focusAndCurrentIn = (root: Element = document.body): Marks => {
   const roles: Readonly<Record<string, string>> = {
     ASIDE: 'complementary',
     BUTTON: 'button',
@@ -164,48 +169,75 @@ export const focusedIn = (root: Element = document.body): Focus | undefined => {
     return name === '' ? undefined : { role, name };
   };
 
-  const at = document.activeElement;
-  if (at === null || at === root || !root.contains(at)) return undefined;
-  const element = named(at);
-  if (element === undefined) {
-    throw new Error(
-      `the focus is on <${at.tagName.toLowerCase()}> inside main, whose role or name this reader cannot read: name it in focusedIn`,
-    );
-  }
-  for (
-    let above = at.parentElement;
-    above !== null && above !== root;
-    above = above.parentElement
-  ) {
-    const inside = named(above);
-    if (inside !== undefined) return { element, inside };
-  }
-  return { element, inside: undefined };
+  const namedAround = (at: Element): Named | undefined => {
+    for (
+      let above = at.parentElement;
+      above !== null && above !== root;
+      above = above.parentElement
+    ) {
+      const inside = named(above);
+      if (inside !== undefined) return inside;
+    }
+    return undefined;
+  };
+
+  const marksOf = (at: Element | null | undefined, what: string): Focus | undefined => {
+    if (at === null || at === undefined || at === root || !root.contains(at)) return undefined;
+    const element = named(at);
+    if (element === undefined) {
+      throw new Error(
+        `${what} is <${at.tagName.toLowerCase()}>, whose role or name this reader cannot read: name it in focusAndCurrentIn`,
+      );
+    }
+    return { element, inside: namedAround(at) };
+  };
+
+  return {
+    focus: marksOf(document.activeElement, 'the focused element'),
+    current: marksOf(
+      [...root.querySelectorAll('main fieldset')].find(
+        (card) => card.getAttribute('aria-current') === 'location',
+      ),
+      'the current piece',
+    ),
+  };
 };
 
-export const markingFocus = (
+const marking = (
   lines: readonly string[],
-  focus: Focus | undefined,
+  marked: Focus | undefined,
+  marker: string,
+  holding: string,
 ): readonly string[] => {
-  if (focus === undefined) return lines;
+  if (marked === undefined) return lines;
   const enclosing: (Named | undefined)[] = [];
-  let marked = false;
+  let seen = false;
   const markedLines = lines.map((line) => {
     const level = (line.length - line.trimStart().length) / 2;
     const here = namedOn(line);
     const inside = enclosing.filter((at, depth) => depth < level && at !== undefined).at(-1);
     enclosing.length = level;
     enclosing[level] = here;
-    if (marked || !same(here, focus.element) || !same(inside, focus.inside)) return line;
-    marked = true;
-    return line.replace(/^(\s*- [\w-]+ "[^"]*")/, '$1 [active]');
+    if (seen || !same(here, marked.element) || !same(inside, marked.inside)) return line;
+    seen = true;
+    return line.includes(marker) ? line : line.replace(/^(\s*- [\w-]+ "[^"]*")/, `$1 ${marker}`);
   });
-  if (!marked) {
+  if (!seen) {
     const inside =
-      focus.inside === undefined ? '' : ` in ${focus.inside.role} "${focus.inside.name}"`;
+      marked.inside === undefined ? '' : ` in ${marked.inside.role} "${marked.inside.name}"`;
     throw new Error(
-      `no line reads ${focus.element.role} "${focus.element.name}"${inside}, so a tree holding focus would print as one that does not`,
+      `no line reads ${marked.element.role} "${marked.element.name}"${inside}, so a tree holding ${holding} would print as one that does not`,
     );
   }
   return markedLines;
 };
+
+export const markingFocus = (
+  lines: readonly string[],
+  focus: Focus | undefined,
+): readonly string[] => marking(lines, focus, '[active]', 'focus');
+
+export const markingCurrent = (
+  lines: readonly string[],
+  current: Focus | undefined,
+): readonly string[] => marking(lines, current, '[current]', 'the current piece');

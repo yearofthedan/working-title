@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { clicking, markingFocus, type Finds, type Focus, type Point } from './driver';
+import {
+  clicking,
+  markingCurrent,
+  markingFocus,
+  type Finds,
+  type Focus,
+  type Point,
+} from './driver';
 
 const tree = [
   '- main:',
@@ -53,6 +60,50 @@ describe('marking what holds focus in a tree', () => {
 
   it('leaves a tree with no focus as it was printed', () => {
     expect(markingFocus(tree, undefined)).toEqual(tree);
+  });
+});
+
+describe('marking the current piece in a tree', () => {
+  const theCurrentPiece: Focus = {
+    element: { role: 'group', name: 'Scene 1' },
+    inside: { role: 'toolbar', name: 'Scenes under Beat 4' },
+  };
+  const markedIn = (current?: Focus): readonly string[] =>
+    markingCurrent(tree, current).filter((line) => line.includes('[current]'));
+
+  it('marks the card the page reads as current, and only that line', () => {
+    expect(markedIn(theCurrentPiece)).toEqual(['    - group "Scene 1" [current]:']);
+  });
+
+  it('marks nothing when the page reads no card as current', () => {
+    expect(markedIn()).toEqual([]);
+  });
+
+  it('leaves a tree with no current piece as it was printed', () => {
+    expect(markingCurrent(tree, undefined)).toEqual(tree);
+  });
+
+  it('composes with the focus marker, the focus first', () => {
+    expect(markingFocus(markingCurrent(tree, theCurrentPiece), theCurrentPiece)).toContain(
+      '    - group "Scene 1" [active] [current]:',
+    );
+  });
+
+  it('refuses a card the tree does not hold, so a marked tree cannot be a lie', () => {
+    expect(() =>
+      markingCurrent(tree, {
+        element: { role: 'group', name: 'Scene 9' },
+        inside: { role: 'toolbar', name: 'Scenes under Beat 4' },
+      }),
+    ).toThrow('no line reads group "Scene 9"');
+  });
+
+  it('leaves a marker the renderer printed itself', () => {
+    const printed = tree.map((line) =>
+      line.replace('- group "Scene 1":', '- group "Scene 1" [current]:'),
+    );
+
+    expect(markingCurrent(printed, theCurrentPiece)).toEqual(printed);
   });
 });
 

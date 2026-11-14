@@ -7,7 +7,7 @@ Given a current beat with two scenes
 And the first scene has focus
 When the writer presses Enter
 Then the first scene becomes current, and has focus
-- group "Scene 1" [active]:
+- group "Scene 1" [active] [current]:
   - heading "Scene 1" [level=4]
   - text: List line
   - textbox "List line"

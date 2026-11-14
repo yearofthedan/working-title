@@ -8,7 +8,7 @@ Given a new project
 When the writer types "A widow hunts the man who sank her husband's ship" as the story's one-sentence summary
 And reloads the app
 Then the story's one-sentence summary on its card reads "A widow hunts the man who sank her husband's ship"
-- group "The story":
+- group "The story" [current]:
   - heading "The story" [level=2]
   - text: One-sentence summary
   - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
@@ -25,7 +25,7 @@ And the writer types "Maren rows out to the wreck at low tide and finds the hull
 And reloads the app
 And the writer opens beat 2 beside the graph
 Then beat 2's one-sentence summary on its card reads "Maren finds the ship's log and learns the sinking was no accident"
-- group "Beat 2":
+- group "Beat 2" [current]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
@@ -64,7 +64,7 @@ And reloads the app
 And the writer clicks beat 2
 And the writer opens scene 2 under beat 2 beside the graph
 Then scene 2's list line under beat 2 on its card reads "Maren bribes the harbourmaster for the log"
-- group "Scene 2":
+- group "Scene 2" [current]:
   - heading "Scene 2" [level=4]
   - text: List line
   - textbox "List line": Maren bribes the harbourmaster for the log

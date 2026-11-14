@@ -4,8 +4,9 @@ import {
   clicking,
   drawn,
   farEnoughToReachTheEnd,
-  focusedIn,
+  focusAndCurrentIn,
   linesOf,
+  markingCurrent,
   markingFocus,
   settled,
   typing,
@@ -42,8 +43,12 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     await page.evaluate(settled);
     const wholePage = reads === 'page';
     const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
-    const lines = linesOf(await (wholePage ? page : page.getByRole('main')).ariaSnapshot());
-    return markFocus ? markingFocus(lines, await page.evaluate(focusedIn, pane)) : lines;
+    const { focus, current } = await page.evaluate(focusAndCurrentIn, pane);
+    const marked = markingCurrent(
+      linesOf(await (wholePage ? page : page.getByRole('main')).ariaSnapshot()),
+      current,
+    );
+    return markFocus ? markingFocus(marked, focus) : marked;
   };
   return {
     reload: async () => {

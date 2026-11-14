@@ -8,7 +8,7 @@ When the writer types "A widow hunts the man who sank her husband's ship" into t
 Then the writer sees
 - main:
   - toolbar "The story":
-    - group "The story":
+    - group "The story" [current]:
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
@@ -62,7 +62,7 @@ Then the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident

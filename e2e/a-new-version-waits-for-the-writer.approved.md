@@ -19,7 +19,7 @@ Then the writer sees
     - button "Reload"
 - main:
   - toolbar "The story":
-    - group "The story":
+    - group "The story" [current]:
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship

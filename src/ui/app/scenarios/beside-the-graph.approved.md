@@ -23,7 +23,7 @@ Then beat 2 is open beside the graph, with its paragraph and then its page
 Given beat 2 is open beside the graph
 When the writer types "Maren learns the sinking was no accident" as beat 2's one-sentence summary beside the graph
 Then beat 2's one-sentence summary on its card reads "Maren learns the sinking was no accident"
-- group "Beat 2":
+- group "Beat 2" [current]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
@@ -55,7 +55,7 @@ Given beat 2 is open beside the graph
 When the writer clicks beat 2
 And presses →
 Then beat 3 is in focus
-- group "Beat 3" [active]:
+- group "Beat 3" [active] [current]:
   - heading "Beat 3" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -115,7 +115,7 @@ Then nothing is open beside the graph
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -156,7 +156,7 @@ Then nothing is open beside the graph
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"

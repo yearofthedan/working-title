@@ -2,8 +2,9 @@ import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
   farEnoughToReachTheEnd,
-  focusedIn,
+  focusAndCurrentIn,
   linesOf,
+  markingCurrent,
   markingFocus,
   settled,
   typing,
@@ -53,8 +54,12 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     rootIn(group).getByRole(role, { name: wholeNameAnyCase(name) });
   const tree = async (markFocus = false): Promise<readonly string[]> => {
     await settled();
-    const lines = linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(root())));
-    return markFocus ? markingFocus(lines, focusedIn(root())) : lines;
+    const { focus, current } = focusAndCurrentIn(root());
+    const marked = markingCurrent(
+      linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(root()))),
+      current,
+    );
+    return markFocus ? markingFocus(marked, focus) : marked;
   };
   return {
     press: async (key) => {

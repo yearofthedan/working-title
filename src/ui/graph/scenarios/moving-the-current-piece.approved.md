@@ -7,7 +7,7 @@ Given a new project
 When the writer opens the app
 Then the story is current, with beats 1 to 5 under it
 - toolbar "The story":
-  - group "The story":
+  - group "The story" [current]:
     - heading "The story" [level=2]
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -45,7 +45,7 @@ Then the story is current, with beats 1 to 5 under it
 And the writer sees
 - main:
   - toolbar "The story":
-    - group "The story":
+    - group "The story" [current]:
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -88,7 +88,7 @@ And the writer sees
 Given a current beat with two scenes
 When the writer clicks the first scene's card
 Then the first scene becomes current, and has focus
-- group "Scene 1" [active]:
+- group "Scene 1" [active] [current]:
   - heading "Scene 1" [level=4]
   - text: List line
   - textbox "List line"
@@ -102,7 +102,7 @@ Then the first scene becomes current, and has focus
 Given two beats, the first current with tab focus
 When the writer presses →
 Then the second beat becomes current, and has focus
-- group "Beat 2" [active]:
+- group "Beat 2" [active] [current]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -122,7 +122,7 @@ Given a beat with two scenes, the beat current
 And focus on its first scene
 When the writer presses →
 Then the second scene becomes current, and has focus
-- group "Scene 2" [active]:
+- group "Scene 2" [active] [current]:
   - heading "Scene 2" [level=4]
   - text: List line
   - textbox "List line"
@@ -145,7 +145,7 @@ Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
     - textbox "One-sentence summary"
     - button "Open beside"
 - toolbar "Scenes under Beat 2":
-  - group "Scene 1":
+  - group "Scene 1" [current]:
     - heading "Scene 1" [level=4]
     - text: List line
     - textbox "List line"
@@ -168,7 +168,7 @@ Then beat 2 is current, with scenes 1 and 2 under it
   - group "Beat 1":
     - heading "Beat 1" [level=3]:
       - button "Beat 1"
-  - group "Beat 2":
+  - group "Beat 2" [current]:
     - heading "Beat 2" [level=3]
     - text: One-sentence summary
     - textbox "One-sentence summary"
@@ -189,7 +189,7 @@ Then beat 2 is current, with scenes 1 and 2 under it
     - textbox "List line"
     - button "Open beside"
 And focus moves to its card
-- group "Beat 2" [active]:
+- group "Beat 2" [active] [current]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -208,7 +208,7 @@ And the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -244,14 +244,14 @@ Then scene 2 under beat 2 is current
   - group "Scene 1":
     - heading "Scene 1" [level=4]:
       - button "Scene 1"
-  - group "Scene 2":
+  - group "Scene 2" [current]:
     - heading "Scene 2" [level=4]
     - text: List line
     - textbox "List line"
     - button "Open beside"
     - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 And focus moves to its card
-- group "Scene 2" [active]:
+- group "Scene 2" [active] [current]:
   - heading "Scene 2" [level=4]
   - text: List line
   - textbox "List line"
@@ -270,7 +270,7 @@ And the writer sees
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
-    - group "Scene 2":
+    - group "Scene 2" [current]:
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"
