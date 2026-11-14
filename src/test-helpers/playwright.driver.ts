@@ -4,9 +4,10 @@ import {
   clicking,
   drawn,
   farEnoughToReachTheEnd,
-  focusAssertions,
-  focusedIn,
-  markingFocusWhenAsserted,
+  focusAndCurrentIn,
+  linesOf,
+  markingCurrent,
+  markingFocus,
   settled,
   typing,
   wholeNameAnyCase,
@@ -38,16 +39,16 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
       : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
   const found = (role: Role, name: string, within?: Within) =>
     rootIn(within).getByRole(role, { name: wholeNameAnyCase(name) });
-  const assertions = focusAssertions();
-  const tree = async (): Promise<readonly string[]> => {
+  const tree = async (markFocus = false): Promise<readonly string[]> => {
     await page.evaluate(settled);
     const wholePage = reads === 'page';
     const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
-    return markingFocusWhenAsserted(
-      assertions,
-      async () => (wholePage ? page : page.getByRole('main')).ariaSnapshot(),
-      async () => page.evaluate(focusedIn, pane),
+    const { focus, current } = await page.evaluate(focusAndCurrentIn, pane);
+    const marked = markingCurrent(
+      linesOf(await (wholePage ? page : page.getByRole('main')).ariaSnapshot()),
+      current,
     );
+    return markFocus ? markingFocus(marked, focus) : marked;
   };
   return {
     reload: async () => {
@@ -73,12 +74,10 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     },
     value: async (label, within) =>
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
-    focusIs: async (role, name, within) => {
-      assertions.note();
-      return found(role, name, within)
+    focusIs: async (role, name, within) =>
+      found(role, name, within)
         .first()
-        .evaluate((element) => element === document.activeElement);
-    },
+        .evaluate((element) => element === document.activeElement),
     tree,
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {

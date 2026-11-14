@@ -7,7 +7,12 @@ import {
   story,
   type SeededProject,
 } from '../../test-helpers/seed';
-import type { StepAction } from '../../test-helpers/steps';
+import {
+  reporting,
+  reportingFocus,
+  type Evidence,
+  type StepAction,
+} from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',
@@ -45,14 +50,16 @@ export interface Around {
 }
 
 export interface Sees {
-  currentIs(piece: string, around?: Around): Promise<readonly Part[]>;
-  tree(): Promise<readonly string[]>;
-  focusIsIn(piece: string, facet: string): Promise<readonly Part[]>;
-  focusIsOn(piece: string): Promise<readonly Part[]>;
-  focusIsOnTheName(piece: string): Promise<readonly Part[]>;
-  focusIsOnTheCard(): Promise<readonly Part[]>;
-  readsOnTheCard(piece: string, facet: string, text: string): Promise<readonly Part[]>;
-  isNoLongerCurrent(piece: string): Promise<readonly Part[]>;
+  currentIs(piece: string, around?: Around): Promise<Evidence>;
+  becomesCurrentAndHasFocus(piece: string): Promise<Evidence>;
+  tree(markFocus?: boolean): Promise<readonly string[]>;
+  focusIsIn(piece: string, facet: string): Promise<Evidence>;
+  focusIsOn(piece: string): Promise<Evidence>;
+  focusIsOnTheName(piece: string): Promise<Evidence>;
+  focusIsOnTheCard(): Promise<Evidence>;
+  readsOnTheCard(piece: string, facet: string, text: string): Promise<Evidence>;
+  isNoLongerCurrent(piece: string): Promise<Evidence>;
+  isNoLongerCurrentAndHasNoFocus(piece: string): Promise<Evidence>;
 }
 
 const pieces: Readonly<Record<string, string>> = {
@@ -147,24 +154,26 @@ const sameNames = (what: string, found: readonly string[], wanted: readonly stri
   }
 };
 
-const above = (pieces: readonly DrawnCard[], current: DrawnCard, name: string): void => {
+const above = (pieces: readonly DrawnCard[], current: DrawnCard, name: string): DrawnCard => {
   const parent = pieces.find((piece) => piece.kind === 'card' && piece.name === name);
   if (parent === undefined || parent.box.bottom > current.box.top) {
     throw new Error(`${name} is not on the graph above the current piece`);
   }
+  return parent;
 };
 
 const beside = (
   pieces: readonly DrawnCard[],
   current: DrawnCard,
   names: readonly string[],
-): void => {
+): readonly DrawnCard[] => {
   const at = pieces.findIndex((piece) => piece.kind === 'current');
   sameNames(
     'pieces beside the current piece',
     pieces.filter((piece) => piece.kind === 'chip').map((piece) => piece.name),
     names,
   );
+  const checked: DrawnCard[] = [];
   for (const [index, piece] of pieces.entries()) {
     if (piece.kind !== 'chip') continue;
     if (
@@ -175,14 +184,16 @@ const beside = (
     const wrongSide =
       index < at ? piece.box.right > current.box.left : piece.box.left < current.box.right;
     if (wrongSide) throw new Error(`${piece.name} is on the wrong side of the current piece`);
+    checked.push(piece);
   }
+  return checked;
 };
 
 const under = (
   pieces: readonly DrawnCard[],
   current: DrawnCard,
   names: readonly string[],
-): void => {
+): readonly DrawnCard[] => {
   const children = pieces.filter(
     (piece) => piece.kind === 'card' && piece.box.top >= current.box.bottom,
   );
@@ -201,14 +212,23 @@ const under = (
       throw new Error(`${child.name} is not drawn after ${before.name}`);
     }
   }
+  return children;
+};
+
+const theRowsOf = (cards: readonly DrawnCard[]): readonly Part[] => {
+  const rows = new Set<string>();
+  return cards
+    .map((card): Part => ({ role: 'toolbar', name: card.row }))
+    .filter((part) => {
+      const row = `${part.role} ${part.name}`;
+      if (rows.has(row)) return false;
+      rows.add(row);
+      return true;
+    });
 };
 
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
-  const readsOnTheCard = async (
-    piece: string,
-    facet: string,
-    text: string,
-  ): Promise<readonly Part[]> => {
+  const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<Evidence> => {
     const field = underABeat.exec(facet)?.groups?.['facet'] ?? facet;
     const held = await driver.value(field, { role: 'group', name: pieceNamed(piece) });
     if (held !== text) {
@@ -216,64 +236,83 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
         `${piece}'s ${facet} on its card reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
       );
     }
-    return [{ role: 'group', name: pieceNamed(piece) }];
+    return reporting({
+      role: 'textbox',
+      name: field,
+      within: { role: 'group', name: pieceNamed(piece) },
+    });
+  };
+
+  const partsOfTheCurrent = async (piece: string, around: Around = {}): Promise<Part[]> => {
+    const pieces = await reads.drawn();
+    const current = theCurrent(pieces, piece);
+    const parts: Part[] = [{ role: 'group', name: current.name }];
+    if (around.above !== undefined) {
+      parts.push({ role: 'group', name: above(pieces, current, pieceNamed(around.above)).name });
+    }
+    if (around.beside !== undefined) {
+      parts.push(...theRowsOf(beside(pieces, current, around.beside.map(pieceNamed))));
+    }
+    if (around.under !== undefined) {
+      parts.push(...theRowsOf(under(pieces, current, around.under.map(pieceNamed))));
+    }
+    return parts;
+  };
+
+  const insistTheFocusIsOnTheCurrentCard = async (): Promise<Part> => {
+    const cards = (await reads.drawn()).filter((piece) => piece.current);
+    const [only] = cards;
+    if (cards.length !== 1 || only === undefined) {
+      throw new Error('the graph draws no one current piece');
+    }
+    if (!(await driver.focusIs('group', only.name))) {
+      throw new Error(`the focus is not on ${only.name}'s card`);
+    }
+    return { role: 'group', name: only.name };
+  };
+
+  const insistNoLongerCurrent = async (piece: string): Promise<string> => {
+    const named = pieceNamed(piece);
+    const found = (await reads.drawn()).find((card) => card.name === named);
+    if (found === undefined) throw new Error(`${piece} is not on the graph`);
+    if (found.current) throw new Error(`${piece} is still the current piece`);
+    return named;
   };
 
   return {
-    currentIs: async (piece, around = {}) => {
-      const pieces = await reads.drawn();
-      const current = theCurrent(pieces, piece);
-      const parts: Part[] = [{ role: 'group', name: pieceNamed(piece) }];
-      if (around.above !== undefined) {
-        parts.push({ role: 'group', name: pieceNamed(around.above) });
-        above(pieces, current, around.above);
-      }
-      if (around.beside !== undefined) {
-        for (const name of around.beside) parts.push({ role: 'group', name: pieceNamed(name) });
-        beside(pieces, current, around.beside);
-      }
-      if (around.under !== undefined) {
-        for (const name of around.under) parts.push({ role: 'group', name: pieceNamed(name) });
-        under(pieces, current, around.under);
-      }
-      return parts;
+    currentIs: async (piece, around = {}) => reporting(...(await partsOfTheCurrent(piece, around))),
+    becomesCurrentAndHasFocus: async (piece) => {
+      await partsOfTheCurrent(piece);
+      return reportingFocus(await insistTheFocusIsOnTheCurrentCard());
     },
-    tree: () => driver.tree(),
+    tree: (markFocus = false) => driver.tree(markFocus),
     focusIsIn: async (piece, facet) => {
       if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not in ${piece}'s ${facet}`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
     focusIsOn: async (piece) => {
       if (!(await driver.focusIs('group', pieceNamed(piece)))) {
         throw new Error(`the focus is not on ${piece}`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
     focusIsOnTheName: async (piece) => {
       if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not on ${piece}'s name`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
-    focusIsOnTheCard: async () => {
-      const cards = (await reads.drawn()).filter((piece) => piece.current);
-      const [only] = cards;
-      if (cards.length !== 1 || only === undefined) {
-        throw new Error('the graph draws no one current piece');
+    focusIsOnTheCard: async () => reportingFocus(await insistTheFocusIsOnTheCurrentCard()),
+    isNoLongerCurrent: async (piece) =>
+      reporting({ role: 'group', name: await insistNoLongerCurrent(piece) }),
+    isNoLongerCurrentAndHasNoFocus: async (piece) => {
+      const named = await insistNoLongerCurrent(piece);
+      if (await driver.focusIs('group', named)) {
+        throw new Error(`the focus is still on ${piece}'s card`);
       }
-      if (!(await driver.focusIs('group', only.name))) {
-        throw new Error(`the focus is not on ${only.name}'s card`);
-      }
-      return [{ role: 'group', name: only.name }];
-    },
-    isNoLongerCurrent: async (piece) => {
-      const named = pieceNamed(piece);
-      const found = (await reads.drawn()).find((card) => card.name === named);
-      if (found === undefined) throw new Error(`${piece} is not on the graph`);
-      if (found.current) throw new Error(`${piece} is still the current piece`);
-      return [{ role: 'group', name: named }];
+      return reportingFocus({ role: 'group', name: named });
     },
     readsOnTheCard,
   };
@@ -317,12 +356,13 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'focus moves to scene one under beat two': () => sees.focusIsOnTheName('Scene 1'),
   'focus moves to the story': () => sees.focusIsOnTheName('The story'),
   'focus moves to its card': () => sees.focusIsOnTheCard(),
-  'it has focus': () => sees.focusIsOnTheCard(),
   'beat two stays current': () => sees.currentIs('Beat 2'),
-  'the first scene becomes current': () => sees.currentIs('Scene 1'),
-  'the second scene becomes current': () => sees.currentIs('Scene 2'),
-  'the second beat becomes current': () => sees.currentIs('Beat 2'),
-  'the first beat is no longer current': () => sees.isNoLongerCurrent('Beat 1'),
+  'the first scene becomes current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 1'),
+  'the second scene becomes current, and has focus': () =>
+    sees.becomesCurrentAndHasFocus('Scene 2'),
+  'the second beat becomes current, and has focus': () => sees.becomesCurrentAndHasFocus('Beat 2'),
+  'the first beat is no longer current, and no longer has focus': () =>
+    sees.isNoLongerCurrentAndHasNoFocus('Beat 1'),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
   'the story is current, with beats 1 to 5 under it': () =>
@@ -338,5 +378,5 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.currentIs('Scene 1', { above: 'Beat 2', beside: ['Scene 2'] }),
   'beat 2 is current, with scenes 1 and 2 under it': () =>
     sees.currentIs('Beat 2', { under: ['Scene 1', 'Scene 2'] }),
-  'scene 2 under beat 2 is current': () => sees.currentIs('Scene 2'),
+  'scene 2 under beat 2 is current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 2'),
 });

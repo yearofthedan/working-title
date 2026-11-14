@@ -16,7 +16,7 @@ Then the writer sees
       - textbox "One-sentence summary"
       - button "Open beside"
   - toolbar "Scenes under Beat 4":
-    - group "Scene 1":
+    - group "Scene 1" [current]:
       - heading "Scene 1" [level=4]
       - text: List line
       - textbox "List line"

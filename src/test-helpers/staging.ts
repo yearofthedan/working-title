@@ -20,6 +20,15 @@ export const root = (tag: string): HTMLElement => {
   return element;
 };
 
+export const aPageFocusedOnSomethingUnnamed = (): Element => {
+  stopTheApp();
+  const unnamed = document.createElement('p');
+  unnamed.tabIndex = 0;
+  document.body.replaceChildren(unnamed);
+  unnamed.focus();
+  return document.body;
+};
+
 export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
 };

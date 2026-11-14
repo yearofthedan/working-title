@@ -13,16 +13,17 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-const runnerFor = (sees: Pick<AppSees, 'tree'>): Runner =>
-  approvingPath === ''
-    ? { tree: () => sees.tree() }
+const runnerFor = (sees: Pick<AppSees, 'tree'>): Runner => ({
+  tree: (markFocus) => sees.tree(markFocus),
+  ...(approvingPath === ''
+    ? {}
     : {
-        tree: () => sees.tree(),
-        read: async (where) => readFileSync(join(root, where), 'utf8'),
-        write: async (where, what) => {
+        read: async (where: string) => readFileSync(join(root, where), 'utf8'),
+        write: async (where: string, what: string) => {
           writeFileSync(join(root, where), what);
         },
-      };
+      }),
+});
 
 const playing = (behaviour: string) => ({
   only: behaviour,

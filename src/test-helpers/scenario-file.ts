@@ -1,14 +1,16 @@
 export type StepKeyword = 'Given' | 'When' | 'Then' | 'And' | 'But';
 
+export type StepKind = 'Given' | 'When' | 'Then';
+
 export interface Step {
   readonly keyword: StepKeyword;
   readonly phrase: string;
+  readonly observed?: readonly string[];
 }
 
 export interface Scenario {
   readonly behaviour: string;
   readonly steps: readonly Step[];
-  readonly observed?: readonly string[];
 }
 
 export const OBSERVED = 'the writer sees';
@@ -31,6 +33,14 @@ const oneLine = (what: string, line: string): string => {
     throw new Error(`${what} is one non-empty line, not ${JSON.stringify(line)}`);
   }
   return line;
+};
+
+export const kindOf = (steps: readonly Step[], at: number): StepKind => {
+  for (let before = at; before >= 0; before -= 1) {
+    const keyword = steps[before]?.keyword;
+    if (keyword === 'Given' || keyword === 'When' || keyword === 'Then') return keyword;
+  }
+  throw new Error(`Step ${at + 1} follows no Given, When or Then`);
 };
 
 const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
@@ -108,7 +118,6 @@ export const readScenarioFile = (text: string): ScenarioFile => {
   const scenarios: Scenario[] = [];
   let behaviour: string | undefined;
   let steps: Step[] = [];
-  let observed: string[] | undefined;
   let inFence = false;
 
   const close = () => {
@@ -118,20 +127,21 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     }
     steps.forEach((step, at) => {
       if (step.phrase !== OBSERVED) return;
-      if (step.keyword !== 'Then' || at !== steps.length - 1) {
+      const kind = kindOf(steps, at);
+      if (kind !== 'Then') {
         throw new Error(
-          `"${OBSERVED}" is the last step of a scenario and follows a Then, and here it is a ${step.keyword} at ${at + 1} of ${steps.length}`,
+          `"${OBSERVED}" follows a Then, and here it is a ${step.keyword} at ${at + 1} of ${steps.length}, under a ${kind}`,
         );
       }
     });
-    scenarios.push({ behaviour, steps, ...(observed ? { observed } : {}) });
+    scenarios.push({ behaviour, steps });
     behaviour = undefined;
     steps = [];
-    observed = undefined;
   };
 
   for (const [index, line] of lines.slice(first).entries()) {
     const at = index + first + 1;
+    const last = steps.length - 1;
 
     if (line.startsWith('```')) {
       if (line !== '```') {
@@ -146,19 +156,6 @@ export const readScenarioFile = (text: string): ScenarioFile => {
       }
       inFence = false;
       close();
-      continue;
-    }
-
-    if (observed) {
-      if (isStepLine(line) || looksLikeAStep.test(line)) {
-        throw new Error(
-          `Line ${at} is a step after what the runner observed: ${JSON.stringify(line)}`,
-        );
-      }
-      if (!isObservedLine(line)) {
-        throw new Error(`Line ${at} is not what the runner prints: ${JSON.stringify(line)}`);
-      }
-      observed.push(line);
       continue;
     }
 
@@ -177,12 +174,16 @@ export const readScenarioFile = (text: string): ScenarioFile => {
         steps.push(stepIn(line, steps, at));
         continue;
       }
-      const last = [...steps]
-        .reverse()
-        .find((step) => step.keyword !== 'And' && step.keyword !== 'But');
-      if (last?.keyword !== 'Then') {
+      const held = steps[last];
+      if (held === undefined) {
         throw new Error(
           `Line ${at} is not a step, and only a Then is followed by what the runner observed: ${JSON.stringify(line)}`,
+        );
+      }
+      const kind = kindOf(steps, last);
+      if (kind !== 'Then') {
+        throw new Error(
+          `Line ${at} is not a step, and a ${kind} is followed by no block, and only a Then is followed by what the runner observed: ${JSON.stringify(line)}`,
         );
       }
       if (!isObservedLine(line)) {
@@ -190,7 +191,7 @@ export const readScenarioFile = (text: string): ScenarioFile => {
           `Line ${at} is neither a step nor what the runner prints: ${JSON.stringify(line)}`,
         );
       }
-      observed = [line];
+      steps[last] = { ...held, observed: [...(held.observed ?? []), line] };
       continue;
     }
 
@@ -222,13 +223,12 @@ export const printScenarioFile = ({ rule, sees, serves, scenarios }: ScenarioFil
     `Rule: ${rule}`,
     ...(sees === undefined ? [] : [`Sees: ${sees}`]),
     ...(serves === undefined ? [] : [`Serves: ${serves}`]),
-    ...scenarios.flatMap(({ behaviour, steps, observed }) => [
+    ...scenarios.flatMap(({ behaviour, steps }) => [
       '',
       `### Scenario: ${behaviour}`,
       '',
       '```',
-      ...steps.map((step) => `${step.keyword} ${step.phrase}`),
-      ...(observed ?? []),
+      ...steps.flatMap((step) => [`${step.keyword} ${step.phrase}`, ...(step.observed ?? [])]),
       '```',
     ]),
   ].join('\n') + '\n';
@@ -236,7 +236,7 @@ export const printScenarioFile = ({ rule, sees, serves, scenarios }: ScenarioFil
 export const withObserved = (
   text: string,
   behaviour: string,
-  observed: readonly string[],
+  blocks: readonly (readonly string[])[],
 ): string => {
   const file = readScenarioFile(text);
   if (!file.scenarios.some((scenario) => scenario.behaviour === behaviour)) {
@@ -244,10 +244,21 @@ export const withObserved = (
   }
   return printScenarioFile({
     ...file,
-    scenarios: file.scenarios.map((scenario) =>
-      scenario.behaviour === behaviour
-        ? { ...scenario, ...(observed.length > 0 ? { observed } : { observed: undefined }) }
-        : scenario,
-    ),
+    scenarios: file.scenarios.map((scenario) => {
+      if (scenario.behaviour !== behaviour) return scenario;
+      const thens = scenario.steps.filter((_, at) => kindOf(scenario.steps, at) === 'Then').length;
+      if (thens !== blocks.length) {
+        throw new Error(
+          `${behaviour} holds ${thens} Then-kind steps and was handed ${blocks.length} block${blocks.length === 1 ? '' : 's'}`,
+        );
+      }
+      let seen = 0;
+      const steps = scenario.steps.map((step, at) => {
+        if (kindOf(scenario.steps, at) !== 'Then') return step;
+        const block = blocks[seen++] ?? [];
+        return { ...step, ...(block.length === 0 ? { observed: undefined } : { observed: block }) };
+      });
+      return { ...scenario, steps };
+    }),
   });
 };

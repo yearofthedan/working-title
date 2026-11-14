@@ -8,7 +8,7 @@ When the writer opens the app
 Then the writer sees
 - main:
   - toolbar "The story":
-    - group "The story":
+    - group "The story" [current]:
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary"

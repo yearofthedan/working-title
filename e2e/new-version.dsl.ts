@@ -1,5 +1,5 @@
 import type { Driver } from '../src/test-helpers/driver';
-import type { StepAction } from '../src/test-helpers/steps';
+import { reporting, type StepAction } from '../src/test-helpers/steps';
 
 export interface PrivateBuild {
   readonly driver: Driver;
@@ -10,7 +10,8 @@ export interface PrivateBuild {
 
 export const newVersionSteps = (build: PrivateBuild): Record<string, StepAction> => ({
   'a new version is installed': () => build.installsANewVersion(),
-  'a notice says a new version is ready': () => build.showsTheNotice(),
-  'the writer reloads from the notice': () => build.driver.click('button', 'Reload'),
-  'the app opens on the new version': () => build.opensOnTheNewVersion(),
+  'a notice says a new version is ready': async () => {
+    await build.showsTheNotice();
+    return reporting({ role: 'status' });
+  },
 });

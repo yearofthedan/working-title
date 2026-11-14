@@ -17,31 +17,263 @@ describe('the graph language', () => {
 });
 
 describe('what a graph step returns', () => {
-  it('returns the card whose sentence it reads', async () => {
+  it('returns the sentence it read, in the card it read it on', async () => {
     const { driver, reads } = recording(storyDrawn);
     const step = graphSteps(
       writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
       seesOn(driver, reads),
     )['{piece}\'s {facet} on its card reads "{text}"']!;
 
-    expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual([
-      { role: 'group', name: 'The story' },
-    ]);
+    expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual({
+      kind: 'part',
+      parts: [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'group', name: 'The story' },
+        },
+      ],
+    });
+  });
+
+  it('refuses a card whose sentence reads something else', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const step = graphSteps(
+      writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
+      seesOn(driver, reads),
+    )['{piece}\'s {facet} on its card reads "{text}"']!;
+
+    await expect(
+      step({ piece: 'The story', facet: 'One-sentence summary', text: 'Something else' }),
+    ).rejects.toThrow(
+      'The story\'s One-sentence summary on its card reads "", not "Something else"',
+    );
+  });
+
+  it('returns the part that holds focus, telling the runner to mark it', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => true }, reads);
+
+    expect(await sees.focusIsOnTheName('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+    expect(await sees.focusIsIn('Beat 4', 'One-sentence summary')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
   });
 
   const box = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
   const drawing = (current: boolean) => ({
     drawn: async () => [
-      { name: 'Beat 4', kind: current ? ('current' as const) : ('chip' as const), current, box },
+      {
+        name: 'Beat 4',
+        kind: current ? ('current' as const) : ('chip' as const),
+        current,
+        box,
+        row: 'Beats under The story',
+      },
     ],
+  });
+
+  const aBox = (top: number, left: number) => ({
+    top,
+    bottom: top + 100,
+    left,
+    right: left + 240,
+    width: 240,
+    height: 100,
+  });
+
+  const theWorld = {
+    drawn: async () => [
+      {
+        name: 'The story',
+        kind: 'card' as const,
+        current: false,
+        box: aBox(100, 300),
+        row: 'The story',
+      },
+      {
+        name: 'Beat 1',
+        kind: 'chip' as const,
+        current: false,
+        box: aBox(300, 0),
+        row: 'Beats under The story',
+      },
+      {
+        name: 'Beat 2',
+        kind: 'current' as const,
+        current: true,
+        box: aBox(300, 300),
+        row: 'Beats under The story',
+      },
+      {
+        name: 'Scene 1',
+        kind: 'card' as const,
+        current: false,
+        box: aBox(500, 0),
+        row: 'Scenes under Beat 2',
+      },
+    ],
+  };
+
+  const rowOfScenes = [
+    {
+      name: 'Scene 2',
+      kind: 'chip' as const,
+      current: false,
+      box: aBox(300, 600),
+      row: 'Scenes under Beat 2',
+    },
+    {
+      name: 'Scene 3',
+      kind: 'chip' as const,
+      current: false,
+      box: aBox(300, 900),
+      row: 'Scenes under Beat 2',
+    },
+  ];
+  const twoChipsInOneRow = {
+    drawn: async () => [
+      {
+        name: 'Scene 1',
+        kind: 'current' as const,
+        current: true,
+        box: aBox(300, 0),
+        row: 'Scenes under Beat 2',
+      },
+      ...rowOfScenes,
+    ],
+  };
+
+  it('returns the card it checked as current, and not the row it shares', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 2' }],
+    });
+  });
+
+  it("returns the parent's card where it checked the piece above", async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { above: 'The story' })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Beat 2' },
+        { role: 'group', name: 'The story' },
+      ],
+    });
+  });
+
+  it('returns the row of the pieces under it, and not the row it shares with its siblings', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { under: ['Scene 1'] })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Beat 2' },
+        { role: 'toolbar', name: 'Scenes under Beat 2' },
+      ],
+    });
+  });
+
+  it('returns the row of the pieces beside it', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { beside: ['Beat 1'] })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Beat 2' },
+        { role: 'toolbar', name: 'Beats under The story' },
+      ],
+    });
+  });
+
+  it('reports a row once where it checked two pieces drawn in it', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(
+      await seesOn(driver, twoChipsInOneRow).currentIs('Scene 1', {
+        beside: ['Scene 2', 'Scene 3'],
+      }),
+    ).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Scene 1' },
+        { role: 'toolbar', name: 'Scenes under Beat 2' },
+      ],
+    });
+  });
+
+  it('returns the card that is current and holds focus, telling the runner to mark it', async () => {
+    const { driver } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => true }, drawing(true));
+
+    expect(await sees.becomesCurrentAndHasFocus('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+  });
+
+  it('returns the card of a piece that is neither current nor holding focus', async () => {
+    const { driver } = recording(storyDrawn);
+    const sees = seesOn({ ...driver, focusIs: async () => false }, drawing(false));
+
+    expect(await sees.isNoLongerCurrentAndHasNoFocus('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+      focus: true,
+    });
+  });
+
+  it('refuses a piece that is not current, or whose card does not hold focus', async () => {
+    const { driver } = recording(storyDrawn);
+
+    await expect(
+      seesOn({ ...driver, focusIs: async () => true }, drawing(false)).becomesCurrentAndHasFocus(
+        'Beat 4',
+      ),
+    ).rejects.toThrow('the current piece is nothing, not Beat 4');
+
+    await expect(
+      seesOn({ ...driver, focusIs: async () => false }, drawing(true)).becomesCurrentAndHasFocus(
+        'Beat 4',
+      ),
+    ).rejects.toThrow("the focus is not on Beat 4's card");
+  });
+
+  it('refuses a piece that is still current, or still holding focus', async () => {
+    const { driver } = recording(storyDrawn);
+
+    await expect(
+      seesOn(
+        { ...driver, focusIs: async () => false },
+        drawing(true),
+      ).isNoLongerCurrentAndHasNoFocus('Beat 4'),
+    ).rejects.toThrow('Beat 4 is still the current piece');
+
+    await expect(
+      seesOn(
+        { ...driver, focusIs: async () => true },
+        drawing(false),
+      ).isNoLongerCurrentAndHasNoFocus('Beat 4'),
+    ).rejects.toThrow("the focus is still on Beat 4's card");
   });
 
   it('returns the piece it checked is no longer current', async () => {
     const { driver } = recording(storyDrawn);
 
-    expect(await seesOn(driver, drawing(false)).isNoLongerCurrent('Beat 4')).toEqual([
-      { role: 'group', name: 'Beat 4' },
-    ]);
+    expect(await seesOn(driver, drawing(false)).isNoLongerCurrent('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+    });
   });
 
   it('refuses a piece that is still current', async () => {
@@ -52,12 +284,13 @@ describe('what a graph step returns', () => {
     );
   });
 
-  it('returns the pieces it checked as current', async () => {
+  it('returns the card it checked as holding the current piece', async () => {
     const { driver } = recording(storyDrawn);
 
-    expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual([
-      { role: 'group', name: 'Beat 4' },
-    ]);
+    expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual({
+      kind: 'part',
+      parts: [{ role: 'group', name: 'Beat 4' }],
+    });
   });
 });
 

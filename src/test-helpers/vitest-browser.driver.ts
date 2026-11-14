@@ -2,9 +2,10 @@ import * as browser from 'vite-plus/test/browser';
 import {
   clicking,
   farEnoughToReachTheEnd,
-  focusAssertions,
-  focusedIn,
-  markingFocusWhenAsserted,
+  focusAndCurrentIn,
+  linesOf,
+  markingCurrent,
+  markingFocus,
   settled,
   typing,
   wholeNameAnyCase,
@@ -51,14 +52,14 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
       : within.getByRole(group.role, { name: wholeNameAnyCase(group.name) });
   const found = (role: Role, name: string, group?: Within) =>
     rootIn(group).getByRole(role, { name: wholeNameAnyCase(name) });
-  const assertions = focusAssertions();
-  const tree = async (): Promise<readonly string[]> => {
+  const tree = async (markFocus = false): Promise<readonly string[]> => {
     await settled();
-    return markingFocusWhenAsserted(
-      assertions,
-      async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(root())),
-      async () => focusedIn(root()),
+    const { focus, current } = focusAndCurrentIn(root());
+    const marked = markingCurrent(
+      linesOf(utils.aria.renderAriaTree(utils.aria.generateAriaTree(root()))),
+      current,
     );
+    return markFocus ? markingFocus(marked, focus) : marked;
   };
   return {
     press: async (key) => {
@@ -81,10 +82,8 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     value: async (label, group) =>
       (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
         .value,
-    focusIs: async (role, name, group) => {
-      assertions.note();
-      return found(role, name, group).first().element() === document.activeElement;
-    },
+    focusIs: async (role, name, group) =>
+      found(role, name, group).first().element() === document.activeElement,
     tree,
   };
 };

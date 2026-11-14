@@ -23,12 +23,9 @@ Then beat 2 is open beside the graph, with its paragraph and then its page
 Given beat 2 is open beside the graph
 When the writer types "Maren learns the sinking was no accident" as beat 2's one-sentence summary beside the graph
 Then beat 2's one-sentence summary on its card reads "Maren learns the sinking was no accident"
-- group "Beat 2":
+- group "Beat 2" [current]:
   - heading "Beat 2" [level=3]
-  - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
-  - button "Add a scene"
-  - button "Open beside" [pressed]
 ```
 
 ### Scenario: the one-sentence summary is typed on its card while the panel is open
@@ -39,13 +36,7 @@ When the writer types "Maren learns the sinking was no accident" as beat 2's one
 Then beat 2's one-sentence summary beside the graph reads "Maren learns the sinking was no accident"
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
-  - button "Close"
-  - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
-  - text: Paragraph
-  - textbox "Paragraph"
-  - text: Page
-  - textbox "Page"
 ```
 
 ### Scenario: the panel keeps its beat while the focus moves
@@ -55,14 +46,14 @@ Given beat 2 is open beside the graph
 When the writer clicks beat 2
 And presses →
 Then beat 3 is in focus
-And beat 2 is still open beside the graph
-- group "Beat 3" [active]:
+- group "Beat 3" [active] [current]:
   - heading "Beat 3" [level=3]
   - text: One-sentence summary
   - textbox "One-sentence summary"
   - button "Add a scene"
   - button "Open beside"
   - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And beat 2 is still open beside the graph
 - complementary "Beat 2":
   - heading "Beat 2" [level=2]
   - button "Close"
@@ -115,7 +106,7 @@ Then nothing is open beside the graph
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -156,7 +147,7 @@ Then nothing is open beside the graph
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2":
+    - group "Beat 2" [current]:
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"

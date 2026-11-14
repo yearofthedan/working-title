@@ -1,5 +1,5 @@
-import type { Driver, Part, Role, Within } from '../../test-helpers/driver';
-import type { StepAction } from '../../test-helpers/steps';
+import type { Driver, Role, Within } from '../../test-helpers/driver';
+import { reportingFocus, type Evidence, type StepAction } from '../../test-helpers/steps';
 
 const beat = 'Beat 2';
 const theCard: Within = { role: 'group', name: beat };
@@ -20,9 +20,9 @@ export interface CardWriter {
 }
 
 export interface CardSees {
-  focusIsInTheSummary(): Promise<readonly Part[]>;
-  focusIsOnTheAction(): Promise<readonly Part[]>;
-  focusIsOnTheCard(): Promise<readonly Part[]>;
+  focusIsInTheSummary(): Promise<Evidence>;
+  focusIsOnTheAction(): Promise<Evidence>;
+  focusIsOnTheCard(): Promise<Evidence>;
 }
 
 export const cardWriterOn = (
@@ -56,15 +56,15 @@ const insistTheFocusIs = async (
 export const cardSeesOn = (driver: Driver): CardSees => ({
   focusIsInTheSummary: async () => {
     await insistTheFocusIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard);
-    return [{ role: theCard.role, name: theCard.name }];
+    return reportingFocus(theCard);
   },
   focusIsOnTheAction: async () => {
     await insistTheFocusIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard);
-    return [{ role: theCard.role, name: theCard.name }];
+    return reportingFocus(theCard);
   },
   focusIsOnTheCard: async () => {
     await insistTheFocusIs(driver, 'group', beat, `on ${beat}'s card`);
-    return [{ role: theCard.role, name: theCard.name }];
+    return reportingFocus(theCard);
   },
 });
 
