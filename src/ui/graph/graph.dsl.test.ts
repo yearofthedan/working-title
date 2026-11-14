@@ -16,6 +16,23 @@ describe('the graph language', () => {
   });
 });
 
+describe('what a graph step asserts on', () => {
+  it('declares the card whose sentence it reads, so the record keeps that card', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const step = graphSteps(
+      writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
+      seesOn(driver, reads),
+    )['{piece}\'s {facet} on its card reads "{text}"']!;
+
+    await step({ piece: 'The story', facet: 'One-sentence summary', text: '' });
+
+    expect(await driver.observed()).toEqual([
+      '- group "The story":',
+      '  - heading "The story" [level=2]',
+    ]);
+  });
+});
+
 describe('what only the app can play', () => {
   it.each(['one-sentence summary under beat 2', 'paragraph beside the graph'])(
     'refuses to type into "%s"',

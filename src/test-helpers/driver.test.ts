@@ -123,4 +123,13 @@ describe('narrowing a tree to the parts a scenario asserted on', () => {
       ]),
     ).toThrow('no line reads group "Beat 9"');
   });
+
+  it('keeps a declared part that sits under another declared part', () => {
+    expect(
+      narrowing(tree, [
+        { role: 'group', name: 'Scene 2' },
+        { role: 'heading', name: 'Scene 2' },
+      ]),
+    ).toEqual(theSecondScene);
+  });
 });

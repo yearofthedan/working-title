@@ -236,18 +236,21 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
   let base = -1;
   for (const line of lines) {
     const indent = line.length - line.trimStart().length;
+    const here = namedOn(line);
+    const matching =
+      here === undefined
+        ? []
+        : parts.filter(
+            (part) =>
+              part.role === here.role && part.name.toLowerCase() === here.name.toLowerCase(),
+          );
+    for (const part of matching) read.add(key(part));
     if (base >= 0 && indent > base) {
       kept.push(line.slice(base));
       continue;
     }
     base = -1;
-    const here = namedOn(line);
-    if (here === undefined) continue;
-    const matching = parts.filter(
-      (part) => part.role === here.role && part.name.toLowerCase() === here.name.toLowerCase(),
-    );
     if (matching.length === 0) continue;
-    for (const part of matching) read.add(key(part));
     base = indent;
     kept.push(line.slice(base));
   }
