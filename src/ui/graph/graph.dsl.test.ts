@@ -59,61 +59,133 @@ describe('what a graph step returns', () => {
     ],
   });
 
-  const rowOfSceneOne = { top: 100, bottom: 200, left: 0, right: 240, width: 240, height: 100 };
-  const rowOfScenes = { top: 100, bottom: 200, left: 300, right: 540, width: 240, height: 100 };
-  const twoScenes = {
+  const aBox = (top: number, left: number) => ({
+    top,
+    bottom: top + 100,
+    left,
+    right: left + 240,
+    width: 240,
+    height: 100,
+  });
+
+  const theWorld = {
     drawn: async () => [
       {
-        name: 'Scene 1',
-        kind: 'current' as const,
-        current: true,
-        box: rowOfSceneOne,
-        row: 'Scene 1',
+        name: 'The story',
+        kind: 'card' as const,
+        current: false,
+        box: aBox(100, 300),
+        row: 'The story',
       },
       {
-        name: 'Scene 2',
+        name: 'Beat 1',
         kind: 'chip' as const,
         current: false,
-        box: rowOfScenes,
+        box: aBox(300, 0),
+        row: 'Beats under The story',
+      },
+      {
+        name: 'Beat 2',
+        kind: 'current' as const,
+        current: true,
+        box: aBox(300, 300),
+        row: 'Beats under The story',
+      },
+      {
+        name: 'Scene 1',
+        kind: 'card' as const,
+        current: false,
+        box: aBox(500, 0),
         row: 'Scenes under Beat 2',
       },
     ],
   };
 
-  it('reports a row once where it checked two pieces drawn in it', async () => {
-    const { driver } = recording(storyDrawn);
-    const oneRow = {
-      drawn: async () => [
-        {
-          name: 'Scene 1',
-          kind: 'current' as const,
-          current: true,
-          box: rowOfSceneOne,
-          row: 'Scenes under Beat 2',
-        },
-        {
-          name: 'Scene 2',
-          kind: 'chip' as const,
-          current: false,
-          box: rowOfScenes,
-          row: 'Scenes under Beat 2',
-        },
-      ],
-    };
+  const rowOfScenes = [
+    {
+      name: 'Scene 2',
+      kind: 'chip' as const,
+      current: false,
+      box: aBox(300, 600),
+      row: 'Scenes under Beat 2',
+    },
+    {
+      name: 'Scene 3',
+      kind: 'chip' as const,
+      current: false,
+      box: aBox(300, 900),
+      row: 'Scenes under Beat 2',
+    },
+  ];
+  const twoChipsInOneRow = {
+    drawn: async () => [
+      {
+        name: 'Scene 1',
+        kind: 'current' as const,
+        current: true,
+        box: aBox(300, 0),
+        row: 'Scenes under Beat 2',
+      },
+      ...rowOfScenes,
+    ],
+  };
 
-    expect(await seesOn(driver, oneRow).currentIs('Scene 1', { beside: ['Scene 2'] })).toEqual({
+  it('returns the card it checked as current, and not the row it shares', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2')).toEqual({
       kind: 'part',
-      parts: [{ role: 'toolbar', name: 'Scenes under Beat 2' }],
+      parts: [{ role: 'group', name: 'Beat 2' }],
     });
   });
 
-  it('returns a toolbar for each row it checked a piece in', async () => {
+  it("returns the parent's card where it checked the piece above", async () => {
     const { driver } = recording(storyDrawn);
 
-    expect(await seesOn(driver, twoScenes).currentIs('Scene 1', { beside: ['Scene 2'] })).toEqual({
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { above: 'The story' })).toEqual({
       kind: 'part',
       parts: [
-        { role: 'toolbar', name: 'Scene 1' },
+        { role: 'group', name: 'Beat 2' },
+        { role: 'group', name: 'The story' },
+      ],
+    });
+  });
+
+  it('returns the row of the pieces under it, and not the row it shares with its siblings', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { under: ['Scene 1'] })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Beat 2' },
+        { role: 'toolbar', name: 'Scenes under Beat 2' },
+      ],
+    });
+  });
+
+  it('returns the row of the pieces beside it', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, theWorld).currentIs('Beat 2', { beside: ['Beat 1'] })).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Beat 2' },
+        { role: 'toolbar', name: 'Beats under The story' },
+      ],
+    });
+  });
+
+  it('reports a row once where it checked two pieces drawn in it', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(
+      await seesOn(driver, twoChipsInOneRow).currentIs('Scene 1', {
+        beside: ['Scene 2', 'Scene 3'],
+      }),
+    ).toEqual({
+      kind: 'part',
+      parts: [
+        { role: 'group', name: 'Scene 1' },
         { role: 'toolbar', name: 'Scenes under Beat 2' },
       ],
     });
@@ -192,12 +264,12 @@ describe('what a graph step returns', () => {
     );
   });
 
-  it('returns the toolbar of the row it checked the current piece in', async () => {
+  it('returns the card it checked as holding the current piece', async () => {
     const { driver } = recording(storyDrawn);
 
     expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual({
       kind: 'part',
-      parts: [{ role: 'toolbar', name: 'Beats under The story' }],
+      parts: [{ role: 'group', name: 'Beat 4' }],
     });
   });
 });

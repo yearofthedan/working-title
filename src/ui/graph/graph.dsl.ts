@@ -239,20 +239,20 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     return reporting({ role: 'group', name: pieceNamed(piece) });
   };
 
-  const cardsOfTheCurrent = async (piece: string, around: Around = {}): Promise<DrawnCard[]> => {
+  const partsOfTheCurrent = async (piece: string, around: Around = {}): Promise<Part[]> => {
     const pieces = await reads.drawn();
     const current = theCurrent(pieces, piece);
-    const checked = [current];
+    const parts: Part[] = [{ role: 'group', name: current.name }];
     if (around.above !== undefined) {
-      checked.push(above(pieces, current, pieceNamed(around.above)));
+      parts.push({ role: 'group', name: above(pieces, current, pieceNamed(around.above)).name });
     }
     if (around.beside !== undefined) {
-      checked.push(...beside(pieces, current, around.beside.map(pieceNamed)));
+      parts.push(...theRowsOf(beside(pieces, current, around.beside.map(pieceNamed))));
     }
     if (around.under !== undefined) {
-      checked.push(...under(pieces, current, around.under.map(pieceNamed)));
+      parts.push(...theRowsOf(under(pieces, current, around.under.map(pieceNamed))));
     }
-    return checked;
+    return parts;
   };
 
   const insistTheFocusIsOnTheCurrentCard = async (): Promise<Part> => {
@@ -276,10 +276,9 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
   };
 
   return {
-    currentIs: async (piece, around = {}) =>
-      reporting(...theRowsOf(await cardsOfTheCurrent(piece, around))),
+    currentIs: async (piece, around = {}) => reporting(...(await partsOfTheCurrent(piece, around))),
     becomesCurrentAndHasFocus: async (piece) => {
-      await cardsOfTheCurrent(piece);
+      await partsOfTheCurrent(piece);
       return reportingFocus(await insistTheFocusIsOnTheCurrentCard());
     },
     tree: (markFocus = false) => driver.tree(markFocus),

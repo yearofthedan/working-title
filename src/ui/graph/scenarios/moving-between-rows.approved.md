@@ -14,16 +14,12 @@ Then focus moves to scene one under beat two
   - textbox "List line"
   - button "Open beside"
 But beat two stays current
-- toolbar "Beats under The story":
-  - group "Beat 1":
-    - heading "Beat 1" [level=3]:
-      - button "Beat 1"
-  - group "Beat 2" [current]:
-    - heading "Beat 2" [level=3]
-    - text: One-sentence summary
-    - textbox "One-sentence summary"
-    - button "Add a scene"
-    - button "Open beside"
+- group "Beat 2" [current]:
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
 ```
 
 ### Scenario: tabbing backward moves focus to the previous row
@@ -39,14 +35,10 @@ Then focus moves to the story
   - text: One-sentence summary
   - textbox "One-sentence summary"
 But beat two stays current
-- toolbar "Beats under The story":
-  - group "Beat 1":
-    - heading "Beat 1" [level=3]:
-      - button "Beat 1"
-  - group "Beat 2" [current]:
-    - heading "Beat 2" [level=3]
-    - text: One-sentence summary
-    - textbox "One-sentence summary"
-    - button "Add a scene"
-    - button "Open beside"
+- group "Beat 2" [current]:
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
 ```
