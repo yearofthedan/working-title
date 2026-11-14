@@ -91,6 +91,19 @@ describe('narrowing to a part inside another part', () => {
     within: { role: 'complementary' as const, name: 'Beat 2' },
   };
 
+  const cards = [
+    '- main:',
+    '  - group "The story" [current]:',
+    '    - heading "The story" [level=3]',
+    '    - text: One-sentence summary',
+    '    - textbox "One-sentence summary": A widow hunts the man who sank her husband\u2019s ship',
+    '  - group "Beat 2":',
+    '    - heading "Beat 2" [level=3]:',
+    '      - button "Beat 2"',
+    '    - text: One-sentence summary',
+    '    - textbox "One-sentence summary": Maren rows out before first light',
+  ];
+
   it('keeps the part it sits in, its own heading and the line, and no sibling of the line', () => {
     expect(narrowing(page, [theSummaryBeside])).toEqual([
       '- complementary "Beat 2":',
@@ -126,6 +139,39 @@ describe('narrowing to a part inside another part', () => {
       '- complementary "Beat 2":',
       '  - heading "Beat 2" [level=2]',
       '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+    ]);
+  });
+
+  it('keeps the named card alone where the same label sits on more than one card', () => {
+    expect(
+      narrowing(cards, [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'group', name: 'Beat 2' },
+        },
+      ]),
+    ).toEqual([
+      '- group "Beat 2":',
+      '  - heading "Beat 2" [level=3]:',
+      '    - button "Beat 2"',
+      '  - textbox "One-sentence summary": Maren rows out before first light',
+    ]);
+  });
+
+  it('keeps a card whose heading holds no name button, and no other card', () => {
+    expect(
+      narrowing(cards, [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'group', name: 'The story' },
+        },
+      ]),
+    ).toEqual([
+      '- group "The story" [current]:',
+      '  - heading "The story" [level=3]',
+      '  - textbox "One-sentence summary": A widow hunts the man who sank her husband\u2019s ship',
     ]);
   });
 

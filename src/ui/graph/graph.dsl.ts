@@ -236,7 +236,11 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
         `${piece}'s ${facet} on its card reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
       );
     }
-    return reporting({ role: 'group', name: pieceNamed(piece) });
+    return reporting({
+      role: 'textbox',
+      name: field,
+      within: { role: 'group', name: pieceNamed(piece) },
+    });
   };
 
   const partsOfTheCurrent = async (piece: string, around: Around = {}): Promise<Part[]> => {

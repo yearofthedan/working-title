@@ -17,7 +17,7 @@ describe('the graph language', () => {
 });
 
 describe('what a graph step returns', () => {
-  it('returns the card whose sentence it reads', async () => {
+  it('returns the sentence it read, in the card it read it on', async () => {
     const { driver, reads } = recording(storyDrawn);
     const step = graphSteps(
       writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
@@ -26,8 +26,28 @@ describe('what a graph step returns', () => {
 
     expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual({
       kind: 'part',
-      parts: [{ role: 'group', name: 'The story' }],
+      parts: [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'group', name: 'The story' },
+        },
+      ],
     });
+  });
+
+  it('refuses a card whose sentence reads something else', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const step = graphSteps(
+      writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
+      seesOn(driver, reads),
+    )['{piece}\'s {facet} on its card reads "{text}"']!;
+
+    await expect(
+      step({ piece: 'The story', facet: 'One-sentence summary', text: 'Something else' }),
+    ).rejects.toThrow(
+      'The story\'s One-sentence summary on its card reads "", not "Something else"',
+    );
   });
 
   it('returns the part that holds focus, telling the runner to mark it', async () => {

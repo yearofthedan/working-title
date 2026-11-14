@@ -25,10 +25,7 @@ When the writer types "Maren learns the sinking was no accident" as beat 2's one
 Then beat 2's one-sentence summary on its card reads "Maren learns the sinking was no accident"
 - group "Beat 2" [current]:
   - heading "Beat 2" [level=3]
-  - text: One-sentence summary
   - textbox "One-sentence summary": Maren learns the sinking was no accident
-  - button "Add a scene"
-  - button "Open beside" [pressed]
 ```
 
 ### Scenario: the one-sentence summary is typed on its card while the panel is open

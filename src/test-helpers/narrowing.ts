@@ -48,6 +48,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
   const enclosing: (Named | undefined)[] = [];
   let under = -1;
   let inPart = -1;
+  let slid = -1;
   for (const line of lines) {
     const indent = line.length - line.trimStart().length;
     const role = roleOn(line);
@@ -74,7 +75,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
     for (const part of [...theLine, ...inThePart]) read.add(key(part));
 
     if (under >= 0 && indent > under) {
-      kept.push(line.slice(under));
+      kept.push(line.slice(slid));
       continue;
     }
     under = -1;
@@ -83,6 +84,10 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
         inPart = -1;
       } else if (inThePart.length > 0 || itsHeading) {
         kept.push(line.slice(inPart));
+        if (itsHeading) {
+          under = indent;
+          slid = inPart;
+        }
         continue;
       } else {
         continue;
@@ -95,6 +100,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
     }
     if (theLine.length > 0) {
       under = indent;
+      slid = indent;
       kept.push(line.slice(indent));
     }
   }
