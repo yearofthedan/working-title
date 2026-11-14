@@ -36,6 +36,22 @@ describe('a scenario file', () => {
         '```',
         '',
       ].join('\n'),
+      [
+        'Rule: A toy rule, one line of it.',
+        '',
+        '### Scenario: Two assertions',
+        '',
+        '```',
+        'Given a toy',
+        'When it runs',
+        'Then it moves',
+        '- group "A toy":',
+        '  - text: A toy',
+        'And the writer sees',
+        '- main:',
+        '```',
+        '',
+      ].join('\n'),
     ];
 
     for (const file of files) {
@@ -65,7 +81,56 @@ describe('a scenario file', () => {
     expect(scenarios).toHaveLength(1);
     expect(scenarios[0]?.behaviour).toBe('A toy behaviour');
     expect(scenarios[0]?.steps.map((step) => step.keyword)).toEqual(['Given', 'When', 'Then']);
-    expect(scenarios[0]?.observed).toEqual(['- main:', '  - text: A toy']);
+    expect(scenarios[0]?.steps[2]?.observed).toEqual(['- main:', '  - text: A toy']);
+  });
+
+  it('reads a block as the one its step reported, and another step after it', () => {
+    const { scenarios } = readScenarioFile(
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'When it runs',
+        'Then it moves',
+        '- group "A toy":',
+        '  - text: A toy',
+        'And it stops',
+        '- group "A toy":',
+        '  - text: Stopped',
+        '```',
+        '',
+      ].join('\n'),
+    );
+
+    const [given, when, then, and] = scenarios[0]?.steps ?? [];
+    expect(given?.observed).toBeUndefined();
+    expect(when?.observed).toBeUndefined();
+    expect(then?.observed).toEqual(['- group "A toy":', '  - text: A toy']);
+    expect(and?.observed).toEqual(['- group "A toy":', '  - text: Stopped']);
+  });
+
+  it('reads "And the writer sees" under a Then as a step of the file', () => {
+    const file = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      'Then it moves',
+      'And the writer sees',
+      '- main:',
+      '```',
+      '',
+    ].join('\n');
+
+    const { scenarios } = readScenarioFile(file);
+    expect(scenarios[0]?.steps.map((step) => step.keyword)).toEqual(['Given', 'Then', 'And']);
+    expect(scenarios[0]?.steps[2]?.observed).toEqual(['- main:']);
+    expect(printScenarioFile(readScenarioFile(file))).toBe(file);
   });
 
   it('reads a file that sees the app as the app, and prints it back unchanged', () => {
@@ -164,7 +229,7 @@ describe('a scenario file', () => {
       ].join('\n'),
     );
 
-    expect(scenarios[0]?.observed).toEqual(['- main:', '  - text: A toy']);
+    expect(scenarios[0]?.steps[3]?.observed).toEqual(['- main:', '  - text: A toy']);
   });
 
   it.each([
@@ -249,7 +314,7 @@ describe('a scenario file', () => {
       'a "but" follows a Then',
     ],
     [
-      'a step after what was observed',
+      'an action after a Then',
       [
         'Rule: A toy rule.',
         '',
@@ -263,7 +328,7 @@ describe('a scenario file', () => {
         '```',
         '',
       ],
-      'a step after what the runner observed',
+      'a When after a Then',
     ],
     [
       'an "and" with nothing before it',
@@ -302,7 +367,7 @@ describe('a scenario file', () => {
       'is neither a step nor what the runner prints',
     ],
     [
-      'a line in what was observed that the runner would not print',
+      'a line under a Then that the runner would not print',
       [
         'Rule: A toy rule.',
         '',
@@ -316,7 +381,71 @@ describe('a scenario file', () => {
         '```',
         '',
       ],
-      'is not what the runner prints',
+      'is neither a step nor what the runner prints',
+    ],
+    [
+      'a block under a Given',
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        '- main:',
+        'Then it moves',
+        '```',
+        '',
+      ],
+      'a Given is followed by no block, and only a Then is followed by what the runner observed',
+    ],
+    [
+      'a block under a When',
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'When it runs',
+        '- main:',
+        '```',
+        '',
+      ],
+      'a When is followed by no block, and only a Then is followed by what the runner observed',
+    ],
+    [
+      'a block under an And under a When',
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'When it runs',
+        'And it keeps running',
+        '- main:',
+        '```',
+        '',
+      ],
+      'a When is followed by no block, and only a Then is followed by what the runner observed',
+    ],
+    [
+      'an And that reads as a Then but is not under one',
+      [
+        'Rule: A toy rule.',
+        '',
+        '### Scenario: A toy behaviour',
+        '',
+        '```',
+        'Given a toy',
+        'And it moves',
+        '- main:',
+        '```',
+        '',
+      ],
+      'a Given is followed by no block, and only a Then is followed by what the runner observed',
     ],
     [
       'a step that reads as a keyword but is not one',
@@ -459,27 +588,65 @@ describe('replacing what one scenario observed', () => {
     '',
   ].join('\n');
 
+  const twoAssertions = [
+    'Rule: A toy rule.',
+    '',
+    '### Scenario: Two assertions',
+    '',
+    '```',
+    'Given a toy',
+    'When it runs',
+    'Then it moves',
+    '- group "A toy":',
+    'And it stops',
+    '- group "A toy":',
+    '```',
+    '',
+  ].join('\n');
+
   it('replaces one scenario, leaving the other and the steps as they were', () => {
-    expect(withObserved(two, 'Two', ['- main:', '  - text: As it is now'])).toBe(
+    expect(withObserved(two, 'Two', [['- main:', '  - text: As it is now']])).toBe(
       two.replace('  - text: As it was', '  - text: As it is now'),
     );
   });
 
   it('gives a scenario observed text where it had none', () => {
-    const withoutObserved = withObserved(two, 'One', ['- main:', '  - text: New']);
+    const withoutObserved = withObserved(two, 'One', [['- main:', '  - text: New']]);
     expect(withoutObserved).toContain('Then the writer sees\n- main:\n  - text: New');
+  });
+
+  it('gives each Then the block it was handed, in the order they are written', () => {
+    expect(
+      withObserved(twoAssertions, 'Two assertions', [
+        ['- group "A toy":', '  - text: Moved'],
+        ['- group "A toy":', '  - text: Stopped'],
+      ]),
+    ).toBe(
+      twoAssertions
+        .replace(
+          '- group "A toy":\nAnd it stops',
+          '- group "A toy":\n  - text: Moved\nAnd it stops',
+        )
+        .replace('- group "A toy":\n```', '- group "A toy":\n  - text: Stopped\n```'),
+    );
+  });
+
+  it('refuses a number of blocks the scenario has no Thens for', () => {
+    expect(() => withObserved(twoAssertions, 'Two assertions', [['- main:']])).toThrow(
+      'Two assertions holds 2 Then-kind steps and was handed 1 block',
+    );
   });
 
   it('keeps the line that says what the file sees', () => {
     const appRooted = two.replace('Rule: A toy rule.\n', 'Rule: A toy rule.\nSees: the app\n');
 
-    expect(withObserved(appRooted, 'Two', ['- main:', '  - text: As it is now'])).toBe(
+    expect(withObserved(appRooted, 'Two', [['- main:', '  - text: As it is now']])).toBe(
       appRooted.replace('  - text: As it was', '  - text: As it is now'),
     );
   });
 
   it('refuses a scenario the file does not hold', () => {
-    expect(() => withObserved(two, 'Three', ['- main:'])).toThrow(
+    expect(() => withObserved(two, 'Three', [['- main:']])).toThrow(
       'holds no scenario named "Three"',
     );
   });

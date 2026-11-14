@@ -6,7 +6,41 @@ Rule: the writer moves the current piece by clicking a piece's card or with the 
 Given a new project
 When the writer opens the app
 Then the story is current, with beats 1 to 5 under it
-Then the writer sees
+- group "The story":
+  - heading "The story" [level=2]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+- group "Beat 1":
+  - heading "Beat 1" [level=3]:
+    - button "Beat 1"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+- group "Beat 2":
+  - heading "Beat 2" [level=3]:
+    - button "Beat 2"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+- group "Beat 3":
+  - heading "Beat 3" [level=3]:
+    - button "Beat 3"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+- group "Beat 4":
+  - heading "Beat 4" [level=3]:
+    - button "Beat 4"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+- group "Beat 5":
+  - heading "Beat 5" [level=3]:
+    - button "Beat 5"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+And the writer sees
 - main:
   - toolbar "The story":
     - group "The story":
@@ -52,6 +86,12 @@ Then the writer sees
 Given a current beat with two scenes
 When the writer clicks the first scene's card
 Then the first scene becomes current
+- group "Scene 1":
+  - heading "Scene 1" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 And it has focus
 - group "Scene 1" [active]:
   - heading "Scene 1" [level=4]
@@ -67,11 +107,14 @@ And it has focus
 Given two beats, the first current with tab focus
 When the writer presses →
 Then the second beat becomes current
+- group "Beat 2":
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 And focus moves to its card
-And the first beat is no longer current
-- group "Beat 1":
-  - heading "Beat 1" [level=3]:
-    - button "Beat 1"
 - group "Beat 2" [active]:
   - heading "Beat 2" [level=3]
   - text: One-sentence summary
@@ -79,6 +122,10 @@ And the first beat is no longer current
   - button "Add a scene"
   - button "Open beside"
   - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And the first beat is no longer current
+- group "Beat 1":
+  - heading "Beat 1" [level=3]:
+    - button "Beat 1"
 ```
 
 ### Scenario: → in the scenes' row makes the next scene current
@@ -88,6 +135,12 @@ Given a beat with two scenes, the beat current
 And focus on its first scene
 When the writer presses →
 Then the second scene becomes current
+- group "Scene 2":
+  - heading "Scene 2" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 And focus moves to its card
 - group "Scene 2" [active]:
   - heading "Scene 2" [level=4]
@@ -97,17 +150,66 @@ And focus moves to its card
   - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
-### Scenario: stepping down to a scene and back up
+### Scenario: stepping down to a scene
 
 ```
 Given a project with two scenes under beat 2
 When the writer clicks beat 2
 And presses ↓
 Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
+- group "Beat 2":
+  - heading "Beat 2" [level=3]:
+    - button "Beat 2"
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Open beside"
+- group "Scene 1":
+  - heading "Scene 1" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+- group "Scene 2":
+  - heading "Scene 2" [level=4]:
+    - button "Scene 2"
+```
+
+### Scenario: stepping back up to the beat
+
+```
+Given a project with two scenes under beat 2
+When the writer clicks beat 2
+And presses ↓
 And presses ↑
 Then beat 2 is current, with scenes 1 and 2 under it
+- group "Beat 2":
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+- group "Scene 1":
+  - heading "Scene 1" [level=4]:
+    - button "Scene 1"
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+- group "Scene 2":
+  - heading "Scene 2" [level=4]:
+    - button "Scene 2"
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
 And focus moves to its card
-Then the writer sees
+- group "Beat 2" [active]:
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And the writer sees
 - main:
   - toolbar "The story":
     - group "The story":
@@ -119,7 +221,7 @@ Then the writer sees
     - group "Beat 1":
       - heading "Beat 1" [level=3]:
         - button "Beat 1"
-    - group "Beat 2" [active]:
+    - group "Beat 2":
       - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
@@ -151,8 +253,20 @@ And presses →
 And presses ↑
 And presses ↓
 Then scene 2 under beat 2 is current
+- group "Scene 2":
+  - heading "Scene 2" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 And focus moves to its card
-Then the writer sees
+- group "Scene 2" [active]:
+  - heading "Scene 2" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And the writer sees
 - main:
   - toolbar "Beat 2":
     - group "Beat 2":
@@ -165,7 +279,7 @@ Then the writer sees
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
-    - group "Scene 2" [active]:
+    - group "Scene 2":
       - heading "Scene 2" [level=4]
       - text: List line
       - textbox "List line"

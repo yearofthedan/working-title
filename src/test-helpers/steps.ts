@@ -1,9 +1,26 @@
 import type { Part } from './narrowing';
 import type { Step } from './scenario-file';
 
+export type Evidence =
+  | { readonly kind: 'part'; readonly parts: readonly Part[]; readonly focus?: true }
+  | { readonly kind: 'whole' }
+  | { readonly kind: 'pageMeta' };
+
+export const reporting = (...parts: readonly Part[]): Evidence => ({ kind: 'part', parts });
+
+export const reportingFocus = (...parts: readonly Part[]): Evidence => ({
+  kind: 'part',
+  parts,
+  focus: true,
+});
+
+export const wholeTree = (): Evidence => ({ kind: 'whole' });
+
+export const pageMeta = (): Evidence => ({ kind: 'pageMeta' });
+
 export type StepAction = (
   vars: Record<string, string>,
-) => Promise<readonly Part[] | void> | readonly Part[] | void;
+) => Promise<Evidence | void> | Evidence | void;
 
 const literal = (part: string): string => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -42,7 +59,7 @@ export const stepTable = (actions: Readonly<Record<string, StepAction>>) => {
     pattern: patternFor(phrase),
   }));
 
-  const play = async (step: Step): Promise<readonly Part[]> => {
+  const play = async (step: Step): Promise<Evidence | void> => {
     const played = entries.flatMap(({ phrase, action, pattern }) => {
       const found = pattern.exec(step.phrase);
       return found ? [{ phrase, action, vars: { ...found.groups } }] : [];
@@ -59,7 +76,7 @@ export const stepTable = (actions: Readonly<Record<string, StepAction>>) => {
     }
 
     const [only] = played;
-    return (await only?.action(only.vars)) ?? [];
+    return await only?.action(only.vars);
   };
 
   return { play };

@@ -1,6 +1,6 @@
-import type { AppReads, Driver, Opening, Part } from '../../test-helpers/driver';
+import type { AppReads, Driver, Opening } from '../../test-helpers/driver';
 import type { SeededProject } from '../../test-helpers/seed';
-import type { StepAction } from '../../test-helpers/steps';
+import { reporting, wholeTree, type Evidence, type StepAction } from '../../test-helpers/steps';
 import {
   besideTheGraph,
   clicking,
@@ -28,9 +28,9 @@ export interface AppWriter extends Writer, PanelWriter {
 
 export interface AppSees extends Sees {
   pathIs(pieces: readonly string[]): Promise<void>;
-  panelIsOpenOn(piece: string): Promise<readonly Part[]>;
-  noPanelIsOpen(): Promise<void>;
-  readsBeside(piece: string, facet: string, text: string): Promise<readonly Part[]>;
+  panelIsOpenOn(piece: string): Promise<Evidence>;
+  noPanelIsOpen(): Promise<Evidence>;
+  readsBeside(piece: string, facet: string, text: string): Promise<Evidence>;
   focusIsInTheParagraph(): Promise<void>;
 }
 
@@ -96,12 +96,13 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
       line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
     );
     if (!open) throw new Error(`${piece} is not open beside the graph`);
-    return [{ role: 'complementary', name: pieceNamed(piece) }];
+    return reporting({ role: 'complementary', name: pieceNamed(piece) });
   },
   noPanelIsOpen: async () => {
     if ((await driver.tree()).some((line) => line.includes('- complementary'))) {
       throw new Error('something is open beside the graph');
     }
+    return wholeTree();
   },
   readsBeside: async (piece, facet, text) => {
     const held = await driver.value(facet, { role: 'complementary', name: pieceNamed(piece) });
@@ -110,7 +111,7 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
         `${piece}'s ${facet} beside the graph reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
       );
     }
-    return [{ role: 'complementary', name: pieceNamed(piece) }];
+    return reporting({ role: 'complementary', name: pieceNamed(piece) });
   },
   focusIsInTheParagraph: async () => {
     if (!(await driver.focusIs('textbox', 'Paragraph'))) {

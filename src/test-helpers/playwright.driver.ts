@@ -4,9 +4,9 @@ import {
   clicking,
   drawn,
   farEnoughToReachTheEnd,
-  focusAssertions,
   focusedIn,
-  markingFocusWhenAsserted,
+  linesOf,
+  markingFocus,
   settled,
   typing,
   wholeNameAnyCase,
@@ -19,6 +19,7 @@ import {
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theAppsName: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
+  pageMeta(): Promise<string>;
 }
 
 export const playwrightReads = (page: Page): AppReads => ({
@@ -38,16 +39,12 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
       : page.getByRole(within.role, { name: wholeNameAnyCase(within.name) });
   const found = (role: Role, name: string, within?: Within) =>
     rootIn(within).getByRole(role, { name: wholeNameAnyCase(name) });
-  const assertions = focusAssertions();
-  const tree = async (): Promise<readonly string[]> => {
+  const tree = async (markFocus = false): Promise<readonly string[]> => {
     await page.evaluate(settled);
     const wholePage = reads === 'page';
     const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
-    return markingFocusWhenAsserted(
-      assertions,
-      async () => (wholePage ? page : page.getByRole('main')).ariaSnapshot(),
-      async () => page.evaluate(focusedIn, pane),
-    );
+    const lines = linesOf(await (wholePage ? page : page.getByRole('main')).ariaSnapshot());
+    return markFocus ? markingFocus(lines, await page.evaluate(focusedIn, pane)) : lines;
   };
   return {
     reload: async () => {
@@ -73,13 +70,12 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
     },
     value: async (label, within) =>
       rootIn(within).getByLabel(wholeNameAnyCase(label)).first().inputValue(),
-    focusIs: async (role, name, within) => {
-      assertions.note();
-      return found(role, name, within)
+    focusIs: async (role, name, within) =>
+      found(role, name, within)
         .first()
-        .evaluate((element) => element === document.activeElement);
-    },
+        .evaluate((element) => element === document.activeElement),
     tree,
+    pageMeta: async () => page.title(),
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {
         const frames: string[] = [];

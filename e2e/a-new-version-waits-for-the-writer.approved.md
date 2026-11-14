@@ -65,7 +65,8 @@ And a new version is installed
 And a notice says a new version is ready
 When the writer reloads from the notice
 Then the app opens on the new version
-Then the writer sees
+- page title: working-title (new version)
+And the writer sees
 - banner:
   - heading "working-title" [level=1]
   - navigation "Where you are":

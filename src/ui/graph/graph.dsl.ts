@@ -7,7 +7,12 @@ import {
   story,
   type SeededProject,
 } from '../../test-helpers/seed';
-import type { StepAction } from '../../test-helpers/steps';
+import {
+  reporting,
+  reportingFocus,
+  type Evidence,
+  type StepAction,
+} from '../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',
@@ -45,14 +50,14 @@ export interface Around {
 }
 
 export interface Sees {
-  currentIs(piece: string, around?: Around): Promise<readonly Part[]>;
-  tree(): Promise<readonly string[]>;
-  focusIsIn(piece: string, facet: string): Promise<readonly Part[]>;
-  focusIsOn(piece: string): Promise<readonly Part[]>;
-  focusIsOnTheName(piece: string): Promise<readonly Part[]>;
-  focusIsOnTheCard(): Promise<readonly Part[]>;
-  readsOnTheCard(piece: string, facet: string, text: string): Promise<readonly Part[]>;
-  isNoLongerCurrent(piece: string): Promise<readonly Part[]>;
+  currentIs(piece: string, around?: Around): Promise<Evidence>;
+  tree(markFocus?: boolean): Promise<readonly string[]>;
+  focusIsIn(piece: string, facet: string): Promise<Evidence>;
+  focusIsOn(piece: string): Promise<Evidence>;
+  focusIsOnTheName(piece: string): Promise<Evidence>;
+  focusIsOnTheCard(): Promise<Evidence>;
+  readsOnTheCard(piece: string, facet: string, text: string): Promise<Evidence>;
+  isNoLongerCurrent(piece: string): Promise<Evidence>;
 }
 
 const pieces: Readonly<Record<string, string>> = {
@@ -204,11 +209,7 @@ const under = (
 };
 
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
-  const readsOnTheCard = async (
-    piece: string,
-    facet: string,
-    text: string,
-  ): Promise<readonly Part[]> => {
+  const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<Evidence> => {
     const field = underABeat.exec(facet)?.groups?.['facet'] ?? facet;
     const held = await driver.value(field, { role: 'group', name: pieceNamed(piece) });
     if (held !== text) {
@@ -216,7 +217,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
         `${piece}'s ${facet} on its card reads ${JSON.stringify(held)}, not ${JSON.stringify(text)}`,
       );
     }
-    return [{ role: 'group', name: pieceNamed(piece) }];
+    return reporting({ role: 'group', name: pieceNamed(piece) });
   };
 
   return {
@@ -236,26 +237,26 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
         for (const name of around.under) parts.push({ role: 'group', name: pieceNamed(name) });
         under(pieces, current, around.under);
       }
-      return parts;
+      return reporting(...parts);
     },
-    tree: () => driver.tree(),
+    tree: (markFocus = false) => driver.tree(markFocus),
     focusIsIn: async (piece, facet) => {
       if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not in ${piece}'s ${facet}`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
     focusIsOn: async (piece) => {
       if (!(await driver.focusIs('group', pieceNamed(piece)))) {
         throw new Error(`the focus is not on ${piece}`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
     focusIsOnTheName: async (piece) => {
       if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not on ${piece}'s name`);
       }
-      return [{ role: 'group', name: pieceNamed(piece) }];
+      return reportingFocus({ role: 'group', name: pieceNamed(piece) });
     },
     focusIsOnTheCard: async () => {
       const cards = (await reads.drawn()).filter((piece) => piece.current);
@@ -266,14 +267,14 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       if (!(await driver.focusIs('group', only.name))) {
         throw new Error(`the focus is not on ${only.name}'s card`);
       }
-      return [{ role: 'group', name: only.name }];
+      return reportingFocus({ role: 'group', name: only.name });
     },
     isNoLongerCurrent: async (piece) => {
       const named = pieceNamed(piece);
       const found = (await reads.drawn()).find((card) => card.name === named);
       if (found === undefined) throw new Error(`${piece} is not on the graph`);
       if (found.current) throw new Error(`${piece} is still the current piece`);
-      return [{ role: 'group', name: named }];
+      return reporting({ role: 'group', name: named });
     },
     readsOnTheCard,
   };
