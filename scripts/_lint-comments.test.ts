@@ -31,6 +31,14 @@ beforeAll(() => {
     'allowed-workaround.ts',
     '// workaround: https://github.com/yearofthedan/working-title/issues/72\nexport const a = 1;\n',
   );
+  write(
+    'allowed-workaround-trigger.ts',
+    '// workaround: Playwright 1.65 prints no aria-current; remove when a snapshot prints it.\nexport const a = 1;\n',
+  );
+  write(
+    'workaround-with-empty-trigger.ts',
+    '// workaround: patched here; remove when\nexport const a = 1;\n',
+  );
   write('allowed-help.ts', '// help: what the task does.\nexport const a = 1;\n');
   write(
     'allowed-directives.ts',
@@ -89,6 +97,7 @@ describe('comments/allowed-prefix', { timeout: 60_000 }, () => {
   it.each([
     'allowed-shortcut.ts',
     'allowed-workaround.ts',
+    'allowed-workaround-trigger.ts',
     'allowed-help.ts',
     'allowed-directives.ts',
   ])('passes %s', (file) => {
@@ -109,6 +118,10 @@ describe('comments/allowed-prefix', { timeout: 60_000 }, () => {
 
   it('refuses a workaround: with no issue link', () => {
     expect(refusedIn('workaround-without-link.ts')).toEqual([1]);
+  });
+
+  it('refuses a workaround: whose trigger names nothing to check', () => {
+    expect(refusedIn('workaround-with-empty-trigger.ts')).toEqual([1]);
   });
 
   it('counts no // inside a string, a regex or a template', () => {
