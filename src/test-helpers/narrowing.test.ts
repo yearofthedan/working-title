@@ -77,22 +77,43 @@ describe('narrowing to a part inside another part', () => {
     '  - group "Beat 2":',
     '    - textbox "One-sentence summary": Maren rows out before first light',
     '- complementary "Beat 2":',
+    '  - heading "Beat 2" [level=2]',
+    '  - button "Close"',
+    '  - text: One-sentence summary',
     '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+    '  - text: Paragraph',
+    '  - textbox "Paragraph": Maren rows out',
   ];
 
-  it('keeps the line inside the part it names, and not the one outside it', () => {
-    expect(
-      narrowing(page, [
-        {
-          role: 'textbox',
-          name: 'One-sentence summary',
-          within: { role: 'complementary', name: 'Beat 2' },
-        },
-      ]),
-    ).toEqual(['- textbox "One-sentence summary": Maren learns the sinking was no accident']);
+  const theSummaryBeside = {
+    role: 'textbox' as const,
+    name: 'One-sentence summary',
+    within: { role: 'complementary' as const, name: 'Beat 2' },
+  };
+
+  it('keeps the part it sits in, its own heading and the line, and no sibling of the line', () => {
+    expect(narrowing(page, [theSummaryBeside])).toEqual([
+      '- complementary "Beat 2":',
+      '  - heading "Beat 2" [level=2]',
+      '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+    ]);
   });
 
-  it('matches the part it sits in however it is cased', () => {
+  it('keeps the part it sits in once where two parts sit in it, in the order the page draws them', () => {
+    expect(
+      narrowing(page, [
+        { role: 'textbox', name: 'Paragraph', within: { role: 'complementary', name: 'Beat 2' } },
+        theSummaryBeside,
+      ]),
+    ).toEqual([
+      '- complementary "Beat 2":',
+      '  - heading "Beat 2" [level=2]',
+      '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+      '  - textbox "Paragraph": Maren rows out',
+    ]);
+  });
+
+  it('matches the part it sits in, and the line, however they are cased', () => {
     expect(
       narrowing(page, [
         {
@@ -101,7 +122,11 @@ describe('narrowing to a part inside another part', () => {
           within: { role: 'complementary', name: 'beat 2' },
         },
       ]),
-    ).toEqual(['- textbox "One-sentence summary": Maren learns the sinking was no accident']);
+    ).toEqual([
+      '- complementary "Beat 2":',
+      '  - heading "Beat 2" [level=2]',
+      '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+    ]);
   });
 
   it('refuses a line it holds outside the part it names, so a record cannot silently empty', () => {
@@ -114,6 +139,14 @@ describe('narrowing to a part inside another part', () => {
         },
       ]),
     ).toThrow('no line reads textbox "One-sentence summary" inside complementary "Beat 9"');
+  });
+
+  it('refuses a part it names but holds no line of, so a record cannot silently empty', () => {
+    expect(() =>
+      narrowing(page, [
+        { role: 'textbox', name: 'Narrative', within: { role: 'complementary', name: 'Beat 2' } },
+      ]),
+    ).toThrow('no line reads textbox "Narrative" inside complementary "Beat 2"');
   });
 });
 

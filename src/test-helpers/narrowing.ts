@@ -46,7 +46,8 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
   const read = new Set<string>();
   const kept: string[] = [];
   const enclosing: (Named | undefined)[] = [];
-  let base = -1;
+  let under = -1;
+  let inPart = -1;
   for (const line of lines) {
     const indent = line.length - line.trimStart().length;
     const role = roleOn(line);
@@ -54,22 +55,48 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
     const inside = enclosing.filter((at, depth) => depth < indent && at !== undefined).at(-1);
     enclosing.length = indent;
     enclosing[indent] = here;
-    const matching = parts.filter(
-      (part) =>
-        part.role === role &&
-        (part.name === undefined ||
-          (here !== undefined && part.name.toLowerCase() === here.name.toLowerCase())) &&
-        (part.within === undefined || isNamed(inside, part.within)),
+    const onItsOwn = (part: Part): boolean =>
+      part.role === role &&
+      (part.name === undefined ||
+        (here !== undefined && part.name.toLowerCase() === here.name.toLowerCase()));
+    const theLine = parts.filter((part) => part.within === undefined && onItsOwn(part));
+    const inThePart = parts.filter(
+      (part) => part.within !== undefined && onItsOwn(part) && isNamed(inside, part.within),
     );
-    for (const part of matching) read.add(key(part));
-    if (base >= 0 && indent > base) {
-      kept.push(line.slice(base));
+    const thePart = parts.some((part) => part.within !== undefined && isNamed(here, part.within));
+    const itsHeading = parts.some(
+      (part) =>
+        part.within !== undefined &&
+        here?.role === 'heading' &&
+        here.name.toLowerCase() === part.within.name.toLowerCase() &&
+        isNamed(inside, part.within),
+    );
+    for (const part of [...theLine, ...inThePart]) read.add(key(part));
+
+    if (under >= 0 && indent > under) {
+      kept.push(line.slice(under));
       continue;
     }
-    base = -1;
-    if (matching.length === 0) continue;
-    base = indent;
-    kept.push(line.slice(base));
+    under = -1;
+    if (inPart >= 0) {
+      if (indent <= inPart) {
+        inPart = -1;
+      } else if (inThePart.length > 0 || itsHeading) {
+        kept.push(line.slice(inPart));
+        continue;
+      } else {
+        continue;
+      }
+    }
+    if (thePart) {
+      inPart = indent;
+      kept.push(line.slice(indent));
+      continue;
+    }
+    if (theLine.length > 0) {
+      under = indent;
+      kept.push(line.slice(indent));
+    }
   }
   const missing = parts.filter((part) => !read.has(key(part)));
   if (missing.length > 0) {
