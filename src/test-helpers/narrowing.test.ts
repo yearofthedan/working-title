@@ -71,6 +71,52 @@ describe('narrowing a tree to the parts a scenario asserted on', () => {
   });
 });
 
+describe('narrowing to a part inside another part', () => {
+  const page = [
+    '- main:',
+    '  - group "Beat 2":',
+    '    - textbox "One-sentence summary": Maren rows out before first light',
+    '- complementary "Beat 2":',
+    '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+  ];
+
+  it('keeps the line inside the part it names, and not the one outside it', () => {
+    expect(
+      narrowing(page, [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'complementary', name: 'Beat 2' },
+        },
+      ]),
+    ).toEqual(['- textbox "One-sentence summary": Maren learns the sinking was no accident']);
+  });
+
+  it('matches the part it sits in however it is cased', () => {
+    expect(
+      narrowing(page, [
+        {
+          role: 'textbox',
+          name: 'one-sentence summary',
+          within: { role: 'complementary', name: 'beat 2' },
+        },
+      ]),
+    ).toEqual(['- textbox "One-sentence summary": Maren learns the sinking was no accident']);
+  });
+
+  it('refuses a line it holds outside the part it names, so a record cannot silently empty', () => {
+    expect(() =>
+      narrowing(page, [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'complementary', name: 'Beat 9' },
+        },
+      ]),
+    ).toThrow('no line reads textbox "One-sentence summary" inside complementary "Beat 9"');
+  });
+});
+
 describe('narrowing to a part that names a role alone', () => {
   const banner = [
     '- banner:',

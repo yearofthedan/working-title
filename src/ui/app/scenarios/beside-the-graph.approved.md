@@ -37,8 +37,6 @@ Then beat 2's one-sentence summary on its card reads "Maren learns the sinking w
 Given beat 2 is open beside the graph
 When the writer types "Maren learns the sinking was no accident" as beat 2's one-sentence summary
 Then beat 2's one-sentence summary beside the graph reads "Maren learns the sinking was no accident"
-- textbox "One-sentence summary"
-- textbox "One-sentence summary": Maren learns the sinking was no accident
 - textbox "One-sentence summary": Maren learns the sinking was no accident
 ```
 
