@@ -14,6 +14,11 @@ export interface Within {
   readonly name: string;
 }
 
+export interface Part {
+  readonly role: Role;
+  readonly name: string;
+}
+
 export interface Point {
   readonly x: number;
   readonly y: number;
@@ -77,12 +82,33 @@ export interface Driver {
   clickAway(): Promise<void>;
   value(label: string, within: Within): Promise<string>;
   focusIs(role: Role, name: string, within?: Within): Promise<boolean>;
+  asserts(role: Role, name: string): void;
+  observed(): Promise<readonly string[]>;
   tree(): Promise<readonly string[]>;
 }
 
 export interface ReloadingDriver extends Driver {
   reload(): Promise<void>;
 }
+
+export interface Declarations {
+  asserts(role: Role, name: string): void;
+  parts(): readonly Part[];
+}
+
+export const declarations = (): Declarations => {
+  const parts: Part[] = [];
+  const named = new Set<string>();
+  return {
+    asserts: (role, name) => {
+      const key = `${role} ${name}`.toLowerCase();
+      if (named.has(key)) return;
+      named.add(key);
+      parts.push({ role, name });
+    },
+    parts: () => parts,
+  };
+};
 
 interface Clickable {
   click(options?: { readonly position?: Point }): Promise<void>;
@@ -201,6 +227,37 @@ const same = (found: Named | undefined, wanted: Named | undefined): boolean =>
   found === undefined || wanted === undefined
     ? found === undefined && wanted === undefined
     : found.role === wanted.role && found.name === wanted.name;
+
+export const narrowing = (lines: readonly string[], parts: readonly Part[]): readonly string[] => {
+  if (parts.length === 0) return lines;
+  const key = (part: Part): string => `${part.role} ${part.name}`.toLowerCase();
+  const read = new Set<string>();
+  const kept: string[] = [];
+  let base = -1;
+  for (const line of lines) {
+    const indent = line.length - line.trimStart().length;
+    if (base >= 0 && indent > base) {
+      kept.push(line.slice(base));
+      continue;
+    }
+    base = -1;
+    const here = namedOn(line);
+    if (here === undefined) continue;
+    const matching = parts.filter(
+      (part) => part.role === here.role && part.name.toLowerCase() === here.name.toLowerCase(),
+    );
+    if (matching.length === 0) continue;
+    for (const part of matching) read.add(key(part));
+    base = indent;
+    kept.push(line.slice(base));
+  }
+  const missing = parts.filter((part) => !read.has(key(part)));
+  if (missing.length > 0) {
+    const reads = missing.map((part) => `${part.role} "${part.name}"`).join(' or ');
+    throw new Error(`no line reads ${reads}, so a scenario cannot record what it checked`);
+  }
+  return kept;
+};
 
 export const markingFocus = (
   lines: readonly string[],

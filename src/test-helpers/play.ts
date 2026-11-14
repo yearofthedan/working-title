@@ -7,6 +7,7 @@ export interface ScenarioSource {
 }
 
 export interface Runner {
+  observed(): Promise<readonly string[]>;
   tree(): Promise<readonly string[]>;
   read?(path: string): Promise<string>;
   write?(path: string, text: string): Promise<void>;
@@ -63,7 +64,9 @@ export const playScenarios = async (
       if (step.phrase === OBSERVED) continue;
       await table.play(step);
     }
-    const observed = await runner.tree();
+    const observed = scenario.steps.some((step) => step.phrase === OBSERVED)
+      ? await runner.tree()
+      : await runner.observed();
 
     if (options.approve) {
       approved = withObserved(approved, scenario.behaviour, observed);

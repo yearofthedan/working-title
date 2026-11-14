@@ -92,6 +92,7 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
     }
   },
   panelIsOpenOn: async (piece) => {
+    driver.asserts('complementary', pieceNamed(piece));
     const open = (await driver.tree()).some((line) =>
       line.toLowerCase().includes(`- complementary "${pieceNamed(piece).toLowerCase()}"`),
     );
@@ -103,6 +104,7 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
     }
   },
   readsBeside: async (piece, facet, text) => {
+    driver.asserts('complementary', pieceNamed(piece));
     const held = await driver.value(facet, { role: 'complementary', name: pieceNamed(piece) });
     if (held !== text) {
       throw new Error(

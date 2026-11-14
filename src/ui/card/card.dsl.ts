@@ -54,11 +54,18 @@ const insistTheFocusIs = async (
 };
 
 export const cardSeesOn = (driver: Driver): CardSees => ({
-  focusIsInTheSummary: () =>
-    insistTheFocusIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard),
-  focusIsOnTheAction: () =>
-    insistTheFocusIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard),
-  focusIsOnTheCard: () => insistTheFocusIs(driver, 'group', beat, `on ${beat}'s card`),
+  focusIsInTheSummary: () => {
+    driver.asserts(theCard.role, theCard.name);
+    return insistTheFocusIs(driver, 'textbox', summary, `in ${beat}'s ${summary}`, theCard);
+  },
+  focusIsOnTheAction: () => {
+    driver.asserts(theCard.role, theCard.name);
+    return insistTheFocusIs(driver, 'button', action, `on ${beat}'s "${action}"`, theCard);
+  },
+  focusIsOnTheCard: () => {
+    driver.asserts(theCard.role, theCard.name);
+    return insistTheFocusIs(driver, 'group', beat, `on ${beat}'s card`);
+  },
 });
 
 export const cardSteps = (writer: CardWriter, sees: CardSees): Record<string, StepAction> => ({

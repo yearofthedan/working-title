@@ -30,14 +30,23 @@ const runnerSeeing = (...trees: readonly (readonly string[])[]) => {
   let at = 0;
   let held = file;
   const written: { path: string; text: string }[] = [];
-  const runner: Runner & { written: typeof written } = {
-    tree: async () => trees[at++] ?? [],
+  const called: string[] = [];
+  const runner: Runner & { written: typeof written; called: typeof called } = {
+    tree: async () => {
+      called.push('tree');
+      return trees[at++] ?? [];
+    },
+    observed: async () => {
+      called.push('observed');
+      return trees[at++] ?? [];
+    },
     read: async () => held,
     write: async (path, text) => {
       held = text;
       written.push({ path, text });
     },
     written,
+    called,
   };
   return runner;
 };
@@ -74,6 +83,34 @@ describe('playing a scenario file', () => {
       runnerSeeing(['- main:', '  - text: A toy'], ['- main:']),
       actions,
     );
+  });
+
+  it('asks for the whole tree where the scenario plays "the writer sees"', async () => {
+    const runner = runnerSeeing(['- main:', '  - text: A toy'], ['- main:']);
+
+    await playScenarios(source(), runner, actions, { only: 'A toy behaviour' });
+
+    expect(runner.called).toEqual(['tree']);
+  });
+
+  it('asks for what its steps asserted on where no step plays "the writer sees"', async () => {
+    const named = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A behaviour that names what it saw',
+      '',
+      '```',
+      'Given a toy',
+      'Then a toy',
+      '- main:',
+      '```',
+      '',
+    ].join('\n');
+    const runner = runnerSeeing(['- main:']);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: named }, runner, actions);
+
+    expect(runner.called).toEqual(['observed']);
   });
 
   it('plays the one scenario it is asked for, and only that one', async () => {

@@ -3,6 +3,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { playScenarios, type Runner } from '../src/test-helpers/play';
 import { readScenarioFile } from '../src/test-helpers/scenario-file';
+import type { AppSees } from '../src/ui/app/app.dsl';
 import { journeySteps } from './journey.dsl';
 import { newVersionSteps } from './new-version.dsl';
 import { privateBuildOn, test as privateBuildTest } from './private-build';
@@ -12,11 +13,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-const runnerFor = (tree: () => Promise<readonly string[]>): Runner =>
+const runnerFor = (sees: Pick<AppSees, 'tree' | 'observed'>): Runner =>
   approvingPath === ''
-    ? { tree }
+    ? { observed: () => sees.observed(), tree: () => sees.tree() }
     : {
-        tree,
+        observed: () => sees.observed(),
+        tree: () => sees.tree(),
         read: async (where) => readFileSync(join(root, where), 'utf8'),
         write: async (where, what) => {
           writeFileSync(join(root, where), what);
@@ -41,10 +43,9 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
       privateBuildTest.use({ treeRoot });
       for (const { behaviour } of file.scenarios) {
         privateBuildTest(behaviour, async ({ writer, page, build }) => {
-          const tree = async () => writer.sees.tree();
           await playScenarios(
             { path, text },
-            runnerFor(tree),
+            runnerFor(writer.sees),
             {
               ...journeySteps(writer, writer.sees),
               ...newVersionSteps(privateBuildOn(page, build)),
@@ -61,10 +62,9 @@ for (const name of readdirSync(here).filter((entry) => entry.endsWith('.approved
     writerTest.use({ treeRoot });
     for (const { behaviour } of file.scenarios) {
       writerTest(behaviour, async ({ writer }) => {
-        const tree = async () => writer.sees.tree();
         await playScenarios(
           { path, text },
-          runnerFor(tree),
+          runnerFor(writer.sees),
           journeySteps(writer, writer.sees),
           playing(behaviour),
         );

@@ -46,6 +46,7 @@ export interface Around {
 
 export interface Sees {
   currentIs(piece: string, around?: Around): Promise<void>;
+  observed(): Promise<readonly string[]>;
   tree(): Promise<readonly string[]>;
   focusIsIn(piece: string, facet: string): Promise<void>;
   focusIsOn(piece: string): Promise<void>;
@@ -205,6 +206,7 @@ const under = (
 export const seesOn = (driver: Driver, reads: Reads): Sees => {
   const readsOnTheCard = async (piece: string, facet: string, text: string): Promise<void> => {
     const field = underABeat.exec(facet)?.groups?.['facet'] ?? facet;
+    driver.asserts('group', pieceNamed(piece));
     const held = await driver.value(field, { role: 'group', name: pieceNamed(piece) });
     if (held !== text) {
       throw new Error(
@@ -217,22 +219,36 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
     currentIs: async (piece, around = {}) => {
       const pieces = await reads.drawn();
       const current = theCurrent(pieces, piece);
-      if (around.above !== undefined) above(pieces, current, around.above);
-      if (around.beside !== undefined) beside(pieces, current, around.beside);
-      if (around.under !== undefined) under(pieces, current, around.under);
+      driver.asserts('group', pieceNamed(piece));
+      if (around.above !== undefined) {
+        driver.asserts('group', pieceNamed(around.above));
+        above(pieces, current, around.above);
+      }
+      if (around.beside !== undefined) {
+        for (const name of around.beside) driver.asserts('group', pieceNamed(name));
+        beside(pieces, current, around.beside);
+      }
+      if (around.under !== undefined) {
+        for (const name of around.under) driver.asserts('group', pieceNamed(name));
+        under(pieces, current, around.under);
+      }
     },
+    observed: () => driver.observed(),
     tree: () => driver.tree(),
     focusIsIn: async (piece, facet) => {
+      driver.asserts('group', pieceNamed(piece));
       if (!(await driver.focusIs('textbox', facet, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not in ${piece}'s ${facet}`);
       }
     },
     focusIsOn: async (piece) => {
+      driver.asserts('group', pieceNamed(piece));
       if (!(await driver.focusIs('group', pieceNamed(piece)))) {
         throw new Error(`the focus is not on ${piece}`);
       }
     },
     focusIsOnTheName: async (piece) => {
+      driver.asserts('group', pieceNamed(piece));
       if (!(await driver.focusIs('button', piece, { role: 'group', name: piece }))) {
         throw new Error(`the focus is not on ${piece}'s name`);
       }
@@ -243,6 +259,7 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
       if (cards.length !== 1 || only === undefined) {
         throw new Error('the graph draws no one current piece');
       }
+      driver.asserts('group', only.name);
       if (!(await driver.focusIs('group', only.name))) {
         throw new Error(`the focus is not on ${only.name}'s card`);
       }
@@ -294,6 +311,7 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the first scene becomes current': () => sees.currentIs('Scene 1'),
   'the second scene becomes current': () => sees.currentIs('Scene 2'),
   'the second beat becomes current': () => sees.currentIs('Beat 2'),
+  'the first beat is beside it': () => sees.currentIs('Beat 2', { beside: ['Beat 1'] }),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
   'the story is current, with beats 1 to 5 under it': () =>

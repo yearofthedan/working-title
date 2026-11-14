@@ -47,6 +47,8 @@ export const recording = (tree: readonly string[]) => {
       calls.push(`focusIs ${role} "${name}"${root}`);
       return false;
     },
+    asserts: () => undefined,
+    observed: async () => tree,
     tree: async () => tree,
   };
   const opening: Opening = {
