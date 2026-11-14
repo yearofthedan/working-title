@@ -53,24 +53,12 @@ Given a current beat with two scenes
 When the writer clicks the first scene's card
 Then the first scene becomes current
 And it has focus
-- main:
-  - toolbar "Beat 2":
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-  - toolbar "Scenes under Beat 2":
-    - group "Scene 1" [active]:
-      - heading "Scene 1" [level=4]
-      - text: List line
-      - textbox "List line"
-      - button "Open beside"
-      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-    - group "Scene 2":
-      - heading "Scene 2" [level=4]:
-        - button "Scene 2"
+- group "Scene 1" [active]:
+  - heading "Scene 1" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
 ### Scenario: → makes the next beat current
@@ -80,24 +68,17 @@ Given two beats, the first current with tab focus
 When the writer presses →
 Then the second beat becomes current
 And focus moves to its card
-- main:
-  - toolbar "The story":
-    - group "The story":
-      - heading "The story" [level=2]:
-        - button "The story"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-  - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-    - group "Beat 2" [active]:
-      - heading "Beat 2" [level=3]
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Add a scene"
-      - button "Open beside"
-      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+And the first beat is no longer current
+- group "Beat 1":
+  - heading "Beat 1" [level=3]:
+    - button "Beat 1"
+- group "Beat 2" [active]:
+  - heading "Beat 2" [level=3]
+  - text: One-sentence summary
+  - textbox "One-sentence summary"
+  - button "Add a scene"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
 ### Scenario: → in the scenes' row makes the next scene current
@@ -108,24 +89,12 @@ And focus on its first scene
 When the writer presses →
 Then the second scene becomes current
 And focus moves to its card
-- main:
-  - toolbar "Beat 2":
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-  - toolbar "Scenes under Beat 2":
-    - group "Scene 1":
-      - heading "Scene 1" [level=4]:
-        - button "Scene 1"
-    - group "Scene 2" [active]:
-      - heading "Scene 2" [level=4]
-      - text: List line
-      - textbox "List line"
-      - button "Open beside"
-      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+- group "Scene 2" [active]:
+  - heading "Scene 2" [level=4]
+  - text: List line
+  - textbox "List line"
+  - button "Open beside"
+  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
 
 ### Scenario: stepping down to a scene and back up

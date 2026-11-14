@@ -1,3 +1,4 @@
+import { narrowing, type Part } from './narrowing';
 import { OBSERVED, readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type StepAction } from './steps';
 
@@ -40,6 +41,16 @@ const refuse = (scenario: Scenario, observed: readonly string[], path: string): 
   );
 };
 
+const distinct = (parts: readonly Part[]): readonly Part[] => {
+  const named = new Set<string>();
+  return parts.filter((part) => {
+    const key = `${part.role} ${part.name}`.toLowerCase();
+    if (named.has(key)) return false;
+    named.add(key);
+    return true;
+  });
+};
+
 export const playScenarios = async (
   source: ScenarioSource,
   runner: Runner,
@@ -59,11 +70,14 @@ export const playScenarios = async (
 
   for (const scenario of file.scenarios) {
     if (options.only !== undefined && scenario.behaviour !== options.only) continue;
+    const parts: Part[] = [];
     for (const step of scenario.steps) {
       if (step.phrase === OBSERVED) continue;
-      await table.play(step);
+      parts.push(...(await table.play(step)));
     }
-    const observed = await runner.tree();
+    const observed = scenario.steps.some((step) => step.phrase === OBSERVED)
+      ? await runner.tree()
+      : narrowing(await runner.tree(), distinct(parts));
 
     if (options.approve) {
       approved = withObserved(approved, scenario.behaviour, observed);

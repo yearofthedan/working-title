@@ -39,6 +39,16 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
   const found = (role: Role, name: string, within?: Within) =>
     rootIn(within).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
+  const tree = async (): Promise<readonly string[]> => {
+    await page.evaluate(settled);
+    const wholePage = reads === 'page';
+    const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
+    return markingFocusWhenAsserted(
+      assertions,
+      async () => (wholePage ? page : page.getByRole('main')).ariaSnapshot(),
+      async () => page.evaluate(focusedIn, pane),
+    );
+  };
   return {
     reload: async () => {
       await page.reload();
@@ -69,16 +79,7 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
         .first()
         .evaluate((element) => element === document.activeElement);
     },
-    tree: async () => {
-      await page.evaluate(settled);
-      const wholePage = reads === 'page';
-      const pane = wholePage ? undefined : await page.getByRole('main').elementHandle();
-      return markingFocusWhenAsserted(
-        assertions,
-        async () => (wholePage ? page : page.getByRole('main')).ariaSnapshot(),
-        async () => page.evaluate(focusedIn, pane),
-      );
-    },
+    tree,
     opensWatchingTheGraph: async () => {
       await page.addInitScript(() => {
         const frames: string[] = [];

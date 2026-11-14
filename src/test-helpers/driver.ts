@@ -1,13 +1,7 @@
 import type { CardLook } from '../ui/card/card';
+import { namedOn, same, type Named, type Role } from './narrowing';
 
-export type Role =
-  | 'group'
-  | 'button'
-  | 'heading'
-  | 'main'
-  | 'navigation'
-  | 'textbox'
-  | 'complementary';
+export type { Part, Role } from './narrowing';
 
 export interface Within {
   readonly role: Role;
@@ -124,11 +118,6 @@ export const typing =
 export const linesOf = (tree: string): readonly string[] =>
   tree.replace(/^\n/, '').replace(/\n$/, '').split('\n');
 
-export interface Named {
-  readonly role: string;
-  readonly name: string;
-}
-
 export interface Focus {
   readonly element: Named;
   readonly inside: Named | undefined;
@@ -191,16 +180,6 @@ export const focusedIn = (root: Element = document.body): Focus | undefined => {
   }
   return { element, inside: undefined };
 };
-
-const namedOn = (line: string): Named | undefined => {
-  const found = /^\s*- ([\w-]+) "([^"]*)"/.exec(line);
-  return found === null ? undefined : { role: found[1], name: found[2] };
-};
-
-const same = (found: Named | undefined, wanted: Named | undefined): boolean =>
-  found === undefined || wanted === undefined
-    ? found === undefined && wanted === undefined
-    : found.role === wanted.role && found.name === wanted.name;
 
 export const markingFocus = (
   lines: readonly string[],

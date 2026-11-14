@@ -16,6 +16,51 @@ describe('the graph language', () => {
   });
 });
 
+describe('what a graph step returns', () => {
+  it('returns the card whose sentence it reads', async () => {
+    const { driver, reads } = recording(storyDrawn);
+    const step = graphSteps(
+      writerOn(driver, { fresh: async () => {}, reopen: async () => {} }),
+      seesOn(driver, reads),
+    )['{piece}\'s {facet} on its card reads "{text}"']!;
+
+    expect(await step({ piece: 'The story', facet: 'One-sentence summary', text: '' })).toEqual([
+      { role: 'group', name: 'The story' },
+    ]);
+  });
+
+  const box = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
+  const drawing = (current: boolean) => ({
+    drawn: async () => [
+      { name: 'Beat 4', kind: current ? ('current' as const) : ('chip' as const), current, box },
+    ],
+  });
+
+  it('returns the piece it checked is no longer current', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, drawing(false)).isNoLongerCurrent('Beat 4')).toEqual([
+      { role: 'group', name: 'Beat 4' },
+    ]);
+  });
+
+  it('refuses a piece that is still current', async () => {
+    const { driver } = recording(storyDrawn);
+
+    await expect(seesOn(driver, drawing(true)).isNoLongerCurrent('Beat 4')).rejects.toThrow(
+      'Beat 4 is still the current piece',
+    );
+  });
+
+  it('returns the pieces it checked as current', async () => {
+    const { driver } = recording(storyDrawn);
+
+    expect(await seesOn(driver, drawing(true)).currentIs('Beat 4')).toEqual([
+      { role: 'group', name: 'Beat 4' },
+    ]);
+  });
+});
+
 describe('what only the app can play', () => {
   it.each(['one-sentence summary under beat 2', 'paragraph beside the graph'])(
     'refuses to type into "%s"',

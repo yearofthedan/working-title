@@ -52,6 +52,14 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
   const found = (role: Role, name: string, group?: Within) =>
     rootIn(group).getByRole(role, { name: wholeNameAnyCase(name) });
   const assertions = focusAssertions();
+  const tree = async (): Promise<readonly string[]> => {
+    await settled();
+    return markingFocusWhenAsserted(
+      assertions,
+      async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(root())),
+      async () => focusedIn(root()),
+    );
+  };
   return {
     press: async (key) => {
       await browser.userEvent.keyboard(keysFor(key));
@@ -77,13 +85,6 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
       assertions.note();
       return found(role, name, group).first().element() === document.activeElement;
     },
-    tree: async () => {
-      await settled();
-      return markingFocusWhenAsserted(
-        assertions,
-        async () => utils.aria.renderAriaTree(utils.aria.generateAriaTree(root())),
-        async () => focusedIn(root()),
-      );
-    },
+    tree,
   };
 };

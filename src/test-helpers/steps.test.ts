@@ -20,6 +20,16 @@ describe('a step table', () => {
     expect(played).toEqual(['a new project', 'the one-sentence summary <- "a widow hunts"']);
   });
 
+  it('returns the parts an action returned, and nothing for an action that returns none', async () => {
+    const table = stepTable({
+      'a named toy': () => [{ role: 'group', name: 'A toy' }],
+      'a reload': () => {},
+    });
+
+    expect(await table.play(step('a named toy'))).toEqual([{ role: 'group', name: 'A toy' }]);
+    expect(await table.play(step('a reload'))).toEqual([]);
+  });
+
   it('plays a quoted placeholder that holds nothing', async () => {
     const played: string[] = [];
     const table = stepTable({

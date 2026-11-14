@@ -1,6 +1,9 @@
+import type { Part } from './narrowing';
 import type { Step } from './scenario-file';
 
-export type StepAction = (vars: Record<string, string>) => Promise<void> | void;
+export type StepAction = (
+  vars: Record<string, string>,
+) => Promise<readonly Part[] | void> | readonly Part[] | void;
 
 const literal = (part: string): string => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -39,7 +42,7 @@ export const stepTable = (actions: Readonly<Record<string, StepAction>>) => {
     pattern: patternFor(phrase),
   }));
 
-  const play = async (step: Step): Promise<void> => {
+  const play = async (step: Step): Promise<readonly Part[]> => {
     const played = entries.flatMap(({ phrase, action, pattern }) => {
       const found = pattern.exec(step.phrase);
       return found ? [{ phrase, action, vars: { ...found.groups } }] : [];
@@ -56,7 +59,7 @@ export const stepTable = (actions: Readonly<Record<string, StepAction>>) => {
     }
 
     const [only] = played;
-    await only?.action(only.vars);
+    return (await only?.action(only.vars)) ?? [];
   };
 
   return { play };
