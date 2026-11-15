@@ -4,6 +4,9 @@ import { folderNameFor } from './folder-name';
 const source =
   'https://github.com/chromium/chromium/blob/9e9c708ce464b92f1ef27cc61d4867d647220e05/content/browser/file_system_access/file_system_access_manager_impl.cc#L2557';
 
+const shortNameSource =
+  'https://github.com/chromium/chromium/blob/9e9c708ce464b92f1ef27cc61d4867d647220e05/base/i18n/file_util_icu.cc#L55-L96';
+
 describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source})`, () => {
   it.each([
     ['The Ferryman', 'The Ferryman'],
@@ -127,6 +130,29 @@ describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source
       expect(folderNameFor(`Report.${extension}`)).toBe(`Report.${extension}`);
     },
   );
+
+  describe(`the tilde in a name Windows could read as an 8.3 short name (${shortNameSource})`, () => {
+    it.each([
+      ['Report~1', 'Report 1'],
+      ['A~1', 'A 1'],
+      ['Salt~1.txt', 'Salt 1.txt'],
+      ['Sheet~2.xls', 'Sheet 2.xls'],
+    ])('turns the tilde in %s into a space, giving "%s"', (title, name) => {
+      expect(folderNameFor(title)).toBe(name);
+    });
+
+    it.each([
+      ['it is longer than eight characters and holds no dot', 'Salt~Year'],
+      ['it is longer than twelve characters', 'The~Ferryman'],
+      ['the part before its first dot runs past the eighth character', 'Salt~Year1.x'],
+      ['its extension is longer than three characters', 'Salt~1.text'],
+      ['it holds more than one dot', 'Salt~1.ta.ble'],
+      ['it holds a character Windows refuses in a short name', 'Sal[t~1]'],
+      ['it holds a space, which Windows refuses in a short name', 'Salt~ Year'],
+    ])('leaves the title as it is, since %s: %s', (why, title) => {
+      expect(folderNameFor(title)).toBe(title);
+    });
+  });
 
   it.each([
     ['no title at all', ''],

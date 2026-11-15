@@ -5,7 +5,7 @@
 
 ## How the terms relate
 
-A **project** is one novel being planned and written, and it follows one **method**. The method sets out the kinds of **piece**, the **facets** each kind has, and the **stages** the writer works through; the stages in order are the **flow**. Pieces form one tree: the story at the root, and every other piece under one parent, in order among its siblings. A piece's **level** is where it sits in that tree. **Collections**, such as the cast and places, sit outside the tree. **Links** join any two pieces, across the tree and into collections. **Chapters** group the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **current piece** is the piece the graph is centred on, and the **next moves** are what the method offers from there.
+A **project** is one story being planned and written, and it follows one **method**. The method sets out the kinds of **piece**, the **facets** each kind has, and the **stages** the writer works through; the stages in order are the **flow**. Pieces form one tree: the story at the root, and every other piece under one parent, in order among its siblings. A piece's **level** is where it sits in that tree. **Collections**, such as the cast and places, sit outside the tree. **Links** join any two pieces, across the tree and into collections. **Chapters** group the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **current piece** is the piece the graph is centred on, and the **next moves** are what the method offers from there.
 
 ```
 Project ── follows ──► Method: piece kinds, facets, stages
@@ -28,7 +28,7 @@ The **core** terms below name things every method has. They are the only words i
 | Folder | Where a project lives on the writer's machine: one file per piece, and a project file. The app makes it in the projects folder | |
 | Projects folder | The folder the writer chooses once, where every project's folder is made | |
 | Your projects | The list of the projects in the projects folder, and the way to start another | |
-| Method | A way of planning a novel: its kinds of piece, their facets and its stages. The built-in one is Snowflake, extended | |
+| Method | A way of planning a story: its kinds of piece, their facets and its stages. The built-in one is Snowflake, extended | |
 | Stage | One step of the method. It either elaborates a piece or branches it | level |
 | Flow | The method's stages in the order the writer meets them | |
 | Piece | One unit of the story the writer plans and writes. Its kind comes from the method | node, element |

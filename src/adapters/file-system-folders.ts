@@ -12,7 +12,8 @@ const projectFile = (method: Method, title: string): string =>
   `---\ntitle: ${JSON.stringify(title)}\nmethod: ${method.name}\nversion: ${method.version}\n---\n`;
 
 const isFree = async (parent: FileSystemDirectoryHandle, name: string): Promise<boolean> => {
-  for await (const entry of parent.values()) if (entry.name === name) return false;
+  const asked = name.toLowerCase();
+  for await (const entry of parent.values()) if (entry.name.toLowerCase() === asked) return false;
   return true;
 };
 
@@ -34,9 +35,10 @@ const parsed = (json: string): unknown => {
 const ownTitleOf = async (folder: FileSystemDirectoryHandle): Promise<string | undefined> => {
   try {
     const file = await folder.getFileHandle(projectFileName);
-    const written = /^title: (.*)$/m.exec(await (await file.getFile()).text())?.[1] ?? '';
+    const text = await (await file.getFile()).text();
+    const written = (/^title: (.*)$/m.exec(text)?.[1] ?? '').trim();
     const title = parsed(written);
-    return typeof title === 'string' ? title : '';
+    return typeof title === 'string' ? title : written;
   } catch {
     return undefined;
   }

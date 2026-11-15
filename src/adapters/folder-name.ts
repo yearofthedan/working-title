@@ -5,6 +5,15 @@ const deviceOnWindows = /^(con|prn|aux|nul|com[1-9]|lpt[1-9]|clock\$)(?=\.|$)/i;
 const wholeNameOnWindows = /^(desktop\.ini|thumbs\.db|conin\$|conout\$)$/i;
 const classIdExtension = /^\{.*\}$/;
 const refusedExtensions = /^(lnk|scf|url|cfg|dll|dng|ini|manifest)$/;
+const refusedInAShortName = /["\\/[\]:+|<>=;?,*\p{White_Space}]/u;
+
+const couldBeAShortName = (name: string): boolean => {
+  if (name.length > 12 || !name.includes('~') || refusedInAShortName.test(name)) return false;
+  const firstDot = name.indexOf('.');
+  if (firstDot === -1) return name.length <= 8;
+  if (firstDot !== name.lastIndexOf('.')) return false;
+  return firstDot > 0 && firstDot <= 8 && firstDot + 4 >= name.length;
+};
 
 const refusesItsExtension = (name: string): boolean => {
   const lastDot = name.lastIndexOf('.');
@@ -29,5 +38,6 @@ export const folderNameFor = (title: string): string => {
   const reserved = wholeNameOnWindows.test(name)
     ? `${name} project`
     : name.replace(deviceOnWindows, '$1 project');
-  return refusesItsExtension(reserved) ? lastDotAsASpace(reserved) : reserved;
+  const allowed = couldBeAShortName(reserved) ? reserved.replace(/~+/g, ' ') : reserved;
+  return refusesItsExtension(allowed) ? lastDotAsASpace(allowed) : allowed;
 };
