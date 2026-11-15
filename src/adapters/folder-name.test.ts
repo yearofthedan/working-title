@@ -58,7 +58,25 @@ describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source
     ['COM9', 'COM9 project'],
     ['LPT1', 'LPT1 project'],
     ['LPT9', 'LPT9 project'],
+    ['clock$', 'clock$ project'],
   ])('names the reserved name %s "%s"', (title, name) => {
+    expect(folderNameFor(title)).toBe(name);
+  });
+
+  it.each([
+    ['CON.zip', 'CON project.zip'],
+    ['con.tar.gz', 'con project.tar.gz'],
+  ])('names %s "%s", which Windows reads as the device before its first dot', (title, name) => {
+    expect(folderNameFor(title)).toBe(name);
+  });
+
+  it.each([
+    ['desktop.ini', 'desktop.ini project'],
+    ['thumbs.db', 'thumbs.db project'],
+    ['conin$', 'conin$ project'],
+    ['conout$', 'conout$ project'],
+    ['DESKTOP.INI', 'DESKTOP.INI project'],
+  ])('names the whole-name reserved name %s "%s"', (title, name) => {
     expect(folderNameFor(title)).toBe(name);
   });
 
@@ -69,6 +87,38 @@ describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source
   ])('leaves %s alone, which Windows keeps', (title, name) => {
     expect(folderNameFor(title)).toBe(name);
   });
+
+  it.each([
+    ['Report.lnk', 'Report lnk'],
+    ['Report.scf', 'Report scf'],
+    ['Report.url', 'Report url'],
+    ['Report.cfg', 'Report cfg'],
+    ['Report.dll', 'Report dll'],
+    ['Report.dng', 'Report dng'],
+    ['Report.ini', 'Report ini'],
+    ['Report.manifest', 'Report manifest'],
+    ['Report.CFG', 'Report CFG'],
+    ['Notes.v2.ini', 'Notes.v2 ini'],
+  ])(
+    'turns the last dot before the refused extension in %s into a space, giving "%s"',
+    (title, name) => {
+      expect(folderNameFor(title)).toBe(name);
+    },
+  );
+
+  it.each(['{21EC2020-3AEA-1069-A2DD-08002B30309D}', '{}'])(
+    'turns the dot before the extension in braces %s into a space, which Windows reads as a class id',
+    (extension) => {
+      expect(folderNameFor(`Report.${extension}`)).toBe(`Report ${extension}`);
+    },
+  );
+
+  it.each(['local', 'LOCAL'])(
+    'leaves the extension %s alone, which Chromium allows',
+    (extension) => {
+      expect(folderNameFor(`Report.${extension}`)).toBe(`Report.${extension}`);
+    },
+  );
 
   it.each([
     ['no title at all', ''],

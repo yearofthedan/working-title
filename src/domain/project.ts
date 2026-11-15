@@ -1,3 +1,5 @@
+export const untitledProjectTitle = 'Untitled project';
+
 export interface Facet {
   readonly id: string;
   readonly label: string;
