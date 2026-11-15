@@ -369,6 +369,112 @@ main {
       transition: opacity var(--move) var(--move-ease);
     }
   }
+
+  :is(.choosing-the-projects-folder, .your-projects) {
+    box-sizing: border-box;
+    width: min(38rem, 100%);
+    margin: 12vh auto 0;
+    display: grid;
+    gap: var(--space-4);
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  :is(.choosing-the-projects-folder, .your-projects) h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  :is(.choosing-the-projects-folder, .your-projects) p {
+    margin: 0;
+  }
+
+  :is(.choosing-the-projects-folder, .your-projects) button {
+    justify-self: start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.4em;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  :is(.choosing-the-projects-folder > button, .your-projects button[type='submit']) {
+    border-color: var(--color-focus);
+    background: var(--color-focus);
+    color: var(--color-surface);
+  }
+
+  :is(.choosing-the-projects-folder, .your-projects) button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  .choosing-the-projects-folder > p:last-child {
+    color: var(--color-text-muted);
+  }
+
+  .your-projects {
+    gap: 0;
+  }
+
+  .your-projects h2 {
+    font-size: var(--text-interface);
+    font-weight: 600;
+    padding-bottom: var(--space-4);
+  }
+
+  .your-projects ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .your-projects li {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .your-projects > p {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+  }
+
+  .your-projects form {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .your-projects label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .your-projects input {
+    font-family: var(--font-prose);
+    font-size: 1.5rem;
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--color-focus);
+    padding: 0 0 var(--space-1);
+  }
+
+  .your-projects input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  .your-projects .actions {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+    margin-top: var(--space-2);
+  }
 }
 
 @scope (aside) {
@@ -481,5 +587,18 @@ main {
         width: 0;
       }
     }
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--move);
+  animation-timing-function: var(--move-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
   }
 }

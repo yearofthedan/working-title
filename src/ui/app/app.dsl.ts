@@ -16,6 +16,10 @@ import {
 import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
 
 export interface AppWriter extends Writer, PanelWriter {
+  choosesAFolder(): Promise<void>;
+  startsAProject(): Promise<void>;
+  typesTheTitle(text: string): Promise<void>;
+  pressesStart(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
@@ -56,6 +60,10 @@ export const appWriterOn = (
   startFrom?: (project: SeededProject) => Promise<void>,
 ): AppWriter => ({
   ...writerOn(driver, opening, startFrom),
+  choosesAFolder: () => driver.click('button', 'Choose a folder…'),
+  startsAProject: () => driver.click('button', 'Start a project'),
+  typesTheTitle: (text) => driver.type(text, 'Title'),
+  pressesStart: () => driver.click('button', 'Start'),
   makesCurrent: (piece) => reaching(driver, piece),
   addsASceneUnder: async (beat) => {
     const named = pieceNamed(beat);

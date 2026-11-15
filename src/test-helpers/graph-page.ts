@@ -33,6 +33,14 @@ export const moving = (): readonly Animation[] => {
   return document.getAnimations();
 };
 
+export const fading = (): readonly Animation[] =>
+  moving().filter(
+    (animation) =>
+      animation.playState === 'running' &&
+      animation.effect instanceof KeyframeEffect &&
+      animation.effect.pseudoElement !== null,
+  );
+
 export interface StartedTransition {
   readonly property: string;
   readonly easing: string;

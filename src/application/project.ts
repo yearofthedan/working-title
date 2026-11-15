@@ -10,6 +10,8 @@ import {
 } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 
+export { untitledProjectTitle } from '../domain/project';
+
 export interface FacetView {
   readonly id: string;
   readonly label: string;

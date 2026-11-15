@@ -2,7 +2,11 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
 import { projectStorageKey } from '../src/adapters/local-storage-project-store';
 import type { Opening } from '../src/test-helpers/driver';
-import { playwrightDriver, playwrightReads } from '../src/test-helpers/playwright.driver';
+import {
+  openingANewProjectOn,
+  playwrightDriver,
+  playwrightReads,
+} from '../src/test-helpers/playwright.driver';
 import type { SeededProject } from '../src/test-helpers/seed';
 import { appSeesOn, type AppSees } from '../src/ui/app/app.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
@@ -15,16 +19,14 @@ export interface ContrastFinding {
 export interface Fixture extends Journey {
   readonly sees: AppSees;
   contrastViolations(): Promise<readonly ContrastFinding[]>;
-  readonly theAppsName: Locator;
+  readonly theHeaderHeading: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
   descriptionOfTheCard(piece: string): Promise<string>;
   theKeysLine(): Promise<string>;
 }
 
 const openingOn = (page: Page): Opening => ({
-  fresh: async () => {
-    await page.goto('/');
-  },
+  fresh: () => openingANewProjectOn(page),
   reopen: async () => {
     await page.goto('/');
   },
@@ -78,7 +80,7 @@ const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
       return line.trim();
     },
 
-    theAppsName: driver.theAppsName,
+    theHeaderHeading: driver.theHeaderHeading,
     opensWatchingTheGraph: () => driver.opensWatchingTheGraph(),
   };
 };

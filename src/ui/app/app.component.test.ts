@@ -4,20 +4,42 @@ import { bottomOf, boxOf, heightOf, topOf, widthOf } from '../../test-helpers/bo
 import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
 import { caretOf } from '../../test-helpers/field';
-import { laidOut, moving } from '../../test-helpers/graph-page';
+import { fading, laidOut, moving } from '../../test-helpers/graph-page';
 import { expectVisuallyHidden, expectVisuallyShown } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { anInMemoryProject, holdingSaves } from '../../test-helpers/seed';
-import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
+import {
+  anInMemoryProject,
+  aProjectWithScenesUnderBeatFour,
+  holdingSaves,
+  holdingTheFirstSave,
+} from '../../test-helpers/seed';
+import {
+  aPageWithoutAHeader,
+  aPageWithoutAMain,
+  aPickerTheWriterCancels,
+  narrowThePane,
+  theChosenPlace,
+  theEntriesIn,
+} from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
-import { appScenarioSteps, pageWith, theAppWaitingForANewVersion } from './app.harness';
-import { theHeader } from './app.test-page';
+import {
+  appScenarioSteps,
+  pageWith,
+  theAppWaitingForANewVersion,
+  theAppWithoutAProject,
+} from './app.harness';
+import {
+  theHeader,
+  thePanelBesideTheGraph,
+  whereTheProjectsAreKept,
+  yourProjects,
+} from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
@@ -40,9 +62,10 @@ describe('starting the app', () => {
 });
 
 describe('a new version waiting', () => {
-  it('shows the writer a way to reload once a new version is ready to run', async () => {
+  it('shows the writer a way to reload on the first screen once a new version is ready to run', async () => {
     const waiting = Promise.withResolvers<void>();
     await theAppWaitingForANewVersion({ waiting: waiting.promise, reload: () => undefined });
+    await expect.element(whereTheProjectsAreKept().screen).toBeInTheDocument();
 
     const { notice, noticeReload } = theHeader();
     await expect.element(notice).toBeEmptyDOMElement();
@@ -52,6 +75,114 @@ describe('a new version waiting', () => {
 
     await expect.element(notice).toHaveTextContent('A new version is ready. Reload');
     await expect.element(noticeReload).toBeInTheDocument();
+  });
+});
+
+describe('starting a project', () => {
+  it('leaves the first screen as it was when the writer cancels the folder picker', async () => {
+    const { writer, sees } = theAppWithoutAProject({ picker: aPickerTheWriterCancels });
+    await writer.opensANewProject();
+    const before = await sees.tree();
+
+    await writer.choosesAFolder();
+
+    await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
+    await expect.element(whereTheProjectsAreKept().refusal).toBeEmptyDOMElement();
+    expect(await sees.tree()).toEqual(before);
+  });
+
+  it('follows what is typed with the name of the folder it will make', async () => {
+    const { writer } = theAppWithoutAProject();
+    await writer.opensANewProject();
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+    await expect
+      .poll(() => yourProjects().said.element().textContent)
+      .toMatch(/^working-title will make a folder named Untitled project in .+\.$/);
+
+    await writer.typesTheTitle('The Ferryman');
+
+    await expect
+      .poll(() => yourProjects().said.element().textContent)
+      .toMatch(/^working-title will make a folder named The Ferryman in .+\.$/);
+  });
+
+  it('makes one project folder and one panel when the writer presses Start twice', async () => {
+    const store = holdingTheFirstSave();
+    const { writer } = theAppWithoutAProject({ store });
+    await writer.opensANewProject();
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+
+    await writer.pressesStart();
+    await writer.pressesStart();
+    store.release();
+    await expect.element(theCard('The story').card).toBeInTheDocument();
+
+    expect((await theEntriesIn(await theChosenPlace())).map(({ name }) => name)).toEqual([
+      'Untitled project',
+    ]);
+    expect(thePanelBesideTheGraph().panels.elements()).toHaveLength(1);
+  });
+});
+
+describe('the fade between screens', () => {
+  it('fades nothing when the app opens asking where to keep the projects', async () => {
+    const { writer } = theAppWithoutAProject();
+
+    await writer.opensANewProject();
+
+    await laidOut();
+    expect(fading()).toEqual([]);
+  });
+
+  it('leaves the focus in the story’s one-sentence summary once the fade has ended', async () => {
+    const { writer } = theAppWithoutAProject();
+    await writer.opensANewProject();
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+    const summary = theCard('The story').field('One-sentence summary');
+
+    await writer.presses('Enter');
+    await expect.element(summary).toBeInTheDocument();
+    await settled();
+
+    await expect.element(summary).toHaveFocus();
+  });
+
+  it('takes the keys the writer types while the fade runs', async () => {
+    const { writer } = theAppWithoutAProject();
+    await writer.opensANewProject();
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+    const summary = theCard('The story').field('One-sentence summary');
+
+    await writer.presses('Enter');
+    await expect.element(summary).toBeInTheDocument();
+    expect(fading()).not.toEqual([]);
+
+    for (const key of 'Maren') await writer.presses(key);
+
+    await expect.element(summary).toHaveValue('Maren');
+  });
+
+  describe('under reduced motion', () => {
+    afterEach(async () => {
+      await commands.emulateReducedMotion('no-preference');
+    });
+
+    it('moves nothing as the writer chooses a folder', async () => {
+      const { writer } = theAppWithoutAProject();
+      await commands.emulateReducedMotion('reduce');
+      await writer.opensANewProject();
+
+      await writer.choosesAFolder();
+
+      await expect.element(yourProjects().startAProject).toBeInTheDocument();
+      await laidOut();
+
+      expect(fading()).toEqual([]);
+    });
   });
 });
 
@@ -129,7 +260,7 @@ describe('what the app keeps', () => {
   });
 
   it('keeps the text and the caret when a save is slow', async () => {
-    const store = holdingSaves();
+    const store = holdingSaves(aProjectWithScenesUnderBeatFour(0));
     const { stage, writer } = pageWith(0, 1440, store);
     await stage.fresh();
     await writer.opensBeside('Beat 2');

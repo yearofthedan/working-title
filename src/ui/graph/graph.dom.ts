@@ -32,6 +32,7 @@ export interface GraphHooks {
 export interface Graph {
   readonly element: HTMLElement;
   draw(): Promise<void>;
+  enter(): void;
   keys(event: KeyboardEvent): void;
   goTo(pieceId: string): void;
   show(pieceId: string, facetId: string, text: string): void;
@@ -422,6 +423,7 @@ export const renderGraph = (root: PieceView, hooks: GraphHooks): Graph => {
       await document.fonts.ready;
       draw(st);
     },
+    enter: () => st.cards.get(st.current)?.enter(),
     keys,
     goTo: (pieceId) => goTo(st, pieceId),
     show: (pieceId, facetId, text) => st.cards.get(pieceId)?.show(facetId, text),

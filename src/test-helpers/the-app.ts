@@ -1,26 +1,30 @@
-import { openProject } from '../application/project';
-import { snowflakeExtended } from '../methods/snowflake-extended';
+import type { DirectoryPicker } from '../adapters/file-system-folders';
+import { startApp } from '../app';
 import type { ProjectStore } from '../ports/project-store';
-import { renderApp, type NewVersion } from '../ui/app/app.dom';
+import type { NewVersion } from '../ui/app/app.dom';
 import { inMemory } from './seed';
 
 const stops = new Map<ParentNode, () => void>();
 
-let store = inMemory();
+let store: ProjectStore = inMemory();
+let picker: DirectoryPicker | undefined;
+
+export interface Staging {
+  readonly store?: ProjectStore;
+  readonly picker?: DirectoryPicker;
+  readonly newVersion?: NewVersion;
+}
 
 export const stopTheApp = (): void => {
   for (const stop of stops.values()) stop();
   stops.clear();
 };
 
-export const openTheApp = async (
-  page: ParentNode = document,
-  held?: ProjectStore,
-  newVersion?: NewVersion,
-): Promise<void> => {
+export const openTheApp = async (page: ParentNode = document, on: Staging = {}): Promise<void> => {
   stops.get(page)?.();
-  if (held !== undefined) store = held;
-  stops.set(page, await renderApp(page, await openProject(snowflakeExtended, store), newVersion));
+  if (on.store !== undefined) store = on.store;
+  if (on.picker !== undefined) picker = on.picker;
+  stops.set(page, await startApp(page, { store, picker, newVersion: on.newVersion }));
 };
 
 export const reopenTheApp = async (): Promise<void> => {

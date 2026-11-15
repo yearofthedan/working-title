@@ -61,13 +61,16 @@ export interface HoldingSaves extends ProjectStore {
   release(): void;
 }
 
-export const holdingSaves = (): HoldingSaves => {
-  let held: Project | undefined;
+const holdingAt = (waits: (save: number) => boolean, start?: Project): HoldingSaves => {
+  let held: Project | undefined = start;
+  let saves = 0;
   const waiting: (() => void)[] = [];
   return {
     load: async () => held,
     save: async (project) => {
       held = project;
+      saves += 1;
+      if (!waits(saves)) return;
       const { promise, resolve } = Promise.withResolvers<void>();
       waiting.push(resolve);
       await promise;
@@ -77,6 +80,10 @@ export const holdingSaves = (): HoldingSaves => {
     },
   };
 };
+
+export const holdingSaves = (start?: Project): HoldingSaves => holdingAt(() => true, start);
+
+export const holdingTheFirstSave = (): HoldingSaves => holdingAt((save) => save === 1);
 
 export const anInMemoryProject = async (
   seed?: SeededProject,

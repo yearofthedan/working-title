@@ -1,6 +1,9 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
+import type { DirectoryPicker } from '../adapters/file-system-folders';
+import { settled } from './driver';
 import type { Entry } from './folder';
+import { laidOut } from './graph-page';
 import { stopTheApp } from './the-app';
 
 const thePlace = 'the place the writer chose';
@@ -16,6 +19,14 @@ export const anEmptyChosenPlace = async (): Promise<FileSystemDirectoryHandle> =
   for await (const name of folder.keys()) names.push(name);
   for (const name of names) await folder.removeEntry(name, { recursive: true });
   return folder;
+};
+
+export const aPickerGivingThePlace: DirectoryPicker = {
+  showDirectoryPicker: () => anEmptyChosenPlace(),
+};
+
+export const aPickerTheWriterCancels: DirectoryPicker = {
+  showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),
 };
 
 export const theEntriesIn = async (
@@ -37,6 +48,8 @@ export const theEntriesIn = async (
 export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);
   stopTheApp();
+  await laidOut();
+  await settled();
   document.body.replaceChildren();
   const header = document.createElement('header');
   header.append(document.createElement('h1'));

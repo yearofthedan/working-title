@@ -1,4 +1,4 @@
-import type { OpenProject, PieceView } from '../../application/project';
+import { untitledProjectTitle, type OpenProject, type PieceView } from '../../application/project';
 import { renderGraph } from '../graph/graph.dom';
 import { thePanel } from '../panel/panel.dom';
 
@@ -7,7 +7,23 @@ export interface NewVersion {
   reload(): void;
 }
 
-const announceWhenWaiting = (header: HTMLElement, newVersion: NewVersion): void => {
+export interface ThePage {
+  readonly header: HTMLElement;
+  readonly main: HTMLElement;
+  readonly name: HTMLElement;
+}
+
+export const thePageParts = (page: ParentNode): ThePage => {
+  const header = page.querySelector<HTMLElement>('header');
+  if (header === null) throw new Error('the page has no <header>');
+  const main = page.querySelector<HTMLElement>('main');
+  if (main === null) throw new Error('the page has no <main>');
+  const name = header.querySelector<HTMLElement>('h1');
+  if (name === null) throw new Error('the page has no <h1>');
+  return { header, main, name };
+};
+
+export const announceWhenWaiting = (header: HTMLElement, newVersion: NewVersion): void => {
   const notice = document.createElement('p');
   notice.setAttribute('role', 'status');
   header.append(notice);
@@ -20,15 +36,17 @@ const announceWhenWaiting = (header: HTMLElement, newVersion: NewVersion): void 
   });
 };
 
+export interface AppHooks {
+  readonly enterTheCurrentPiece?: boolean;
+}
+
 export const renderApp = async (
   page: ParentNode,
   project: OpenProject,
-  newVersion?: NewVersion,
+  hooks: AppHooks = {},
 ): Promise<() => void> => {
-  const header = page.querySelector<HTMLElement>('header');
-  if (header === null) throw new Error('the page has no <header>');
-  const main = page.querySelector<HTMLElement>('main');
-  if (main === null) throw new Error('the page has no <main>');
+  const { header, main, name } = thePageParts(page);
+  name.textContent = project.title === '' ? untitledProjectTitle : project.title;
   let held = project;
   let open: string | undefined;
 
@@ -98,6 +116,7 @@ export const renderApp = async (
 
   main.replaceChildren(graph.element);
   await graph.draw();
+  if (hooks.enterTheCurrentPiece === true) graph.enter();
 
   const documentKeys = new AbortController();
   document.addEventListener(
@@ -109,8 +128,6 @@ export const renderApp = async (
     },
     { signal: documentKeys.signal },
   );
-
-  if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
 
   return () => {
     documentKeys.abort();
