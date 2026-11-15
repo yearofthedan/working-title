@@ -73,7 +73,7 @@ export const renderApp = async (
     if (nav === null) {
       nav = document.createElement('nav');
       nav.setAttribute('aria-label', 'Where you are');
-      header.append(nav);
+      name.after(nav);
     }
 
     const current = path.at(-1);

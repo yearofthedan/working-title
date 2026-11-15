@@ -60,8 +60,10 @@ export const theAppWithoutAProject = (
   };
 };
 
-export const theAppWaitingForANewVersion = (newVersion: NewVersion): Promise<void> =>
-  theAppWithoutAProject({ newVersion }).stage.fresh();
+export const theAppWaitingForANewVersion = (
+  newVersion: NewVersion,
+  store = inMemory(),
+): Promise<void> => theAppWithoutAProject({ newVersion, store }).stage.fresh();
 
 export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
   const driver = vitestBrowserDriver(undefined, 'page');

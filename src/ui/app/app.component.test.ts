@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
-import { bottomOf, boxOf, heightOf, topOf, widthOf } from '../../test-helpers/box';
+import { bottomOf, boxOf, heightOf, leftOf, rightOf, topOf, widthOf } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
 import { caretOf } from '../../test-helpers/field';
@@ -13,6 +13,7 @@ import {
   aProjectWithScenesUnderBeatFour,
   holdingSaves,
   holdingTheFirstSave,
+  inMemory,
 } from '../../test-helpers/seed';
 import {
   aPageWithoutAHeader,
@@ -75,6 +76,18 @@ describe('a new version waiting', () => {
 
     await expect.element(notice).toHaveTextContent('A new version is ready. Reload');
     await expect.element(noticeReload).toBeInTheDocument();
+  });
+
+  it('keeps the path beside the project’s name, ahead of the notice', async () => {
+    const waiting = Promise.withResolvers<void>();
+    const store = inMemory();
+    await store.save(aProjectWithScenesUnderBeatFour(0));
+    await theAppWaitingForANewVersion({ waiting: waiting.promise, reload: () => undefined }, store);
+    waiting.resolve();
+    const { path, notice } = theHeader();
+    await expect.element(notice).toHaveTextContent('A new version is ready. Reload');
+
+    expect(rightOf(path.element())).toBeLessThan(leftOf(notice.element()));
   });
 });
 
