@@ -89,7 +89,12 @@ describe('naming the ids in a printed block', () => {
         'kind: beat',
         'child: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d',
       ]),
-    ).toEqual(['id: id_1', 'parent: id_2', 'kind: beat', 'child: id_1']);
+    ).toEqual([
+      'id: placeholder_id_1',
+      'parent: placeholder_id_2',
+      'kind: beat',
+      'child: placeholder_id_1',
+    ]);
   });
 
   it('leaves text that is not a UUID alone', () => {

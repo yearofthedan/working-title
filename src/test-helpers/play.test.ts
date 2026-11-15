@@ -200,7 +200,7 @@ describe('playing a scenario file', () => {
         '  - folder "beats":',
         '    - file "Beat 2.md":',
         '      ---',
-        '      id: id_1',
+        '      id: placeholder_id_1',
         '      ---',
         '',
         '      ## One-sentence summary',

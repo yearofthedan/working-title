@@ -115,7 +115,7 @@ export const namingIds = (lines: readonly string[]): readonly string[] => {
       const key = id.toLowerCase();
       const named = names.get(key);
       if (named !== undefined) return named;
-      const name = `id_${names.size + 1}`;
+      const name = `placeholder_id_${names.size + 1}`;
       names.set(key, name);
       return name;
     }),
