@@ -24,7 +24,7 @@ The **core** terms below name things every method has. They are the only words i
 | Term | Meaning | Not |
 | --- | --- | --- |
 | Project | One story being planned and written, with the method it follows | |
-| Title | The novel's name. It belongs to the project, not to any piece | |
+| Title | The project's name. It belongs to the project, not to any piece | |
 | Folder | Where a project lives on the writer's machine: one file per piece, and a project file. The app makes it in the projects folder | |
 | Projects folder | The folder the writer chooses once, where every project's folder is made | |
 | Your projects | The list of the projects in the projects folder, and the way to start another | |

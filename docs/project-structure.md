@@ -33,7 +33,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
 
-A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/projects/](../src/ui/projects/) holds the screens shown before a project is open, played by the app's own test page and language. [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/projects/](../src/ui/projects/) holds the screens shown before a project is open, played by the app's own test page and language. [src/ui/svg.dom.ts](../src/ui/svg.dom.ts), [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 ## Test code
 

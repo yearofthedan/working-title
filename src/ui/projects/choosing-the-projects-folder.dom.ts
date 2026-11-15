@@ -1,3 +1,5 @@
+import { svgIn } from '../svg.dom';
+
 interface ChoosingHooks {
   readonly choose: () => void;
 }
@@ -11,6 +13,35 @@ const paragraph = (text: string): HTMLParagraphElement => {
   const said = document.createElement('p');
   said.textContent = text;
   return said;
+};
+
+const errorIcon = (): SVGElement => {
+  const icon = svgIn('svg', {
+    viewBox: '0 0 16 16',
+    'aria-hidden': 'true',
+    focusable: 'false',
+  });
+  icon.append(
+    svgIn('circle', {
+      cx: '8',
+      cy: '8',
+      r: '6.25',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+    }),
+    svgIn('line', {
+      x1: '8',
+      y1: '4.5',
+      x2: '8',
+      y2: '8.5',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+      'stroke-linecap': 'round',
+    }),
+    svgIn('circle', { cx: '8', cy: '11.25', r: '1.1', fill: 'currentColor' }),
+  );
+  return icon;
 };
 
 export const choosingTheProjectsFolder = (hooks: ChoosingHooks): ChoosingTheProjectsFolder => {
@@ -35,13 +66,13 @@ export const choosingTheProjectsFolder = (hooks: ChoosingHooks): ChoosingTheProj
       'Your projects are kept in a folder on your computer. Choose or make a folder for them, such as Documents › Writing. If you’ve used working-title before, choose the folder you used then.',
     ),
     choose,
-    paragraph('Chrome will ask you to let working-title edit files in that folder.'),
     refusal,
+    paragraph('Chrome will ask you to let working-title edit files in that folder.'),
   );
   return {
     element,
     refuse: (because) => {
-      refusal.textContent = because;
+      refusal.replaceChildren(errorIcon(), document.createTextNode(because));
     },
   };
 };

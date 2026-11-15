@@ -16,12 +16,15 @@ import {
   inMemory,
 } from '../../test-helpers/seed';
 import {
+  aFolderHoldingProjects,
   aPageWithoutAHeader,
   aPageWithoutAMain,
   aPickerTheWriterCancels,
   narrowThePane,
   theEntriesIn,
+  thePickerGivesTheFolderAt,
   theProjectsFolder,
+  theProjectsFolderName,
 } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
@@ -43,6 +46,9 @@ import {
 } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
+
+const theRefusal =
+  "“The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.";
 
 const boxes = (): readonly string[] => everyCard().map((card) => `${nameOf(card)} ${boxOf(card)}`);
 
@@ -102,6 +108,22 @@ describe('starting a project', () => {
     await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
     await expect.element(whereTheProjectsAreKept().refusal).toBeEmptyDOMElement();
     expect(await sees.tree()).toEqual(before);
+  });
+
+  it('refuses the folder of a project with an icon only the sighted writer sees', async () => {
+    const { writer, sees } = theAppWithoutAProject();
+    await writer.opensANewProject();
+    await aFolderHoldingProjects(theProjectsFolderName, ['The Ferryman']);
+    thePickerGivesTheFolderAt(theProjectsFolderName, 'The Ferryman');
+
+    await writer.choosesAFolder();
+
+    await expect
+      .poll(async () =>
+        (await sees.tree()).map((line) => line.trim()).filter((line) => line.startsWith('- alert')),
+      )
+      .toEqual([`- alert: ${theRefusal}`]);
+    await expect.element(whereTheProjectsAreKept().refusalIcon).toBeInTheDocument();
   });
 
   it('follows what is typed with the name of the folder it will make', async () => {

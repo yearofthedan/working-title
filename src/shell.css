@@ -416,6 +416,17 @@ main {
     color: var(--color-text-muted);
   }
 
+  .choosing-the-projects-folder [role='alert'] {
+    color: var(--color-error);
+  }
+
+  .choosing-the-projects-folder [role='alert'] svg {
+    width: 1em;
+    height: 1em;
+    margin-right: var(--space-2);
+    vertical-align: -0.125em;
+  }
+
   .your-projects {
     gap: 0;
   }

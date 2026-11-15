@@ -15,6 +15,7 @@ export const whereTheProjectsAreKept = () => {
     exact: true,
     includeHidden: true,
   });
+  const refusal = screen.getByRole('alert', { includeHidden: true });
   return {
     screen,
     chooseAFolder: screen.getByRole('button', {
@@ -22,7 +23,8 @@ export const whereTheProjectsAreKept = () => {
       exact: true,
       includeHidden: true,
     }),
-    refusal: screen.getByRole('alert', { includeHidden: true }),
+    refusal,
+    refusalIcon: refusal.getByElement('svg'),
   };
 };
 

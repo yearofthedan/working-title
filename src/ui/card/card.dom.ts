@@ -1,4 +1,5 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
+import { svgIn } from '../svg.dom';
 import { whileMeasuring } from '../transition';
 import { keyOnTheCard, type CardLook } from './card';
 
@@ -94,12 +95,6 @@ const field = (
   });
   wrapper.append(name, input, shown);
   return { id, label, text, element: wrapper, input, shown };
-};
-
-const svgIn = (name: string, attributes: Readonly<Record<string, string>>): SVGElement => {
-  const element = document.createElementNS('http://www.w3.org/2000/svg', name);
-  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
-  return element;
 };
 
 const panelIcon = (): SVGElement => {

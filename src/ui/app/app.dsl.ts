@@ -100,14 +100,14 @@ export const appWriterOn = (
   startsAProjectTitled: async (title) => {
     await driver.click('button', 'Start a project');
     await driver.type(title, 'Title');
-    await driver.click('button', 'Start');
+    await driver.click('button', 'Start project');
   },
   startsAProjectWithNoTitle: async () => {
     await driver.click('button', 'Start a project');
-    await driver.click('button', 'Start');
+    await driver.click('button', 'Start project');
   },
   typesTheTitle: (text) => driver.type(text, 'Title'),
-  pressesStart: () => driver.click('button', 'Start'),
+  pressesStart: () => driver.click('button', 'Start project'),
   makesCurrent: (piece) => reaching(driver, piece),
   addsASceneUnder: async (beat) => {
     const named = pieceNamed(beat);

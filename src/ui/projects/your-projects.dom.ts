@@ -53,7 +53,7 @@ export const yourProjects = (folderName: string, hooks: YourProjectsHooks): Your
     said.append('working-title will make a folder named ', named, ` in ${folderName}.`);
     const start = document.createElement('button');
     start.type = 'submit';
-    start.textContent = 'Start';
+    start.textContent = 'Start project';
     const cancel = document.createElement('button');
     cancel.type = 'button';
     cancel.textContent = 'Cancel';
