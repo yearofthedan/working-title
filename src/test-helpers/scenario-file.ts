@@ -74,6 +74,19 @@ const isStepLine = (line: string): boolean => stepLine.test(line);
 
 const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
 
+const aFileEntry = /^\s*- file "[^"]*":$/;
+
+const depthOf = (line: string): number => line.length - line.trimStart().length;
+
+const isInAFile = (observed: readonly string[], line: string): boolean => {
+  let open: string | undefined;
+  for (const held of observed) {
+    if (open !== undefined && (held === '' || depthOf(held) > depthOf(open))) continue;
+    open = aFileEntry.test(held) ? held : undefined;
+  }
+  return open !== undefined && (line.trim() === '' || depthOf(line) > depthOf(open));
+};
+
 const firstDifference = (printed: string, text: string): number => {
   const a = printed.split('\n');
   const b = text.split('\n');
@@ -167,6 +180,11 @@ export const readScenarioFile = (text: string): ScenarioFile => {
     }
 
     if (inFence) {
+      const held = steps[last];
+      if (held !== undefined && isInAFile(held.observed ?? [], line)) {
+        steps[last] = { ...held, observed: [...(held.observed ?? []), line] };
+        continue;
+      }
       if (line.trim() === '') {
         throw new Error(`Line ${at} is blank between steps: ${JSON.stringify(line)}`);
       }
@@ -174,7 +192,6 @@ export const readScenarioFile = (text: string): ScenarioFile => {
         steps.push(stepIn(line, steps, at));
         continue;
       }
-      const held = steps[last];
       if (held === undefined) {
         throw new Error(
           `Line ${at} is not a step, and only a Then is followed by what the runner observed: ${JSON.stringify(line)}`,

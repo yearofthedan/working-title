@@ -15,10 +15,28 @@ export interface Named {
 }
 
 export interface Part {
-  readonly role: Role;
+  readonly role: Role | 'folder' | 'file';
   readonly name?: string;
   readonly within?: Named;
 }
+
+export const keyOfPart = (part: Part): string =>
+  [part.role, part.name ?? '', part.within?.role ?? '', part.within?.name ?? '']
+    .join(' ')
+    .toLowerCase();
+
+export const refuseThePartsNotRead = (parts: readonly Part[], read: ReadonlySet<string>): void => {
+  const missing = parts.filter((part) => !read.has(keyOfPart(part)));
+  if (missing.length === 0) return;
+  const reads = missing
+    .map((part) => {
+      const within =
+        part.within === undefined ? '' : ` inside ${part.within.role} "${part.within.name}"`;
+      return `${part.role}${part.name === undefined ? '' : ` "${part.name}"`}${within}`;
+    })
+    .join(' or ');
+  throw new Error(`no line reads ${reads}, so a scenario cannot record what it checked`);
+};
 
 export const namedOn = (line: string): Named | undefined => {
   const found = /^\s*- ([\w-]+) "([^"]*)"/.exec(line);
@@ -39,10 +57,6 @@ const isNamed = (found: Named | undefined, wanted: Named): boolean =>
 
 export const narrowing = (lines: readonly string[], parts: readonly Part[]): readonly string[] => {
   if (parts.length === 0) return lines;
-  const key = (part: Part): string =>
-    [part.role, part.name ?? '', part.within?.role ?? '', part.within?.name ?? '']
-      .join(' ')
-      .toLowerCase();
   const read = new Set<string>();
   const kept: string[] = [];
   const enclosing: (Named | undefined)[] = [];
@@ -72,7 +86,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
         here.name.toLowerCase() === part.within.name.toLowerCase() &&
         isNamed(inside, part.within),
     );
-    for (const part of [...theLine, ...inThePart]) read.add(key(part));
+    for (const part of [...theLine, ...inThePart]) read.add(keyOfPart(part));
 
     if (under >= 0 && indent > under) {
       kept.push(line.slice(slid));
@@ -104,16 +118,6 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
       kept.push(line.slice(indent));
     }
   }
-  const missing = parts.filter((part) => !read.has(key(part)));
-  if (missing.length > 0) {
-    const reads = missing
-      .map((part) => {
-        const within =
-          part.within === undefined ? '' : ` inside ${part.within.role} "${part.within.name}"`;
-        return `${part.role}${part.name === undefined ? '' : ` "${part.name}"`}${within}`;
-      })
-      .join(' or ');
-    throw new Error(`no line reads ${reads}, so a scenario cannot record what it checked`);
-  }
+  refuseThePartsNotRead(parts, read);
   return kept;
 };

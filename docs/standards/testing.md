@@ -32,7 +32,7 @@ A language names what the writer does over the driver contract, so one language 
 | Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
 | Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
 | Measures | `field.ts`, `box.ts`, `look.ts` in `src/test-helpers/` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
-| Staging | `staging.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make |
+| Staging | `staging.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make; an empty place standing in for the one the writer chooses, and what that place holds |
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
 - **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
@@ -60,7 +60,8 @@ The harness comes from the [Approved Scenarios](https://lexler.github.io/augment
 - **A step names what plays it**, and a phrase nothing plays or several play is refused.
 - **What is observed is what the runner prints**, and a difference is refused as lines; replacing it is what approving means, and an approving run is one played with that option set.
 - **Each assertion prints its own block, under it**: one for a Then, and for an And or But under one, read right after that step. A Then that reports nothing is refused, and so is a Given or a When that reports anything. A part a step reports and the tree does not hold is refused, so a record cannot silently empty, and `Then the writer sees` reports the whole tree. The tree does not carry which piece is current, so the line of the card that is current is marked `[current]`.
-- **A block holds what its step reported, and nothing else**: the parts it reports, in the order the page draws them, every kept line starting at the left. A part named by role alone keeps every line of that role. A part that names the part it sits in keeps that part's path to it — the part, its own heading and the matched line — and no sibling of the line. A part the tree does not hold is refused, so a record cannot silently empty.
+- **A block holds what its step reported, and nothing else.**
+- **A step can report a folder or file in the place the writer chose** instead of page parts, and its block prints that file in full.
 - **A tree marks the element that holds focus for the step that asserted focus**, and prints as it always has for a step that asserted none: a marker on a line is a claim that step made, never one it did not.
 - **A scenario file is named for what it is about** — `focus-interactions`, `your-words-survive-a-reload` — **and ends `.approved.md`**; its `Rule:` line carries the claim verbatim from the story, so the name stays short while the claim stays exact.
 - **Each `scenarios/` folder has one entry beside it**, the `*.component.test.ts` that globs the folder and gives `playScenarioFiles` the driver and that language's steps. It generates a test per scenario, so a story adds no hand-written test code. The journeys in `e2e/` have `e2e/scenarios.spec.ts`.
