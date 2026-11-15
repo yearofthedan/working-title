@@ -1,28 +1,54 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
 import type { DirectoryPicker } from '../adapters/file-system-folders';
+import { fileSystemFolders } from '../adapters/file-system-folders';
+import { snowflakeExtended } from '../methods/snowflake-extended';
 import { settled } from './driver';
 import type { Entry } from './folder';
 import { laidOut } from './graph-page';
 import { stopTheApp } from './the-app';
 
-const thePlace = 'the place the writer chose';
+export const theProjectsFolderName = 'Writing';
 
-export const theChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
-  const root = await navigator.storage.getDirectory();
-  return await root.getDirectoryHandle(thePlace, { create: true });
+let given: readonly string[] = [theProjectsFolderName];
+
+const folderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
+  let folder = await navigator.storage.getDirectory();
+  for (const name of path) folder = await folder.getDirectoryHandle(name, { create: true });
+  return folder;
 };
 
-export const anEmptyChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
-  const folder = await theChosenPlace();
+const emptied = async (folder: FileSystemDirectoryHandle): Promise<FileSystemDirectoryHandle> => {
   const names: string[] = [];
   for await (const name of folder.keys()) names.push(name);
   for (const name of names) await folder.removeEntry(name, { recursive: true });
   return folder;
 };
 
-export const aPickerGivingThePlace: DirectoryPicker = {
-  showDirectoryPicker: () => anEmptyChosenPlace(),
+export const theProjectsFolder = async (): Promise<FileSystemDirectoryHandle> =>
+  await folderAt([theProjectsFolderName]);
+
+export const anEmptyFolderNamed = async (name: string): Promise<FileSystemDirectoryHandle> =>
+  await emptied(await folderAt([name]));
+
+export const aFolderHoldingProjects = async (
+  name: string,
+  titles: readonly string[],
+): Promise<void> => {
+  const folder = await anEmptyFolderNamed(name);
+  const projects = await fileSystemFolders(snowflakeExtended, {
+    showDirectoryPicker: async () => folder,
+  }).choose();
+  if (projects === undefined) throw new Error('the picker gave nothing');
+  for (const title of titles) await projects.start(title);
+};
+
+export const thePickerGivesTheFolderAt = (...path: readonly string[]): void => {
+  given = path;
+};
+
+export const aPickerGivingTheFolder: DirectoryPicker = {
+  showDirectoryPicker: () => folderAt(given),
 };
 
 export const aPickerTheWriterCancels: DirectoryPicker = {

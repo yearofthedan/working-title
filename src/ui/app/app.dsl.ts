@@ -1,6 +1,12 @@
 import type { AppReads, Driver, Opening } from '../../test-helpers/driver';
 import type { SeededProject } from '../../test-helpers/seed';
-import { reporting, wholeTree, type Evidence, type StepAction } from '../../test-helpers/steps';
+import {
+  reporting,
+  reportingFocus,
+  wholeTree,
+  type Evidence,
+  type StepAction,
+} from '../../test-helpers/steps';
 import {
   besideTheGraph,
   clicking,
@@ -18,6 +24,8 @@ import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
 export interface AppWriter extends Writer, PanelWriter {
   choosesAFolder(): Promise<void>;
   startsAProject(): Promise<void>;
+  startsAProjectTitled(title: string): Promise<void>;
+  startsAProjectWithNoTitle(): Promise<void>;
   typesTheTitle(text: string): Promise<void>;
   pressesStart(): Promise<void>;
   makesCurrent(piece: string): Promise<void>;
@@ -30,12 +38,39 @@ export interface AppWriter extends Writer, PanelWriter {
   typesBeside(text: string, at: { readonly piece: string; readonly facet: string }): Promise<void>;
 }
 
+export interface Staged {
+  hasNotChosenWhereToKeepProjects(): Promise<void>;
+  anEmptyFolderNamed(name: string): Promise<void>;
+  keepsProjectsInAFolderHolding(titles: readonly string[]): Promise<void>;
+  choosesTheFolderNamed(name: string): Promise<void>;
+  choosesTheProjectFolder(title: string): Promise<void>;
+}
+
+const refuses = (): never => {
+  throw new Error(
+    'Only the page tier stages the writer’s machine, and these steps were given no stage.',
+  );
+};
+
+const nothingStaged: Staged = {
+  hasNotChosenWhereToKeepProjects: refuses,
+  anEmptyFolderNamed: refuses,
+  keepsProjectsInAFolderHolding: refuses,
+  choosesTheFolderNamed: refuses,
+  choosesTheProjectFolder: refuses,
+};
+
 export interface AppSees extends Sees {
   pathIs(pieces: readonly string[]): Promise<void>;
   panelIsOpenOn(piece: string): Promise<Evidence>;
   noPanelIsOpen(): Promise<Evidence>;
   readsBeside(piece: string, facet: string, text: string): Promise<Evidence>;
   focusIsInTheParagraph(): Promise<void>;
+  yourProjectsIn(folder: string): Promise<Evidence>;
+  namesTheProject(title: string): Promise<Evidence>;
+  focusIsInTheSummary(): Promise<Evidence>;
+  filesInTheFolder(name: string): Promise<Evidence>;
+  says(text: string): Promise<Evidence>;
 }
 
 const clickingThePathTo = (driver: Driver, piece: string): Promise<void> =>
@@ -62,6 +97,15 @@ export const appWriterOn = (
   ...writerOn(driver, opening, startFrom),
   choosesAFolder: () => driver.click('button', 'Choose a folder…'),
   startsAProject: () => driver.click('button', 'Start a project'),
+  startsAProjectTitled: async (title) => {
+    await driver.click('button', 'Start a project');
+    await driver.type(title, 'Title');
+    await driver.click('button', 'Start');
+  },
+  startsAProjectWithNoTitle: async () => {
+    await driver.click('button', 'Start a project');
+    await driver.click('button', 'Start');
+  },
   typesTheTitle: (text) => driver.type(text, 'Title'),
   pressesStart: () => driver.click('button', 'Start'),
   makesCurrent: (piece) => reaching(driver, piece),
@@ -130,9 +174,40 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
       throw new Error('the focus is not in the paragraph beside the graph');
     }
   },
+  yourProjectsIn: async (folder) =>
+    reporting(
+      { role: 'heading', name: 'Your projects' },
+      { role: 'heading', name: `In ${folder}` },
+      { role: 'paragraph' },
+    ),
+  namesTheProject: async (title) => reporting({ role: 'heading', name: title }),
+  focusIsInTheSummary: async () => {
+    const summary = { role: 'textbox', name: 'One-sentence summary' } as const;
+    const story = { role: 'group', name: 'The story' } as const;
+    if (!(await driver.focusIs('textbox', summary.name, story))) {
+      throw new Error("the focus is not in the story's one-sentence summary");
+    }
+    return reportingFocus({ ...summary, within: story });
+  },
+  filesInTheFolder: async (name) => reporting({ role: 'folder', name }),
+  says: async (text) => {
+    const said = (await driver.tree())
+      .map((line) => /^\s*- alert: (.*)$/.exec(line)?.[1])
+      .find((line) => line !== undefined);
+    if (said !== text) {
+      throw new Error(
+        `the app says ${JSON.stringify(said ?? 'nothing')}, not ${JSON.stringify(text)}`,
+      );
+    }
+    return reporting({ role: 'alert' });
+  },
 });
 
-export const appSteps = (writer: AppWriter, sees: AppSees): Record<string, StepAction> => ({
+export const appSteps = (
+  writer: AppWriter,
+  sees: AppSees,
+  staged: Staged = nothingStaged,
+): Record<string, StepAction> => ({
   ...graphSteps(writer, sees),
   // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
   'beat 2 is open beside the graph': async () => {
@@ -151,6 +226,27 @@ export const appSteps = (writer: AppWriter, sees: AppSees): Record<string, StepA
   'the writer closes the panel': () => writer.closesThePanel(),
   'nothing is open beside the graph': () => sees.noPanelIsOpen(),
   'focus moves to the paragraph': () => sees.focusIsInTheParagraph(),
+  'the writer has not chosen where to keep their projects': () =>
+    staged.hasNotChosenWhereToKeepProjects(),
+  'a folder "{name}" on the writer\'s machine is empty': ({ name }) =>
+    staged.anEmptyFolderNamed(name),
+  'the writer keeps their projects in a folder': () => staged.keepsProjectsInAFolderHolding([]),
+  'the writer keeps their projects in a folder that holds a project\'s folder named "{title}"': ({
+    title,
+  }) => staged.keepsProjectsInAFolderHolding([title]),
+  'the writer chooses "{name}" to keep their projects in': ({ name }) =>
+    staged.choosesTheFolderNamed(name),
+  'the writer chooses the folder of a project titled "{title}"': ({ title }) =>
+    staged.choosesTheProjectFolder(title),
+  'the writer starts a project titled "{title}"': ({ title }) => writer.startsAProjectTitled(title),
+  'the writer starts a project with no title': () => writer.startsAProjectWithNoTitle(),
+  'Your projects, in "{folder}", lists no projects': ({ folder }) => sees.yourProjectsIn(folder),
+  'the header names the project "{title}"': ({ title }) => sees.namesTheProject(title),
+  "focus is in the story's one-sentence summary": () => sees.focusIsInTheSummary(),
+  'the new project\'s files are in a folder "{name}" beside it': ({ name }) =>
+    sees.filesInTheFolder(name),
+  'the files in "{name}" are as they were': ({ name }) => sees.filesInTheFolder(name),
+  'the app says "{text}"': ({ text }) => sees.says(text),
   'the writer types "{text}" as {piece}\'s {facet}': ({ text, piece, facet }) =>
     facet.endsWith(besideTheGraph)
       ? writer.typesBeside(text, { piece, facet: facet.slice(0, -besideTheGraph.length) })

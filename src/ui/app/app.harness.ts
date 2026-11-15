@@ -6,44 +6,110 @@ import {
   inMemory,
   type SeededProject,
 } from '../../test-helpers/seed';
-import { aPickerGivingThePlace, thePage } from '../../test-helpers/staging';
+import {
+  aFolderHoldingProjects,
+  aPickerGivingTheFolder,
+  anEmptyFolderNamed,
+  thePage,
+  thePickerGivesTheFolderAt,
+  theProjectsFolderName,
+} from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { type NewVersion } from './app.dom';
-import { appSeesOn, appSteps, appWriterOn, type AppSees, type AppWriter } from './app.dsl';
-import { theHeader } from './app.test-page';
+import {
+  appSeesOn,
+  appSteps,
+  appWriterOn,
+  type AppSees,
+  type AppWriter,
+  type Staged,
+} from './app.dsl';
+import { theHeader, yourProjects } from './app.test-page';
 
 const stageTheApp = async (width: number, on: Staging): Promise<void> => {
+  await anEmptyFolderNamed(theProjectsFolderName);
+  thePickerGivesTheFolderAt(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, { picker: aPickerGivingThePlace, ...on });
+  await openTheApp(document, { picker: aPickerGivingTheFolder, ...on });
+};
+
+const reachingYourProjects = async (driver: Driver): Promise<void> => {
+  await driver.click('button', 'Choose a folder…');
+  await expect.element(yourProjects().startAProject).toBeInTheDocument();
 };
 
 const reachingTheProject = async (driver: Driver): Promise<void> => {
-  await driver.click('button', 'Choose a folder…');
+  await reachingYourProjects(driver);
   await driver.click('button', 'Start a project');
   await driver.press('Enter');
   await expect.element(theHeader().path).toBeInTheDocument();
 };
 
-export const appScenarioSteps = (driver: Driver) =>
-  appSteps(
-    appWriterOn(
-      driver,
-      {
-        fresh: async () => {
-          await stageTheApp(1440, { store: inMemory() });
-          await reachingTheProject(driver);
-        },
-        reopen: reopenTheApp,
+const theAppInAFolder = async (driver: Driver, titles: readonly string[] = []): Promise<void> => {
+  await stageTheApp(1440, { store: inMemory() });
+  if (titles.length > 0) await aFolderHoldingProjects(theProjectsFolderName, titles);
+  await reachingYourProjects(driver);
+};
+
+const answeringTo = async (driver: Driver, act: () => Promise<void>): Promise<void> => {
+  const before = (await driver.tree()).join('\n');
+  await act();
+  await expect.poll(async () => (await driver.tree()).join('\n')).not.toBe(before);
+};
+
+const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
+  ...writer,
+  startsAProjectTitled: async (title) => {
+    await writer.startsAProjectTitled(title);
+    await expect.element(theHeader().path).toBeInTheDocument();
+  },
+  startsAProjectWithNoTitle: async () => {
+    await writer.startsAProjectWithNoTitle();
+    await expect.element(theHeader().path).toBeInTheDocument();
+  },
+});
+
+const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => ({
+  hasNotChosenWhereToKeepProjects: () => stageTheApp(1440, { store: inMemory() }),
+  anEmptyFolderNamed: async (name) => {
+    await anEmptyFolderNamed(name);
+  },
+  keepsProjectsInAFolderHolding: (titles) => theAppInAFolder(driver, titles),
+  choosesTheFolderNamed: async (name) => {
+    thePickerGivesTheFolderAt(name);
+    await answeringTo(driver, () => writer.choosesAFolder());
+  },
+  choosesTheProjectFolder: async (title) => {
+    await aFolderHoldingProjects(theProjectsFolderName, [title]);
+    thePickerGivesTheFolderAt(theProjectsFolderName, title);
+    await answeringTo(driver, () => writer.choosesAFolder());
+  },
+});
+
+export const appScenarioSteps = (driver: Driver) => {
+  const writer = appWriterOn(
+    driver,
+    {
+      fresh: async () => {
+        await stageTheApp(1440, { store: inMemory() });
+        await reachingTheProject(driver);
       },
-      async (project: SeededProject) => {
-        const store = inMemory();
-        await store.save(project);
-        await stageTheApp(1440, { store });
-      },
-    ),
-    appSeesOn(driver, appReadsOnThePage()),
+      reopen: reopenTheApp,
+    },
+    async (project: SeededProject) => {
+      const store = inMemory();
+      await store.save(project);
+      await stageTheApp(1440, { store });
+    },
   );
+  const settling = settlingOnTheProject(writer);
+  return appSteps(
+    settling,
+    appSeesOn(driver, appReadsOnThePage()),
+    stagedTheWritersMachine(driver, settling),
+  );
+};
 
 export const theAppWithoutAProject = (
   on: Staging = {},

@@ -20,8 +20,8 @@ import {
   aPageWithoutAMain,
   aPickerTheWriterCancels,
   narrowThePane,
-  theChosenPlace,
   theEntriesIn,
+  theProjectsFolder,
 } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
@@ -132,7 +132,7 @@ describe('starting a project', () => {
     store.release();
     await expect.element(theCard('The story').card).toBeInTheDocument();
 
-    expect((await theEntriesIn(await theChosenPlace())).map(({ name }) => name)).toEqual([
+    expect((await theEntriesIn(await theProjectsFolder())).map(({ name }) => name)).toEqual([
       'Untitled project',
     ]);
     expect(thePanelBesideTheGraph().panels.elements()).toHaveLength(1);

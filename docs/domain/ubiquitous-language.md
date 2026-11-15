@@ -23,9 +23,11 @@ The **core** terms below name things every method has. They are the only words i
 
 | Term | Meaning | Not |
 | --- | --- | --- |
-| Project | One novel being planned and written, with the method it follows | |
+| Project | One story being planned and written, with the method it follows | |
 | Title | The novel's name. It belongs to the project, not to any piece | |
-| Folder | Where a novel lives on the writer's machine: one file per piece, and a project file. The writer chooses where it goes | |
+| Folder | Where a project lives on the writer's machine: one file per piece, and a project file. The app makes it in the projects folder | |
+| Projects folder | The folder the writer chooses once, where every project's folder is made | |
+| Your projects | The list of the projects in the projects folder, and the way to start another | |
 | Method | A way of planning a novel: its kinds of piece, their facets and its stages. The built-in one is Snowflake, extended | |
 | Stage | One step of the method. It either elaborates a piece or branches it | level |
 | Flow | The method's stages in the order the writer meets them | |
