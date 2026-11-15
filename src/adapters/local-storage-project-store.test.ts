@@ -78,6 +78,19 @@ describe('the project in browser storage', () => {
     expect(await projectStore(storage).load()).toBeUndefined();
   });
 
+  it('opens a project saved before it held a title, untitled', async () => {
+    storage.setItem(
+      key,
+      JSON.stringify({
+        method: 'snowflake-extended',
+        version: 2,
+        pieces: [{ id: 'id-1', kind: 'story', parent: null, order: 0, facets: {} }],
+      }),
+    );
+
+    expect((await opened())?.title).toBe('');
+  });
+
   it('opens a save in the shape version 1 wrote, keeping its sentence and adding its beats', async () => {
     const sentence = "A widow hunts the man's ship";
     storage.setItem(
