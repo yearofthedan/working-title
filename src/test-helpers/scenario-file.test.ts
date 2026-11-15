@@ -652,14 +652,13 @@ describe('a scenario file that records a file in the novel\u2019s folder', () =>
       '  - folder "beats":',
       '    - file "Beat 2.md":',
       '      Maren rows out',
-      '  - folder "places":',
       '    stray text',
       '```',
       '',
     ].join('\n');
 
     expect(() => readScenarioFile(outside)).toThrow(
-      'Line 12 is neither a step nor what the runner prints',
+      'Line 11 is neither a step nor what the runner prints',
     );
   });
 });
