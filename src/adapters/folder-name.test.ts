@@ -113,6 +113,10 @@ describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source
     },
   );
 
+  it('names CON.ini "CON project ini", the reserved rule running first', () => {
+    expect(folderNameFor('CON.ini')).toBe('CON project ini');
+  });
+
   it.each(['local', 'LOCAL'])(
     'leaves the extension %s alone, which Chromium allows',
     (extension) => {
