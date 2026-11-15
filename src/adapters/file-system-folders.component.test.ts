@@ -89,6 +89,18 @@ describe('a free name for a project in the projects folder', () => {
     const chosen = await choosing(await anEmptyFolder(writing));
     expect(await chosen.freeNameFor('Salt/Year')).toBe('Salt Year');
   });
+
+  it('counts a file holding the name as taken', async () => {
+    const onDisk = await anEmptyFolder(writing);
+    const chosen = await choosing(onDisk);
+    const writable = await (
+      await onDisk.getFileHandle('The Ferryman', { create: true })
+    ).createWritable();
+    await writable.close();
+
+    expect(await chosen.freeNameFor('The Ferryman')).toBe('The Ferryman 2');
+    expect((await chosen.start('The Ferryman')).name).toBe('The Ferryman 2');
+  });
 });
 
 describe('starting a project in the projects folder', () => {

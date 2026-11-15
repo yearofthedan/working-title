@@ -11,15 +11,15 @@ const projectFileName = 'project.md';
 const projectFile = (method: Method, title: string): string =>
   `---\ntitle: ${JSON.stringify(title)}\nmethod: ${method.name}\nversion: ${method.version}\n---\n`;
 
-// shortcut: a failed read of a name reads as free, until a failure must be told from a free name.
+const isFree = async (parent: FileSystemDirectoryHandle, name: string): Promise<boolean> => {
+  for await (const entry of parent.values()) if (entry.name === name) return false;
+  return true;
+};
+
 const aFreeName = async (parent: FileSystemDirectoryHandle, name: string): Promise<string> => {
   for (let number = 1; ; number += 1) {
     const candidate = number === 1 ? name : `${name} ${number}`;
-    try {
-      await parent.getDirectoryHandle(candidate);
-    } catch {
-      return candidate;
-    }
+    if (await isFree(parent, candidate)) return candidate;
   }
 };
 
