@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Working Title Home Screen</title>
+  <meta name="claude:viewport-fit-sides" content="cover" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap"
+  />
+  <style>
+    /* Layout: one reading column of notes; each mockup is a live HTML frame of the app at 1440 by 900, scaled to the column. */
+    :root {
+      --bg: #e9ecec;
+      --fg: #1d2023;
+      --muted: #555c63;
+      --rule: #c3c8ca;
+      --panel: #f6f7f7;
+      --accent: #2b55a0;
+      --prose: 'Literata', Georgia, serif;
+      --ui: 'Inter', system-ui, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) {
+        --bg: #16191b;
+        --fg: #e6e9ea;
+        --muted: #a0a8ae;
+        --rule: #3a4145;
+        --panel: #1f2326;
+        --accent: #8fb0ea;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme='dark'] {
+      --bg: #16191b;
+      --fg: #e6e9ea;
+      --muted: #a0a8ae;
+      --rule: #3a4145;
+      --panel: #1f2326;
+      --accent: #8fb0ea;
+      color-scheme: dark;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--ui);
+      font-size: 16px;
+      line-height: 1.55;
+      padding-block: 40px 80px;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      gap: 56px;
+    }
+    .page > * {
+      min-width: 0;
+    }
+    .text {
+      max-width: 66ch;
+      display: grid;
+      gap: 14px;
+    }
+    h1 {
+      font-family: var(--prose);
+      font-weight: 500;
+      font-size: 2.1rem;
+      line-height: 1.15;
+      margin: 0;
+      text-wrap: balance;
+    }
+    h2 {
+      font-family: var(--prose);
+      font-weight: 500;
+      font-size: 1.4rem;
+      line-height: 1.25;
+      margin: 0;
+      text-wrap: balance;
+    }
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    p {
+      margin: 0;
+    }
+    a {
+      color: var(--accent);
+    }
+    .lede {
+      font-size: 1.1rem;
+    }
+    .kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .flag {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    section {
+      display: grid;
+      gap: 20px;
+    }
+    .pair {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+      gap: 28px;
+    }
+    figure {
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    figcaption {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 66ch;
+    }
+    figcaption b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+    .scroll {
+      overflow-x: auto;
+    }
+    ol.calls {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 22px;
+      counter-reset: c;
+      max-width: 70ch;
+    }
+    ol.calls li {
+      display: grid;
+      gap: 4px;
+    }
+    ol.calls p {
+      color: var(--muted);
+    }
+    ol.calls p b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    .sw {
+      display: grid;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .sw i {
+      display: block;
+      width: 88px;
+      height: 52px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+    }
+
+    /* The app inside each frame. Fixed look: these are the proposed app tokens, light only, as the app is today. */
+    .frame {
+      --a-bg: #eef0ef;
+      --a-surface: #fbfcfc;
+      --a-text: #1d2023;
+      --a-muted: #596067;
+      --a-edge: #858c92;
+      --a-line: #cdd2d3;
+      --a-pencil: #2b55a0;
+      --a-stop: #9a2a1c;
+      container-type: inline-size;
+      min-width: 480px;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .screen {
+      font-size: calc(100cqw / 90);
+      aspect-ratio: 16 / 10;
+      position: relative;
+      background: var(--a-bg);
+      color: var(--a-text);
+      font-family: var(--ui);
+      line-height: 1.4;
+    }
+    .screen * {
+      box-sizing: border-box;
+    }
+    .s-header {
+      position: absolute;
+      inset: 2em 2em auto;
+      display: flex;
+      align-items: baseline;
+      gap: 1.25em;
+      font-size: 1em;
+    }
+    .s-mark {
+      font-size: 0.875em;
+      font-weight: 500;
+      color: var(--a-muted);
+      letter-spacing: 0.01em;
+    }
+    .s-title {
+      font-family: var(--prose);
+      font-size: 1.5em;
+      font-weight: 500;
+    }
+    .s-path {
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .s-status {
+      margin-left: auto;
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .s-status u,
+    .s-link {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+
+    .start {
+      position: absolute;
+      left: 50%;
+      top: 27%;
+      translate: -50% 0;
+      width: 35em;
+      display: grid;
+      gap: 0.5em;
+    }
+    .start label,
+    .lab {
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .start input {
+      font-family: var(--prose);
+      font-size: 2.5em;
+      font-weight: 400;
+      color: var(--a-text);
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--a-edge);
+      border-radius: 0;
+      padding: 0.1em 0 0.2em;
+      width: 100%;
+      outline: none;
+    }
+    .start input::placeholder {
+      color: #9aa1a6;
+      opacity: 1;
+    }
+    .start input:focus-visible,
+    .start input.focus {
+      border-bottom: 2px solid var(--a-pencil);
+      padding-bottom: calc(0.2em - 1px);
+    }
+    .promise {
+      font-size: 0.875em;
+      color: var(--a-muted);
+      margin-top: 1.4em;
+      max-width: 34em;
+    }
+    .promise b {
+      color: var(--a-text);
+      font-weight: 500;
+    }
+    .actions {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5em;
+      margin-top: 1em;
+    }
+    .btn {
+      font: inherit;
+      font-size: 0.875em;
+      font-weight: 500;
+      color: #fff;
+      background: var(--a-pencil);
+      border: none;
+      border-radius: 0.4em;
+      padding: 0.7em 1.1em;
+      cursor: default;
+    }
+    .btn.ring {
+      outline: 2px solid var(--a-pencil);
+      outline-offset: 2px;
+    }
+    .s-link {
+      font-size: 0.875em;
+      color: var(--a-text);
+    }
+    .other {
+      font-size: 0.875em;
+      color: var(--a-muted);
+      margin-top: 4em;
+      padding-top: 1.2em;
+      border-top: 1px solid var(--a-line);
+    }
+    .other u {
+      color: var(--a-text);
+      text-underline-offset: 0.2em;
+    }
+    .stop {
+      font-size: 0.875em;
+      color: var(--a-stop);
+      margin-top: 1em;
+      max-width: 34em;
+    }
+    .foot {
+      position: absolute;
+      inset: auto 2em 2em;
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .plain {
+      font-family: var(--prose);
+      font-size: 1.5em;
+      line-height: 1.35;
+    }
+
+    .card {
+      position: absolute;
+      background: var(--a-surface);
+      border: 1px solid var(--a-edge);
+      border-radius: 0.5em;
+    }
+    .card h4 {
+      margin: 0;
+      font-size: 0.875em;
+      font-weight: 600;
+      padding: 0.85em 1.15em 0.3em;
+    }
+    .story {
+      left: 50%;
+      top: 48.5%;
+      translate: -50% -50%;
+      width: 35em;
+      padding-bottom: 0.9em;
+    }
+    .story .lab {
+      display: block;
+      padding: 0 1.35em 0.2em;
+    }
+    .field {
+      margin: 0 0.75em;
+      padding: 0.3em 0.5em;
+      min-height: 2.4em;
+      font-family: var(--prose);
+      font-size: 1.125em;
+      outline: 2px solid var(--a-pencil);
+      outline-offset: 0;
+      border-radius: 0.15em;
+    }
+    .caret {
+      display: inline-block;
+      width: 1px;
+      height: 1.1em;
+      background: var(--a-text);
+      vertical-align: text-bottom;
+    }
+    .beats {
+      position: absolute;
+      left: 3.5em;
+      right: 3.5em;
+      top: 61.3%;
+      display: flex;
+      justify-content: space-between;
+    }
+    .beats .card {
+      position: static;
+      width: 15em;
+      height: 7.1em;
+    }
+    .ghost {
+      opacity: 0.45;
+    }
+    .crumb {
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .crumb u {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+      color: var(--a-text);
+    }
+    .sep {
+      font-size: 0.75em;
+      color: var(--a-muted);
+      margin: 0 -0.5em;
+    }
+    .s-title.empty {
+      color: #9aa1a6;
+    }
+    .typed {
+      font-family: var(--prose);
+    }
+    .shelf {
+      position: absolute;
+      left: 50%;
+      top: 19%;
+      translate: -50% 0;
+      width: 46em;
+      display: grid;
+    }
+    .novel {
+      display: grid;
+      gap: 0.3em;
+      padding: 1.5em 0;
+      border-top: 1px solid var(--a-line);
+    }
+    .novel.last {
+      border-bottom: 1px solid var(--a-line);
+    }
+    .novel .n-title {
+      font-family: var(--prose);
+      font-size: 1.5em;
+      font-weight: 500;
+    }
+    .novel .n-line {
+      font-family: var(--prose);
+      font-size: 1.125em;
+      line-height: 1.5;
+      color: var(--a-text);
+    }
+    .novel .n-where {
+      font-size: 0.75em;
+      color: var(--a-muted);
+      margin-top: 0.3em;
+    }
+    .novel .n-where u,
+    .shelf-actions u {
+      text-underline-offset: 0.2em;
+      color: var(--a-text);
+    }
+    .shelf-actions {
+      display: flex;
+      gap: 2em;
+      font-size: 0.875em;
+      margin-top: 1.6em;
+    }
+    table {
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      width: 100%;
+      max-width: 900px;
+    }
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 14px 10px 0;
+      border-top: 1px solid var(--rule);
+    }
+    th {
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: none;
+    }
+    td:first-child {
+      color: var(--muted);
+      width: 46%;
+    }
+    .novel input {
+      font-family: var(--prose);
+      font-size: 1.5em;
+      font-weight: 500;
+      color: var(--a-text);
+      background: none;
+      border: none;
+      border-bottom: 2px solid var(--a-pencil);
+      border-radius: 0;
+      padding: 0 0 0.15em;
+      width: 100%;
+      outline: none;
+    }
+    .novel input::placeholder {
+      color: #9aa1a6;
+      opacity: 1;
+    }
+    .novel .n-say {
+      font-size: 0.875em;
+      color: var(--a-muted);
+      margin-top: 0.6em;
+      max-width: 36em;
+    }
+    .novel .n-say b {
+      color: var(--a-text);
+      font-weight: 500;
+    }
+    .novel .n-act {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5em;
+      margin-top: 0.8em;
+      font-size: 1em;
+    }
+    .novel .n-act u {
+      font-size: 0.875em;
+      text-underline-offset: 0.2em;
+    }
+    .novel .n-lab {
+      font-size: 0.75em;
+      color: var(--a-muted);
+    }
+    .none.intro {
+      color: var(--a-text);
+      line-height: 1.5;
+      font-family: var(--ui);
+      font-size: 1em;
+    }
+    .shelf-actions .quiet {
+      color: var(--a-muted);
+    }
+    .btn.ghost-btn {
+      background: none;
+      color: var(--a-text);
+      border: 1px solid var(--a-edge);
+    }
+    .none.intro {
+      display: grid;
+      gap: 1.1em;
+      justify-items: start;
+    }
+    .none.intro p {
+      margin: 0;
+    }
+    .novel.add {
+      padding: 1.1em 0;
+      display: flex;
+    }
+    .novel .btn,
+    .none .btn {
+      font-size: 0.875em;
+    }
+    .shelf-head {
+      display: flex;
+      align-items: baseline;
+      gap: 1em;
+      padding-bottom: 0.9em;
+      font-size: 0.875em;
+    }
+    .shelf-head span {
+      font-weight: 600;
+    }
+    .shelf-head u {
+      font-size: 0.857em;
+      color: var(--a-muted);
+      text-underline-offset: 0.2em;
+    }
+    .none {
+      font-family: var(--prose);
+      font-size: 1.125em;
+      color: var(--a-muted);
+      padding: 1.5em 0;
+      border-top: 1px solid var(--a-line);
+      border-bottom: 1px solid var(--a-line);
+    }
+    .shelf-actions .btn {
+      font-size: 1em;
+    }
+    .shelf-actions {
+      align-items: baseline;
+    }
+    .setup {
+      position: absolute;
+      left: 50%;
+      top: 22%;
+      translate: -50% 0;
+      width: 38em;
+      display: grid;
+      gap: 1em;
+    }
+    .setup h3 {
+      font-family: var(--ui);
+      font-size: 1.5em;
+      font-weight: 600;
+      margin: 0 0 0.2em;
+    }
+    .setup p {
+      font-size: 1em;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .setup .small {
+      font-size: 0.8125em;
+      color: var(--a-muted);
+    }
+    .setup .btn {
+      justify-self: start;
+      margin-top: 0.6em;
+      font-size: 0.9375em;
+    }
+  </style>
+
+  <div class="page">
+    <header class="text">
+      <p class="kicker">Proposal for #217 and #3 · fourth pass · nothing here is agreed</p>
+      <h1>First the place, then Your projects</h1>
+      <p class="lede">
+        The first thing the app asks, once, is where projects are kept. After that the home screen
+        is Your projects: everything in that folder, and a way to start another.
+      </p>
+      <p>
+        This follows the thread: every project always has a folder, the list is not only novels, the
+        app makes a project's folder, and choosing the place comes before anything else.
+      </p>
+    </header>
+
+    <section>
+      <div class="text">
+        <h2>First open: one question</h2>
+        <p>
+          The same step serves the new writer and the writer on a new machine. A folder with
+          projects in it lists them. An empty one says so, and offers a first project.
+        </p>
+      </div>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header"><span class="s-mark">working-title</span></div>
+              <div class="setup">
+                <h3>Choose where to keep your projects</h3>
+                <p>
+                  working-title is for planning a story and writing it, one piece at a time. Each
+                  story is a project.
+                </p>
+                <p>
+                  Your projects are kept in a folder on your computer. Choose or make a folder for
+                  them, such as Documents › Writing. If you’ve used working-title before, choose the
+                  folder you used then.
+                </p>
+                <span class="btn">Choose a folder…</span>
+                <p class="small">
+                  Chrome will ask you to let working-title edit files in that folder.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>Before anything else.</b> Four things in the order a new writer needs them: what the
+          app is, where their work will be, what to choose, and what Chrome is about to ask. The
+          example folder is one Chrome will accept; it refuses Documents and Desktop themselves (<a
+            href="https://github.com/chromium/chromium/blob/main/chrome/browser/file_system_access/chrome_file_system_access_permission_context.cc#L490"
+            >Chromium source</a
+          >).
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header">
+                <span class="s-mark">working-title</span><span class="s-title">Your projects</span
+                ><span class="s-status"></span>
+              </div>
+              <div class="shelf">
+                <div class="shelf-head"><span>In Writing</span><u>Change</u></div>
+                <div class="none intro">
+                  <p>No projects yet.</p>
+                  <span class="btn">Start a project</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>An empty folder was chosen.</b> The folder's name heads the list, with "Change" beside
+          it, the way a folder's contents sit under its name in other apps that open a folder. So
+          the screen says where it is looking and what it found. A new writer reads it as a blank
+          start. A writer who expected their projects sees which folder this is and how to change
+          it. "Start a project" is inside the list, because the list is what it adds to. It is a
+          deliberate press, on a button that says what it does in words; a plus sign would leave a
+          new writer guessing what it adds.
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header">
+                <span class="s-mark">working-title</span><span class="s-title">Your projects</span
+                ><span class="s-status"></span>
+              </div>
+              <div class="shelf">
+                <div class="shelf-head"><span>In Writing</span><u>Change</u></div>
+                <div class="novel last">
+                  <label class="n-lab" for="t1">Title</label
+                  ><input
+                    type="text"
+                    id="t1"
+                    value="The Ferryman"
+                    placeholder="Untitled project"
+                    autocomplete="off"
+                  />
+                  <p class="n-say">
+                    working-title will make a folder named <b id="t1name">The Ferryman</b> in
+                    Writing.
+                  </p>
+                  <div class="n-act"><span class="btn">Start</span><u>Cancel</u></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>"Start a project" pressed.</b> A row appears where the project will sit, with the caret
+          in its title. This frame is live: type a title and the sentence follows. A title is not
+          required.
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header">
+                <span class="crumb"><u>Your projects</u></span
+                ><span class="sep">›</span><span class="s-title">The Ferryman</span
+                ><span class="sep">›</span><span class="s-path">The story</span>
+                <span class="s-status"></span>
+              </div>
+              <div class="card story">
+                <h4>The story</h4>
+                <span class="lab">One-sentence summary</span>
+                <div class="field"><span class="caret"></span></div>
+              </div>
+              <div class="beats">
+                <div class="card"><h4>Beat 1</h4></div>
+                <div class="card"><h4>Beat 2</h4></div>
+                <div class="card"><h4>Beat 3</h4></div>
+                <div class="card"><h4>Beat 4</h4></div>
+                <div class="card"><h4>Beat 5</h4></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>Started.</b> The project opens with the caret in the story's one-sentence summary, as
+          #217's first scenario asks. The path begins at Your projects. The top right corner is
+          empty while all is well, so a notice there gets read.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>More than one on the go</h2>
+        <p>
+          From inside a project, the first step of the path leads here. Your projects is what the
+          folder holds: each project's title and its one-sentence summary, the last one opened
+          first. One click opens it where it was left.
+        </p>
+      </div>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header">
+                <span class="s-mark">working-title</span><span class="s-title">Your projects</span
+                ><span class="s-status"></span>
+              </div>
+              <div class="shelf">
+                <div class="shelf-head"><span>In Writing</span><u>Change</u></div>
+                <div class="novel add"><span class="btn ghost-btn">Start a project</span></div>
+                <div class="novel">
+                  <span class="n-title">The Ferryman</span
+                  ><span class="n-line"
+                    >A ferryman learns the river took his brother on purpose.</span
+                  >
+                </div>
+                <div class="novel">
+                  <span class="n-title">Salt Year</span
+                  ><span class="n-line"
+                    >A lighthouse keeper's daughter forges her father's logbook to hide that he has
+                    gone blind.</span
+                  >
+                </div>
+                <div class="novel last">
+                  <span class="n-title">The Debt Harvest</span
+                  ><span class="n-line">Two sisters inherit a vineyard and a debt.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>Your projects.</b> The summary is the writer's own sentence, so the list reads as their
+          work and not as file names. This is also what a writer on a new machine sees straight
+          after choosing their folder. Each project keeps its own copy in the browser, so switching
+          never drops words that have not reached the folder yet.
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="scroll">
+          <div class="frame">
+            <div class="screen">
+              <div class="s-header">
+                <span class="s-mark">working-title</span><span class="s-title">Your projects</span
+                ><span class="s-status"></span>
+              </div>
+              <div class="shelf">
+                <div class="shelf-head"><span>In Writing</span><u>Change</u></div>
+                <div class="novel">
+                  <span class="n-lab">Title</span
+                  ><input
+                    type="text"
+                    value=""
+                    placeholder="Untitled project"
+                    aria-label="Title"
+                    readonly
+                    tabindex="-1"
+                  />
+                  <p class="n-say">
+                    working-title will make a folder named <b>Untitled project</b> in Writing.
+                  </p>
+                  <div class="n-act"><span class="btn">Start</span><u>Cancel</u></div>
+                </div>
+                <div class="novel">
+                  <span class="n-title">The Ferryman</span
+                  ><span class="n-line"
+                    >A ferryman learns the river took his brother on purpose.</span
+                  >
+                </div>
+                <div class="novel last">
+                  <span class="n-title">Salt Year</span
+                  ><span class="n-line"
+                    >A lighthouse keeper's daughter forges her father's logbook to hide that he has
+                    gone blind.</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>Starting another.</b> The button is the list's first line, outlined now that the
+          projects are the main thing, and the row opens where the button was. No dialog, because
+          the place is already chosen.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>What the chosen folder can hold</h2>
+      </div>
+      <div class="scroll">
+        <table>
+          <tr>
+            <th>The folder holds</th>
+            <th>What happens</th>
+          </tr>
+          <tr>
+            <td>Nothing, or other files and no projects</td>
+            <td>
+              It becomes where projects are kept. Your projects shows its name with no projects
+              under it yet.
+            </td>
+          </tr>
+          <tr>
+            <td>Folders that are projects</td>
+            <td>It becomes where projects are kept, and they are listed.</td>
+          </tr>
+          <tr>
+            <td>One project's own files</td>
+            <td>
+              Nothing changes. Under the button: "The Ferryman" is one project. Choose the folder it
+              sits in.
+            </td>
+          </tr>
+          <tr>
+            <td>Documents, Desktop or Downloads themselves</td>
+            <td>
+              Chrome refuses in its own words and the dialog stays open. The example on the screen
+              is there to prevent this.
+            </td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="text"><h2>When the folder can't be reached, and when it never can</h2></div>
+      <div class="pair">
+        <figure>
+          <div class="scroll">
+            <div class="frame">
+              <div class="screen">
+                <div class="s-header">
+                  <span class="crumb"><u>Your projects</u></span
+                  ><span class="sep">›</span><span class="s-title">The Ferryman</span
+                  ><span class="sep">›</span><span class="s-path">The story</span>
+                  <span class="s-status"
+                    >Saved in this browser, not yet in your folder.
+                    <u>Allow saving to your folder</u></span
+                  >
+                </div>
+                <div class="card story">
+                  <h4>The story</h4>
+                  <span class="lab">One-sentence summary</span>
+                  <div class="field">
+                    <span class="typed"
+                      >A ferryman learns the river took his brother on purpose.</span
+                    ><span class="caret"></span>
+                  </div>
+                </div>
+                <div class="beats">
+                  <div class="card"><h4>Beat 1</h4></div>
+                  <div class="card"><h4>Beat 2</h4></div>
+                  <div class="card"><h4>Beat 3</h4></div>
+                  <div class="card"><h4>Beat 4</h4></div>
+                  <div class="card"><h4>Beat 5</h4></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption>
+            <b>After a reload, when Chrome wants a click.</b> #3's demo step 5. The line says where
+            the words are before it says what to do, so the writer knows nothing is lost. One click
+            covers every project, since they share the one folder.
+          </figcaption>
+        </figure>
+        <figure>
+          <div class="scroll">
+            <div class="frame">
+              <div class="screen">
+                <div class="s-header"><span class="s-mark">working-title</span></div>
+                <div class="setup">
+                  <h3>This browser can’t keep your projects in a folder</h3>
+                  <p>
+                    working-title is for planning a story and writing it, one piece at a time. It
+                    keeps your work in a folder on your computer, which this browser doesn’t allow.
+                  </p>
+                  <p>Open working-title in Chrome or Edge on a computer.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption>
+            <b>Firefox or Safari.</b> The same screen with no button, because a project with no
+            folder does not exist in this product.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>What this changes in the brief</h2>
+        <p>None of these is edited; they are for the stories' owner.</p>
+      </div>
+      <div class="scroll">
+        <table>
+          <tr>
+            <th>Today</th>
+            <th>Proposed</th>
+          </tr>
+          <tr>
+            <td>#217 rule: a novel starts with a title and a folder the writer chooses.</td>
+            <td>
+              The folder is chosen once, before the first project. A project then starts with a
+              title, and the app makes its folder there.
+            </td>
+          </tr>
+          <tr>
+            <td>#217 scenario: cancelling the choice of folder keeps the title.</td>
+            <td>Nothing left to describe: no title has been typed when the folder is chosen.</td>
+          </tr>
+          <tr>
+            <td>#217 plan: a folder that already holds a novel is refused.</td>
+            <td>The same refusal, worded as what to do: choose the folder it sits in.</td>
+          </tr>
+          <tr>
+            <td>
+              #217: a project started without a title is "Untitled novel", and so is its folder.
+            </td>
+            <td>"Untitled project".</td>
+          </tr>
+          <tr>
+            <td>
+              #217, last slice: starting another novel replaces the first in the browser, after
+              asking.
+            </td>
+            <td>Each project keeps its own copy in the browser. Starting another asks nothing.</td>
+          </tr>
+          <tr>
+            <td>#3 Is not: a list of recent novels to reopen.</td>
+            <td>Your projects is in. It lists what the folder holds.</td>
+          </tr>
+          <tr>
+            <td>#3 Is: opening a novel from its folder.</td>
+            <td>Choosing the folder projects are kept in, which lists them all.</td>
+          </tr>
+          <tr>
+            <td>
+              #3 open question: opening another novel while this one has edits not yet in its
+              folder.
+            </td>
+            <td>Settled: the edits stay in that project's own copy.</td>
+          </tr>
+          <tr>
+            <td>Ubiquitous language: a project is "one novel being planned and written".</td>
+            <td>One story, whatever its method plans.</td>
+          </tr>
+        </table>
+      </div>
+      <ol class="calls">
+        <li>
+          <h3>What I made up</h3>
+          <p>
+            Every wording on these screens, and the name "Your projects". The row that appears in
+            the list to start a project. One folder for all projects, with nothing kept elsewhere.
+          </p>
+        </li>
+        <li>
+          <h3>Not designed</h3>
+          <p>
+            Changing where projects are kept. A project the writer wants kept apart from the rest.
+            Taking a project off the list. Changing a title after the start, which #217 leaves to a
+            later epic. What a new writer is told about the story and its five beats once they land
+            in a project.
+          </p>
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>The look</h2>
+        <p>
+          Unchanged and secondary. Literata for what the writer typed and Inter for what the app
+          says, as the app does already. A cooler paper in place of the placeholder cream, graphite
+          text, and one blue for where the keyboard is and for the one thing that moves the writer
+          on.
+        </p>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background: #eef0ef"></i>Paper</div>
+        <div class="sw"><i style="background: #fbfcfc"></i>Card</div>
+        <div class="sw"><i style="background: #1d2023"></i>Graphite</div>
+        <div class="sw"><i style="background: #596067"></i>Quiet text</div>
+        <div class="sw"><i style="background: #858c92"></i>Card edge</div>
+        <div class="sw"><i style="background: #2b55a0"></i>Blue pencil</div>
+        <div class="sw"><i style="background: #9a2a1c"></i>Stop</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var input = document.getElementById('t1'),
+        name = document.getElementById('t1name');
+      if (!input || !name) return;
+      input.addEventListener('input', function () {
+        var t = input.value.trim();
+        name.textContent = t === '' ? 'Untitled project' : t;
+      });
+    })();
+  </script>
