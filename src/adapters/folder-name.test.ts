@@ -30,6 +30,10 @@ describe(`folderNameFor, by the rule Chromium refuses a folder name by (${source
     ['a zero-width space', '\u200b'],
     ['a right-to-left override', '\u202e'],
     ['a byte-order mark', '\ufeff'],
+    ['the first non-character', '\ufdd0'],
+    ['the last of the non-character block', '\ufdef'],
+    ['a non-character ending the first plane', '\uffff'],
+    ['a non-character ending a later plane', '\u{1fffe}'],
   ])('turns %s into a space', (_, character) => {
     expect(folderNameFor(`Salt${character}Year`)).toBe('Salt Year');
   });

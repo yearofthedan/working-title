@@ -1,6 +1,6 @@
 import { untitledProjectTitle } from '../domain/project';
 
-const refusedInAName = /["*/:<>?\\|\p{Cc}\p{Cf}]/gu;
+const refusedInAName = /["*/:<>?\\|\p{Cc}\p{Cf}\p{Noncharacter_Code_Point}]/gu;
 const deviceOnWindows = /^(con|prn|aux|nul|com[1-9]|lpt[1-9]|clock\$)(?=\.|$)/i;
 const wholeNameOnWindows = /^(desktop\.ini|thumbs\.db|conin\$|conout\$)$/i;
 const classIdExtension = /^\{.*\}$/;
