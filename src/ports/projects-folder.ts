@@ -2,7 +2,7 @@ export interface ProjectsFolder {
   readonly name: string;
   ownTitle(): Promise<string | undefined>;
   freeNameFor(title: string): Promise<string>;
-  start(title: string): Promise<FileSystemDirectoryHandle>;
+  start(title: string): Promise<void>;
 }
 
 export interface ProjectsFolderChooser {

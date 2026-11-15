@@ -58,7 +58,6 @@ const projectsFolder = (method: Method, folder: FileSystemDirectoryHandle): Proj
     ).createWritable();
     await writable.write(projectFile(method, title));
     await writable.close();
-    return made;
   },
 });
 
