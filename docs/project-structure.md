@@ -84,6 +84,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [e2e/](../e2e/) | The journeys |
 | [scripts/](../scripts/) | The `./do` tasks |
 | [docs/](README.md) | The pages, and where a new one goes |
+| [designs/](../designs/README.md) | The designs of stories not built yet |
 | [public/](../public/) | The app's icons: the page's favicon and the manifest's |
 | [.github/](../.github/) | The issue and pull request templates, and the workflows |
 | [.omp/](../.omp/) | The rules and settings OMP reads |
