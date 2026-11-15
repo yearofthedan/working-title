@@ -76,6 +76,17 @@ const isObservedLine = (line: string): boolean => /^\s*- /.test(line);
 
 const aFileEntry = /^\s*- file "[^"]*":$/;
 
+const depthOf = (line: string): number => line.length - line.trimStart().length;
+
+const isInAFile = (observed: readonly string[], line: string): boolean => {
+  let open: string | undefined;
+  for (const held of observed) {
+    if (open !== undefined && (held === '' || depthOf(held) > depthOf(open))) continue;
+    open = aFileEntry.test(held) ? held : undefined;
+  }
+  return open !== undefined && (line.trim() === '' || depthOf(line) > depthOf(open));
+};
+
 const firstDifference = (printed: string, text: string): number => {
   const a = printed.split('\n');
   const b = text.split('\n');
@@ -170,13 +181,7 @@ export const readScenarioFile = (text: string): ScenarioFile => {
 
     if (inFence) {
       const held = steps[last];
-      const opened = held?.observed?.find((line) => aFileEntry.test(line));
-      if (
-        held !== undefined &&
-        opened !== undefined &&
-        (line.trim() === '' ||
-          line.length - line.trimStart().length > opened.length - opened.trimStart().length)
-      ) {
+      if (held !== undefined && isInAFile(held.observed ?? [], line)) {
         steps[last] = { ...held, observed: [...(held.observed ?? []), line] };
         continue;
       }

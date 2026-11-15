@@ -612,6 +612,56 @@ describe('a scenario file that records a file in the novel\u2019s folder', () =>
   it('prints a file holding an empty line and a step-shaped line back as it was read', () => {
     expect(printScenarioFile(readScenarioFile(theFile))).toBe(theFile);
   });
+
+  it('reads the text of each file in a block by that file’s own depth', () => {
+    const twoFiles = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      "Then the novel's folder",
+      '- folder "beats":',
+      '  - file "Beat 2.md":',
+      '    Maren rows out',
+      '- file "project.md":',
+      '  title: The Ferryman',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(readScenarioFile(twoFiles).scenarios[0]?.steps[1]?.observed).toEqual([
+      '- folder "beats":',
+      '  - file "Beat 2.md":',
+      '    Maren rows out',
+      '- file "project.md":',
+      '  title: The Ferryman',
+    ]);
+  });
+
+  it('refuses a line no deeper than its file, once the file’s text has ended', () => {
+    const outside = [
+      'Rule: A toy rule.',
+      '',
+      '### Scenario: A toy behaviour',
+      '',
+      '```',
+      'Given a toy',
+      "Then the novel's folder",
+      '  - folder "beats":',
+      '    - file "Beat 2.md":',
+      '      Maren rows out',
+      '  - folder "places":',
+      '    stray text',
+      '```',
+      '',
+    ].join('\n');
+
+    expect(() => readScenarioFile(outside)).toThrow(
+      'Line 12 is neither a step nor what the runner prints',
+    );
+  });
 });
 
 describe('replacing what one scenario observed', () => {
