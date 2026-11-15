@@ -3,16 +3,18 @@ import * as browser from 'vite-plus/test/browser';
 import type { Entry } from './folder';
 import { stopTheApp } from './the-app';
 
-const theNovel = 'the novel';
+const thePlace = 'the place the writer chose';
 
-export const theNovelFolder = async (): Promise<FileSystemDirectoryHandle> => {
+export const theChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
-  return await root.getDirectoryHandle(theNovel, { create: true });
+  return await root.getDirectoryHandle(thePlace, { create: true });
 };
 
-export const anEmptyNovelFolder = async (): Promise<FileSystemDirectoryHandle> => {
-  const folder = await theNovelFolder();
-  for await (const name of folder.keys()) await folder.removeEntry(name, { recursive: true });
+export const anEmptyChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
+  const folder = await theChosenPlace();
+  const names: string[] = [];
+  for await (const name of folder.keys()) names.push(name);
+  for (const name of names) await folder.removeEntry(name, { recursive: true });
   return folder;
 };
 

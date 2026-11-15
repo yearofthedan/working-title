@@ -89,11 +89,13 @@ describe('naming the ids in a printed block', () => {
       namingIds([
         'title: The Ferryman',
         'note: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5 is one hex short of an id',
+        'hash: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d6e is longer than an id',
         'reference: id_1',
       ]),
     ).toEqual([
       'title: The Ferryman',
       'note: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5 is one hex short of an id',
+      'hash: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d6e is longer than an id',
       'reference: id_1',
     ]);
   });

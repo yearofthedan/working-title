@@ -106,7 +106,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
   return lines.filter((_, at) => kept.has(at));
 };
 
-const anId = /[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/gi;
+const anId = /(?<![\da-f])[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}(?![\da-f])/gi;
 
 export const namingIds = (lines: readonly string[]): readonly string[] => {
   const names = new Map<string, string>();

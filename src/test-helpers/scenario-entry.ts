@@ -4,14 +4,14 @@ import type { Driver } from './driver';
 import { printing } from './folder';
 import { playScenarios, type Runner } from './play';
 import { readScenarioFile } from './scenario-file';
-import { theEntriesIn, theNovelFolder } from './staging';
+import { theEntriesIn, theChosenPlace } from './staging';
 import type { StepAction } from './steps';
 
 declare const __SCENARIO_APPROVE__: string;
 
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({
   tree: (markFocus) => driver.tree(markFocus),
-  folder: async () => printing(await theEntriesIn(await theNovelFolder())),
+  folder: async () => printing(await theEntriesIn(await theChosenPlace())),
   ...(approving
     ? {
         read: async (where: string) => browser.server.commands.readFile(where),
