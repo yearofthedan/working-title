@@ -27,6 +27,7 @@ export interface PieceView {
 }
 
 export interface OpenProject {
+  readonly title: string;
   readonly root: PieceView;
   readonly read: (pieceId: string) => PieceView;
   readonly elaborate: (pieceId: string, facetId: string, text: string) => Promise<void>;
@@ -91,6 +92,7 @@ export const openProject = async (
   const save = () => store.save(project);
 
   const projectOf = (): OpenProject => ({
+    title: project.title,
     root: listed(project, method),
 
     read: (pieceId) => {
@@ -115,4 +117,14 @@ export const openProject = async (
   });
 
   return projectOf();
+};
+
+export const startProject = async (
+  method: Method,
+  store: ProjectStore,
+  title: string,
+  newId: () => string = () => crypto.randomUUID(),
+): Promise<OpenProject> => {
+  await store.save(newProject(method, newId, title));
+  return openProject(method, store, newId);
 };

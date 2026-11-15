@@ -6,6 +6,7 @@ import {
   elaborate,
   isProject,
   isProjectFromVersion1,
+  isProjectWithoutTitle,
   newProject,
   readProject,
   type Project,
@@ -20,8 +21,12 @@ const everyPiece = [
 ];
 
 describe('newProject', () => {
-  it('starts the project with a root, and the children it starts with, in order', () => {
-    expect(project()).toEqual({ method: 'toy', version: 1, pieces: everyPiece });
+  it('starts the project untitled, with a root, and the children it starts with, in order', () => {
+    expect(project()).toEqual({ title: '', method: 'toy', version: 1, pieces: everyPiece });
+  });
+
+  it('starts the project under the title it is given', () => {
+    expect(newProject(toyMethod, ids(), 'The Ferryman').title).toBe('The Ferryman');
   });
 });
 
@@ -65,6 +70,21 @@ describe('readProject', () => {
     expect(readProject(saved, toyMethod, ids())).toEqual(saved);
   });
 
+  it('reads a save from before the project held a title as untitled, keeping its pieces', () => {
+    const saved = { method: 'toy', version: 1, pieces: everyPiece };
+    expect(readProject(saved, toyMethod, ids())).toEqual({
+      title: '',
+      method: 'toy',
+      version: 1,
+      pieces: everyPiece,
+    });
+  });
+
+  it('keeps the title a save holds', () => {
+    const saved = { title: 'The Ferryman', method: 'toy', version: 1, pieces: everyPiece };
+    expect(readProject(saved, toyMethod, ids())?.title).toBe('The Ferryman');
+  });
+
   it('reads a save in the shape version 1 wrote with its facets kept and its starting children added', () => {
     const saved = {
       method: 'toy',
@@ -72,6 +92,7 @@ describe('readProject', () => {
       root: { kind: 'root', facets: { note: 'the root' } },
     };
     expect(readProject(saved, toyMethod, ids())).toEqual({
+      title: '',
       method: 'toy',
       version: 1,
       pieces: [
@@ -116,6 +137,7 @@ describe('isProject', () => {
     ],
     ['no method', { version: 1, pieces: [] }],
     ['no version', { method: 'toy', pieces: [] }],
+    ['a title that is not text', { title: 7, method: 'toy', version: 1, pieces: [] }],
     ['a piece that is nothing', { method: 'toy', version: 1, pieces: [null] }],
     [
       'facets that are nothing',
@@ -134,6 +156,30 @@ describe('isProject', () => {
     ],
   ])('refuses %s, which parses but is not a project', (_, value) => {
     expect(isProject(value)).toBe(false);
+  });
+});
+
+describe('isProjectWithoutTitle', () => {
+  it('reads a save from before the project held a title, its facets filled in or not', () => {
+    expect(isProjectWithoutTitle({ method: 'toy', version: 1, pieces: everyPiece })).toBe(true);
+    expect(
+      isProjectWithoutTitle({
+        method: 'toy',
+        version: 1,
+        pieces: [{ id: 'id-1', kind: 'root', parent: null, order: 0, facets: { note: 'a note' } }],
+      }),
+    ).toBe(true);
+  });
+
+  it.each([
+    ['a project, which holds a title', project()],
+    ['null', null],
+    ['an empty object', {}],
+    ['no pieces', { method: 'toy', version: 1 }],
+    ['pieces that are not a list', { method: 'toy', version: 1, pieces: {} }],
+    ['a title that is not text', { title: 7, method: 'toy', version: 1, pieces: [] }],
+  ])('refuses %s, which is not a save from before the project held a title', (_, value) => {
+    expect(isProjectWithoutTitle(value)).toBe(false);
   });
 });
 

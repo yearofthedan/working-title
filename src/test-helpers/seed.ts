@@ -41,6 +41,7 @@ const piecesOf = (
 };
 
 export const aProject = (root: PieceSeed): SeededProject => ({
+  title: '',
   method: snowflakeExtended.name,
   version: snowflakeExtended.version,
   pieces: piecesOf(root, null, 0, ids()),
