@@ -1,3 +1,4 @@
+import { narrowing as narrowingTheFolder, namingIds } from './folder';
 import { narrowing } from './narrowing';
 import { OBSERVED, kindOf, readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type Evidence, type StepAction } from './steps';
@@ -9,6 +10,7 @@ export interface ScenarioSource {
 
 export interface Runner {
   tree(markFocus: boolean): Promise<readonly string[]>;
+  folder?(): Promise<readonly string[]>;
   read?(path: string): Promise<string>;
   write?(path: string, text: string): Promise<void>;
 }
@@ -45,9 +47,27 @@ const refuse = (scenario: Scenario, blocks: readonly (readonly string[])[], path
   }
 };
 
-const print = async (evidence: Evidence, runner: Runner): Promise<readonly string[]> => {
-  const lines = await runner.tree(evidence.kind === 'part' && evidence.focus === true);
-  return evidence.kind === 'whole' ? lines : narrowing(lines, evidence.parts);
+const print = async (
+  evidence: Evidence,
+  runner: Runner,
+  said: string,
+): Promise<readonly string[]> => {
+  if (evidence.kind === 'whole') return await runner.tree(false);
+  const inTheFolder = evidence.parts.filter(
+    (part) => part.role === 'folder' || part.role === 'file',
+  );
+  if (inTheFolder.length === 0) {
+    return narrowing(await runner.tree(evidence.focus === true), evidence.parts);
+  }
+  if (inTheFolder.length !== evidence.parts.length) {
+    throw new Error(
+      `${said} reports a page part and a folder part, and one step reports one or the other`,
+    );
+  }
+  if (runner.folder === undefined) {
+    throw new Error(`${said} reports the folder, and this runner reads no folder`);
+  }
+  return namingIds(narrowingTheFolder(await runner.folder(), evidence.parts));
 };
 
 export const playScenarios = async (
@@ -72,21 +92,22 @@ export const playScenarios = async (
     const blocks: string[][] = [];
     for (const [at, step] of scenario.steps.entries()) {
       const kind = kindOf(scenario.steps, at);
+      const said = `${scenario.behaviour}: "${step.keyword} ${step.phrase}"`;
       const reported = await table.play(step);
       if (kind !== 'Then') {
         if (reported !== undefined) {
           throw new Error(
-            `${scenario.behaviour}: "${step.keyword} ${step.phrase}" is a ${kind} and reports evidence, and only a Then reports the evidence it asserted on`,
+            `${said} is a ${kind} and reports evidence, and only a Then reports the evidence it asserted on`,
           );
         }
         continue;
       }
       if (reported === undefined) {
         throw new Error(
-          `${scenario.behaviour}: "${step.keyword} ${step.phrase}" is a Then and reports nothing, and a Then reports the evidence it asserted on`,
+          `${said} is a Then and reports nothing, and a Then reports the evidence it asserted on`,
         );
       }
-      const block = [...(await print(reported, runner))];
+      const block = [...(await print(reported, runner, said))];
       blocks.push(block);
     }
 

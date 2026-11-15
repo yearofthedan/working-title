@@ -1,6 +1,36 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
+import type { Entry } from './folder';
 import { stopTheApp } from './the-app';
+
+const theNovel = 'the novel';
+
+export const theNovelFolder = async (): Promise<FileSystemDirectoryHandle> => {
+  const root = await navigator.storage.getDirectory();
+  return await root.getDirectoryHandle(theNovel, { create: true });
+};
+
+export const anEmptyNovelFolder = async (): Promise<FileSystemDirectoryHandle> => {
+  const folder = await theNovelFolder();
+  for await (const name of folder.keys()) await folder.removeEntry(name, { recursive: true });
+  return folder;
+};
+
+export const theEntriesIn = async (
+  folder: FileSystemDirectoryHandle,
+): Promise<readonly Entry[]> => {
+  const entries: Entry[] = [];
+  for await (const [name, handle] of folder.entries()) {
+    if (handle.kind === 'directory') {
+      entries.push({ role: 'folder', name, entries: await theEntriesIn(handle) });
+      continue;
+    }
+    const lines = (await (await handle.getFile()).text()).split('\n');
+    if (lines.at(-1) === '') lines.pop();
+    entries.push({ role: 'file', name, text: lines });
+  }
+  return entries;
+};
 
 export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);

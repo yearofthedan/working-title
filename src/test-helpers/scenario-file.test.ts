@@ -565,6 +565,55 @@ describe('a scenario file', () => {
   });
 });
 
+describe('a scenario file that records a file in the novel\u2019s folder', () => {
+  const theFile = [
+    'Rule: A toy rule.',
+    '',
+    '### Scenario: A toy behaviour',
+    '',
+    '```',
+    'Given a toy',
+    "Then beat 2's file in the novel's folder",
+    '- folder "The Ferryman":',
+    '  - folder "beats":',
+    '    - file "Beat 2.md":',
+    '      ---',
+    '      id: id_1',
+    '      ---',
+    '',
+    '      ## One-sentence summary',
+    '',
+    "      Maren finds the ship's log",
+    '      Then she rows out',
+    '      - file "the log she reads":',
+    '```',
+    '',
+  ].join('\n');
+
+  it('reads an empty line and a step-shaped line after a file entry as the file\u2019s text', () => {
+    const { scenarios } = readScenarioFile(theFile);
+
+    expect(scenarios[0]?.steps[1]?.observed).toEqual([
+      '- folder "The Ferryman":',
+      '  - folder "beats":',
+      '    - file "Beat 2.md":',
+      '      ---',
+      '      id: id_1',
+      '      ---',
+      '',
+      '      ## One-sentence summary',
+      '',
+      "      Maren finds the ship's log",
+      '      Then she rows out',
+      '      - file "the log she reads":',
+    ]);
+  });
+
+  it('prints a file holding an empty line and a step-shaped line back as it was read', () => {
+    expect(printScenarioFile(readScenarioFile(theFile))).toBe(theFile);
+  });
+});
+
 describe('replacing what one scenario observed', () => {
   const two = [
     'Rule: A toy rule.',

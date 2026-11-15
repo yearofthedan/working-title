@@ -39,7 +39,24 @@ const file = [
   '',
 ].join('\n');
 
-const runnerFor = (text: string) => {
+const thePlace = [
+  '- folder "The Ferryman":',
+  '  - folder "beats":',
+  '    - file "Beat 1.md":',
+  '      ## One-sentence summary',
+  '',
+  '      Maren rows out before first light',
+  '    - file "Beat 2.md":',
+  '      ---',
+  '      id: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d',
+  '      ---',
+  '',
+  '      ## One-sentence summary',
+  '',
+  '      Maren rows out',
+];
+
+const runnerFor = (text: string, readsThePlace = false) => {
   let held = text;
   const written: { path: string; text: string }[] = [];
   const marked: boolean[] = [];
@@ -48,6 +65,7 @@ const runnerFor = (text: string) => {
       marked.push(markFocus);
       return toyTree(markFocus);
     },
+    ...(readsThePlace ? { folder: async () => thePlace } : {}),
     read: async () => held,
     write: async (path, next) => {
       held = next;
@@ -77,6 +95,13 @@ const actions: Record<string, StepAction> = {
     theToy.text = 'Maren rows out';
     return reporting({ role: 'group', name: 'A toy' });
   },
+  "beat 2's file in the novel's folder": () =>
+    reporting({ role: 'file', name: 'Beat 2.md', within: { role: 'folder', name: 'beats' } }),
+  'a mix of a page part and a file': () =>
+    reporting(
+      { role: 'group', name: 'A toy' },
+      { role: 'file', name: 'Beat 2.md', within: { role: 'folder', name: 'beats' } },
+    ),
 };
 
 const source = (path = 'a/toy.approved.md'): ScenarioSource => ({ path, text: file });
@@ -156,6 +181,71 @@ describe('playing a scenario file', () => {
 
     expect(runner.written.at(-1)?.text).toBe(
       aScenario('Given a toy', 'Then a named toy', '- group "A toy":', '  - text: Nothing yet'),
+    );
+  });
+
+  it('prints the novel\u2019s folder narrowed to the file a Then reported, naming what ids it holds', async () => {
+    const reported = aScenario('Given a toy', "Then beat 2's file in the novel's folder");
+    const runner = runnerFor(reported, true);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: reported }, runner, actions, {
+      approve: true,
+    });
+
+    expect(runner.written.at(-1)?.text).toBe(
+      aScenario(
+        'Given a toy',
+        "Then beat 2's file in the novel's folder",
+        '- folder "The Ferryman":',
+        '  - folder "beats":',
+        '    - file "Beat 2.md":',
+        '      ---',
+        '      id: id_1',
+        '      ---',
+        '',
+        '      ## One-sentence summary',
+        '',
+        '      Maren rows out',
+      ),
+    );
+  });
+
+  it('prints no folder line for a step that reports page parts, on a runner that reads the folder', async () => {
+    const page = aScenario('Given a toy', 'Then a named toy');
+    const runner = runnerFor(page, true);
+
+    await playScenarios({ path: 'a/toy.approved.md', text: page }, runner, actions, {
+      approve: true,
+    });
+
+    expect(runner.written.at(-1)?.text).toBe(
+      aScenario('Given a toy', 'Then a named toy', '- group "A toy":', '  - text: Nothing yet'),
+    );
+  });
+
+  it('refuses a step that reports a page part and a folder part together', async () => {
+    const mixed = aScenario('Given a toy', 'Then a mix of a page part and a file');
+    const message = await playScenarios(
+      { path: 'a/toy.approved.md', text: mixed },
+      runnerFor(mixed, true),
+      actions,
+    ).catch((error: Error) => error.message);
+
+    expect(message).toBe(
+      'A toy behaviour: "Then a mix of a page part and a file" reports a page part and a folder part, and one step reports one or the other',
+    );
+  });
+
+  it('refuses a step that reports the folder where the runner reads no folder', async () => {
+    const reported = aScenario('Given a toy', "Then beat 2's file in the novel's folder");
+    const message = await playScenarios(
+      { path: 'a/toy.approved.md', text: reported },
+      runnerFor(reported),
+      actions,
+    ).catch((error: Error) => error.message);
+
+    expect(message).toBe(
+      'A toy behaviour: "Then beat 2\'s file in the novel\'s folder" reports the folder, and this runner reads no folder',
     );
   });
 
