@@ -38,10 +38,6 @@ export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPic
   showDirectoryPicker: () => theFolderAt(path),
 });
 
-export const theBrowsersPickerGives = (...path: readonly string[]): void => {
-  Object.assign(window, aPickerGivingTheFolder(...path));
-};
-
 export const aPickerTheWriterCancels: DirectoryPicker = {
   showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),
 };

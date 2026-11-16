@@ -1,3 +1,4 @@
+import type { DirectoryPicker } from '../adapters/file-system-folders';
 import { startApp } from '../app';
 import type { ProjectStore } from '../ports/project-store';
 import type { NewVersion } from '../ui/app/app.dom';
@@ -10,6 +11,7 @@ let store: ProjectStore = inMemory();
 export interface Staging {
   readonly store?: ProjectStore;
   readonly newVersion?: NewVersion;
+  readonly picker?: DirectoryPicker;
 }
 
 export const stopTheApp = (): void => {
@@ -20,7 +22,7 @@ export const stopTheApp = (): void => {
 export const openTheApp = async (page: ParentNode = document, on: Staging = {}): Promise<void> => {
   stops.get(page)?.();
   if (on.store !== undefined) store = on.store;
-  stops.set(page, await startApp(page, { store, newVersion: on.newVersion }));
+  stops.set(page, await startApp(page, { store, newVersion: on.newVersion, picker: on.picker }));
 };
 
 export const reopenTheApp = async (): Promise<void> => {

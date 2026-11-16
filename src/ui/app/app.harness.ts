@@ -8,8 +8,8 @@ import {
 } from '../../test-helpers/seed';
 import {
   aFolderHoldingProjects,
+  aPickerGivingTheFolder,
   anEmptyFolderNamed,
-  theBrowsersPickerGives,
   theProjectsFolderName,
 } from '../../test-helpers/folders';
 import { thePage } from '../../test-helpers/staging';
@@ -28,10 +28,9 @@ import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
 const stageTheApp = async (width: number, on: Staging): Promise<void> => {
-  theBrowsersPickerGives(theProjectsFolderName);
   await anEmptyFolderNamed(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, on);
+  await openTheApp(document, { ...on, picker: aPickerGivingTheFolder(theProjectsFolderName) });
 };
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
@@ -73,12 +72,12 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => (
   },
   keepsProjectsInAFolderHolding: (titles) => theAppInAFolder(driver, titles),
   choosesTheFolderNamed: async (name) => {
-    theBrowsersPickerGives(name);
+    await openTheApp(document, { picker: aPickerGivingTheFolder(name) });
     await writer.choosesAFolder();
     await expect.element(theHeader().heading).toHaveTextContent('Your projects');
   },
   choosesTheProjectFolder: async (title) => {
-    theBrowsersPickerGives(theProjectsFolderName, title);
+    await openTheApp(document, { picker: aPickerGivingTheFolder(theProjectsFolderName, title) });
     await aFolderHoldingProjects(theProjectsFolderName, [title]);
     await writer.choosesAFolder();
     await expect
