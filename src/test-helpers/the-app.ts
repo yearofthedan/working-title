@@ -4,8 +4,6 @@ import type { ProjectStore } from '../ports/project-store';
 import type { NewVersion } from '../ui/app/app.dom';
 import { inMemory } from './seed';
 
-export type { DirectoryPicker };
-
 const stops = new Map<ParentNode, () => void>();
 
 let store: ProjectStore = inMemory();
