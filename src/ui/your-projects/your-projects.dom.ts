@@ -4,7 +4,12 @@ import {
   type ProjectsFolderChooser,
 } from '../../application/project';
 import { svgIn } from '../svg.dom';
-import { couldNotMakeTheFolder, couldNotOpenTheFolder, refusalFor } from './your-projects';
+import {
+  couldNotMakeTheFolder,
+  couldNotOpenTheFolder,
+  couldNotOpenTheProject,
+  refusalFor,
+} from './your-projects';
 
 export interface YourProjectsHooks {
   readonly chooser: ProjectsFolderChooser;
@@ -140,14 +145,26 @@ export const yourProjects = (hooks: YourProjectsHooks): YourProjects => {
       void nameFor('');
       title.addEventListener('input', () => void nameFor(title.value));
 
+      let made: string | undefined;
+
       const startTheProject = async (): Promise<void> => {
         starting = true;
         failed.replaceChildren();
+        const typed = made ?? title.value.trim();
         try {
-          await folder.start(title.value.trim());
-          await hooks.start(title.value.trim());
+          if (made === undefined) {
+            await folder.start(typed);
+            made = typed;
+          }
         } catch {
           failed.textContent = couldNotMakeTheFolder;
+          starting = false;
+          return;
+        }
+        try {
+          await hooks.start(typed);
+        } catch {
+          failed.textContent = couldNotOpenTheProject;
         } finally {
           starting = false;
         }

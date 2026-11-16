@@ -6,3 +6,6 @@ export const refusalFor = (ownTitle: string): string =>
 export const couldNotOpenTheFolder = "working-title couldn't open that folder. Try another one.";
 
 export const couldNotMakeTheFolder = "working-title couldn't make the project's folder. Try again.";
+
+export const couldNotOpenTheProject =
+  "working-title made the project's folder but couldn't open the project. Try again.";

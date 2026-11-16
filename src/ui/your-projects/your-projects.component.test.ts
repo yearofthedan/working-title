@@ -141,6 +141,75 @@ describe('starting a project', () => {
     expect(started).toEqual(['']);
   });
 
+  it('starts the project under the title typed when Start was pressed, whatever is typed while it starts', async () => {
+    const made: string[] = [];
+    const started: string[] = [];
+    const making = Promise.withResolvers<void>();
+    const folder: ProjectsFolder = {
+      name: theProjectsFolderName,
+      ownTitle: () => Promise.resolve(undefined),
+      freeNameFor: (title) => Promise.resolve(title),
+      start: async (title) => {
+        made.push(title);
+        await making.promise;
+      },
+    };
+    mountYourProjects({
+      chooser: { choose: () => Promise.resolve(folder) },
+      start: async (title) => {
+        started.push(title);
+      },
+    });
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+    await writer.typesTheTitle('The Ferryman');
+
+    await writer.pressesStart();
+    await writer.typesTheTitle(' Returns');
+    making.resolve();
+
+    await expect.poll(() => started).toEqual(['The Ferryman']);
+    expect(made).toEqual(['The Ferryman']);
+  });
+
+  it('makes the folder once when the project fails to open after it, and opens it on the next press', async () => {
+    const made: string[] = [];
+    const started: string[] = [];
+    let opening = false;
+    const folder: ProjectsFolder = {
+      name: theProjectsFolderName,
+      ownTitle: () => Promise.resolve(undefined),
+      freeNameFor: (title) => Promise.resolve(title),
+      start: async (title) => {
+        made.push(title);
+      },
+    };
+    mountYourProjects({
+      chooser: { choose: () => Promise.resolve(folder) },
+      start: async (title) => {
+        started.push(title);
+        if (!opening) throw new Error('the project could not be opened');
+      },
+    });
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+
+    await writer.pressesStart();
+
+    await expect
+      .element(yourProjects().startFailed)
+      .toHaveTextContent(
+        "working-title made the project's folder but couldn't open the project. Try again.",
+      );
+
+    opening = true;
+    await writer.pressesStart();
+
+    await expect.element(yourProjects().startFailed).toBeEmptyDOMElement();
+    expect(made).toEqual(['']);
+    expect(started).toEqual(['', '']);
+  });
+
   it('puts the focus back on "Start a project" when the writer cancels', async () => {
     await reachingYourProjects();
     await writer.startsAProject();
