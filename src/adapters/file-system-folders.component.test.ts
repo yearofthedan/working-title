@@ -66,6 +66,10 @@ describe('choosing where projects are kept', () => {
     expect(asked).toEqual([{ mode: 'readwrite' }]);
   });
 
+  it('gives nothing where the browser has no folder picker', async () => {
+    expect(await fileSystemFolders(snowflakeExtended, {}).choose()).toBeUndefined();
+  });
+
   it('gives nothing where the writer cancels the picker', async () => {
     const cancelled: DirectoryPicker = {
       showDirectoryPicker: async () => {

@@ -13,11 +13,7 @@ export interface StartUp {
 }
 
 export const startApp = async (page: ParentNode, startUp: StartUp = {}): Promise<() => void> => {
-  const {
-    newVersion,
-    store = projectStore(),
-    picker = window as unknown as DirectoryPicker,
-  } = startUp;
+  const { newVersion, store = projectStore(), picker = window } = startUp;
   const { header, main, name } = thePageParts(page);
   if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
 

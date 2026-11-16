@@ -2,8 +2,16 @@ import type { Method } from '../domain/project';
 import type { ProjectsFolder, ProjectsFolderChooser } from '../ports/projects-folder';
 import { folderNameFor } from './folder-name';
 
+declare global {
+  interface Window {
+    showDirectoryPicker?(options: {
+      readonly mode: 'readwrite';
+    }): Promise<FileSystemDirectoryHandle>;
+  }
+}
+
 export interface DirectoryPicker {
-  showDirectoryPicker(options: { readonly mode: 'readwrite' }): Promise<FileSystemDirectoryHandle>;
+  showDirectoryPicker?(options: { readonly mode: 'readwrite' }): Promise<FileSystemDirectoryHandle>;
 }
 
 const projectFileName = 'project.md';
@@ -68,13 +76,13 @@ export const fileSystemFolders = (
   picker: DirectoryPicker,
 ): ProjectsFolderChooser => ({
   choose: async () => {
-    let folder: FileSystemDirectoryHandle;
+    let folder: FileSystemDirectoryHandle | undefined;
     try {
-      folder = await picker.showDirectoryPicker({ mode: 'readwrite' });
+      folder = await picker.showDirectoryPicker?.({ mode: 'readwrite' });
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return undefined;
       throw error;
     }
-    return projectsFolder(method, folder);
+    return folder === undefined ? undefined : projectsFolder(method, folder);
   },
 });

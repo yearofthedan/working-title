@@ -1,5 +1,4 @@
 import { type Locator, type Page } from '@playwright/test';
-import type { DirectoryPicker } from '../adapters/file-system-folders';
 import { projectStorageKey } from '../adapters/local-storage-project-store';
 import { cardLooks } from '../ui/card/card';
 import {
@@ -26,7 +25,7 @@ export interface PlaywrightDriver extends ReloadingDriver {
 
 export const openingANewProjectOn = async (page: Page): Promise<void> => {
   await page.addInitScript(() => {
-    (window as unknown as DirectoryPicker).showDirectoryPicker = async () => {
+    window.showDirectoryPicker = async () => {
       const root = await navigator.storage.getDirectory();
       return await root.getDirectoryHandle('Writing', { create: true });
     };
