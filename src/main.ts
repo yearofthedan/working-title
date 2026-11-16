@@ -16,4 +16,4 @@ const reload = async (): Promise<void> => {
   await update(true);
 };
 
-await startApp(document, { waiting: waiting.promise, reload: () => void reload() });
+await startApp(document, { newVersion: { waiting: waiting.promise, reload: () => void reload() } });

@@ -4,7 +4,7 @@ Status: Proposed, 2026-11-13
 
 ## Context
 
-What shape does the writer's folder take, now that it is the project ([ADR 11](0011-the-writers-folder-is-the-project.md))?
+What shape does a project's folder take, now that it is the project ([ADR 11](0011-a-projects-folder-is-the-project.md))?
 
 - **Source.** The folder is the project and is read on every open, so it must hold everything: every piece, the project's own fields, links and chapters.
 - **Formatting.** The novel decides which formatting it needs; the files must keep each one exactly.

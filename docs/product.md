@@ -44,6 +44,10 @@ The promise is to surface the right few things for where you are right now. It d
 
 A change at a higher level has effects across the rest of the novel, so changes ripple through the web. The tool should help the writer see and manage that ripple. This is true at the vision level even though the mechanism that delivers it is a later feature.
 
+## Where the writer's work lives
+
+The writer chooses one folder, once, where their projects are kept, and the app makes each project's folder inside it, named after its title. Choosing comes first, so every project starts in a folder of its own, and all of a writer's projects sit in one place they can find, back up or sync. A folder chosen for each project as it starts would ask the writer to place every project, and would leave no one place to list them from.
+
 ## Not designed for yet
 
 - In-tool assessment, such as "is this character behaving as I'd expect?"

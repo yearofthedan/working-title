@@ -1,42 +1,14 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
-import type { Entry } from './folder';
+import { settled } from './driver';
+import { laidOut } from './graph-page';
 import { stopTheApp } from './the-app';
-
-const thePlace = 'the place the writer chose';
-
-export const theChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
-  const root = await navigator.storage.getDirectory();
-  return await root.getDirectoryHandle(thePlace, { create: true });
-};
-
-export const anEmptyChosenPlace = async (): Promise<FileSystemDirectoryHandle> => {
-  const folder = await theChosenPlace();
-  const names: string[] = [];
-  for await (const name of folder.keys()) names.push(name);
-  for (const name of names) await folder.removeEntry(name, { recursive: true });
-  return folder;
-};
-
-export const theEntriesIn = async (
-  folder: FileSystemDirectoryHandle,
-): Promise<readonly Entry[]> => {
-  const entries: Entry[] = [];
-  for await (const [name, handle] of folder.entries()) {
-    if (handle.kind === 'directory') {
-      entries.push({ role: 'folder', name, entries: await theEntriesIn(handle) });
-      continue;
-    }
-    const lines = (await (await handle.getFile()).text()).split('\n');
-    if (lines.at(-1) === '') lines.pop();
-    entries.push({ role: 'file', name, text: lines });
-  }
-  return entries;
-};
 
 export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);
   stopTheApp();
+  await laidOut();
+  await settled();
   document.body.replaceChildren();
   const header = document.createElement('header');
   header.append(document.createElement('h1'));

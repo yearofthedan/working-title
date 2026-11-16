@@ -4,7 +4,7 @@ import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
 import { toyMethod } from '../test-helpers/toy-method';
-import { openProject } from './project';
+import { openProject, startProject } from './project';
 
 const rootName = 'Root';
 const names = ['Item 1', 'Item 2'];
@@ -201,5 +201,28 @@ describe('opening a project', () => {
     expect(opened.root.children.map(({ name }) => name)).toEqual(names);
     expect(opened.root.facets[0]?.text).toBe('the first');
     expect(opened.root.children.flatMap(({ children: under }) => under)).toEqual([]);
+  });
+
+  it('opens an untitled project as untitled', async () => {
+    expect((await openProject(toyMethod, storeOf(), ids())).title).toBe('');
+  });
+});
+
+describe('starting a project', () => {
+  it('opens it under the title it is given, saving that title in the browser copy', async () => {
+    const store = copyingStore();
+
+    const opened = await startProject(toyMethod, store, 'The Ferryman', ids());
+
+    expect(opened.title).toBe('The Ferryman');
+    expect(opened.root.name).toBe(rootName);
+    expect(store.saved()?.title).toBe('The Ferryman');
+  });
+
+  it('reads the title back on the next open', async () => {
+    const store = copyingStore();
+    await startProject(toyMethod, store, 'The Ferryman', ids());
+
+    expect((await openProject(toyMethod, store, ids())).title).toBe('The Ferryman');
   });
 });

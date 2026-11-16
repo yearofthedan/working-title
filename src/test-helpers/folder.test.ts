@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { namingIds, narrowing, printing, type Entry } from './folder';
 
-const thePlace: readonly Entry[] = [
+const theFolder: readonly Entry[] = [
   {
     role: 'folder',
     name: 'The Ferryman',
@@ -32,10 +32,10 @@ const thePlace: readonly Entry[] = [
   },
 ];
 
-describe('narrowing the place to the entry a step reported', () => {
+describe('narrowing the folder to the entry a step reported', () => {
   it('keeps the folders from the root to the file, the file and its text, and no sibling', () => {
     expect(
-      narrowing(printing(thePlace), [
+      narrowing(printing(theFolder), [
         { role: 'file', name: 'Beat 2.md', within: { role: 'folder', name: 'beats' } },
       ]),
     ).toEqual([
@@ -49,7 +49,7 @@ describe('narrowing the place to the entry a step reported', () => {
   });
 
   it('keeps the folders from the root to the folder, the folder and everything under it', () => {
-    expect(narrowing(printing(thePlace), [{ role: 'folder', name: 'beats' }])).toEqual([
+    expect(narrowing(printing(theFolder), [{ role: 'folder', name: 'beats' }])).toEqual([
       '- folder "The Ferryman":',
       '  - folder "beats":',
       '    - file "Beat 1.md":',
@@ -63,9 +63,9 @@ describe('narrowing the place to the entry a step reported', () => {
     ]);
   });
 
-  it('refuses a file the place does not hold, so a record cannot silently empty', () => {
+  it('refuses a file the folder does not hold, so a record cannot silently empty', () => {
     expect(() =>
-      narrowing(printing(thePlace), [
+      narrowing(printing(theFolder), [
         { role: 'file', name: 'Beat 9.md', within: { role: 'folder', name: 'beats' } },
       ]),
     ).toThrow('no line reads file "Beat 9.md" inside folder "beats"');
@@ -73,7 +73,7 @@ describe('narrowing the place to the entry a step reported', () => {
 
   it('refuses a file reported within a folder above its own, not only its parent', () => {
     expect(() =>
-      narrowing(printing(thePlace), [
+      narrowing(printing(theFolder), [
         { role: 'file', name: 'Beat 2.md', within: { role: 'folder', name: 'The Ferryman' } },
       ]),
     ).toThrow('no line reads file "Beat 2.md" inside folder "The Ferryman"');

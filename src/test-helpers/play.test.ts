@@ -39,7 +39,7 @@ const file = [
   '',
 ].join('\n');
 
-const thePlace = [
+const theFolder = [
   '- folder "The Ferryman":',
   '  - folder "beats":',
   '    - file "Beat 1.md":',
@@ -56,7 +56,7 @@ const thePlace = [
   '      Maren rows out',
 ];
 
-const runnerFor = (text: string, readsThePlace = false) => {
+const runnerFor = (text: string, readsTheFolder = false) => {
   let held = text;
   const written: { path: string; text: string }[] = [];
   const marked: boolean[] = [];
@@ -65,7 +65,7 @@ const runnerFor = (text: string, readsThePlace = false) => {
       marked.push(markFocus);
       return toyTree(markFocus);
     },
-    ...(readsThePlace ? { folder: async () => thePlace } : {}),
+    ...(readsTheFolder ? { folder: async () => theFolder } : {}),
     read: async () => held,
     write: async (path, next) => {
       held = next;

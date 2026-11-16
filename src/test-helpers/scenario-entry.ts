@@ -2,16 +2,16 @@ import { describe, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { Driver } from './driver';
 import { printing } from './folder';
+import { theEntriesIn, theProjectsFolder } from './folders';
 import { playScenarios, type Runner } from './play';
 import { readScenarioFile } from './scenario-file';
-import { theEntriesIn, theChosenPlace } from './staging';
 import type { StepAction } from './steps';
 
 declare const __SCENARIO_APPROVE__: string;
 
 const runnerFor = (driver: Driver, approving: boolean): Runner => ({
   tree: (markFocus) => driver.tree(markFocus),
-  folder: async () => printing(await theEntriesIn(await theChosenPlace())),
+  folder: async () => printing(await theEntriesIn(await theProjectsFolder())),
   ...(approving
     ? {
         read: async (where: string) => browser.server.commands.readFile(where),

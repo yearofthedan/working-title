@@ -1,17 +1,18 @@
 # Project structure
 
 **Audience:** anyone looking for where a file lives, or deciding where a new one goes.
-**Purpose:** maps the code repository's folders and the suffixes of the files in them. The glossary's **project** is the writer's novel, so the page's name is the only place it says project for the code; the text says repository.
+**Purpose:** maps the code repository's folders and the suffixes of the files in them. The glossary's **project** is the writer's story, so the page's name is the only place it says project for the code; the text says repository.
 
 ## The parts
 
 | Folder | Part |
 | --- | --- |
 | [src/ui/](../src/ui/) | UI: one folder per component, shaped [as below](#a-components-folder) |
+| [src/ui/your-projects/](../src/ui/your-projects/) | UI: the screens shown before a project is open |
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
 | [src/ports/](../src/ports/) | Ports |
-| [src/adapters/](../src/adapters/) | Adapters: the browser working copy |
+| [src/adapters/](../src/adapters/) | Adapters: the browser working copy and the projects folder |
 | [src/methods/](../src/methods/) | Method definition |
 
 The [layers](architecture.md#the-layers), the [method definition](architecture.md#method-definition) and what sits [outside the layers](architecture.md#outside-the-layers) are described in the architecture page: what each is, what it may import and why it is shaped that way.
@@ -32,7 +33,9 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
 
-A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/your-projects/](../src/ui/your-projects/) holds [folder-question/](../src/ui/your-projects/folder-question/), [project-list/](../src/ui/your-projects/project-list/) and [start-row/](../src/ui/your-projects/start-row/).
+
+A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 ## Test code
 
@@ -40,9 +43,9 @@ A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/
 
 - the driver contract and its protocol drivers;
 - the measures, including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion;
-- staging and seed;
+- staging ([staging.ts](../src/test-helpers/staging.ts) for a page, [folders.ts](../src/test-helpers/folders.ts) for the folders on the writer's machine) and seed;
 - the scenario file, step table and runner;
-- [folder.ts](../src/test-helpers/folder.ts), which prints what the place the writer chose holds and narrows it to the folder or file a step reported;
+- [folder.ts](../src/test-helpers/folder.ts), which prints what the folder the writer chose holds and narrows it to the folder or file a step reported;
 - [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which each component test with a `scenarios/` folder calls;
 - the helpers that mount, open and read the app: [the-app.ts](../src/test-helpers/the-app.ts) and [graph-page.ts](../src/test-helpers/graph-page.ts);
 - small fixtures: [recording.ts](../src/test-helpers/recording.ts), a driver that records its calls, [toy-method.ts](../src/test-helpers/toy-method.ts) and [ids.ts](../src/test-helpers/ids.ts).
@@ -71,7 +74,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | File | Holds |
 | --- | --- |
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
-| [src/app.ts](../src/app.ts) | Start-up: opens the project and calls `renderApp` |
+| [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderApp` |
 | [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |

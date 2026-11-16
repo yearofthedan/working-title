@@ -17,7 +17,7 @@ async function loadOnceThenGoOffline(writer: Fixture, page: Page, context: Brows
 test('the shell opens offline', async ({ writer, page, context }) => {
   await loadOnceThenGoOffline(writer, page, context);
   await writer.reloads();
-  await expect(writer.theAppsName).toBeVisible();
+  await expect(writer.theHeaderHeading).toBeVisible();
 });
 
 test('the fonts render offline, because they are precached', async ({ writer, page, context }) => {

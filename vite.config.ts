@@ -101,6 +101,12 @@ const outsideLookups = [
   `MemberExpression[property.name=/^(${walksFromAnElement.join('|')})$/]`,
 ].map((selector) => ({ selector, message: looksOutsideItsRoot }));
 
+const waitsOnThePage = {
+  selector: `CallExpression:matches([callee.object.name='expect'][callee.property.name='poll'], [callee.object.name='vi'][callee.property.name=/^(waitFor|waitUntil)$/]):has(CallExpression[callee.property.name=/^(element|elements|tree)$/])`,
+  message:
+    'Wait on a page part with expect.element; poll only what the page doesn’t show (docs/standards/testing.md).',
+};
+
 const approving = process.env.SCENARIO_APPROVE !== undefined;
 
 declare module 'vite-plus/test/browser' {
@@ -201,8 +207,13 @@ export default defineConfig({
         rules: { 'eslint-js/no-restricted-syntax': 'off' },
       },
       {
+        files: ['src/ui/**/*.harness.ts'],
+        rules: { 'eslint-js/no-restricted-syntax': ['error', waitsOnThePage] },
+      },
+      {
         files: ['src/**/*.component.test.ts'],
         rules: {
+          'eslint-js/no-restricted-syntax': ['error', waitsOnThePage],
           'no-restricted-properties': [
             'error',
             ...restricted([...findsByRoleOrLabel, ...findsAnyOtherWay], findsElementsInADriver),
@@ -233,6 +244,7 @@ export default defineConfig({
       {
         files: ['**/*.dsl.ts'],
         rules: {
+          'eslint-js/no-restricted-syntax': ['error', waitsOnThePage],
           'no-restricted-properties': [
             'error',
             ...restricted(

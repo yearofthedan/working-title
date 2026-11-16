@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import { projectStorageKey } from '../adapters/local-storage-project-store';
 import { cardLooks } from '../ui/card/card';
 import {
   clicking,
@@ -18,9 +19,28 @@ import {
 } from './driver';
 
 export interface PlaywrightDriver extends ReloadingDriver {
-  readonly theAppsName: Locator;
+  readonly theHeaderHeading: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
 }
+
+export const openingANewProjectOn = async (page: Page): Promise<void> => {
+  await page.addInitScript(() => {
+    window.showDirectoryPicker = async () => {
+      const root = await navigator.storage.getDirectory();
+      return await root.getDirectoryHandle('Writing', { create: true });
+    };
+  });
+  await page.goto('/');
+  const project = page.getByRole('navigation', { name: 'Where you are' });
+  if ((await page.evaluate((key) => localStorage.getItem(key), projectStorageKey)) !== null) {
+    await project.waitFor();
+    return;
+  }
+  await page.getByRole('button', { name: 'Choose a folder…', exact: true }).click();
+  await page.getByRole('button', { name: 'Start a project', exact: true }).click();
+  await page.keyboard.press('Enter');
+  await project.waitFor();
+};
 
 export const playwrightReads = (page: Page): AppReads => ({
   drawn: async () => {
@@ -99,7 +119,7 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
         };
         requestAnimationFrame(sample);
       });
-      await page.goto('/');
+      await page.reload();
       return page.evaluate(async () => {
         await document.fonts.ready;
         const { promise, resolve } = Promise.withResolvers<void>();
@@ -112,6 +132,6 @@ export const playwrightDriver = (page: Page, reads: 'main' | 'page' = 'main'): P
           .filter((frame) => frame !== '');
       });
     },
-    theAppsName: page.getByRole('heading', { name: 'working-title' }),
+    theHeaderHeading: page.getByRole('heading', { level: 1 }),
   };
 };

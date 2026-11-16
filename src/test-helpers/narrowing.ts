@@ -1,9 +1,11 @@
 export type Role =
+  | 'alert'
   | 'group'
   | 'button'
   | 'heading'
   | 'main'
   | 'navigation'
+  | 'paragraph'
   | 'textbox'
   | 'toolbar'
   | 'status'

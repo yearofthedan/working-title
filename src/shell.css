@@ -371,6 +371,129 @@ main {
   }
 }
 
+svg {
+  width: var(--text-interface);
+  height: var(--text-interface);
+}
+
+@scope (.your-projects) {
+  :scope {
+    box-sizing: border-box;
+    width: min(38rem, 100%);
+    margin: 12vh auto 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  .folder-question,
+  .project-list {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .project-list {
+    gap: 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .project-list h2 {
+    font-size: var(--text-interface);
+    font-weight: 600;
+    padding-bottom: var(--space-4);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .folder-question > p:last-child {
+    color: var(--color-text-muted);
+  }
+
+  .project-list > p {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+  }
+
+  .project-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .project-list li {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .project-list form {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .project-list label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .project-list input {
+    font-family: var(--font-prose);
+    font-size: 1.5rem;
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--color-focus);
+    padding: 0 0 var(--space-1);
+  }
+
+  .project-list .actions {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+    margin-top: var(--space-2);
+  }
+
+  button {
+    justify-self: start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.4em;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .folder-question > button,
+  button[type='submit'] {
+    border-color: var(--color-focus);
+    background: var(--color-focus);
+    color: var(--color-surface);
+  }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  [role='alert'] {
+    color: var(--color-error);
+  }
+
+  [role='alert'] svg {
+    margin-right: var(--space-2);
+    vertical-align: -0.125em;
+  }
+}
+
 @scope (aside) {
   :scope {
     --panel-heading: 4.5rem;
@@ -481,5 +604,18 @@ main {
         width: 0;
       }
     }
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--move);
+  animation-timing-function: var(--move-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
   }
 }

@@ -91,7 +91,7 @@ Given beat 2 is open beside the graph
 When the writer closes the panel
 Then nothing is open beside the graph
 - banner:
-  - heading [level=1]
+  - heading "Untitled project" [level=1]
   - navigation "Where you are":
     - list:
       - listitem:
@@ -132,7 +132,7 @@ Given beat 2 is open beside the graph
 When the writer presses Esc
 Then nothing is open beside the graph
 - banner:
-  - heading [level=1]
+  - heading "Untitled project" [level=1]
   - navigation "Where you are":
     - list:
       - listitem:

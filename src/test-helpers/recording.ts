@@ -33,7 +33,7 @@ export const recording = (tree: readonly string[]) => {
       calls.push(`scrollToTheEnd ${role} "${name}"${root}`);
     },
     type: async (_text, label, within) => {
-      calls.push(`type ${label} in "${within.name}"`);
+      calls.push(within === undefined ? `type ${label}` : `type ${label} in "${within.name}"`);
     },
     clickAway: async () => {
       calls.push('clickAway');

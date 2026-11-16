@@ -3,7 +3,7 @@
 **Audience:** anyone changing code or deciding where something new belongs.
 **Purpose:** shows the shape of the system and how its decisions fit together. Why each decision was made is in its [record](adr/README.md); terms are in the [ubiquitous language](domain/ubiquitous-language.md).
 
-working-title is a web app that runs entirely in the writer's desktop browser. Each novel is a folder the writer chooses, holding readable Markdown; the app saves their work in browser storage as they type and writes it to the folder in the background. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
+working-title is a web app that runs entirely in the writer's desktop browser. The writer chooses once where their projects are kept; each project is a folder there holding readable Markdown, and the app saves their work in browser storage as they type and writes it to the folder in the background. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
 
 ## The layers
 
@@ -30,11 +30,11 @@ Pieces, facets, links, chapters and the engine that runs a method, named in the 
 
 ### Ports
 
-What the application asks of storage.
+What the application asks of storage: the **project store**, which loads and saves the project, and the **projects folder**, which the writer chooses, which says whether it is a project's own folder, and in which a project's folder is started.
 
 ### Adapters
 
-The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder** is the project: the app writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). The folder is not built yet.
+The **browser working copy** implements the project store: every change is saved here first, so typing never waits on a file. The **file system folders** adapter implements the projects folder through the browser's folder picker. Each project's **folder** is the project: the app makes it in the projects folder, named after the project's title and holding its project file, writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-a-projects-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). Writing the pieces to it is not built yet.
 
 ## Outside the layers
 
@@ -46,7 +46,7 @@ Snowflake, extended, as data the engine reads. The code never names a method ([A
 
 ### Start-up
 
-Opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header and main, places the panel it builds beside main, draws the app and returns the function that stops it ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
+Chooses the screen: it opens the project with the method and the browser working copy and calls `renderApp` in `src/ui/app/app.dom.ts`, which finds the page's header and main, places the panel it builds beside main, draws the app and returns the function that stops it; or, when no project is open yet, it places the component in `src/ui/your-projects/`, which asks where the writer keeps their projects and starts a project in that folder ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
 
 ### Service worker
 
@@ -58,12 +58,12 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** Spans the ports, the browser working copy and the folder. Until the folder is built the browser copy is the only copy ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)).
+- **Persistence.** Spans the ports, the browser working copy and the projects folder. Each project is a folder holding its project file; until the pieces are written to it, the browser copy is the only copy of them ([ADR 11](adr/0011-a-projects-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)).
 
 ## Constraints
 
 - No backend: no server, no accounts, one writer on one device. ([ADR 1](adr/0001-no-backend-in-v1.md))
-- Desktop Chromium only, because reading and writing a folder the writer picks needs the File System Access API. ([ADR 11](adr/0011-the-writers-folder-is-the-project.md))
+- Desktop Chromium only, because reading and writing a folder the writer picks needs the File System Access API. ([ADR 11](adr/0011-a-projects-folder-is-the-project.md))
 
 ## Quality targets
 

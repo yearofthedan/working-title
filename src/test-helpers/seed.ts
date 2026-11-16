@@ -41,6 +41,7 @@ const piecesOf = (
 };
 
 export const aProject = (root: PieceSeed): SeededProject => ({
+  title: '',
   method: snowflakeExtended.name,
   version: snowflakeExtended.version,
   pieces: piecesOf(root, null, 0, ids()),
@@ -60,8 +61,8 @@ export interface HoldingSaves extends ProjectStore {
   release(): void;
 }
 
-export const holdingSaves = (): HoldingSaves => {
-  let held: Project | undefined;
+export const holdingSaves = (start?: Project): HoldingSaves => {
+  let held: Project | undefined = start;
   const waiting: (() => void)[] = [];
   return {
     load: async () => held,
