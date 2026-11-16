@@ -34,7 +34,7 @@ What the application asks of storage: the **project store**, which loads and sav
 
 ### Adapters
 
-The **browser working copy** implements the project store: every change is saved here first, so typing never waits on a file. The **file system folders** adapter implements the projects folder through the browser's folder picker. Each project's **folder** is the project: the app makes it in the projects folder, named after the project's title and holding its project file, writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). Writing the pieces to it is not built yet.
+The **browser working copy** implements the project store: every change is saved here first, so typing never waits on a file. The **file system folders** adapter implements the projects folder through the browser's folder picker. Each project's **folder** is the project: the app makes it in the projects folder, named after the project's title and holding its project file, writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-a-projects-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). Writing the pieces to it is not built yet.
 
 ## Outside the layers
 
@@ -58,12 +58,12 @@ The builder's machine, the agents working in worktrees on it, and CI. Code from 
 
 ## Problems solved
 
-- **Persistence.** Spans the ports, the browser working copy and the projects folder. Each project is a folder holding its project file; until the pieces are written to it, the browser copy is the only copy of them ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)).
+- **Persistence.** Spans the ports, the browser working copy and the projects folder. Each project is a folder holding its project file; until the pieces are written to it, the browser copy is the only copy of them ([ADR 11](adr/0011-a-projects-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)).
 
 ## Constraints
 
 - No backend: no server, no accounts, one writer on one device. ([ADR 1](adr/0001-no-backend-in-v1.md))
-- Desktop Chromium only, because reading and writing a folder the writer picks needs the File System Access API. ([ADR 11](adr/0011-the-writers-folder-is-the-project.md))
+- Desktop Chromium only, because reading and writing a folder the writer picks needs the File System Access API. ([ADR 11](adr/0011-a-projects-folder-is-the-project.md))
 
 ## Quality targets
 

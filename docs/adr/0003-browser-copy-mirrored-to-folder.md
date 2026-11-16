@@ -1,6 +1,6 @@
 # 3. Browser working copy, mirrored to the writer's folder
 
-Status: Superseded by [11](0011-the-writers-folder-is-the-project.md)
+Status: Superseded by [11](0011-a-projects-folder-is-the-project.md)
 
 ## Context
 

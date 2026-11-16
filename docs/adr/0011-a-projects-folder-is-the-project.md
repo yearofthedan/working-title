@@ -1,4 +1,4 @@
-# 11. The writer's folder is the project
+# 11. A project's folder is the project
 
 Status: Proposed, 2026-11-13
 
