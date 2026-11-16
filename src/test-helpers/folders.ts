@@ -60,6 +60,8 @@ export const aChooserTheWriterCancels = () =>
 
 export const aChooserThatFails = () => fileSystemFolders(snowflakeExtended, aPickerThatFails);
 
+export const aChooserWithNoPicker = () => fileSystemFolders(snowflakeExtended, {});
+
 export const aProjectsFolder = (over: Partial<ProjectsFolder> = {}): ProjectsFolder => ({
   name: theProjectsFolderName,
   ownTitle: () => Promise.resolve(undefined),

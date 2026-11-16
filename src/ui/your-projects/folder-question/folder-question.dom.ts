@@ -1,6 +1,6 @@
 import type { ProjectsFolder, ProjectsFolderChooser } from '../../../application/project';
 import { errorIcon } from '../../icons/error.dom';
-import { couldNotOpenTheFolder, refusalFor } from './folder-question';
+import { couldNotOpenTheFolder, noFolderPicker, refusalFor } from './folder-question';
 
 export interface FolderQuestionHooks {
   readonly chooser: ProjectsFolderChooser;
@@ -31,6 +31,10 @@ export const folderQuestion = (hooks: FolderQuestionHooks): FolderQuestion => {
   refusal.setAttribute('role', 'alert');
 
   const chooseTheFolder = async (): Promise<void> => {
+    if (!hooks.chooser.canChoose) {
+      refusal.replaceChildren(errorIcon(), document.createTextNode(noFolderPicker));
+      return;
+    }
     let chosen: ProjectsFolder | undefined;
     try {
       chosen = await hooks.chooser.choose();

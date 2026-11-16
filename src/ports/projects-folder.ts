@@ -6,5 +6,6 @@ export interface ProjectsFolder {
 }
 
 export interface ProjectsFolderChooser {
+  readonly canChoose: boolean;
   choose(): Promise<ProjectsFolder | undefined>;
 }

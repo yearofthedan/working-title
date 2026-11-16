@@ -75,6 +75,7 @@ export const fileSystemFolders = (
   method: Method,
   picker: DirectoryPicker,
 ): ProjectsFolderChooser => ({
+  canChoose: picker.showDirectoryPicker !== undefined,
   choose: async () => {
     if (picker.showDirectoryPicker === undefined) {
       throw new Error('this browser has no folder picker');

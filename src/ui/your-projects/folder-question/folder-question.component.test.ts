@@ -3,6 +3,7 @@ import {
   aChooserGivingTheFolder,
   aChooserThatFails,
   aChooserTheWriterCancels,
+  aChooserWithNoPicker,
   aFolderHoldingProjects,
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
@@ -39,6 +40,18 @@ describe('choosing where the projects are kept', () => {
       .element(whereTheProjectsAreKept().refusal)
       .toHaveTextContent("working-title couldn't open that folder. Try another one.");
     await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
+  });
+
+  it('tells the writer this browser has no folders to keep projects in', async () => {
+    mountFolderQuestion({ chooser: aChooserWithNoPicker() });
+
+    await writer.choosesAFolder();
+
+    await expect
+      .element(whereTheProjectsAreKept().refusal)
+      .toHaveTextContent(
+        "This browser can't keep your projects in a folder. Open working-title in Chrome or Edge on a computer.",
+      );
   });
 
   it('refuses the folder of a project with an icon only the sighted writer sees', async () => {
