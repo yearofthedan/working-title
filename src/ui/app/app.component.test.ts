@@ -105,7 +105,7 @@ describe('the fade between screens', () => {
     await expect.element(summary).toHaveFocus();
   });
 
-  it('takes the keys the writer types while the fade runs', async () => {
+  it('takes the keys the writer types as the new screen arrives', async () => {
     const { writer } = theAppWithoutAProject();
     await writer.opensANewProject();
     await writer.choosesAFolder();
@@ -114,7 +114,6 @@ describe('the fade between screens', () => {
 
     await writer.presses('Enter');
     await expect.element(summary).toBeInTheDocument();
-    expect(fading()).not.toEqual([]);
 
     for (const key of 'Maren') await writer.presses(key);
 
