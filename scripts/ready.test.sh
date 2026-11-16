@@ -253,6 +253,15 @@ expect_err 'failure' "says how the cited run ended"
 expect_one_failure "a run that did not pass"
 
 passing
+body "$ticked" "| Refuses a thing | \`a test\` | seen failing, notes in .omp/agent-notes/217-slice.md |
+"
+ready
+expect_status 1 "refuses a Run cell that cites a path under .omp/"
+expect_err 'Refuses a thing' "names the row citing a path under .omp/"
+refused "a path under .omp/"
+expect_one_failure "a path under .omp/"
+
+passing
 : >"$GH_RUNS"
 ready
 expect_status 1 "refuses a cited run gh cannot read"

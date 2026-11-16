@@ -136,6 +136,9 @@ check_a_row() {
   for link in $(printf '%s' "$run" | grep -oE 'https://github\.com/[^/ )]+/[^/ )]+/actions/runs/[0-9]+(/job/[0-9]+)?' || true); do
     check_a_run "$number" "$criterion" "$link"
   done
+  if printf '%s' "$run" | grep -q '\.omp/'; then
+    fail "row $number (\`$criterion\`) cites a path under .omp/, which is not in the pull request"
+  fi
 }
 
 check_the_rows() {
