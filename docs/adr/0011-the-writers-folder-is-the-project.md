@@ -4,7 +4,7 @@ Status: Proposed, 2026-11-13
 
 ## Context
 
-Which copy of the writer's work does the app trust: the browser's, or the folder they chose?
+Which copy of the writer's work does the app trust: the browser's, or the project's folder?
 
 - **Words never lost.** The first design principle. A crash may lose at most about 2 seconds of typing, and nothing the writer wrote anywhere is overwritten unasked.
 - **Instant typing.** Every keystroke renders within a frame; file writes from a browser are asynchronous and slower than that.

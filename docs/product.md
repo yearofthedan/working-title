@@ -46,7 +46,7 @@ A change at a higher level has effects across the rest of the novel, so changes 
 
 ## Where the writer's work lives
 
-The writer chooses one folder, once, where their projects are kept, and the app makes each project's folder inside it, named after its title. Choosing comes first, so no project exists without a folder, and all of a writer's projects sit in one place they can find, back up or sync. A folder chosen for each project as it starts would ask the writer to place every project, and would leave no one place to list them from.
+The writer chooses one folder, once, where their projects are kept, and the app makes each project's folder inside it, named after its title. Choosing comes first, so every project starts in a folder of its own, and all of a writer's projects sit in one place they can find, back up or sync. A folder chosen for each project as it starts would ask the writer to place every project, and would leave no one place to list them from.
 
 ## Not designed for yet
 
