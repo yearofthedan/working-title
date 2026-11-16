@@ -108,7 +108,10 @@ describe('a free name for a project in the projects folder', () => {
   );
 
   it('is the folder name for the title, not the title itself', async () => {
+    await anEmptyFolderNamed(theFolderOnDisk);
+
     const chosen = await aChosenFolderAt(theFolderOnDisk);
+
     expect(await chosen.freeNameFor('Salt/Year')).toBe('Salt Year');
   });
 
@@ -187,6 +190,7 @@ describe('the title a chosen folder holds in its own project.md', () => {
   });
 
   it('is the title the app wrote there', async () => {
+    await anEmptyFolderNamed(theFolderOnDisk);
     await (await aChosenFolderAt(theFolderOnDisk)).start('The Ferryman');
 
     expect(await (await aChosenFolderAt(theFolderOnDisk, 'The Ferryman')).ownTitle()).toBe(
@@ -195,6 +199,7 @@ describe('the title a chosen folder holds in its own project.md', () => {
   });
 
   it('is empty where the project was started with no title', async () => {
+    await anEmptyFolderNamed(theFolderOnDisk);
     await (await aChosenFolderAt(theFolderOnDisk)).start('');
 
     expect(await (await aChosenFolderAt(theFolderOnDisk, 'Untitled project')).ownTitle()).toBe('');
