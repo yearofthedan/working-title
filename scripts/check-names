@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a file whose name breaks the convention.
+# help: Refuse a file whose name breaks the convention, and a component's *.dom.ts that exports anything but its render<Component> and types.
 
 set -eu
 LC_ALL=C
@@ -74,3 +74,22 @@ if [ -s "$work/phrases" ]; then
 fi
 
 echo "every file naming StepAction is a *.dsl.ts, outside src/test-helpers/"
+
+: >"$work/renders"
+git ls-files -- 'src/ui/*/*.dom.ts' | while IFS= read -r file; do
+  folder=${file#src/ui/}
+  folder=${folder%%/*}
+  [ "${file##*/}" = "$folder.dom.ts" ] || continue
+  wanted=render$(printf '%s' "$folder" | awk -F- '{ for (i = 1; i <= NF; i++) printf "%s%s", toupper(substr($i, 1, 1)), substr($i, 2) }')
+  values=$(git show ":$file" | grep -E '^export ' | grep -v -E '^export (type|interface) ' |
+    sed -E 's/^export (default )?(async )?(const|let|var|function|class|enum)?[[:space:]]*([A-Za-z0-9_$]*).*/\4/' | paste -sd ' ' -)
+  [ "$values" = "$wanted" ] || echo "$file exports ${values:-nothing}, not $wanted alone" >>"$work/renders"
+done
+
+if [ -s "$work/renders" ]; then
+  cat "$work/renders"
+  echo "A component's <component>.dom.ts exports one value, render followed by the component's name, and types beside it; anything else it needs is its own." >&2
+  exit 1
+fi
+
+echo "every component's *.dom.ts exports its render alone"

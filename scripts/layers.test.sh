@@ -174,6 +174,29 @@ run_layers
 allowed "a *.dom.ts importing a *.dom.ts, and a component test importing one, are allowed"
 not_out 'logic-not-on-the-dom' "the rule says nothing where the DOM is in a *.dom.ts"
 
+rm -rf "$project/src/ui"
+write src/ui/card/card.ts "export type CardLook = 'card' | 'chip';
+export const looks: readonly CardLook[] = ['card', 'chip'];"
+write src/ui/card/card.dom.ts "export const renderCard = (): string => 'card';"
+write src/ui/graph/graph.dom.ts "import { looks } from '../card/card';
+export const renderGraph = (): number => looks.length;"
+run_layers
+refused "a component importing a value from another component's plain module is refused"
+expect_out 'a-component-through-its-render: src/ui/graph/graph.dom.ts → src/ui/card/card.ts' \
+  "the two files it joins are named"
+expect_out 'project-structure.md' "the refusal links the page that sets the rule"
+
+write src/ui/graph/graph.dom.ts "import { renderCard } from '../card/card.dom';
+import type { CardLook } from '../card/card';
+export const renderGraph = (look: CardLook): string => renderCard() + look;"
+write src/ui/graph/graph.test.ts "import { looks } from '../card/card';
+export const judged = looks;"
+write src/ui/card/card.test.ts "import { looks } from './card';
+export const judged = looks;"
+run_layers
+allowed "another component's *.dom.ts, a type from its plain module, its own plain module and a test reaching across are allowed"
+not_out 'a-component-through-its-render' "the rule says nothing where a component goes through the render"
+
 rm -rf "$project/src" "$project/e2e"
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/test-helpers/raw-glob.ts 'export interface RawGlob { glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, string>; }'
