@@ -47,8 +47,9 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
   };
 
   const nameFor = async (typed: string): Promise<void> => {
+    if (starting || made !== undefined) return;
     const name = await hooks.folder.freeNameFor(typed).catch(() => undefined);
-    if (title.value !== typed) return;
+    if (starting || made !== undefined || title.value !== typed) return;
     showTheName(name);
   };
   void nameFor('');
@@ -60,8 +61,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
     const typed = made ?? title.value.trim();
     try {
       if (made === undefined) {
-        const theNameItWillBeGiven = await hooks.folder.freeNameFor(typed).catch(() => undefined);
-        await hooks.folder.start(typed);
+        const name = await hooks.folder.start(typed);
         made = typed;
         title.readOnly = true;
         title.value = made;
@@ -70,17 +70,15 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
           named,
           ` in ${hooks.folder.name}.`,
         );
-        showTheName(theNameItWillBeGiven);
+        showTheName(name);
+      }
+      try {
+        await hooks.start(typed);
+      } catch {
+        failed.textContent = couldNotOpenTheProject;
       }
     } catch {
       failed.textContent = couldNotMakeTheFolder;
-      starting = false;
-      return;
-    }
-    try {
-      await hooks.start(typed);
-    } catch {
-      failed.textContent = couldNotOpenTheProject;
     } finally {
       starting = false;
     }

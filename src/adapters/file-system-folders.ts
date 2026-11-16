@@ -60,14 +60,14 @@ const projectsFolder = (method: Method, folder: FileSystemDirectoryHandle): Proj
   freeNameFor: (title) => aFreeName(folder, folderNameFor(title)),
 
   start: async (title) => {
-    const made = await folder.getDirectoryHandle(await aFreeName(folder, folderNameFor(title)), {
-      create: true,
-    });
+    const name = await aFreeName(folder, folderNameFor(title));
+    const made = await folder.getDirectoryHandle(name, { create: true });
     const writable = await (
       await made.getFileHandle(projectFileName, { create: true })
     ).createWritable();
     await writable.write(projectFile(method, title));
     await writable.close();
+    return name;
   },
 });
 

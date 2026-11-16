@@ -168,6 +168,21 @@ describe('starting a project in the projects folder', () => {
       expect(await projectFileIn(onDisk, 'The Ferryman')).toBe('---\ntitle: "The Ferryman"\n---\n');
     },
   );
+
+  it.each([
+    ['the name itself where nothing holds it', [], 'The Ferryman'],
+    ['" 2" where the name is held', ['The Ferryman'], 'The Ferryman 2'],
+    [
+      '" 2" where an entry holds the name in another case alone',
+      ['the ferryman'],
+      'The Ferryman 2',
+    ],
+  ])('gives the name of the folder it made, %s', async (_, taken, made) => {
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+    for (const name of taken) await onDisk.getDirectoryHandle(name, { create: true });
+
+    expect(await (await aChosenFolderAt(theFolderOnDisk)).start('The Ferryman')).toBe(made);
+  });
 });
 
 describe('the title a chosen folder holds in its own project.md', () => {

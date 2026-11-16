@@ -66,7 +66,7 @@ export const aProjectsFolder = (over: Partial<ProjectsFolder> = {}): ProjectsFol
   name: theProjectsFolderName,
   ownTitle: () => Promise.resolve(undefined),
   freeNameFor: (title) => Promise.resolve(folderNameFor(title)),
-  start: () => Promise.resolve(),
+  start: (title) => Promise.resolve(folderNameFor(title)),
   ...over,
 });
 

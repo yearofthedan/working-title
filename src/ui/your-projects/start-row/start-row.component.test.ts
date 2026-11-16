@@ -7,7 +7,6 @@ import {
   theProjectsFolder,
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
-import { settled } from '../../../test-helpers/driver';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { startRowWriterOn } from './start-row.dsl';
 import { mountStartRow } from './start-row.harness';
@@ -57,11 +56,15 @@ describe('starting a project', () => {
   it('tells the writer when a start fails, and lets them start again', async () => {
     const started: string[] = [];
     let refusing = true;
+    const folder = aProjectsFolder();
     mountStartRow({
-      folder: aProjectsFolder({
-        start: () =>
-          refusing ? Promise.reject(new Error('the folder could not be made')) : Promise.resolve(),
-      }),
+      folder: {
+        ...folder,
+        start: (title) =>
+          refusing
+            ? Promise.reject(new Error('the folder could not be made'))
+            : folder.freeNameFor(title),
+      },
       start: async (title) => {
         started.push(title);
       },
@@ -83,14 +86,22 @@ describe('starting a project', () => {
   it('starts the project under the title typed when Start was pressed, whatever is typed while it starts', async () => {
     const made: string[] = [];
     const started: string[] = [];
+    const asked: string[] = [];
     const making = Promise.withResolvers<void>();
+    const folder = aProjectsFolder();
     mountStartRow({
-      folder: aProjectsFolder({
+      folder: {
+        ...folder,
+        freeNameFor: (title) => {
+          asked.push(title);
+          return folder.freeNameFor(title);
+        },
         start: async (title) => {
           made.push(title);
           await making.promise;
+          return await folder.freeNameFor(title);
         },
-      }),
+      },
       start: async (title) => {
         started.push(title);
       },
@@ -103,18 +114,22 @@ describe('starting a project', () => {
 
     await expect.poll(() => started).toEqual(['The Ferryman']);
     expect(made).toEqual(['The Ferryman']);
+    expect(asked).toEqual(['', 'The Ferryman']);
   });
 
   it('makes the folder once when the project fails to open after it, and opens it on the next press', async () => {
     const made: string[] = [];
     const started: string[] = [];
     let opening = false;
+    const folder = aProjectsFolder();
     mountStartRow({
-      folder: aProjectsFolder({
+      folder: {
+        ...folder,
         start: async (title) => {
           made.push(title);
+          return await folder.freeNameFor(title);
         },
-      }),
+      },
       start: async (title) => {
         started.push(title);
         if (!opening) throw new Error('the project could not be opened');
@@ -165,13 +180,16 @@ describe('starting a project', () => {
     const started: string[] = [];
     const making = Promise.withResolvers<void>();
     let opening = false;
+    const folder = aProjectsFolder();
     mountStartRow({
-      folder: aProjectsFolder({
+      folder: {
+        ...folder,
         start: async (title) => {
           made.push(title);
           await making.promise;
+          return await folder.freeNameFor(title);
         },
-      }),
+      },
       start: async (title) => {
         started.push(title);
         if (!opening) throw new Error('the project could not be opened');
@@ -240,6 +258,7 @@ describe('starting a project', () => {
 
   it('keeps the line hidden when an older scan answers after the latest one failed', async () => {
     const theOlderScanAnswered = Promise.withResolvers<void>();
+    const made: string[] = [];
     const folder = aProjectsFolder();
     mountStartRow({
       folder: {
@@ -249,6 +268,10 @@ describe('starting a project', () => {
           if (title === 'The Ferryman 2') throw new Error('the folder could not be read');
           return folder.freeNameFor(title);
         },
+        start: (title) => {
+          made.push(title);
+          return Promise.reject(new Error('the folder could not be made'));
+        },
       },
     });
 
@@ -257,9 +280,13 @@ describe('starting a project', () => {
     await expect.element(theStartRow().said).not.toBeVisible();
 
     theOlderScanAnswered.resolve();
-    await settled();
+    await writer.pressesStart();
 
+    await expect
+      .element(theStartRow().failed)
+      .toHaveTextContent("working-title couldn't make the project's folder. Try again.");
     await expect.element(theStartRow().said).not.toBeVisible();
+    expect(made).toEqual(['The Ferryman 2']);
   });
 
   it('keeps the line shown when a stale scan fails after the latest one answered', async () => {
@@ -275,6 +302,7 @@ describe('starting a project', () => {
           }
           return folder.freeNameFor(title);
         },
+        start: () => Promise.reject(new Error('the folder could not be made')),
       },
     });
 
@@ -287,13 +315,78 @@ describe('starting a project', () => {
       );
 
     theLatestScanLanded.resolve();
-    await settled();
+    await writer.pressesStart();
 
+    await expect
+      .element(theStartRow().failed)
+      .toHaveTextContent("working-title couldn't make the project's folder. Try again.");
     await expect.element(theStartRow().said).toBeVisible();
     await expect
       .element(theStartRow().said)
       .toHaveTextContent(
         `working-title will make a folder named The Ferryman 2 in ${theProjectsFolderName}.`,
+      );
+  });
+
+  it('names the folder it made when a keystroke’s scan answers after the make', async () => {
+    const theKeystrokeScanAnswers = Promise.withResolvers<string>();
+    const folder = aProjectsFolder();
+    let opening = false;
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: (title) =>
+          title === 'The Ferryman' ? theKeystrokeScanAnswers.promise : folder.freeNameFor(title),
+      },
+      start: async () => {
+        if (!opening) throw new Error('the project could not be opened');
+      },
+    });
+
+    await writer.typesTheTitle('The Ferryman');
+    await writer.pressesStart();
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+
+    theKeystrokeScanAnswers.resolve('The Ferryman 9');
+    opening = true;
+    await writer.pressesStart();
+
+    await expect.element(theStartRow().failed).toBeEmptyDOMElement();
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+  });
+
+  it('names the folder it made when the folder could not be read before the writer pressed Start', async () => {
+    const folder = aProjectsFolder();
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: () => Promise.reject(new Error('the folder could not be read')),
+      },
+      start: () => Promise.reject(new Error('the project could not be opened')),
+    });
+    await writer.typesTheTitle('The Ferryman');
+    await expect.element(theStartRow().said).not.toBeVisible();
+
+    await writer.pressesStart();
+
+    await expect.element(theStartRow().said).toBeVisible();
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+    await expect
+      .element(theStartRow().failed)
+      .toHaveTextContent(
+        "working-title made the project's folder but couldn't open the project. Try again.",
       );
   });
 });
