@@ -4,7 +4,6 @@ import {
   aChooserThatFails,
   aChooserTheWriterCancels,
   aFolderHoldingProjects,
-  thePickerGivesTheFolderAt,
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
@@ -44,8 +43,9 @@ describe('choosing where the projects are kept', () => {
 
   it('refuses the folder of a project with an icon only the sighted writer sees', async () => {
     await aFolderHoldingProjects(theProjectsFolderName, ['The Ferryman']);
-    thePickerGivesTheFolderAt(theProjectsFolderName, 'The Ferryman');
-    mountFolderQuestion({ chooser: aChooserGivingTheFolder() });
+    mountFolderQuestion({
+      chooser: aChooserGivingTheFolder(theProjectsFolderName, 'The Ferryman'),
+    });
 
     await writer.choosesAFolder();
 

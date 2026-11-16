@@ -7,16 +7,20 @@ export interface ProjectListWriter extends StartRowWriter {
   startsAProjectWithNoTitle(): Promise<void>;
 }
 
-export const projectListWriterOn = (driver: Driver): ProjectListWriter => ({
-  ...startRowWriterOn(driver),
-  startsAProject: () => driver.click('button', 'Start a project'),
-  startsAProjectTitled: async (title) => {
-    await driver.click('button', 'Start a project');
-    await driver.type(title, 'Title');
-    await driver.click('button', 'Start project');
-  },
-  startsAProjectWithNoTitle: async () => {
-    await driver.click('button', 'Start a project');
-    await driver.click('button', 'Start project');
-  },
-});
+export const projectListWriterOn = (driver: Driver): ProjectListWriter => {
+  const row = startRowWriterOn(driver);
+  const startsAProject = (): Promise<void> => driver.click('button', 'Start a project');
+  return {
+    ...row,
+    startsAProject,
+    startsAProjectTitled: async (title) => {
+      await startsAProject();
+      await row.typesTheTitle(title);
+      await row.pressesStart();
+    },
+    startsAProjectWithNoTitle: async () => {
+      await startsAProject();
+      await row.pressesStart();
+    },
+  };
+};

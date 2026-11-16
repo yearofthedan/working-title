@@ -10,7 +10,6 @@ import {
   aFolderHoldingProjects,
   aPickerGivingTheFolder,
   anEmptyFolderNamed,
-  thePickerGivesTheFolderAt,
   theProjectsFolderName,
 } from '../../test-helpers/folders';
 import { thePage } from '../../test-helpers/staging';
@@ -28,11 +27,14 @@ import {
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
-const stageTheApp = async (width: number, on: Staging): Promise<void> => {
+const stageTheApp = async (
+  width: number,
+  on: Staging,
+  picker = aPickerGivingTheFolder(theProjectsFolderName),
+): Promise<void> => {
   await anEmptyFolderNamed(theProjectsFolderName);
-  thePickerGivesTheFolderAt(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, { picker: aPickerGivingTheFolder, ...on });
+  await openTheApp(document, { ...on, picker });
 };
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
@@ -74,13 +76,17 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => (
   },
   keepsProjectsInAFolderHolding: (titles) => theAppInAFolder(driver, titles),
   choosesTheFolderNamed: async (name) => {
-    thePickerGivesTheFolderAt(name);
+    await stageTheApp(1440, { store: inMemory() }, aPickerGivingTheFolder(name));
     await writer.choosesAFolder();
     await expect.element(theHeader().heading).toHaveTextContent('Your projects');
   },
   choosesTheProjectFolder: async (title) => {
+    await stageTheApp(
+      1440,
+      { store: inMemory() },
+      aPickerGivingTheFolder(theProjectsFolderName, title),
+    );
     await aFolderHoldingProjects(theProjectsFolderName, [title]);
-    thePickerGivesTheFolderAt(theProjectsFolderName, title);
     await writer.choosesAFolder();
     await expect
       .element(yourProjects().question.refusal)

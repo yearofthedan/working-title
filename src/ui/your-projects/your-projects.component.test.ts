@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  anEmptyFolderNamed,
-  thePickerGivesTheFolderAt,
-  theProjectsFolderName,
-} from '../../test-helpers/folders';
+import { anEmptyFolderNamed, theProjectsFolderName } from '../../test-helpers/folders';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { yourProjectsWriterOn } from './your-projects.dsl';
 import { mountYourProjects } from './your-projects.harness';
@@ -15,7 +11,6 @@ const writer = yourProjectsWriterOn(driver);
 describe('choosing where the projects are kept', () => {
   it('asks until the writer chooses a folder, then shows the list of projects in it', async () => {
     await anEmptyFolderNamed(theProjectsFolderName);
-    thePickerGivesTheFolderAt(theProjectsFolderName);
     mountYourProjects();
 
     await expect.element(yourProjects().question.chooseAFolder).toBeInTheDocument();

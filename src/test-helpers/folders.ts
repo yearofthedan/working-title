@@ -6,8 +6,6 @@ import type { Entry } from './folder';
 
 export const theProjectsFolderName = 'Writing';
 
-let given: readonly string[] = [theProjectsFolderName];
-
 const folderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
   let folder = await navigator.storage.getDirectory();
   for (const name of path) folder = await folder.getDirectoryHandle(name, { create: true });
@@ -31,21 +29,14 @@ export const aFolderHoldingProjects = async (
   name: string,
   titles: readonly string[],
 ): Promise<void> => {
-  const folder = await anEmptyFolderNamed(name);
-  const projects = await fileSystemFolders(snowflakeExtended, {
-    showDirectoryPicker: async () => folder,
-  }).choose();
-  if (projects === undefined) throw new Error('the picker gave nothing');
+  await anEmptyFolderNamed(name);
+  const projects = await aChosenFolderAt(name);
   for (const title of titles) await projects.start(title);
 };
 
-export const thePickerGivesTheFolderAt = (...path: readonly string[]): void => {
-  given = path;
-};
-
-export const aPickerGivingTheFolder: DirectoryPicker = {
-  showDirectoryPicker: () => folderAt(given),
-};
+export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker => ({
+  showDirectoryPicker: () => folderAt(path),
+});
 
 export const aPickerTheWriterCancels: DirectoryPicker = {
   showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),
@@ -55,8 +46,14 @@ export const aPickerThatFails: DirectoryPicker = {
   showDirectoryPicker: () => Promise.reject(new Error('the folder could not be opened')),
 };
 
-export const aChooserGivingTheFolder = () =>
-  fileSystemFolders(snowflakeExtended, aPickerGivingTheFolder);
+export const aChooserGivingTheFolder = (...path: readonly string[]) =>
+  fileSystemFolders(snowflakeExtended, aPickerGivingTheFolder(...path));
+
+export const aChosenFolderAt = async (...path: readonly string[]): Promise<ProjectsFolder> => {
+  const chosen = await aChooserGivingTheFolder(...path).choose();
+  if (chosen === undefined) throw new Error('the picker gave nothing');
+  return chosen;
+};
 
 export const aChooserTheWriterCancels = () =>
   fileSystemFolders(snowflakeExtended, aPickerTheWriterCancels);

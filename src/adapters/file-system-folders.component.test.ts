@@ -1,25 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { snowflakeExtended } from '../methods/snowflake-extended';
-import type { ProjectsFolder } from '../ports/projects-folder';
+import { aChosenFolderAt, anEmptyFolderNamed } from '../test-helpers/folders';
 import { fileSystemFolders, type DirectoryPicker } from './file-system-folders';
 
 const theFolderOnDisk = 'a folder on disk';
-
-const anEmptyFolder = async (name: string): Promise<FileSystemDirectoryHandle> => {
-  const root = await navigator.storage.getDirectory();
-  await root.removeEntry(name, { recursive: true }).catch(() => undefined);
-  return await root.getDirectoryHandle(name, { create: true });
-};
-
-const picking = (folder: FileSystemDirectoryHandle): DirectoryPicker => ({
-  showDirectoryPicker: async () => folder,
-});
-
-const choosing = async (onDisk: FileSystemDirectoryHandle): Promise<ProjectsFolder> => {
-  const chosen = await fileSystemFolders(snowflakeExtended, picking(onDisk)).choose();
-  if (chosen === undefined) throw new Error('the picker gave nothing');
-  return chosen;
-};
 
 const entryNamesIn = async (folder: FileSystemDirectoryHandle): Promise<string[]> => {
   const names: string[] = [];
@@ -48,7 +32,10 @@ const writingIn = async (
 
 describe('choosing where projects are kept', () => {
   it('gives the folder the picker returns, named as it is', async () => {
-    const chosen = await choosing(await anEmptyFolder(theFolderOnDisk));
+    await anEmptyFolderNamed(theFolderOnDisk);
+
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
+
     expect(chosen.name).toBe(theFolderOnDisk);
   });
 
@@ -57,7 +44,7 @@ describe('choosing where projects are kept', () => {
     const picker: DirectoryPicker = {
       showDirectoryPicker: async (options) => {
         asked.push(options);
-        return await anEmptyFolder(theFolderOnDisk);
+        return await anEmptyFolderNamed(theFolderOnDisk);
       },
     };
 
@@ -97,8 +84,8 @@ describe('choosing where projects are kept', () => {
 
 describe('a free name for a project in the projects folder', () => {
   it('is the name itself where nothing holds it, " 2" where that is taken, and " 3" where both are', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    const chosen = await choosing(onDisk);
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
 
     expect(await chosen.freeNameFor('The Ferryman')).toBe('The Ferryman');
     await onDisk.getDirectoryHandle('The Ferryman', { create: true });
@@ -113,21 +100,21 @@ describe('a free name for a project in the projects folder', () => {
   ])(
     'counts a name as taken where an entry differs by %s, since macOS and Windows disks ignore case',
     async (_, taken, title) => {
-      const onDisk = await anEmptyFolder(theFolderOnDisk);
+      const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
       await onDisk.getDirectoryHandle(taken, { create: true });
 
-      expect(await (await choosing(onDisk)).freeNameFor(title)).toBe(`${title} 2`);
+      expect(await (await aChosenFolderAt(theFolderOnDisk)).freeNameFor(title)).toBe(`${title} 2`);
     },
   );
 
   it('is the folder name for the title, not the title itself', async () => {
-    const chosen = await choosing(await anEmptyFolder(theFolderOnDisk));
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
     expect(await chosen.freeNameFor('Salt/Year')).toBe('Salt Year');
   });
 
   it('counts a file holding the name as taken', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    const chosen = await choosing(onDisk);
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
     await writingIn(onDisk, 'The Ferryman', '');
 
     expect(await chosen.freeNameFor('The Ferryman')).toBe('The Ferryman 2');
@@ -138,8 +125,8 @@ describe('a free name for a project in the projects folder', () => {
 
 describe('starting a project in the projects folder', () => {
   it('makes the project’s folder under the title and writes project.md holding the title, the method and the version', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    const chosen = await choosing(onDisk);
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
 
     await chosen.start('The Ferryman');
 
@@ -150,8 +137,8 @@ describe('starting a project in the projects folder', () => {
   });
 
   it('makes the folder "Untitled project" holding an empty title where the writer gave none', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    const chosen = await choosing(onDisk);
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+    const chosen = await aChosenFolderAt(theFolderOnDisk);
 
     await chosen.start('');
 
@@ -167,8 +154,8 @@ describe('starting a project in the projects folder', () => {
   ])(
     'makes its folder beside a project named %s, leaving that project’s file as it was',
     async (title, names) => {
-      const onDisk = await anEmptyFolder(theFolderOnDisk);
-      const chosen = await choosing(onDisk);
+      const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
+      const chosen = await aChosenFolderAt(theFolderOnDisk);
       const taken = await onDisk.getDirectoryHandle('The Ferryman', { create: true });
       await writingIn(taken, 'project.md', '---\ntitle: "The Ferryman"\n---\n');
 
@@ -193,27 +180,29 @@ describe('the title a chosen folder holds in its own project.md', () => {
       'My Book',
     ],
   ])('reads the title %s holds', async (what, file, title) => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
+    const onDisk = await anEmptyFolderNamed(theFolderOnDisk);
     await writingIn(onDisk, 'project.md', file);
 
-    expect(await (await choosing(onDisk)).ownTitle()).toBe(title);
+    expect(await (await aChosenFolderAt(theFolderOnDisk)).ownTitle()).toBe(title);
   });
 
   it('is the title the app wrote there', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    await (await choosing(onDisk)).start('The Ferryman');
-    const project = await onDisk.getDirectoryHandle('The Ferryman');
-    expect(await (await choosing(project)).ownTitle()).toBe('The Ferryman');
+    await (await aChosenFolderAt(theFolderOnDisk)).start('The Ferryman');
+
+    expect(await (await aChosenFolderAt(theFolderOnDisk, 'The Ferryman')).ownTitle()).toBe(
+      'The Ferryman',
+    );
   });
 
   it('is empty where the project was started with no title', async () => {
-    const onDisk = await anEmptyFolder(theFolderOnDisk);
-    await (await choosing(onDisk)).start('');
-    const project = await onDisk.getDirectoryHandle('Untitled project');
-    expect(await (await choosing(project)).ownTitle()).toBe('');
+    await (await aChosenFolderAt(theFolderOnDisk)).start('');
+
+    expect(await (await aChosenFolderAt(theFolderOnDisk, 'Untitled project')).ownTitle()).toBe('');
   });
 
   it('is nothing where the folder holds no project.md', async () => {
-    expect(await (await choosing(await anEmptyFolder(theFolderOnDisk))).ownTitle()).toBeUndefined();
+    await anEmptyFolderNamed(theFolderOnDisk);
+
+    expect(await (await aChosenFolderAt(theFolderOnDisk)).ownTitle()).toBeUndefined();
   });
 });

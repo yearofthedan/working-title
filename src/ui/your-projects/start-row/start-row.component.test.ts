@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import {
-  aChooserGivingTheFolder,
+  aChosenFolderAt,
   aProjectsFolder,
   anEmptyFolderNamed,
   theEntriesIn,
-  thePickerGivesTheFolderAt,
   theProjectsFolder,
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
@@ -35,9 +34,7 @@ describe('starting a project', () => {
     const started: string[] = [];
     const saving = Promise.withResolvers<void>();
     await anEmptyFolderNamed(theProjectsFolderName);
-    thePickerGivesTheFolderAt(theProjectsFolderName);
-    const chosen = await aChooserGivingTheFolder().choose();
-    if (chosen === undefined) throw new Error('the picker gave nothing');
+    const chosen = await aChosenFolderAt(theProjectsFolderName);
     mountStartRow({
       folder: chosen,
       start: async (title) => {
