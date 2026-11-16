@@ -94,6 +94,63 @@ describe('starting a project', () => {
     expect(started).toEqual(['The Ferryman']);
   });
 
+  it('does not name the older text when a held read lands after the writer types again', async () => {
+    vi.useFakeTimers();
+    const theHeldRead = Promise.withResolvers<string>();
+    const theLaterRead = Promise.withResolvers<string>();
+    const theLaterReadBegun = Promise.withResolvers<void>();
+    const folder = aProjectsFolder();
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: (title) => {
+          if (title === 'The Ferryman') return theHeldRead.promise;
+          if (title === 'The Ghost') {
+            theLaterReadBegun.resolve();
+            return theLaterRead.promise;
+          }
+          return folder.freeNameFor(title);
+        },
+      },
+    });
+
+    await writer.typesTheTitle('The Ferryman');
+    await vi.advanceTimersByTimeAsync(thePauseBeforeReading);
+
+    await writer.typesTheTitle('The Ghost');
+    await vi.advanceTimersByTimeAsync(thePauseBeforeReading);
+    theHeldRead.resolve('The Ferryman 2');
+    await theLaterReadBegun.promise;
+
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title will make a folder named Untitled project in ${theProjectsFolderName}.`,
+      );
+  });
+
+  it('reads the folder once when a press inside the pause is followed by the pause passing', async () => {
+    vi.useFakeTimers();
+    const asked: string[] = [];
+    const folder = aProjectsFolder();
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: (title) => {
+          asked.push(title);
+          return folder.freeNameFor(title);
+        },
+      },
+      start: async () => undefined,
+    });
+
+    await writer.typesTheTitle('The Ferryman');
+    await writer.pressesStart();
+    await vi.advanceTimersByTimeAsync(thePauseBeforeReading);
+
+    expect(asked).toEqual(['', 'The Ferryman']);
+  });
+
   it('waits for the read in hand before starting, when the writer presses Start while the folder is read', async () => {
     vi.useFakeTimers();
     const asked: string[] = [];
