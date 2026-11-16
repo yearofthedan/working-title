@@ -6,7 +6,7 @@ import type { Entry } from './folder';
 
 export const theProjectsFolderName = 'Writing';
 
-const folderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
+export const theFolderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
   let folder = await navigator.storage.getDirectory();
   for (const name of path) folder = await folder.getDirectoryHandle(name, { create: true });
   return folder;
@@ -20,10 +20,10 @@ const emptied = async (folder: FileSystemDirectoryHandle): Promise<FileSystemDir
 };
 
 export const theProjectsFolder = async (): Promise<FileSystemDirectoryHandle> =>
-  await folderAt([theProjectsFolderName]);
+  await theFolderAt([theProjectsFolderName]);
 
 export const anEmptyFolderNamed = async (name: string): Promise<FileSystemDirectoryHandle> =>
-  await emptied(await folderAt([name]));
+  await emptied(await theFolderAt([name]));
 
 export const aFolderHoldingProjects = async (
   name: string,
@@ -35,7 +35,7 @@ export const aFolderHoldingProjects = async (
 };
 
 export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker => ({
-  showDirectoryPicker: () => folderAt(path),
+  showDirectoryPicker: () => theFolderAt(path),
 });
 
 export const aPickerTheWriterCancels: DirectoryPicker = {
