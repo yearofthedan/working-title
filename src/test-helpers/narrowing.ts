@@ -67,7 +67,7 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
     if (under >= 0 && indent <= under) under = -1;
     const role = roleOn(line);
     const here = namedOn(line);
-    const inside = open.findLast((line) => line.named !== undefined)?.named;
+    const inside = open.findLast((entry) => entry.named !== undefined)?.named;
     const found = parts.filter(
       (part) =>
         part.role === role &&

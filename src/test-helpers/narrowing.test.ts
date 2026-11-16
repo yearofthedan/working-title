@@ -171,6 +171,22 @@ describe('narrowing to a part inside another part', () => {
     ]);
   });
 
+  it('keeps a card whose heading holds no name button, and no other card', () => {
+    expect(
+      narrowing(cards, [
+        {
+          role: 'textbox',
+          name: 'One-sentence summary',
+          within: { role: 'group', name: 'The story' },
+        },
+      ]),
+    ).toEqual([
+      '- main:',
+      '  - group "The story" [current]:',
+      '    - textbox "One-sentence summary": A widow hunts the man who sank her husband\u2019s ship',
+    ]);
+  });
+
   it('refuses a line it holds outside the part it names, so a record cannot silently empty', () => {
     expect(() =>
       narrowing(page, [
@@ -211,7 +227,12 @@ describe('narrowing to a part that names a role alone', () => {
   });
 
   it('keeps a named line of that role too, since the name is not asked for', () => {
-    expect(narrowing(tree, [{ role: 'group' }])).toEqual(tree);
+    expect(
+      narrowing(
+        [...tree, '- complementary "Beat 4":', '  - heading "Beat 4" [level=2]'],
+        [{ role: 'group' }],
+      ),
+    ).toEqual(tree);
   });
 
   it('keeps every line of that role where the tree holds more than one', () => {
