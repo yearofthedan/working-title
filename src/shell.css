@@ -369,8 +369,15 @@ main {
       transition: opacity var(--move) var(--move-ease);
     }
   }
+}
 
-  :is(.choosing-the-projects-folder, .your-projects) {
+svg {
+  width: var(--text-interface);
+  height: var(--text-interface);
+}
+
+@scope (.your-projects) {
+  :scope {
     box-sizing: border-box;
     width: min(38rem, 100%);
     margin: 12vh auto 0;
@@ -380,16 +387,75 @@ main {
     font-size: var(--text-interface);
   }
 
-  :is(.choosing-the-projects-folder, .your-projects) h2 {
+  :scope.listed {
+    gap: 0;
+  }
+
+  h2 {
     margin: 0;
     font-size: 1.5rem;
   }
 
-  :is(.choosing-the-projects-folder, .your-projects) p {
+  :scope.listed h2 {
+    font-size: var(--text-interface);
+    font-weight: 600;
+    padding-bottom: var(--space-4);
+  }
+
+  p {
     margin: 0;
   }
 
-  :is(.choosing-the-projects-folder, .your-projects) button {
+  :scope > p:last-child {
+    color: var(--color-text-muted);
+  }
+
+  :scope.listed > p {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+  }
+
+  :scope.listed ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  :scope.listed li {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  :scope.listed form {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  :scope.listed label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  :scope.listed input {
+    font-family: var(--font-prose);
+    font-size: 1.5rem;
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--color-focus);
+    padding: 0 0 var(--space-1);
+  }
+
+  :scope.listed .actions {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+    margin-top: var(--space-2);
+  }
+
+  button {
     justify-self: start;
     padding: var(--space-3) var(--space-4);
     border: 1px solid var(--color-edge);
@@ -401,90 +467,26 @@ main {
     cursor: pointer;
   }
 
-  :is(.choosing-the-projects-folder > button, .your-projects button[type='submit']) {
+  :scope > button,
+  button[type='submit'] {
     border-color: var(--color-focus);
     background: var(--color-focus);
     color: var(--color-surface);
   }
 
-  :is(.choosing-the-projects-folder, .your-projects) button:focus-visible {
+  button:focus-visible,
+  input:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: var(--space-1);
   }
 
-  .choosing-the-projects-folder > p:last-child {
-    color: var(--color-text-muted);
-  }
-
-  .choosing-the-projects-folder [role='alert'] {
+  [role='alert'] {
     color: var(--color-error);
   }
 
-  .choosing-the-projects-folder [role='alert'] svg {
-    width: 1em;
-    height: 1em;
+  [role='alert'] svg {
     margin-right: var(--space-2);
     vertical-align: -0.125em;
-  }
-
-  .your-projects {
-    gap: 0;
-  }
-
-  .your-projects h2 {
-    font-size: var(--text-interface);
-    font-weight: 600;
-    padding-bottom: var(--space-4);
-  }
-
-  .your-projects ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .your-projects li {
-    padding: var(--space-6) 0;
-    border-top: 1px solid var(--color-line);
-  }
-
-  .your-projects > p {
-    padding: var(--space-6) 0;
-    border-top: 1px solid var(--color-line);
-    border-bottom: 1px solid var(--color-line);
-    color: var(--color-text-muted);
-  }
-
-  .your-projects form {
-    display: grid;
-    gap: var(--space-2);
-  }
-
-  .your-projects label {
-    font-size: var(--text-small);
-    color: var(--color-text-muted);
-  }
-
-  .your-projects input {
-    font-family: var(--font-prose);
-    font-size: 1.5rem;
-    color: inherit;
-    background: none;
-    border: none;
-    border-bottom: 2px solid var(--color-focus);
-    padding: 0 0 var(--space-1);
-  }
-
-  .your-projects input:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: var(--space-1);
-  }
-
-  .your-projects .actions {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-6);
-    margin-top: var(--space-2);
   }
 }
 

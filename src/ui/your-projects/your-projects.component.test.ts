@@ -1,0 +1,152 @@
+import { describe, expect, it } from 'vite-plus/test';
+import type { ProjectsFolder } from '../../application/project';
+import {
+  aChooserGivingTheFolder,
+  aChooserThatFails,
+  aChooserTheWriterCancels,
+  aFolderHoldingProjects,
+  anEmptyFolderNamed,
+  theEntriesIn,
+  thePickerGivesTheFolderAt,
+  theProjectsFolder,
+  theProjectsFolderName,
+} from '../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { yourProjectsSeesOn, yourProjectsWriterOn } from './your-projects.dsl';
+import { mountYourProjects } from './your-projects.harness';
+import { whereTheProjectsAreKept, yourProjects } from './your-projects.test-page';
+
+const driver = vitestBrowserDriver();
+const writer = yourProjectsWriterOn(driver);
+const sees = yourProjectsSeesOn(driver);
+
+const theRefusal =
+  "“The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.";
+
+const reachingYourProjects = async (): Promise<void> => {
+  await anEmptyFolderNamed(theProjectsFolderName);
+  thePickerGivesTheFolderAt(theProjectsFolderName);
+  mountYourProjects();
+  await writer.choosesAFolder();
+};
+
+describe('choosing where the projects are kept', () => {
+  it('leaves the first screen as it was when the writer cancels the folder picker', async () => {
+    mountYourProjects({ chooser: aChooserTheWriterCancels() });
+    const before = await sees.tree();
+
+    await writer.choosesAFolder();
+
+    await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
+    await expect.element(whereTheProjectsAreKept().refusal).toBeEmptyDOMElement();
+    expect(await sees.tree()).toEqual(before);
+  });
+
+  it("tells the writer when a folder won't open", async () => {
+    mountYourProjects({ chooser: aChooserThatFails() });
+
+    await writer.choosesAFolder();
+
+    await expect
+      .element(whereTheProjectsAreKept().refusal)
+      .toHaveTextContent("working-title couldn't open that folder. Try another one.");
+    await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
+  });
+
+  it('refuses the folder of a project with an icon only the sighted writer sees', async () => {
+    await aFolderHoldingProjects(theProjectsFolderName, ['The Ferryman']);
+    thePickerGivesTheFolderAt(theProjectsFolderName, 'The Ferryman');
+    mountYourProjects({ chooser: aChooserGivingTheFolder() });
+
+    await writer.choosesAFolder();
+
+    await expect
+      .poll(async () =>
+        (await sees.tree()).map((line) => line.trim()).filter((line) => line.startsWith('- alert')),
+      )
+      .toEqual([`- alert: ${theRefusal}`]);
+    await expect.element(whereTheProjectsAreKept().refusalIcon).toBeInTheDocument();
+  });
+});
+
+describe('starting a project', () => {
+  it('follows what is typed with the name of the folder it will make', async () => {
+    await reachingYourProjects();
+    await writer.startsAProject();
+
+    await expect
+      .poll(() => yourProjects().said.element().textContent)
+      .toMatch(/^working-title will make a folder named Untitled project in .+\.$/);
+
+    await writer.typesTheTitle('The Ferryman');
+
+    await expect
+      .poll(() => yourProjects().said.element().textContent)
+      .toMatch(/^working-title will make a folder named The Ferryman in .+\.$/);
+  });
+
+  it('makes one project folder and starts one project when the writer presses Start twice', async () => {
+    const started: string[] = [];
+    const saving = Promise.withResolvers<void>();
+    await anEmptyFolderNamed(theProjectsFolderName);
+    thePickerGivesTheFolderAt(theProjectsFolderName);
+    mountYourProjects({
+      start: async (title) => {
+        started.push(title);
+        await saving.promise;
+      },
+    });
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+
+    await writer.pressesStart();
+    await writer.pressesStart();
+    saving.resolve();
+
+    await expect
+      .poll(async () => (await theEntriesIn(await theProjectsFolder())).map(({ name }) => name))
+      .toEqual(['Untitled project']);
+    expect(started).toEqual(['']);
+  });
+
+  it('tells the writer when a start fails, and lets them start again', async () => {
+    const started: string[] = [];
+    let refusing = true;
+    const folder: ProjectsFolder = {
+      name: theProjectsFolderName,
+      ownTitle: () => Promise.resolve(undefined),
+      freeNameFor: (title) => Promise.resolve(title),
+      start: () =>
+        refusing ? Promise.reject(new Error('the folder could not be made')) : Promise.resolve(),
+    };
+    mountYourProjects({
+      chooser: { choose: () => Promise.resolve(folder) },
+      start: async (title) => {
+        started.push(title);
+      },
+    });
+    await writer.choosesAFolder();
+    await writer.startsAProject();
+
+    await writer.pressesStart();
+
+    await expect
+      .element(yourProjects().startFailed)
+      .toHaveTextContent("working-title couldn't make the project's folder. Try again.");
+
+    refusing = false;
+    await writer.pressesStart();
+
+    await expect.element(yourProjects().startFailed).toBeEmptyDOMElement();
+    expect(started).toEqual(['']);
+  });
+
+  it('puts the focus back on "Start a project" when the writer cancels', async () => {
+    await reachingYourProjects();
+    await writer.startsAProject();
+
+    await writer.cancelsTheStart();
+
+    await expect.element(yourProjects().startAProject).toHaveFocus();
+  });
+});

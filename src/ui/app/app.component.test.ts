@@ -12,24 +12,14 @@ import {
   anInMemoryProject,
   aProjectWithScenesUnderBeatFour,
   holdingSaves,
-  holdingTheFirstSave,
   inMemory,
 } from '../../test-helpers/seed';
-import {
-  aFolderHoldingProjects,
-  aPageWithoutAHeader,
-  aPageWithoutAMain,
-  aPickerTheWriterCancels,
-  narrowThePane,
-  theEntriesIn,
-  thePickerGivesTheFolderAt,
-  theProjectsFolder,
-  theProjectsFolderName,
-} from '../../test-helpers/staging';
+import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
+import { whereTheProjectsAreKept, yourProjects } from '../your-projects/your-projects.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
 import {
@@ -38,17 +28,9 @@ import {
   theAppWaitingForANewVersion,
   theAppWithoutAProject,
 } from './app.harness';
-import {
-  theHeader,
-  thePanelBesideTheGraph,
-  whereTheProjectsAreKept,
-  yourProjects,
-} from './app.test-page';
+import { theHeader } from './app.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
-
-const theRefusal =
-  "“The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.";
 
 const boxes = (): readonly string[] => everyCard().map((card) => `${nameOf(card)} ${boxOf(card)}`);
 
@@ -94,70 +76,6 @@ describe('a new version waiting', () => {
     await expect.element(notice).toHaveTextContent('A new version is ready. Reload');
 
     expect(rightOf(path.element())).toBeLessThan(leftOf(notice.element()));
-  });
-});
-
-describe('starting a project', () => {
-  it('leaves the first screen as it was when the writer cancels the folder picker', async () => {
-    const { writer, sees } = theAppWithoutAProject({ picker: aPickerTheWriterCancels });
-    await writer.opensANewProject();
-    const before = await sees.tree();
-
-    await writer.choosesAFolder();
-
-    await expect.element(whereTheProjectsAreKept().chooseAFolder).toBeInTheDocument();
-    await expect.element(whereTheProjectsAreKept().refusal).toBeEmptyDOMElement();
-    expect(await sees.tree()).toEqual(before);
-  });
-
-  it('refuses the folder of a project with an icon only the sighted writer sees', async () => {
-    const { writer, sees } = theAppWithoutAProject();
-    await writer.opensANewProject();
-    await aFolderHoldingProjects(theProjectsFolderName, ['The Ferryman']);
-    thePickerGivesTheFolderAt(theProjectsFolderName, 'The Ferryman');
-
-    await writer.choosesAFolder();
-
-    await expect
-      .poll(async () =>
-        (await sees.tree()).map((line) => line.trim()).filter((line) => line.startsWith('- alert')),
-      )
-      .toEqual([`- alert: ${theRefusal}`]);
-    await expect.element(whereTheProjectsAreKept().refusalIcon).toBeInTheDocument();
-  });
-
-  it('follows what is typed with the name of the folder it will make', async () => {
-    const { writer } = theAppWithoutAProject();
-    await writer.opensANewProject();
-    await writer.choosesAFolder();
-    await writer.startsAProject();
-    await expect
-      .poll(() => yourProjects().said.element().textContent)
-      .toMatch(/^working-title will make a folder named Untitled project in .+\.$/);
-
-    await writer.typesTheTitle('The Ferryman');
-
-    await expect
-      .poll(() => yourProjects().said.element().textContent)
-      .toMatch(/^working-title will make a folder named The Ferryman in .+\.$/);
-  });
-
-  it('makes one project folder and one panel when the writer presses Start twice', async () => {
-    const store = holdingTheFirstSave();
-    const { writer } = theAppWithoutAProject({ store });
-    await writer.opensANewProject();
-    await writer.choosesAFolder();
-    await writer.startsAProject();
-
-    await writer.pressesStart();
-    await writer.pressesStart();
-    store.release();
-    await expect.element(theCard('The story').card).toBeInTheDocument();
-
-    expect((await theEntriesIn(await theProjectsFolder())).map(({ name }) => name)).toEqual([
-      'Untitled project',
-    ]);
-    expect(thePanelBesideTheGraph().panels.elements()).toHaveLength(1);
   });
 });
 

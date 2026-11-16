@@ -8,7 +8,7 @@
 | Folder | Part |
 | --- | --- |
 | [src/ui/](../src/ui/) | UI: one folder per component, shaped [as below](#a-components-folder) |
-| [src/ui/projects/](../src/ui/projects/) | UI: the screens shown before a project is open |
+| [src/ui/your-projects/](../src/ui/your-projects/) | UI: the screens shown before a project is open |
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
 | [src/ports/](../src/ports/) | Ports |
@@ -33,7 +33,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
 
-A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/projects/](../src/ui/projects/) holds the screens shown before a project is open, played by the app's own test page and language. [src/ui/svg.dom.ts](../src/ui/svg.dom.ts), [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/svg.dom.ts](../src/ui/svg.dom.ts), [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 ## Test code
 
@@ -72,7 +72,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | File | Holds |
 | --- | --- |
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
-| [src/app.ts](../src/app.ts) | Start-up: chooses the screen, opening a project with `renderApp`, or asking where the writer keeps their projects |
+| [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderApp` |
 | [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |

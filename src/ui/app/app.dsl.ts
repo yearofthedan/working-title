@@ -20,14 +20,15 @@ import {
   type Writer,
 } from '../graph/graph.dsl';
 import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
+import {
+  yourProjectsSeesOn,
+  yourProjectsSteps,
+  yourProjectsWriterOn,
+  type YourProjectsSees,
+  type YourProjectsWriter,
+} from '../your-projects/your-projects.dsl';
 
-export interface AppWriter extends Writer, PanelWriter {
-  choosesAFolder(): Promise<void>;
-  startsAProject(): Promise<void>;
-  startsAProjectTitled(title: string): Promise<void>;
-  startsAProjectWithNoTitle(): Promise<void>;
-  typesTheTitle(text: string): Promise<void>;
-  pressesStart(): Promise<void>;
+export interface AppWriter extends Writer, PanelWriter, YourProjectsWriter {
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
@@ -60,7 +61,7 @@ const nothingStaged: Staged = {
   choosesTheProjectFolder: refuses,
 };
 
-export interface AppSees extends Sees {
+export interface AppSees extends Sees, YourProjectsSees {
   pathIs(pieces: readonly string[]): Promise<void>;
   panelIsOpenOn(piece: string): Promise<Evidence>;
   noPanelIsOpen(): Promise<Evidence>;
@@ -70,7 +71,6 @@ export interface AppSees extends Sees {
   namesTheProject(title: string): Promise<Evidence>;
   focusIsInTheSummary(): Promise<Evidence>;
   filesInTheFolder(name: string): Promise<Evidence>;
-  says(text: string): Promise<Evidence>;
 }
 
 const clickingThePathTo = (driver: Driver, piece: string): Promise<void> =>
@@ -95,19 +95,7 @@ export const appWriterOn = (
   startFrom?: (project: SeededProject) => Promise<void>,
 ): AppWriter => ({
   ...writerOn(driver, opening, startFrom),
-  choosesAFolder: () => driver.click('button', 'Choose a folder…'),
-  startsAProject: () => driver.click('button', 'Start a project'),
-  startsAProjectTitled: async (title) => {
-    await driver.click('button', 'Start a project');
-    await driver.type(title, 'Title');
-    await driver.click('button', 'Start project');
-  },
-  startsAProjectWithNoTitle: async () => {
-    await driver.click('button', 'Start a project');
-    await driver.click('button', 'Start project');
-  },
-  typesTheTitle: (text) => driver.type(text, 'Title'),
-  pressesStart: () => driver.click('button', 'Start project'),
+  ...yourProjectsWriterOn(driver),
   makesCurrent: (piece) => reaching(driver, piece),
   addsASceneUnder: async (beat) => {
     const named = pieceNamed(beat);
@@ -136,6 +124,7 @@ export const appWriterOn = (
 });
 
 export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
+  ...yourProjectsSeesOn(driver),
   ...seesOn(driver, reads),
   pathIs: async (pieces) => {
     const path = await reads.path();
@@ -190,17 +179,6 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
     return reportingFocus({ ...summary, within: story });
   },
   filesInTheFolder: async (name) => reporting({ role: 'folder', name }),
-  says: async (text) => {
-    const said = (await driver.tree())
-      .map((line) => /^\s*- alert: (.*)$/.exec(line)?.[1])
-      .find((line) => line !== undefined);
-    if (said !== text) {
-      throw new Error(
-        `the app says ${JSON.stringify(said ?? 'nothing')}, not ${JSON.stringify(text)}`,
-      );
-    }
-    return reporting({ role: 'alert' });
-  },
 });
 
 export const appSteps = (
@@ -209,6 +187,7 @@ export const appSteps = (
   staged: Staged = nothingStaged,
 ): Record<string, StepAction> => ({
   ...graphSteps(writer, sees),
+  ...yourProjectsSteps(writer),
   // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
   'beat 2 is open beside the graph': async () => {
     await writer.opensANewProject();
@@ -238,8 +217,6 @@ export const appSteps = (
     staged.choosesTheFolderNamed(name),
   'the writer chooses the folder of a project titled "{title}"': ({ title }) =>
     staged.choosesTheProjectFolder(title),
-  'the writer starts a project titled "{title}"': ({ title }) => writer.startsAProjectTitled(title),
-  'the writer starts a project with no title': () => writer.startsAProjectWithNoTitle(),
   'Your projects, in "{folder}", lists no projects': ({ folder }) => sees.yourProjectsIn(folder),
   'the header names the project "{title}"': ({ title }) => sees.namesTheProject(title),
   "focus is in the story's one-sentence summary": () => sees.focusIsInTheSummary(),

@@ -25,7 +25,8 @@ import {
   type AppWriter,
   type Staged,
 } from './app.dsl';
-import { theHeader, yourProjects } from './app.test-page';
+import { yourProjects } from '../your-projects/your-projects.test-page';
+import { theHeader } from './app.test-page';
 
 const stageTheApp = async (width: number, on: Staging): Promise<void> => {
   await anEmptyFolderNamed(theProjectsFolderName);
