@@ -76,13 +76,16 @@ export const fileSystemFolders = (
   picker: DirectoryPicker,
 ): ProjectsFolderChooser => ({
   choose: async () => {
-    let folder: FileSystemDirectoryHandle | undefined;
+    if (picker.showDirectoryPicker === undefined) {
+      throw new Error('this browser has no folder picker');
+    }
+    let folder: FileSystemDirectoryHandle;
     try {
-      folder = await picker.showDirectoryPicker?.({ mode: 'readwrite' });
+      folder = await picker.showDirectoryPicker({ mode: 'readwrite' });
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return undefined;
       throw error;
     }
-    return folder === undefined ? undefined : projectsFolder(method, folder);
+    return projectsFolder(method, folder);
   },
 });
