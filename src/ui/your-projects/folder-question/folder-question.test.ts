@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { refusalFor } from './your-projects';
+import { refusalFor } from './folder-question';
 
 describe('refusing the folder of a project', () => {
   it('names it by the title its project.md holds', () => {

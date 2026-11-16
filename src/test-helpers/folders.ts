@@ -1,5 +1,7 @@
 import { fileSystemFolders, type DirectoryPicker } from '../adapters/file-system-folders';
+import { folderNameFor } from '../adapters/folder-name';
 import { snowflakeExtended } from '../methods/snowflake-extended';
+import type { ProjectsFolder } from '../ports/projects-folder';
 import type { Entry } from './folder';
 
 export const theProjectsFolderName = 'Writing';
@@ -60,6 +62,14 @@ export const aChooserTheWriterCancels = () =>
   fileSystemFolders(snowflakeExtended, aPickerTheWriterCancels);
 
 export const aChooserThatFails = () => fileSystemFolders(snowflakeExtended, aPickerThatFails);
+
+export const aProjectsFolder = (over: Partial<ProjectsFolder> = {}): ProjectsFolder => ({
+  name: theProjectsFolderName,
+  ownTitle: () => Promise.resolve(undefined),
+  freeNameFor: (title) => Promise.resolve(folderNameFor(title)),
+  start: () => Promise.resolve(),
+  ...over,
+});
 
 export const theEntriesIn = async (
   folder: FileSystemDirectoryHandle,

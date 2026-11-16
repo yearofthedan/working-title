@@ -381,13 +381,17 @@ svg {
     box-sizing: border-box;
     width: min(38rem, 100%);
     margin: 12vh auto 0;
-    display: grid;
-    gap: var(--space-4);
     font-family: var(--font-interface);
     font-size: var(--text-interface);
   }
 
-  :scope.listed {
+  .folder-question,
+  .project-list {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .project-list {
     gap: 0;
   }
 
@@ -396,7 +400,7 @@ svg {
     font-size: 1.5rem;
   }
 
-  :scope.listed h2 {
+  .project-list h2 {
     font-size: var(--text-interface);
     font-weight: 600;
     padding-bottom: var(--space-4);
@@ -406,39 +410,39 @@ svg {
     margin: 0;
   }
 
-  :scope > p:last-child {
+  .folder-question > p:last-child {
     color: var(--color-text-muted);
   }
 
-  :scope.listed > p {
+  .project-list > p {
     padding: var(--space-6) 0;
     border-top: 1px solid var(--color-line);
     border-bottom: 1px solid var(--color-line);
     color: var(--color-text-muted);
   }
 
-  :scope.listed ul {
+  .project-list ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  :scope.listed li {
+  .project-list li {
     padding: var(--space-6) 0;
     border-top: 1px solid var(--color-line);
   }
 
-  :scope.listed form {
+  .project-list form {
     display: grid;
     gap: var(--space-2);
   }
 
-  :scope.listed label {
+  .project-list label {
     font-size: var(--text-small);
     color: var(--color-text-muted);
   }
 
-  :scope.listed input {
+  .project-list input {
     font-family: var(--font-prose);
     font-size: 1.5rem;
     color: inherit;
@@ -448,7 +452,7 @@ svg {
     padding: 0 0 var(--space-1);
   }
 
-  :scope.listed .actions {
+  .project-list .actions {
     display: flex;
     align-items: baseline;
     gap: var(--space-6);
@@ -467,7 +471,7 @@ svg {
     cursor: pointer;
   }
 
-  :scope > button,
+  .folder-question > button,
   button[type='submit'] {
     border-color: var(--color-focus);
     background: var(--color-focus);

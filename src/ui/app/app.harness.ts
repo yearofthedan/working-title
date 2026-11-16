@@ -25,7 +25,7 @@ import {
   type AppWriter,
   type Staged,
 } from './app.dsl';
-import { whereTheProjectsAreKept, yourProjects } from '../your-projects/your-projects.test-page';
+import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
 const stageTheApp = async (width: number, on: Staging): Promise<void> => {
@@ -37,7 +37,9 @@ const stageTheApp = async (width: number, on: Staging): Promise<void> => {
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
   await driver.click('button', 'Choose a folder…');
-  await expect.element(yourProjects().startAProject).toBeInTheDocument();
+  await expect
+    .element(yourProjects().list(theProjectsFolderName).startAProject)
+    .toBeInTheDocument();
 };
 
 const reachingTheProject = async (driver: Driver): Promise<void> => {
@@ -81,7 +83,7 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => (
     thePickerGivesTheFolderAt(theProjectsFolderName, title);
     await writer.choosesAFolder();
     await expect
-      .element(whereTheProjectsAreKept().refusal)
+      .element(yourProjects().question.refusal)
       .toHaveTextContent(
         `“${title}” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.`,
       );

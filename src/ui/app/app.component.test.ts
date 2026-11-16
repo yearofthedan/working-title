@@ -14,12 +14,13 @@ import {
   holdingSaves,
   inMemory,
 } from '../../test-helpers/seed';
+import { theProjectsFolderName } from '../../test-helpers/folders';
 import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
-import { whereTheProjectsAreKept, yourProjects } from '../your-projects/your-projects.test-page';
+import { yourProjects } from '../your-projects/your-projects.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
 import {
@@ -54,7 +55,7 @@ describe('a new version waiting', () => {
   it('shows the writer a way to reload on the first screen once a new version is ready to run', async () => {
     const waiting = Promise.withResolvers<void>();
     await theAppWaitingForANewVersion({ waiting: waiting.promise, reload: () => undefined });
-    await expect.element(whereTheProjectsAreKept().screen).toBeInTheDocument();
+    await expect.element(yourProjects().question.screen).toBeInTheDocument();
 
     const { notice, noticeReload } = theHeader();
     await expect.element(notice).toBeEmptyDOMElement();
@@ -131,7 +132,9 @@ describe('the fade between screens', () => {
 
       await writer.choosesAFolder();
 
-      await expect.element(yourProjects().startAProject).toBeInTheDocument();
+      await expect
+        .element(yourProjects().list(theProjectsFolderName).startAProject)
+        .toBeInTheDocument();
       await laidOut();
 
       expect(fading()).toEqual([]);
