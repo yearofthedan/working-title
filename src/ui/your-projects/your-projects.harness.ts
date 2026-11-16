@@ -1,5 +1,6 @@
 import type { ProjectsFolderChooser } from '../../application/project';
-import { aChooserGivingTheFolder, root } from '../../test-helpers/staging';
+import { aChooserGivingTheFolder } from '../../test-helpers/folders';
+import { root } from '../../test-helpers/staging';
 import { yourProjects } from './your-projects.dom';
 
 export interface Staged {

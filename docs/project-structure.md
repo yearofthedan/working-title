@@ -41,7 +41,7 @@ A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/
 
 - the driver contract and its protocol drivers;
 - the measures, including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion;
-- staging and seed;
+- staging ([staging.ts](../src/test-helpers/staging.ts) for a page, [folders.ts](../src/test-helpers/folders.ts) for the folders on the writer's machine) and seed;
 - the scenario file, step table and runner;
 - [folder.ts](../src/test-helpers/folder.ts), which prints what the folder the writer chose holds and narrows it to the folder or file a step reported;
 - [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which each component test with a `scenarios/` folder calls;

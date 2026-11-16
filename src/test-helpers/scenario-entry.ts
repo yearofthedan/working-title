@@ -2,9 +2,9 @@ import { describe, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { Driver } from './driver';
 import { printing } from './folder';
+import { theEntriesIn, theProjectsFolder } from './folders';
 import { playScenarios, type Runner } from './play';
 import { readScenarioFile } from './scenario-file';
-import { theEntriesIn, theProjectsFolder } from './staging';
 import type { StepAction } from './steps';
 
 declare const __SCENARIO_APPROVE__: string;

@@ -32,7 +32,7 @@ A language names what the writer does over the driver contract, so one language 
 | Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
 | Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
 | Measures | `field.ts`, `box.ts`, `look.ts` in `src/test-helpers/` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
-| Staging | `staging.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make; a folder on the writer's machine standing in for the one the writer chooses, and what it holds |
+| Staging | `staging.ts`, `folders.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make; a folder on the writer's machine standing in for the one the writer chooses, and what it holds |
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
 - **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { printing } from './folder';
-import { anEmptyFolderNamed, theEntriesIn } from './staging';
+import { anEmptyFolderNamed, theEntriesIn } from './folders';
 
 describe('reading the folder the writer chose', () => {
   afterEach(async () => {

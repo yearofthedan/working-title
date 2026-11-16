@@ -10,7 +10,7 @@ import {
   thePickerGivesTheFolderAt,
   theProjectsFolder,
   theProjectsFolderName,
-} from '../../test-helpers/staging';
+} from '../../test-helpers/folders';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { yourProjectsSeesOn, yourProjectsWriterOn } from './your-projects.dsl';
 import { mountYourProjects } from './your-projects.harness';

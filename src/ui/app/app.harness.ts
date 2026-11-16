@@ -10,10 +10,10 @@ import {
   aFolderHoldingProjects,
   aPickerGivingTheFolder,
   anEmptyFolderNamed,
-  thePage,
   thePickerGivesTheFolderAt,
   theProjectsFolderName,
-} from '../../test-helpers/staging';
+} from '../../test-helpers/folders';
+import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { type NewVersion } from './app.dom';
