@@ -35,7 +35,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 
 A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/your-projects/](../src/ui/your-projects/) holds [folder-question/](../src/ui/your-projects/folder-question/), [project-list/](../src/ui/your-projects/project-list/) and [start-row/](../src/ui/your-projects/start-row/).
 
-A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/icons/](../src/ui/icons/) holds the icons more than one component draws, one file each; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 ## Test code
 
