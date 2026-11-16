@@ -186,4 +186,39 @@ describe('starting a project', () => {
     expect(made).toEqual(['The Ferryman']);
     expect(started).toEqual(['The Ferryman', 'The Ferryman']);
   });
+
+  it('hides the line while the folder cannot be read for a name', async () => {
+    mountStartRow({
+      folder: aProjectsFolder({
+        freeNameFor: () => Promise.reject(new Error('the folder could not be read')),
+      }),
+    });
+
+    await expect.element(theStartRow().said).not.toBeVisible();
+  });
+
+  it('shows the line again once the folder can be read', async () => {
+    const folder = aProjectsFolder();
+    let refusing = true;
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: (title) =>
+          refusing
+            ? Promise.reject(new Error('the folder could not be read'))
+            : folder.freeNameFor(title),
+      },
+    });
+    await expect.element(theStartRow().said).not.toBeVisible();
+
+    refusing = false;
+    await writer.typesTheTitle('The Ferryman');
+
+    await expect.element(theStartRow().said).toBeVisible();
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title will make a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+  });
 });

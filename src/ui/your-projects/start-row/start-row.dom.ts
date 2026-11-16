@@ -42,9 +42,15 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
   let made: string | undefined;
 
   const nameFor = async (typed: string): Promise<void> => {
-    const name = await hooks.folder.freeNameFor(typed);
+    let name: string | undefined;
+    try {
+      name = await hooks.folder.freeNameFor(typed);
+    } catch {
+      name = undefined;
+    }
     if (starting || made !== undefined) return;
-    if (title.value === typed) named.textContent = name;
+    said.hidden = name === undefined;
+    if (name !== undefined && title.value === typed) named.textContent = name;
   };
   void nameFor('');
   title.addEventListener('input', () => void nameFor(title.value));
