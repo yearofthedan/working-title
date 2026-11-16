@@ -6,7 +6,7 @@ import type { Entry } from './folder';
 
 export const theProjectsFolderName = 'Writing';
 
-export const theFolderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
+const theFolderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
   let folder = await navigator.storage.getDirectory();
   for (const name of path) folder = await folder.getDirectoryHandle(name, { create: true });
   return folder;
@@ -37,6 +37,10 @@ export const aFolderHoldingProjects = async (
 export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker => ({
   showDirectoryPicker: () => theFolderAt(path),
 });
+
+export const theBrowsersPickerGives = (...path: readonly string[]): void => {
+  Object.assign(window, aPickerGivingTheFolder(...path));
+};
 
 export const aPickerTheWriterCancels: DirectoryPicker = {
   showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),
