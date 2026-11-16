@@ -179,4 +179,34 @@ else
   ok "the runner is not named as a file in the wrong layer"
 fi
 
+write src/ui/word-count/word-count.dom.ts "export interface WordCount { readonly element: HTMLElement }
+export type Hooks = { readonly done: () => void };
+export const renderWordCount = (): WordCount => ({ element: document.createElement('p') });"
+write src/ui/word-count/word-count.ts "export const counted = (text: string): number => text.split(' ').length;"
+stage
+names
+expect_status 0 "a component's *.dom.ts exporting its render and types passes"
+expect_out "every component's \*\.dom\.ts exports its render alone" "a pass says the renders were read"
+
+write src/ui/word-count/word-count.dom.ts "export const renderWordCount = (): number => 1;
+export const tidy = (): void => undefined;"
+stage
+names
+expect_status 1 "a *.dom.ts exporting a helper beside its render is refused"
+expect_out '^src/ui/word-count/word-count\.dom\.ts exports renderWordCount tidy, not renderWordCount alone$' \
+  "the file and what it exports are named"
+expect_err 'exports one value, render followed by the component' "the failure states the rule"
+
+write src/ui/word-count/word-count.dom.ts "export const theWordCount = (): number => 1;"
+stage
+names
+expect_status 1 "a render not named for its component is refused"
+expect_out 'exports theWordCount, not renderWordCount alone' "the name it wants is given"
+
+write src/ui/word-count/word-count.dom.ts "export default (): number => 1;"
+stage
+names
+expect_status 1 "a default export is refused"
+rm -r "$project/src/ui/word-count"
+stage
 finish

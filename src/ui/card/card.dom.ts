@@ -166,7 +166,7 @@ const keysOnTheCard = (card: Card, current: () => boolean): ((event: KeyboardEve
   return onKeyDown;
 };
 
-export const pieceCard = (piece: PieceView, hooks: CardHooks): Card => {
+export const renderCard = (piece: PieceView, hooks: CardHooks): Card => {
   const element = document.createElement('fieldset');
   element.tabIndex = -1;
   const legend = document.createElement('legend');

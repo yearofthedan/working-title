@@ -1,5 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
-import { thePanel, type Panel } from './panel.dom';
+import { renderPanel, type Panel } from './panel.dom';
 
 export const theBeat: PieceView = {
   id: 'beat-2',
@@ -19,7 +19,7 @@ export interface PanelHooks {
 }
 
 export const mountThePanel = (piece: PieceView = theBeat, hooks: PanelHooks = {}): Panel => {
-  const panel = thePanel({
+  const panel = renderPanel({
     elaborate: hooks.elaborate ?? (() => Promise.resolve()),
     close: hooks.close ?? (() => undefined),
   });

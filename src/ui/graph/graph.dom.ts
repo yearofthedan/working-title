@@ -1,5 +1,5 @@
 import type { OpenProject, PieceView } from '../../application/project';
-import { pieceCard, type Card } from '../card/card.dom';
+import { renderCard, type Card } from '../card/card.dom';
 import {
   along,
   drawnAs,
@@ -100,7 +100,7 @@ const goTo = (st: State, id: string, into?: HTMLElement): void => {
   else st.cards.get(id)?.focus();
 };
 const cardFor = (st: State, piece: PieceView): Card =>
-  pieceCard(piece, {
+  renderCard(piece, {
     level: entryOf(st, piece.id)!.level,
     current: () => st.current === piece.id,
     elaborate: st.hooks.elaborate,

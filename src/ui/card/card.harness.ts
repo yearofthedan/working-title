@@ -1,7 +1,7 @@
 import type { OpenProject, PieceView } from '../../application/project';
 import { root } from '../../test-helpers/staging';
 import type { CardLook } from './card';
-import { pieceCard, type Card } from './card.dom';
+import { renderCard, type Card } from './card.dom';
 
 export const theBeat: PieceView = {
   id: 'beat-2',
@@ -22,7 +22,7 @@ export interface CardHooks {
 export const mountTheCard = (as: CardLook, hooks: CardHooks = {}): Card => {
   const piece = hooks.piece ?? theBeat;
   const main = root('main');
-  const card = pieceCard(piece, {
+  const card = renderCard(piece, {
     level: 1,
     current: () => true,
     elaborate: hooks.elaborate ?? (() => Promise.resolve()),

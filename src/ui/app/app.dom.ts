@@ -1,6 +1,6 @@
 import { untitledProjectTitle, type OpenProject, type PieceView } from '../../application/project';
 import { renderGraph } from '../graph/graph.dom';
-import { thePanel } from '../panel/panel.dom';
+import { renderPanel } from '../panel/panel.dom';
 
 export interface NewVersion {
   readonly waiting: Promise<void>;
@@ -65,7 +65,7 @@ export const renderApp = async (
     if (id !== undefined) graph.closedBeside(id);
   };
 
-  const panel = thePanel({ elaborate: relay, close: closeBeside });
+  const panel = renderPanel({ elaborate: relay, close: closeBeside });
   main.after(panel.element);
 
   const pathNav = (path: readonly PieceView[]): void => {

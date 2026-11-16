@@ -51,6 +51,21 @@ export default {
       to: { path: '\\.dom\\.ts$' },
     },
     {
+      name: 'a-component-through-its-render',
+      severity: 'error',
+      comment:
+        "A component reaches another only through that component's *.dom.ts, whose one export renders it; its plain modules are its own (docs/project-structure.md).",
+      from: {
+        path: '^src/ui/([^/]+)/',
+        pathNot: ['\\.test\\.ts$', '\\.test-page\\.ts$', '\\.harness\\.ts$', '\\.dsl\\.ts$'],
+      },
+      to: {
+        path: '^src/ui/[^/]+/',
+        pathNot: ['^src/ui/$1/', '\\.dom\\.ts$'],
+        dependencyTypesNot: ['type-only'],
+      },
+    },
+    {
       name: 'no-circular',
       severity: 'error',
       comment:
