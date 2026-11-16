@@ -613,6 +613,20 @@ describe('the motion of the panel beside the graph', () => {
   });
 });
 
+describe('the page drawn again', () => {
+  it('lets the writer choose the folder the app was staged with after the app opens again', async () => {
+    const { stage, writer } = theAppWithoutAProject();
+    await stage.fresh();
+
+    await stage.reopen();
+    await writer.choosesAFolder();
+
+    await expect
+      .element(yourProjects().list(theProjectsFolderName).startAProject)
+      .toBeInTheDocument();
+  });
+});
+
 const files = (import.meta as unknown as RawGlob).glob('/src/ui/app/scenarios/*.approved.md', {
   query: '?raw',
   import: 'default',

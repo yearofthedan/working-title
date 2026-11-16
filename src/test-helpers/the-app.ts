@@ -7,6 +7,7 @@ import { inMemory } from './seed';
 const stops = new Map<ParentNode, () => void>();
 
 let store: ProjectStore = inMemory();
+let picker: DirectoryPicker | undefined;
 
 export interface Staging {
   readonly store?: ProjectStore;
@@ -22,6 +23,7 @@ export const stopTheApp = (): void => {
 export const openTheApp = async (page: ParentNode = document, on: Staging = {}): Promise<void> => {
   stops.get(page)?.();
   if (on.store !== undefined) store = on.store;
+  if (on.picker !== undefined) picker = on.picker;
   stops.set(page, await startApp(page, { store, newVersion: on.newVersion, picker: on.picker }));
 };
 
@@ -41,5 +43,5 @@ export const reopenTheApp = async (): Promise<void> => {
   document.querySelector('header')?.replaceWith(header);
   main?.replaceWith(freshMain);
 
-  await openTheApp();
+  await openTheApp(document, { picker });
 };
