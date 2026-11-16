@@ -1,6 +1,8 @@
 import { untitledProjectTitle, type ProjectsFolder } from '../../../application/project';
 import { couldNotMakeTheFolder, couldNotOpenTheProject } from './start-row';
 
+export const thePauseBeforeReading = 250;
+
 export interface StartRowHooks {
   readonly folder: ProjectsFolder;
   readonly start: (title: string) => Promise<void>;
@@ -40,20 +42,44 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
 
   let starting = false;
   let made: string | undefined;
+  let scheduled: NodeJS.Timeout | undefined;
+  let reading: Promise<void> | undefined;
 
   const showTheName = (name: string | undefined): void => {
     said.hidden = name === undefined;
     if (name !== undefined) named.textContent = name;
   };
 
-  const nameFor = async (typed: string): Promise<void> => {
-    if (starting || made !== undefined) return;
-    const name = await hooks.folder.freeNameFor(typed).catch(() => undefined);
-    if (starting || made !== undefined || title.value !== typed) return;
-    showTheName(name);
+  const readTheName = (): Promise<void> => {
+    const typed = title.value;
+    const read = (reading ?? Promise.resolve()).then(async () => {
+      if (title.value !== typed) return;
+      const name = await hooks.folder.freeNameFor(typed).catch(() => undefined);
+      if (made === undefined && title.value === typed) showTheName(name);
+    });
+    reading = read;
+    void read.then(() => {
+      if (reading === read) reading = undefined;
+    });
+    return read;
   };
-  void nameFor('');
-  title.addEventListener('input', () => void nameFor(title.value));
+
+  const readAtOnce = (): Promise<void> => {
+    if (scheduled === undefined) return reading ?? Promise.resolve();
+    clearTimeout(scheduled);
+    scheduled = undefined;
+    return readTheName();
+  };
+
+  void readTheName();
+
+  title.addEventListener('input', () => {
+    clearTimeout(scheduled);
+    scheduled = setTimeout(() => {
+      scheduled = undefined;
+      void readTheName();
+    }, thePauseBeforeReading);
+  });
 
   const startTheProject = async (): Promise<void> => {
     starting = true;
@@ -61,9 +87,10 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
     const typed = made ?? title.value.trim();
     try {
       if (made === undefined) {
+        title.readOnly = true;
+        await readAtOnce();
         const name = await hooks.folder.start(typed);
         made = typed;
-        title.readOnly = true;
         title.value = made;
         said.replaceChildren(
           'working-title made a folder named ',
@@ -79,6 +106,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
       }
     } catch {
       failed.textContent = couldNotMakeTheFolder;
+      title.readOnly = false;
     } finally {
       starting = false;
     }
