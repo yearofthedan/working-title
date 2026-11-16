@@ -7,9 +7,12 @@ Given the writer has not chosen where to keep their projects
 And a folder "Writing" on the writer's machine is empty
 When the writer chooses "Writing" to keep their projects in
 Then Your projects, in "Writing", lists no projects
-- heading "Your projects" [level=1]
-- heading "In Writing" [level=2]
-- paragraph: No projects yet.
+- banner:
+  - heading "Your projects" [level=1]
+- main:
+  - region "In Writing":
+    - heading "In Writing" [level=2]
+    - paragraph: No projects yet.
 ```
 
 ### Scenario: starting a project opens it under its title
@@ -18,11 +21,13 @@ Then Your projects, in "Writing", lists no projects
 Given the writer keeps their projects in a folder
 When the writer starts a project titled "The Ferryman"
 Then the header names the project "The Ferryman"
-- heading "The Ferryman" [level=1]
+- banner:
+  - heading "The Ferryman" [level=1]
 And focus is in the story's one-sentence summary
-- group "The story" [current]:
-  - heading "The story" [level=2]
-  - textbox "One-sentence summary" [active]
+- main:
+  - toolbar "The story":
+    - group "The story" [current]:
+      - textbox "One-sentence summary" [active]
 ```
 
 ### Scenario: a project started without a title is untitled
@@ -31,7 +36,8 @@ And focus is in the story's one-sentence summary
 Given the writer keeps their projects in a folder
 When the writer starts a project with no title
 Then the header names the project "Untitled project"
-- heading "Untitled project" [level=1]
+- banner:
+  - heading "Untitled project" [level=1]
 ```
 
 ### Scenario: a project never starts inside another project's folder
@@ -63,5 +69,7 @@ But the files in "The Ferryman" are as they were
 Given the writer has not chosen where to keep their projects
 When the writer chooses the folder of a project titled "The Ferryman"
 Then the app says "“The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead."
-- alert: “The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.
+- main:
+  - region "Choose where to keep your projects":
+    - alert: “The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.
 ```
