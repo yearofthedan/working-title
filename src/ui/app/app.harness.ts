@@ -25,7 +25,7 @@ import {
   type AppWriter,
   type Staged,
 } from './app.dsl';
-import { yourProjects } from '../your-projects/your-projects.test-page';
+import { whereTheProjectsAreKept, yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
 const stageTheApp = async (width: number, on: Staging): Promise<void> => {
@@ -53,12 +53,6 @@ const theAppInAFolder = async (driver: Driver, titles: readonly string[] = []): 
   await reachingYourProjects(driver);
 };
 
-const answeringTo = async (driver: Driver, act: () => Promise<void>): Promise<void> => {
-  const before = (await driver.tree()).join('\n');
-  await act();
-  await expect.poll(async () => (await driver.tree()).join('\n')).not.toBe(before);
-};
-
 const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
   ...writer,
   startsAProjectTitled: async (title) => {
@@ -79,12 +73,18 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => (
   keepsProjectsInAFolderHolding: (titles) => theAppInAFolder(driver, titles),
   choosesTheFolderNamed: async (name) => {
     thePickerGivesTheFolderAt(name);
-    await answeringTo(driver, () => writer.choosesAFolder());
+    await writer.choosesAFolder();
+    await expect.element(theHeader().heading).toHaveTextContent('Your projects');
   },
   choosesTheProjectFolder: async (title) => {
     await aFolderHoldingProjects(theProjectsFolderName, [title]);
     thePickerGivesTheFolderAt(theProjectsFolderName, title);
-    await answeringTo(driver, () => writer.choosesAFolder());
+    await writer.choosesAFolder();
+    await expect
+      .element(whereTheProjectsAreKept().refusal)
+      .toHaveTextContent(
+        `“${title}” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.`,
+      );
   },
 });
 

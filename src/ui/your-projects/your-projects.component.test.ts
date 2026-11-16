@@ -60,12 +60,10 @@ describe('choosing where the projects are kept', () => {
 
     await writer.choosesAFolder();
 
+    await expect.element(whereTheProjectsAreKept().refusal).toHaveTextContent(theRefusal);
     await expect
-      .poll(async () =>
-        (await sees.tree()).map((line) => line.trim()).filter((line) => line.startsWith('- alert')),
-      )
-      .toEqual([`- alert: ${theRefusal}`]);
-    await expect.element(whereTheProjectsAreKept().refusalIcon).toBeInTheDocument();
+      .element(whereTheProjectsAreKept().refusalIcon)
+      .toHaveAttribute('aria-hidden', 'true');
   });
 });
 
@@ -75,14 +73,14 @@ describe('starting a project', () => {
     await writer.startsAProject();
 
     await expect
-      .poll(() => yourProjects().said.element().textContent)
-      .toMatch(/^working-title will make a folder named Untitled project in .+\.$/);
+      .element(yourProjects().said)
+      .toHaveTextContent('working-title will make a folder named Untitled project in Writing.');
 
     await writer.typesTheTitle('The Ferryman');
 
     await expect
-      .poll(() => yourProjects().said.element().textContent)
-      .toMatch(/^working-title will make a folder named The Ferryman in .+\.$/);
+      .element(yourProjects().said)
+      .toHaveTextContent('working-title will make a folder named The Ferryman in Writing.');
   });
 
   it('makes one project folder and starts one project when the writer presses Start twice', async () => {

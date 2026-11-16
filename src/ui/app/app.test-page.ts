@@ -4,6 +4,7 @@ const theBanner = browser.page.getByRole('banner', { includeHidden: true });
 
 export const theHeader = () => ({
   header: theBanner,
+  heading: theBanner.getByRole('heading', { includeHidden: true }),
   path: theBanner.getByRole('navigation', { name: 'Where you are' }),
   notice: theBanner.getByRole('status'),
   noticeReload: theBanner.getByRole('status').getByRole('button', { name: 'Reload' }),

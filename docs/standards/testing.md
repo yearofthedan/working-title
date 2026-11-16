@@ -36,7 +36,7 @@ A language names what the writer does over the driver contract, so one language 
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
 - **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
-- **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing.
+- **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing. It waits on the page only through `expect.element`; `expect.poll` and `vi.waitFor` are for what the page doesn't show, such as the folder on disk or a stand-in's calls.
 - **A test page returns Locators**, each found inside its part and grouped by what the writer does with them, such as a card's `actions`, so a check retries until the page settles.
 - **A spec and a language find no element; a driver finds one only by role or label**, as [the markup standard](markup.md) says.
 - **A language imports the driver contract and no driver, and the app imports no test code.**

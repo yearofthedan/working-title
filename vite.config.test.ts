@@ -104,6 +104,32 @@ const theAppsOwnFile = 'src/ui/app/app.dom.ts';
 
 const outsideTheRoot = (name: string) => `outside-${name.replaceAll('.', '-')}.dom.ts`;
 
+const pollingThePage = [
+  "import { expect } from 'vite-plus/test';",
+  'export const sample = async (part: { element(): Element }): Promise<void> => {',
+  '  await expect.poll(() => part.element()).toBeDefined();',
+  '};',
+  '',
+].join('\n');
+
+const waitingOnThePage = [
+  "import { vi } from 'vite-plus/test';",
+  'export const sample = async (driver: {',
+  '  tree(): Promise<readonly string[]>;',
+  '}): Promise<void> => {',
+  '  await vi.waitFor(async () => driver.tree());',
+  '};',
+  '',
+].join('\n');
+
+const pollingAStandIn = [
+  "import { expect } from 'vite-plus/test';",
+  'export const sample = async (started: readonly string[]): Promise<void> => {',
+  "  await expect.poll(() => started).toEqual(['']);",
+  '};',
+  '',
+].join('\n');
+
 const callingUserEvent = "export const sample = () => browser.userEvent.keyboard('a');\n";
 
 const importingUserEvent =
@@ -178,6 +204,11 @@ beforeAll(() => {
     'component-document.component.test.ts',
     'export const sample = (): number => document.body.childElementCount;\n',
   );
+  writeInUi('component-polling-the-page.component.test.ts', pollingThePage);
+  writeInUi('component-waiting-on-the-page.component.test.ts', waitingOnThePage);
+  writeInUi('component-polling-a-stand-in.component.test.ts', pollingAStandIn);
+  writeInUi('polling-the-page.harness.ts', pollingThePage);
+  write('language-polling-the-page.dsl.ts', pollingThePage);
   writeInUi('calling-user-event/sample.component.test.ts', callingUserEvent);
   writeInUi('importing-user-event/sample.component.test.ts', importingUserEvent);
   writeInUi('finding-by-element.test-page.ts', readingACard.getByElement ?? '');
@@ -299,6 +330,30 @@ describe('a component test', { timeout: 60_000 }, () => {
   it('finding by getByElement in a test page passes lint', () => {
     expect(uiErrorsIn('finding-by-element.test-page.ts')).toEqual([]);
   });
+
+  it('polling a page part fails lint, pointing at expect.element', () => {
+    expect(uiErrorsIn('component-polling-the-page.component.test.ts')).toEqual([
+      expect.stringContaining('expect.element'),
+    ]);
+  });
+
+  it('waiting on a page part with vi.waitFor fails lint, pointing at expect.element', () => {
+    expect(uiErrorsIn('component-waiting-on-the-page.component.test.ts')).toEqual([
+      expect.stringContaining('expect.element'),
+    ]);
+  });
+
+  it('polling what the page does not show, such as a stand-in’s calls, passes lint', () => {
+    expect(uiErrorsIn('component-polling-a-stand-in.component.test.ts')).toEqual([]);
+  });
+});
+
+describe('a harness', { timeout: 60_000 }, () => {
+  it('polling a page part fails lint, pointing at expect.element', () => {
+    expect(uiErrorsIn('polling-the-page.harness.ts')).toEqual([
+      expect.stringContaining('expect.element'),
+    ]);
+  });
 });
 
 describe('a component test using the writer', { timeout: 60_000 }, () => {
@@ -354,6 +409,12 @@ describe('the language', { timeout: 60_000 }, () => {
   it.each(documentSelectors)('a language file calling document.%s fails lint', (call) => {
     expect(errorsIn(`reading-${call}.dsl.ts`)).toEqual([
       expect.stringContaining('finds no element'),
+    ]);
+  });
+
+  it('a language polling a page part fails lint, pointing at expect.element', () => {
+    expect(errorsIn('language-polling-the-page.dsl.ts')).toEqual([
+      expect.stringContaining('expect.element'),
     ]);
   });
 });
