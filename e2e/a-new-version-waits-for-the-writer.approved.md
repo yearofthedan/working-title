@@ -8,7 +8,8 @@ Serves: a private build
 Given a new project
 When a new version is installed
 Then a notice says a new version is ready
-- status:
-  - text: A new version is ready.
-  - button "Reload"
+- banner:
+  - status:
+    - text: A new version is ready.
+    - button "Reload"
 ```

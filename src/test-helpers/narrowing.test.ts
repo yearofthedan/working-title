@@ -18,14 +18,16 @@ const tree = [
 
 describe('narrowing a tree to the parts a scenario asserted on', () => {
   const theSecondScene = [
-    '- group "Scene 2":',
-    '  - heading "Scene 2" [level=4]:',
-    '    - button "Scene 2"',
-    '  - text: List line',
-    '  - textbox "List line": Maren bribes the harbourmaster',
+    '- main:',
+    '  - toolbar "Scenes under Beat 4":',
+    '    - group "Scene 2":',
+    '      - heading "Scene 2" [level=4]:',
+    '        - button "Scene 2"',
+    '      - text: List line',
+    '      - textbox "List line": Maren bribes the harbourmaster',
   ];
 
-  it('keeps a named part and what is under it, starting it at the left', () => {
+  it('keeps a named part, what is under it and the lines it sits in', () => {
     expect(narrowing(tree, [{ role: 'group', name: 'Scene 2' }])).toEqual(theSecondScene);
   });
 
@@ -35,7 +37,14 @@ describe('narrowing a tree to the parts a scenario asserted on', () => {
         { role: 'group', name: 'Scene 2' },
         { role: 'heading', name: 'Scene 1' },
       ]),
-    ).toEqual(['- heading "Scene 1" [level=4]:', '  - button "Scene 1"', ...theSecondScene]);
+    ).toEqual([
+      '- main:',
+      '  - toolbar "Scenes under Beat 4":',
+      '    - group "Scene 1":',
+      '      - heading "Scene 1" [level=4]:',
+      '        - button "Scene 1"',
+      ...theSecondScene.slice(2),
+    ]);
   });
 
   it('matches a part whatever case it is named in', () => {
@@ -104,11 +113,17 @@ describe('narrowing to a part inside another part', () => {
     '    - textbox "One-sentence summary": Maren rows out before first light',
   ];
 
-  it('keeps the part it sits in, its own heading and the line, and no sibling of the line', () => {
+  it('keeps the lines it sits in and the line, and no sibling of the line', () => {
     expect(narrowing(page, [theSummaryBeside])).toEqual([
       '- complementary "Beat 2":',
-      '  - heading "Beat 2" [level=2]',
       '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
+    ]);
+  });
+
+  it('keeps the lines a part sits in where the step did not name them', () => {
+    expect(narrowing(page, [{ role: 'textbox', name: 'Paragraph' }])).toEqual([
+      '- complementary "Beat 2":',
+      '  - textbox "Paragraph": Maren rows out',
     ]);
   });
 
@@ -120,7 +135,6 @@ describe('narrowing to a part inside another part', () => {
       ]),
     ).toEqual([
       '- complementary "Beat 2":',
-      '  - heading "Beat 2" [level=2]',
       '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
       '  - textbox "Paragraph": Maren rows out',
     ]);
@@ -137,7 +151,6 @@ describe('narrowing to a part inside another part', () => {
       ]),
     ).toEqual([
       '- complementary "Beat 2":',
-      '  - heading "Beat 2" [level=2]',
       '  - textbox "One-sentence summary": Maren learns the sinking was no accident',
     ]);
   });
@@ -152,26 +165,9 @@ describe('narrowing to a part inside another part', () => {
         },
       ]),
     ).toEqual([
-      '- group "Beat 2":',
-      '  - heading "Beat 2" [level=3]:',
-      '    - button "Beat 2"',
-      '  - textbox "One-sentence summary": Maren rows out before first light',
-    ]);
-  });
-
-  it('keeps a card whose heading holds no name button, and no other card', () => {
-    expect(
-      narrowing(cards, [
-        {
-          role: 'textbox',
-          name: 'One-sentence summary',
-          within: { role: 'group', name: 'The story' },
-        },
-      ]),
-    ).toEqual([
-      '- group "The story" [current]:',
-      '  - heading "The story" [level=3]',
-      '  - textbox "One-sentence summary": A widow hunts the man who sank her husband\u2019s ship',
+      '- main:',
+      '  - group "Beat 2":',
+      '    - textbox "One-sentence summary": Maren rows out before first light',
     ]);
   });
 
@@ -205,32 +201,23 @@ describe('narrowing to a part that names a role alone', () => {
     '    - button "Reload"',
   ];
 
-  it('keeps the unnamed line of that role and what is under it', () => {
+  it('keeps the unnamed line of that role, what is under it and the lines it sits in', () => {
     expect(narrowing(banner, [{ role: 'status' }])).toEqual([
-      '- status:',
-      '  - text: A new version is ready.',
-      '  - button "Reload"',
+      '- banner:',
+      '  - status:',
+      '    - text: A new version is ready.',
+      '    - button "Reload"',
     ]);
   });
 
   it('keeps a named line of that role too, since the name is not asked for', () => {
-    expect(narrowing(tree, [{ role: 'group' }])).toEqual([
-      '- group "Scene 1":',
-      '  - heading "Scene 1" [level=4]:',
-      '    - button "Scene 1"',
-      '  - text: List line',
-      '  - textbox "List line"',
-      '- group "Scene 2":',
-      '  - heading "Scene 2" [level=4]:',
-      '    - button "Scene 2"',
-      '  - text: List line',
-      '  - textbox "List line": Maren bribes the harbourmaster',
-    ]);
+    expect(narrowing(tree, [{ role: 'group' }])).toEqual(tree);
   });
 
   it('keeps every line of that role where the tree holds more than one', () => {
     const two = [
       '- banner:',
+      '  - heading "working-title" [level=1]',
       '  - status:',
       '    - text: A new version is ready.',
       '- main:',
@@ -239,10 +226,12 @@ describe('narrowing to a part that names a role alone', () => {
     ];
 
     expect(narrowing(two, [{ role: 'status' }])).toEqual([
-      '- status:',
-      '  - text: A new version is ready.',
-      '- status:',
-      '  - text: Saved.',
+      '- banner:',
+      '  - status:',
+      '    - text: A new version is ready.',
+      '- main:',
+      '  - status:',
+      '    - text: Saved.',
     ]);
   });
 

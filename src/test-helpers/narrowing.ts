@@ -58,66 +58,31 @@ const isNamed = (found: Named | undefined, wanted: Named): boolean =>
 export const narrowing = (lines: readonly string[], parts: readonly Part[]): readonly string[] => {
   if (parts.length === 0) return lines;
   const read = new Set<string>();
-  const kept: string[] = [];
-  const enclosing: (Named | undefined)[] = [];
+  const kept = new Set<number>();
+  const open: { readonly at: number; readonly indent: number; readonly named?: Named }[] = [];
   let under = -1;
-  let inPart = -1;
-  let slid = -1;
-  for (const line of lines) {
+  for (const [at, line] of lines.entries()) {
     const indent = line.length - line.trimStart().length;
+    while ((open.at(-1)?.indent ?? -1) >= indent) open.pop();
+    if (under >= 0 && indent <= under) under = -1;
     const role = roleOn(line);
     const here = namedOn(line);
-    const inside = enclosing.filter((at, depth) => depth < indent && at !== undefined).at(-1);
-    enclosing.length = indent;
-    enclosing[indent] = here;
-    const onItsOwn = (part: Part): boolean =>
-      part.role === role &&
-      (part.name === undefined ||
-        (here !== undefined && part.name.toLowerCase() === here.name.toLowerCase()));
-    const theLine = parts.filter((part) => part.within === undefined && onItsOwn(part));
-    const inThePart = parts.filter(
-      (part) => part.within !== undefined && onItsOwn(part) && isNamed(inside, part.within),
-    );
-    const thePart = parts.some((part) => part.within !== undefined && isNamed(here, part.within));
-    const itsHeading = parts.some(
+    const inside = open.findLast((line) => line.named !== undefined)?.named;
+    const found = parts.filter(
       (part) =>
-        part.within !== undefined &&
-        here?.role === 'heading' &&
-        here.name.toLowerCase() === part.within.name.toLowerCase() &&
-        isNamed(inside, part.within),
+        part.role === role &&
+        (part.name === undefined ||
+          (here !== undefined && part.name.toLowerCase() === here.name.toLowerCase())) &&
+        (part.within === undefined || isNamed(inside, part.within)),
     );
-    for (const part of [...theLine, ...inThePart]) read.add(keyOfPart(part));
-
-    if (under >= 0 && indent > under) {
-      kept.push(line.slice(slid));
-      continue;
-    }
-    under = -1;
-    if (inPart >= 0) {
-      if (indent <= inPart) {
-        inPart = -1;
-      } else if (inThePart.length > 0 || itsHeading) {
-        kept.push(line.slice(inPart));
-        if (itsHeading) {
-          under = indent;
-          slid = inPart;
-        }
-        continue;
-      } else {
-        continue;
-      }
-    }
-    if (thePart) {
-      inPart = indent;
-      kept.push(line.slice(indent));
-      continue;
-    }
-    if (theLine.length > 0) {
+    for (const part of found) read.add(keyOfPart(part));
+    if (under < 0 && found.length > 0) {
+      for (const ancestor of open) kept.add(ancestor.at);
       under = indent;
-      slid = indent;
-      kept.push(line.slice(indent));
     }
+    if (under >= 0) kept.add(at);
+    open.push({ at, indent, named: here });
   }
   refuseThePartsNotRead(parts, read);
-  return kept;
+  return lines.filter((_, at) => kept.has(at));
 };
