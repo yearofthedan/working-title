@@ -30,11 +30,11 @@ Pieces, facets, links, chapters and the engine that runs a method, named in the 
 
 ### Ports
 
-What the application asks of storage.
+What the application asks of storage: the **project store**, which loads and saves the project, and the **projects folder**, which the writer chooses, which says whether it is a project's own folder, and in which a project's folder is started.
 
 ### Adapters
 
-The **browser working copy** implements the storage port: every change is saved here first, so typing never waits on a file. The **folder** is the project: the app writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). The **projects folder** is the one folder the writer chooses, through the browser's folder picker: the app refuses a folder that is a project's own, and makes a project's folder in it, named after its title and holding its project file. Writing the pieces to that folder is not built yet.
+The **browser working copy** implements the project store: every change is saved here first, so typing never waits on a file. The **file system folders** adapter implements the projects folder through the browser's folder picker. Each project's **folder** is the project: the app makes it in the projects folder, named after the project's title and holding its project file, writes each change to it in the background, one Markdown file per piece, and reads it on opening and when the writer returns to the app, so edits made in other tools come back in ([ADR 11](adr/0011-the-writers-folder-is-the-project.md), [ADR 12](adr/0012-one-markdown-file-per-piece-holding-every-formatting-the-editor-offers.md)). Writing the pieces to it is not built yet.
 
 ## Outside the layers
 
