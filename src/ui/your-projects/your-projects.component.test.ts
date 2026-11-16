@@ -179,7 +179,7 @@ describe('starting a project', () => {
     const folder: ProjectsFolder = {
       name: theProjectsFolderName,
       ownTitle: () => Promise.resolve(undefined),
-      freeNameFor: (title) => Promise.resolve(title),
+      freeNameFor: (title) => Promise.resolve(title === '' ? 'Untitled project' : title),
       start: async (title) => {
         made.push(title);
       },
@@ -200,6 +200,12 @@ describe('starting a project', () => {
       .element(yourProjects().startFailed)
       .toHaveTextContent(
         "working-title made the project's folder but couldn't open the project. Try again.",
+      );
+    await expect.element(yourProjects().title).toHaveAttribute('readonly');
+    await expect
+      .element(yourProjects().said)
+      .toHaveTextContent(
+        `working-title made a folder named Untitled project in ${theProjectsFolderName}.`,
       );
 
     opening = true;

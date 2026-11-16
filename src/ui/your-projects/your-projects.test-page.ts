@@ -25,7 +25,7 @@ export const yourProjects = () => ({
     exact: true,
     includeHidden: true,
   }),
-  said: browser.page.getByText(/will make a folder named/),
+  said: browser.page.getByText(/(will make|made) a folder named/),
   title: browser.page.getByLabelText('Title', { exact: true }),
   startProject: browser.page.getByRole('button', {
     name: 'Start project',

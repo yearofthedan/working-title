@@ -155,6 +155,12 @@ export const yourProjects = (hooks: YourProjectsHooks): YourProjects => {
           if (made === undefined) {
             await folder.start(typed);
             made = typed;
+            title.readOnly = true;
+            said.replaceChildren(
+              'working-title made a folder named ',
+              named,
+              ` in ${folder.name}.`,
+            );
           }
         } catch {
           failed.textContent = couldNotMakeTheFolder;
