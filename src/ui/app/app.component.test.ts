@@ -24,6 +24,7 @@ import { yourProjects } from '../your-projects/your-projects.test-page';
 import { renderApp } from './app.dom';
 import { type AppWriter } from './app.dsl';
 import {
+  appScenarioHarness,
   appScenarioSteps,
   pageWith,
   theAppWaitingForANewVersion,
@@ -624,6 +625,19 @@ describe('the page drawn again', () => {
     await expect
       .element(yourProjects().list(theProjectsFolderName).startAProject)
       .toBeInTheDocument();
+  });
+
+  it('shows the projects in the folder the writer’s machine was left on when the page is drawn again', async () => {
+    const { at, stage, reopen, staged } = appScenarioHarness(
+      vitestBrowserDriver(undefined, 'page'),
+    );
+    at('Elsewhere');
+    await stage(1440, { store: inMemory() });
+
+    await reopen();
+    await staged.choosesTheFolderNamed('Elsewhere');
+
+    await expect.element(yourProjects().list('Elsewhere').startAProject).toBeInTheDocument();
   });
 });
 

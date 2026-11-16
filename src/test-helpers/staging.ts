@@ -1,10 +1,8 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
-import type { DirectoryPicker } from '../adapters/file-system-folders';
 import { settled } from './driver';
-import { anEmptyFolderNamed, theProjectsFolderName } from './folders';
 import { laidOut } from './graph-page';
-import { openTheApp, stopTheApp, type Staging } from './the-app';
+import { stopTheApp } from './the-app';
 
 export const thePage = async (width: number): Promise<Document> => {
   await browser.page.viewport(width, 900);
@@ -18,16 +16,6 @@ export const thePage = async (width: number): Promise<Document> => {
   main.style.width = `${width}px`;
   document.body.append(header, main);
   return document;
-};
-
-export const stagingTheAppIn = async (
-  picker: DirectoryPicker,
-  width: number,
-  on: Staging,
-): Promise<void> => {
-  await anEmptyFolderNamed(theProjectsFolderName);
-  await thePage(width);
-  await openTheApp(document, on, picker);
 };
 
 export const root = (tag: string): HTMLElement => {

@@ -8,13 +8,12 @@ import {
 } from '../../test-helpers/seed';
 import {
   aFolderHoldingProjects,
-  aPickerGivingTheFolder,
   aPickerGivingWhatIsStaged,
   anEmptyFolderNamed,
   theProjectsFolderName,
 } from '../../test-helpers/folders';
-import { stagingTheAppIn } from '../../test-helpers/staging';
-import { reopenTheApp, type Staging } from '../../test-helpers/the-app';
+import { thePage } from '../../test-helpers/staging';
+import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { type NewVersion } from './app.dom';
 import {
@@ -27,6 +26,18 @@ import {
 } from './app.dsl';
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
+
+const stagingTheAppAt = async (
+  where: () => readonly string[],
+  width: number,
+  on: Staging,
+): Promise<void> => {
+  await anEmptyFolderNamed(theProjectsFolderName);
+  await thePage(width);
+  await openTheApp(document, on, aPickerGivingWhatIsStaged(where));
+};
+
+const theFolderThePickerGives = (): readonly string[] => [theProjectsFolderName];
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
   await driver.click('button', 'Choose a folder…');
@@ -95,13 +106,14 @@ const stagedTheWritersMachine = (
   };
 };
 
-export const appScenarioSteps = (driver: Driver) => {
+export const appScenarioHarness = (driver: Driver) => {
   const path: string[] = [theProjectsFolderName];
-  const picker = aPickerGivingWhatIsStaged(() => path);
-  const stage = (width: number, on: Staging): Promise<void> => stagingTheAppIn(picker, width, on);
+  const where = (): readonly string[] => path;
   const at = (...segments: readonly string[]): void => {
     path.splice(0, path.length, ...segments);
   };
+  const stage = (width: number, on: Staging): Promise<void> => stagingTheAppAt(where, width, on);
+  const reopen = (): Promise<void> => reopenTheApp(aPickerGivingWhatIsStaged(where));
   const writer = appWriterOn(
     driver,
     {
@@ -109,7 +121,7 @@ export const appScenarioSteps = (driver: Driver) => {
         await stage(1440, { store: inMemory() });
         await reachingTheProject(driver);
       },
-      reopen: () => reopenTheApp(picker),
+      reopen,
     },
     async (project: SeededProject) => {
       const store = inMemory();
@@ -118,21 +130,28 @@ export const appScenarioSteps = (driver: Driver) => {
     },
   );
   const settling = settlingOnTheProject(writer);
-  return appSteps(
-    settling,
-    appSeesOn(driver, appReadsOnThePage()),
-    stagedTheWritersMachine(driver, settling, { at, stage }),
-  );
+  return {
+    at,
+    stage,
+    reopen,
+    writer: settling,
+    sees: appSeesOn(driver, appReadsOnThePage()),
+    staged: stagedTheWritersMachine(driver, settling, { at, stage }),
+  };
+};
+
+export const appScenarioSteps = (driver: Driver) => {
+  const { writer, sees, staged } = appScenarioHarness(driver);
+  return appSteps(writer, sees, staged);
 };
 
 export const theAppWithoutAProject = (
   on: Staging = {},
 ): { stage: Opening; writer: AppWriter; sees: AppSees } => {
   const driver = vitestBrowserDriver(undefined, 'page');
-  const picker = aPickerGivingTheFolder(theProjectsFolderName);
   const stage: Opening = {
-    fresh: () => stagingTheAppIn(picker, 1440, { store: inMemory(), ...on }),
-    reopen: () => reopenTheApp(picker),
+    fresh: () => stagingTheAppAt(theFolderThePickerGives, 1440, { store: inMemory(), ...on }),
+    reopen: () => reopenTheApp(aPickerGivingWhatIsStaged(theFolderThePickerGives)),
   };
   return {
     stage,
@@ -148,15 +167,14 @@ export const theAppWaitingForANewVersion = (
 
 export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
   const driver = vitestBrowserDriver(undefined, 'page');
-  const picker = aPickerGivingTheFolder(theProjectsFolderName);
   const stage: Opening = {
     fresh: async () => {
       if ((await store.load()) === undefined) {
         await store.save(aProjectWithScenesUnderBeatFour(scenes));
       }
-      await stagingTheAppIn(picker, width, { store });
+      await stagingTheAppAt(theFolderThePickerGives, width, { store });
     },
-    reopen: () => reopenTheApp(picker),
+    reopen: () => reopenTheApp(aPickerGivingWhatIsStaged(theFolderThePickerGives)),
   };
   return {
     stage,
