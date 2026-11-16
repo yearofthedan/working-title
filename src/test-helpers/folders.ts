@@ -34,9 +34,12 @@ export const aFolderHoldingProjects = async (
   for (const title of titles) await projects.start(title);
 };
 
-export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker => ({
-  showDirectoryPicker: () => theFolderAt(path),
+export const aPickerGivingWhatIsStaged = (path: () => readonly string[]): DirectoryPicker => ({
+  showDirectoryPicker: () => theFolderAt(path()),
 });
+
+export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker =>
+  aPickerGivingWhatIsStaged(() => path);
 
 export const aPickerTheWriterCancels: DirectoryPicker = {
   showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),

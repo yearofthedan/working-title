@@ -9,6 +9,7 @@ import {
 import {
   aFolderHoldingProjects,
   aPickerGivingTheFolder,
+  aPickerGivingWhatIsStaged,
   anEmptyFolderNamed,
   theProjectsFolderName,
 } from '../../test-helpers/folders';
@@ -27,10 +28,14 @@ import {
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
-const stageTheApp = async (width: number, on: Staging): Promise<void> => {
+const stageTheApp = async (
+  width: number,
+  on: Staging,
+  picker: NonNullable<Staging['picker']> = aPickerGivingTheFolder(theProjectsFolderName),
+): Promise<void> => {
   await anEmptyFolderNamed(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, { ...on, picker: aPickerGivingTheFolder(theProjectsFolderName) });
+  await openTheApp(document, { ...on, picker });
 };
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
@@ -47,12 +52,6 @@ const reachingTheProject = async (driver: Driver): Promise<void> => {
   await expect.element(theHeader().path).toBeInTheDocument();
 };
 
-const theAppInAFolder = async (driver: Driver, titles: readonly string[] = []): Promise<void> => {
-  await stageTheApp(1440, { store: inMemory() });
-  if (titles.length > 0) await aFolderHoldingProjects(theProjectsFolderName, titles);
-  await reachingYourProjects(driver);
-};
-
 const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
   ...writer,
   startsAProjectTitled: async (title) => {
@@ -65,28 +64,45 @@ const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
   },
 });
 
-const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => ({
-  hasNotChosenWhereToKeepProjects: () => stageTheApp(1440, { store: inMemory() }),
-  anEmptyFolderNamed: async (name) => {
-    await anEmptyFolderNamed(name);
-  },
-  keepsProjectsInAFolderHolding: (titles) => theAppInAFolder(driver, titles),
-  choosesTheFolderNamed: async (name) => {
-    await openTheApp(document, { picker: aPickerGivingTheFolder(name) });
-    await writer.choosesAFolder();
-    await expect.element(theHeader().heading).toHaveTextContent('Your projects');
-  },
-  choosesTheProjectFolder: async (title) => {
-    await openTheApp(document, { picker: aPickerGivingTheFolder(theProjectsFolderName, title) });
-    await aFolderHoldingProjects(theProjectsFolderName, [title]);
-    await writer.choosesAFolder();
-    await expect
-      .element(yourProjects().question.refusal)
-      .toHaveTextContent(
-        `“${title}” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.`,
-      );
-  },
-});
+const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => {
+  let path: readonly string[] = [theProjectsFolderName];
+
+  const stage = async (on: Staging): Promise<void> => {
+    path = [theProjectsFolderName];
+    await stageTheApp(
+      1440,
+      on,
+      aPickerGivingWhatIsStaged(() => path),
+    );
+  };
+
+  return {
+    hasNotChosenWhereToKeepProjects: () => stage({ store: inMemory() }),
+    anEmptyFolderNamed: async (name) => {
+      await anEmptyFolderNamed(name);
+    },
+    keepsProjectsInAFolderHolding: async (titles) => {
+      await stage({ store: inMemory() });
+      await aFolderHoldingProjects(theProjectsFolderName, titles);
+      await reachingYourProjects(driver);
+    },
+    choosesTheFolderNamed: async (name) => {
+      path = [name];
+      await writer.choosesAFolder();
+      await expect.element(theHeader().heading).toHaveTextContent('Your projects');
+    },
+    choosesTheProjectFolder: async (title) => {
+      path = [theProjectsFolderName, title];
+      await aFolderHoldingProjects(theProjectsFolderName, [title]);
+      await writer.choosesAFolder();
+      await expect
+        .element(yourProjects().question.refusal)
+        .toHaveTextContent(
+          `“${title}” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.`,
+        );
+    },
+  };
+};
 
 export const appScenarioSteps = (driver: Driver) => {
   const writer = appWriterOn(
