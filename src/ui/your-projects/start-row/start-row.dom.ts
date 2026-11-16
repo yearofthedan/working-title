@@ -43,6 +43,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
 
   const nameFor = async (typed: string): Promise<void> => {
     const name = await hooks.folder.freeNameFor(typed);
+    if (starting || made !== undefined) return;
     if (title.value === typed) named.textContent = name;
   };
   void nameFor('');
@@ -51,7 +52,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
   const startTheProject = async (): Promise<void> => {
     starting = true;
     failed.replaceChildren();
-    const typed = title.value.trim();
+    const typed = made ?? title.value.trim();
     try {
       if (made === undefined) {
         await hooks.folder.start(typed);

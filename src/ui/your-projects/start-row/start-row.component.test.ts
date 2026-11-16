@@ -144,4 +144,46 @@ describe('starting a project', () => {
     expect(made).toEqual(['']);
     expect(started).toEqual(['', '']);
   });
+
+  it('opens the project under the title its folder was made from when the writer types while it is made and the open fails', async () => {
+    const made: string[] = [];
+    const started: string[] = [];
+    const making = Promise.withResolvers<void>();
+    let opening = false;
+    mountStartRow({
+      folder: aProjectsFolder({
+        start: async (title) => {
+          made.push(title);
+          await making.promise;
+        },
+      }),
+      start: async (title) => {
+        started.push(title);
+        if (!opening) throw new Error('the project could not be opened');
+      },
+    });
+    await writer.typesTheTitle('The Ferryman');
+
+    await writer.pressesStart();
+    await writer.typesTheTitle(' Returns');
+    making.resolve();
+
+    await expect
+      .element(theStartRow().failed)
+      .toHaveTextContent(
+        "working-title made the project's folder but couldn't open the project. Try again.",
+      );
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+
+    opening = true;
+    await writer.pressesStart();
+
+    await expect.element(theStartRow().failed).toBeEmptyDOMElement();
+    expect(made).toEqual(['The Ferryman']);
+    expect(started).toEqual(['The Ferryman', 'The Ferryman']);
+  });
 });
