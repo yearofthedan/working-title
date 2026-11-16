@@ -14,7 +14,12 @@ import {
   theProjectsFolderName,
 } from '../../test-helpers/folders';
 import { thePage } from '../../test-helpers/staging';
-import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
+import {
+  openTheApp,
+  reopenTheApp,
+  type DirectoryPicker,
+  type Staging,
+} from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { type NewVersion } from './app.dom';
 import {
@@ -28,13 +33,10 @@ import {
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
-const stageTheApp = async (width: number, on: Staging): Promise<void> => {
+const stageTheApp = async (width: number, on: Staging, picker: DirectoryPicker): Promise<void> => {
   await anEmptyFolderNamed(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, {
-    ...on,
-    picker: on.picker ?? aPickerGivingTheFolder(theProjectsFolderName),
-  });
+  await openTheApp(document, on, picker);
 };
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
@@ -68,7 +70,11 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => {
 
   const stage = async (on: Staging): Promise<void> => {
     path = [theProjectsFolderName];
-    await stageTheApp(1440, { ...on, picker: aPickerGivingWhatIsStaged(() => path) });
+    await stageTheApp(
+      1440,
+      on,
+      aPickerGivingWhatIsStaged(() => path),
+    );
   };
 
   return {
@@ -100,19 +106,20 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => {
 };
 
 export const appScenarioSteps = (driver: Driver) => {
+  const picker = aPickerGivingTheFolder(theProjectsFolderName);
   const writer = appWriterOn(
     driver,
     {
       fresh: async () => {
-        await stageTheApp(1440, { store: inMemory() });
+        await stageTheApp(1440, { store: inMemory() }, picker);
         await reachingTheProject(driver);
       },
-      reopen: reopenTheApp,
+      reopen: () => reopenTheApp(picker),
     },
     async (project: SeededProject) => {
       const store = inMemory();
       await store.save(project);
-      await stageTheApp(1440, { store });
+      await stageTheApp(1440, { store }, picker);
     },
   );
   const settling = settlingOnTheProject(writer);
@@ -127,9 +134,10 @@ export const theAppWithoutAProject = (
   on: Staging = {},
 ): { stage: Opening; writer: AppWriter; sees: AppSees } => {
   const driver = vitestBrowserDriver(undefined, 'page');
+  const picker = aPickerGivingTheFolder(theProjectsFolderName);
   const stage: Opening = {
-    fresh: () => stageTheApp(1440, { store: inMemory(), ...on }),
-    reopen: reopenTheApp,
+    fresh: () => stageTheApp(1440, { store: inMemory(), ...on }, picker),
+    reopen: () => reopenTheApp(picker),
   };
   return {
     stage,
@@ -145,14 +153,15 @@ export const theAppWaitingForANewVersion = (
 
 export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
   const driver = vitestBrowserDriver(undefined, 'page');
+  const picker = aPickerGivingTheFolder(theProjectsFolderName);
   const stage: Opening = {
     fresh: async () => {
       if ((await store.load()) === undefined) {
         await store.save(aProjectWithScenesUnderBeatFour(scenes));
       }
-      await stageTheApp(width, { store });
+      await stageTheApp(width, { store }, picker);
     },
-    reopen: reopenTheApp,
+    reopen: () => reopenTheApp(picker),
   };
   return {
     stage,

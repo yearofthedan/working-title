@@ -4,32 +4,33 @@ import type { ProjectStore } from '../ports/project-store';
 import type { NewVersion } from '../ui/app/app.dom';
 import { inMemory } from './seed';
 
+export type { DirectoryPicker };
+
 const stops = new Map<ParentNode, () => void>();
 
 let store: ProjectStore = inMemory();
-let picker: DirectoryPicker | undefined;
 
 export interface Staging {
   readonly store?: ProjectStore;
   readonly newVersion?: NewVersion;
-  readonly picker?: DirectoryPicker;
 }
 
 export const stopTheApp = (): void => {
   for (const stop of stops.values()) stop();
   stops.clear();
-  picker = undefined;
 };
 
-export const openTheApp = async (page: ParentNode = document, on: Staging = {}): Promise<void> => {
+export const openTheApp = async (
+  page: ParentNode = document,
+  on: Staging = {},
+  picker?: DirectoryPicker,
+): Promise<void> => {
   stops.get(page)?.();
   if (on.store !== undefined) store = on.store;
-  if (on.picker !== undefined) picker = on.picker;
   stops.set(page, await startApp(page, { store, newVersion: on.newVersion, picker }));
 };
 
-export const reopenTheApp = async (): Promise<void> => {
-  const staged = picker;
+export const reopenTheApp = async (picker: DirectoryPicker): Promise<void> => {
   stopTheApp();
 
   const main = document.querySelector<HTMLElement>('main');
@@ -45,5 +46,5 @@ export const reopenTheApp = async (): Promise<void> => {
   document.querySelector('header')?.replaceWith(header);
   main?.replaceWith(freshMain);
 
-  await openTheApp(document, { picker: staged });
+  await openTheApp(document, {}, picker);
 };
