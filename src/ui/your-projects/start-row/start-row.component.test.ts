@@ -143,6 +143,23 @@ describe('starting a project', () => {
     expect(started).toEqual(['', '']);
   });
 
+  it('names the folder it made rather than the next free name', async () => {
+    await anEmptyFolderNamed(theProjectsFolderName);
+    mountStartRow({
+      folder: await aChosenFolderAt(theProjectsFolderName),
+      start: () => Promise.reject(new Error('the project could not be opened')),
+    });
+    await writer.typesTheTitle('The Ferryman');
+
+    await writer.pressesStart();
+
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+  });
+
   it('opens the project under the title its folder was made from when the writer types while it is made and the open fails', async () => {
     const made: string[] = [];
     const started: string[] = [];

@@ -41,11 +41,15 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
   let starting = false;
   let made: string | undefined;
 
+  const showTheName = (name: string | undefined): void => {
+    said.hidden = name === undefined;
+    if (name !== undefined) named.textContent = name;
+  };
+
   const nameFor = async (typed: string): Promise<void> => {
     const name = await hooks.folder.freeNameFor(typed).catch(() => undefined);
     if (title.value !== typed) return;
-    said.hidden = name === undefined;
-    if (name !== undefined) named.textContent = name;
+    showTheName(name);
   };
   void nameFor('');
   title.addEventListener('input', () => void nameFor(title.value));
@@ -56,6 +60,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
     const typed = made ?? title.value.trim();
     try {
       if (made === undefined) {
+        const theNameItWillBeGiven = await hooks.folder.freeNameFor(typed).catch(() => undefined);
         await hooks.folder.start(typed);
         made = typed;
         title.readOnly = true;
@@ -65,7 +70,7 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
           named,
           ` in ${hooks.folder.name}.`,
         );
-        void nameFor(made);
+        showTheName(theNameItWillBeGiven);
       }
     } catch {
       failed.textContent = couldNotMakeTheFolder;
