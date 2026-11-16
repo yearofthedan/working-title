@@ -7,10 +7,12 @@ Given a current beat with two scenes
 And the first scene has focus
 When the writer presses Enter
 Then the first scene becomes current, and has focus
-- group "Scene 1" [active] [current]:
-  - heading "Scene 1" [level=4]
-  - text: List line
-  - textbox "List line"
-  - button "Open beside"
-  - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
+- main:
+  - toolbar "Scenes under Beat 2":
+    - group "Scene 1" [active] [current]:
+      - heading "Scene 1" [level=4]
+      - text: List line
+      - textbox "List line"
+      - button "Open beside"
+      - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
 ```
