@@ -28,14 +28,13 @@ import {
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './app.test-page';
 
-const stageTheApp = async (
-  width: number,
-  on: Staging,
-  picker: NonNullable<Staging['picker']> = aPickerGivingTheFolder(theProjectsFolderName),
-): Promise<void> => {
+const stageTheApp = async (width: number, on: Staging): Promise<void> => {
   await anEmptyFolderNamed(theProjectsFolderName);
   await thePage(width);
-  await openTheApp(document, { ...on, picker });
+  await openTheApp(document, {
+    ...on,
+    picker: on.picker ?? aPickerGivingTheFolder(theProjectsFolderName),
+  });
 };
 
 const reachingYourProjects = async (driver: Driver): Promise<void> => {
@@ -69,11 +68,7 @@ const stagedTheWritersMachine = (driver: Driver, writer: AppWriter): Staged => {
 
   const stage = async (on: Staging): Promise<void> => {
     path = [theProjectsFolderName];
-    await stageTheApp(
-      1440,
-      on,
-      aPickerGivingWhatIsStaged(() => path),
-    );
+    await stageTheApp(1440, { ...on, picker: aPickerGivingWhatIsStaged(() => path) });
   };
 
   return {

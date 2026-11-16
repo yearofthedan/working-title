@@ -14,7 +14,7 @@ import {
   holdingSaves,
   inMemory,
 } from '../../test-helpers/seed';
-import { theProjectsFolderName } from '../../test-helpers/folders';
+import { aPickerGivingTheFolder, theProjectsFolderName } from '../../test-helpers/folders';
 import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
@@ -624,6 +624,19 @@ describe('the page drawn again', () => {
     await expect
       .element(yourProjects().list(theProjectsFolderName).startAProject)
       .toBeInTheDocument();
+  });
+});
+
+describe('the staging the app is opened with', () => {
+  it('lets the writer choose the folder the caller staged the app with', async () => {
+    const { stage, writer } = theAppWithoutAProject({
+      picker: aPickerGivingTheFolder('Elsewhere'),
+    });
+    await stage.fresh();
+
+    await writer.choosesAFolder();
+
+    await expect.element(yourProjects().list('Elsewhere').startAProject).toBeInTheDocument();
   });
 });
 

@@ -18,16 +18,18 @@ export interface Staging {
 export const stopTheApp = (): void => {
   for (const stop of stops.values()) stop();
   stops.clear();
+  picker = undefined;
 };
 
 export const openTheApp = async (page: ParentNode = document, on: Staging = {}): Promise<void> => {
   stops.get(page)?.();
   if (on.store !== undefined) store = on.store;
   if (on.picker !== undefined) picker = on.picker;
-  stops.set(page, await startApp(page, { store, newVersion: on.newVersion, picker: on.picker }));
+  stops.set(page, await startApp(page, { store, newVersion: on.newVersion, picker }));
 };
 
 export const reopenTheApp = async (): Promise<void> => {
+  const staged = picker;
   stopTheApp();
 
   const main = document.querySelector<HTMLElement>('main');
@@ -43,5 +45,5 @@ export const reopenTheApp = async (): Promise<void> => {
   document.querySelector('header')?.replaceWith(header);
   main?.replaceWith(freshMain);
 
-  await openTheApp(document, { picker });
+  await openTheApp(document, { picker: staged });
 };
