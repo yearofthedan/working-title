@@ -627,11 +627,8 @@ describe('the page drawn again', () => {
       .toBeInTheDocument();
   });
 
-  it('shows the projects in the folder the writer’s machine was left on when the page is drawn again', async () => {
-    const { at, stage, reopen, staged } = appScenarioHarness(
-      vitestBrowserDriver(undefined, 'page'),
-    );
-    at('Elsewhere');
+  it('gives the chosen folder from the path the harness holds when the page is drawn again', async () => {
+    const { stage, reopen, staged } = appScenarioHarness(vitestBrowserDriver(undefined, 'page'));
     await stage(1440, { store: inMemory() });
 
     await reopen();
