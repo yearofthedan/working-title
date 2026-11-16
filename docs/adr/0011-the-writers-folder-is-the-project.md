@@ -23,7 +23,7 @@ Which copy of the writer's work does the app trust: the browser's, or the folder
 
 ## Decision
 
-The writer chooses once a folder where projects are kept. Each project is a folder the app makes there, and that folder is the project. Every change is saved in the browser first and written to the project's folder in the background. On opening, and when the writer returns to the app, the app reads the folder. Per piece, an edit the browser has not yet written wins; otherwise the folder wins. A piece changed in both places since the last write keeps both versions, and the writer is told.
+A project's folder is the project. Every change is saved in the browser first and written to the project's folder in the background. On opening, and when the writer returns to the app, the app reads the folder. Per piece, an edit the browser has not yet written wins; otherwise the folder wins. A piece changed in both places since the last write keeps both versions, and the writer is told.
 
 Words never lost decided it. The write-only mirror lost on that force, because it overwrites edits made outside the app; the folder as the only store lost on it too, because it saves nothing while access has lapsed. A native shell meets every force, but a second app to build and ship is what [ADR 1](0001-no-backend-in-v1.md)'s solo builder rules out for v1.
 
