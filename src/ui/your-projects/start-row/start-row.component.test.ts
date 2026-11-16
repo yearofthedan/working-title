@@ -7,6 +7,7 @@ import {
   theProjectsFolder,
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
+import { settled } from '../../../test-helpers/driver';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { startRowWriterOn } from './start-row.dsl';
 import { mountStartRow } from './start-row.harness';
@@ -175,6 +176,7 @@ describe('starting a project', () => {
       .toHaveTextContent(
         `working-title made a folder named The Ferryman in ${theProjectsFolderName}.`,
       );
+    await expect.element(theStartRow().title).toHaveValue('The Ferryman');
 
     opening = true;
     await writer.pressesStart();
@@ -216,6 +218,65 @@ describe('starting a project', () => {
       .element(theStartRow().said)
       .toHaveTextContent(
         `working-title will make a folder named The Ferryman in ${theProjectsFolderName}.`,
+      );
+  });
+
+  it('keeps the line hidden when an older scan answers after the latest one failed', async () => {
+    const theOlderScanAnswered = Promise.withResolvers<void>();
+    const folder = aProjectsFolder();
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: async (title) => {
+          if (title === 'The Ferryman') await theOlderScanAnswered.promise;
+          if (title === 'The Ferryman 2') throw new Error('the folder could not be read');
+          return folder.freeNameFor(title);
+        },
+      },
+    });
+
+    await writer.typesTheTitle('The Ferryman');
+    await writer.typesTheTitle('The Ferryman 2');
+    await expect.element(theStartRow().said).not.toBeVisible();
+
+    theOlderScanAnswered.resolve();
+    await settled();
+
+    await expect.element(theStartRow().said).not.toBeVisible();
+  });
+
+  it('keeps the line shown when a stale scan fails after the latest one answered', async () => {
+    const theLatestScanLanded = Promise.withResolvers<void>();
+    const folder = aProjectsFolder();
+    mountStartRow({
+      folder: {
+        ...folder,
+        freeNameFor: async (title) => {
+          if (title === 'The Ferryman') {
+            await theLatestScanLanded.promise;
+            throw new Error('the folder could not be read');
+          }
+          return folder.freeNameFor(title);
+        },
+      },
+    });
+
+    await writer.typesTheTitle('The Ferryman');
+    await writer.typesTheTitle('The Ferryman 2');
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title will make a folder named The Ferryman 2 in ${theProjectsFolderName}.`,
+      );
+
+    theLatestScanLanded.resolve();
+    await settled();
+
+    await expect.element(theStartRow().said).toBeVisible();
+    await expect
+      .element(theStartRow().said)
+      .toHaveTextContent(
+        `working-title will make a folder named The Ferryman 2 in ${theProjectsFolderName}.`,
       );
   });
 });

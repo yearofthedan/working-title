@@ -42,15 +42,10 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
   let made: string | undefined;
 
   const nameFor = async (typed: string): Promise<void> => {
-    let name: string | undefined;
-    try {
-      name = await hooks.folder.freeNameFor(typed);
-    } catch {
-      name = undefined;
-    }
-    if (starting || made !== undefined) return;
+    const name = await hooks.folder.freeNameFor(typed).catch(() => undefined);
+    if (title.value !== typed) return;
     said.hidden = name === undefined;
-    if (name !== undefined && title.value === typed) named.textContent = name;
+    if (name !== undefined) named.textContent = name;
   };
   void nameFor('');
   title.addEventListener('input', () => void nameFor(title.value));
@@ -64,11 +59,13 @@ export const startRow = (hooks: StartRowHooks): StartRow => {
         await hooks.folder.start(typed);
         made = typed;
         title.readOnly = true;
+        title.value = made;
         said.replaceChildren(
           'working-title made a folder named ',
           named,
           ` in ${hooks.folder.name}.`,
         );
+        void nameFor(made);
       }
     } catch {
       failed.textContent = couldNotMakeTheFolder;
