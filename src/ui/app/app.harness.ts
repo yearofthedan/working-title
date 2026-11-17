@@ -15,7 +15,7 @@ import {
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { type NewVersion } from './app.dom';
+import { type NewVersion } from './the-page.dom';
 import {
   appSeesOn,
   appSteps,

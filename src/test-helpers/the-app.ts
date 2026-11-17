@@ -1,7 +1,7 @@
 import type { DirectoryPicker } from '../adapters/file-system-folders';
 import { startApp } from '../app';
 import type { ProjectStore } from '../ports/project-store';
-import type { NewVersion } from '../ui/app/app.dom';
+import type { NewVersion } from '../ui/app/the-page.dom';
 import { inMemory } from './seed';
 
 const stops = new Map<ParentNode, () => void>();

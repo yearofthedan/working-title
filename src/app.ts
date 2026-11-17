@@ -3,8 +3,9 @@ import { projectStore } from './adapters/local-storage-project-store';
 import { openProject, startProject, type OpenProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
 import type { ProjectStore } from './ports/project-store';
-import { announceWhenWaiting, renderApp, thePageParts, type NewVersion } from './ui/app/app.dom';
-import { yourProjects } from './ui/your-projects/your-projects.dom';
+import { renderApp } from './ui/app/app.dom';
+import { announceWhenWaiting, thePageParts, type NewVersion } from './ui/app/the-page.dom';
+import { renderYourProjects } from './ui/your-projects/your-projects.dom';
 
 export interface StartUp {
   readonly newVersion?: NewVersion;
@@ -36,7 +37,7 @@ export const startApp = async (page: ParentNode, startUp: StartUp = {}): Promise
     });
   };
 
-  const screen = yourProjects({
+  const screen = renderYourProjects({
     chooser: fileSystemFolders(snowflakeExtended, picker),
     showingYourProjects: (draw) =>
       show(() => {
