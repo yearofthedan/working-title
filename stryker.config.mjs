@@ -8,7 +8,9 @@ export default {
   /* shortcut: Stryker's Vitest runner cannot run browser mode, so a *.dom.ts and the adapters,
      tested only there, are left out; mutate them too once it can
      (https://stryker-mutator.io/docs/stryker-js/vitest-runner#limitations). A component's
-     *.harness.ts is browser-mode test code and is left out for the same reason. */
+     *.harness.ts is browser-mode test code and is left out for the same reason. The app's words in
+     src/ui/strings.*.ts are left out too: the browser tests and the approved scenarios pin them;
+     mutate them once the runner can run browser mode. */
   mutate: [
     'src/domain/**/*.ts',
     'src/application/**/*.ts',
@@ -18,6 +20,7 @@ export default {
     '!src/**/*.test.ts',
     '!src/**/*.test-page.ts',
     '!src/**/*.harness.ts',
+    '!src/ui/strings.*.ts',
   ],
   incremental: true,
   thresholds: { break: 90 },
