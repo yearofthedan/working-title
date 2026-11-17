@@ -76,6 +76,21 @@ refused(
   'el.textContent = `Add a ${id}`;',
 );
 refused(
+  'a literal in one branch of a conditional assigned to textContent',
+  'literal-in-a-conditional.dom.ts',
+  "el.textContent = id === '' ? 'Close' : strings.close;",
+);
+refused(
+  'a literal added to a value assigned to textContent',
+  'literal-added-in-textContent.dom.ts',
+  "el.textContent = 'Add ' + id;",
+);
+refused(
+  'a template literal given to setAttribute',
+  'template-in-setAttribute.dom.ts',
+  "el.setAttribute('aria-label', `Close ${id}`);",
+);
+refused(
   'a template literal given to append',
   'template-given-to-append.dom.ts',
   'el.append(`Add a ${id}`);',
@@ -94,6 +109,13 @@ refused(
   'a literal in a sample named project.dom.ts',
   'project.dom.ts',
   "el.textContent = 'Close';",
+);
+
+allowed(
+  'a conditional choosing between two strings file values',
+  'strings-in-a-conditional.dom.ts',
+  "el.textContent = id === '' ? strings.close : strings.open;",
+  'el.textContent = strings.close + id;',
 );
 
 allowed(
