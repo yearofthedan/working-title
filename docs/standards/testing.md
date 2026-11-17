@@ -24,22 +24,30 @@ Most cases are unit or component tests; a journey is kept for what only the buil
 
 A language names what the writer does over the driver contract, so one language runs under either protocol driver.
 
+**A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it**, other helpers among them: a component's own folder where one component uses it, `src/ui/` where several do, and `src/test-helpers/` for what reaches beyond `src/ui/`, such as `e2e/`, `src/adapters/`, `src/application/` or `src/domain/`. A `test-helpers/` folder holds one file per kind it needs, named for the kind — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. Each folder takes the `*.test.ts` of what it holds. **Only the folder that holds a `test-helpers/` folder, and the folders above it, read it**: `./do layers` finds the folders in the tree and refuses every other file, so a sibling's folder is out of reach, and `e2e/` reaches `src/test-helpers/` and nothing under it.
+
 | Kind | File | Holds |
 | --- | --- | --- |
 | Language | `*.dsl.ts` beside its component, `e2e/journey.dsl.ts` | What the writer does and sees, in the [ubiquitous language](../domain/ubiquitous-language.md). The app's builds on the graph's and the panel's |
-| Driver contract | `src/test-helpers/driver.ts` | What a language asks of a driver, and finding by role and label |
-| Protocol driver | `*.driver.ts` in `src/test-helpers/` | One per runner: Vitest's browser mode, Playwright |
+| Driver contract | `drivers/driver.ts`, `drivers/narrowing.ts` | What a language asks of a driver, and finding by role and label |
+| Protocol driver | `drivers/*.driver.ts` | One per runner: Vitest's browser mode, Playwright |
 | Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
 | Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
-| Measures | `field.ts`, `box.ts`, `look.ts` in `src/test-helpers/` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
-| Staging | `staging.ts`, `folders.ts`, `seed.ts` in `src/test-helpers/` | A page or a project the writer cannot make; a folder on the writer's machine standing in for the one the writer chooses, and what it holds |
+| Measures | `measures/box.ts`, `measures/field.ts`, `measures/look.ts`, `measures/frames.ts` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
+| Staging | `staging/staging.ts`, `staging/graph-page.ts`, `staging/the-app.ts` | A page or a project the writer cannot make, and the helpers that open and read the app |
+| Folders | `folders/folder.ts`, `folders/folders.ts` | The folder the writer chose: what it holds, narrowed to the folder or file a step reported, and the folders on the writer's machine standing in for the one the writer picks |
+| Seed | `seed/seed.ts`, `seed/ids.ts`, `seed/toy-method.ts` | A project the writer cannot make, its ids, and a method the code runs in place of a real one |
+| Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/scenario-entry.ts`, `runner/every-file.ts`, `runner/raw-glob.ts` | The scenario file, the step table, and what plays them |
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
+
+The paths in the table start at the `test-helpers/` folder that holds the file.
 
 - **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
 - **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing. It waits on the page only through `expect.element`; `expect.poll` and `vi.waitFor` are for what the page doesn't show, such as the folder on disk or a stand-in's calls.
 - **A test page returns Locators**, each found inside its part and grouped by what the writer does with them, such as a card's `actions`, so a check retries until the page settles.
 - **A spec and a language find no element; a driver finds one only by role or label**, as [the markup standard](markup.md) says.
 - **A language imports the driver contract and no driver, and the app imports no test code.**
+- **A helper of one kind imports no helper of a kind it is not written over**: a driver imports no staging, folder, runner, seed or measure; staging imports no folder or runner, adapter or method; the folders import no staging or runner; the runner imports no staging, seed, adapter, method, application or domain; seed imports no driver, staging, folder, runner, adapter or `src/ui/`. A `*.test.ts` is exempt, since the test beside a helper may hold two kinds together.
 - **A registration every browser test shares** goes in a file `setupFiles` loads, such as `src/test-helpers/locators.ts`.
 
 ## Names and cases

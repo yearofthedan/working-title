@@ -41,18 +41,20 @@ A component reaches another only through that component's `render<Component>`, a
 
 ## Test code
 
-[src/test-helpers/](../src/test-helpers/) holds the code every level shares:
+A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it: a component's own folder where one component uses it, `src/ui/` where several do, and [src/test-helpers/](../src/test-helpers/) for what reaches beyond `src/ui/`, such as `e2e/` and the app's own layers. Each folder holds one file per kind it needs — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. [Testing](standards/testing.md#where-test-code-goes) lists every kind and what it holds, and `./do layers` refuses a file that reaches a `test-helpers/` folder from outside the folder holding it.
 
-- the driver contract and its protocol drivers;
-- the measures, including [frames.ts](../src/test-helpers/frames.ts), the boxes sampled frame by frame for motion;
-- staging ([staging.ts](../src/test-helpers/staging.ts) for a page, [folders.ts](../src/test-helpers/folders.ts) for the folders on the writer's machine) and seed;
-- the scenario file, step table and runner;
-- [folder.ts](../src/test-helpers/folder.ts), which prints what the folder the writer chose holds and narrows it to the folder or file a step reported;
-- [scenario-entry.ts](../src/test-helpers/scenario-entry.ts), which each component test with a `scenarios/` folder calls;
-- the helpers that mount, open and read the app: [the-app.ts](../src/test-helpers/the-app.ts) and [graph-page.ts](../src/test-helpers/graph-page.ts);
-- small fixtures: [recording.ts](../src/test-helpers/recording.ts), a driver that records its calls, [toy-method.ts](../src/test-helpers/toy-method.ts) and [ids.ts](../src/test-helpers/ids.ts).
+[src/test-helpers/](../src/test-helpers/) is a folder per kind:
 
-[locators.ts](../src/test-helpers/locators.ts) and [matchers.ts](../src/test-helpers/matchers.ts) are the registrations every browser test loads.
+| Folder | Holds |
+| --- | --- |
+| `drivers/` | The driver contract and what a language reads by, and the Vitest browser and Playwright drivers |
+| `measures/` | The measures, including `frames.ts`, the boxes sampled frame by frame for motion |
+| `staging/` | `staging.ts` for a page, and `graph-page.ts` and `the-app.ts` for the app the writer cannot make |
+| `folders/` | `folder.ts`, which prints what the folder the writer chose holds and narrows it to the folder or file a step reported, and the folders on the writer's machine |
+| `seed/` | A project, its ids, and a method the code runs in place of a real one |
+| `runner/` | The scenario file, the step table and the runner, the entry each component test with a `scenarios/` folder calls, and the files they walk |
+
+[locators.ts](../src/test-helpers/locators.ts) and [matchers.ts](../src/test-helpers/matchers.ts) are the registrations every browser test loads, so they stay at the top of the folder.
 
 [Testing](standards/testing.md#levels) says what each level is and what runs it.
 
