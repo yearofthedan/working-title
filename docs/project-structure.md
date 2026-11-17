@@ -89,6 +89,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [src/](../src/) | The app |
 | [e2e/](../e2e/) | The journeys |
 | [scripts/](../scripts/) | The `./do` tasks |
+| [lint/](../lint/) | The lint rules this repository's standards enforce, one module per concern, each with its test, composed by [lint/index.ts](../lint/index.ts) into the `overrides` that `vite.config.ts` sets |
 | [docs/](README.md) | The pages, and where a new one goes |
 | [designs/](../designs/README.md) | The designs of stories not built yet |
 | [public/](../public/) | The app's icons: the page's favicon and the manifest's |
