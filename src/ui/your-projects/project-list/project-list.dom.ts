@@ -1,5 +1,5 @@
 import type { ProjectsFolder } from '../../../application/project';
-import { startRow } from '../start-row/start-row.dom';
+import { renderStartAProject } from '../start-a-project/start-a-project.dom';
 
 export interface ProjectListHooks {
   readonly folder: ProjectsFolder;
@@ -10,7 +10,7 @@ export interface ProjectList {
   readonly element: HTMLElement;
 }
 
-export const projectList = (hooks: ProjectListHooks): ProjectList => {
+export const renderProjectList = (hooks: ProjectListHooks): ProjectList => {
   const element = document.createElement('section');
   element.className = 'project-list';
   const name = document.createElement('h2');
@@ -33,7 +33,7 @@ export const projectList = (hooks: ProjectListHooks): ProjectList => {
   };
 
   const openTheRow = (): void => {
-    const started = startRow({
+    const started = renderStartAProject({
       folder: hooks.folder,
       start: hooks.start,
       cancelled: () => {

@@ -1,20 +1,20 @@
 import { untitledProjectTitle, type ProjectsFolder } from '../../../application/project';
-import { couldNotMakeTheFolder, couldNotOpenTheProject } from './start-row';
+import { couldNotMakeTheFolder, couldNotOpenTheProject } from './start-a-project';
 
 export const thePauseBeforeReading = 250;
 
-export interface StartRowHooks {
+export interface StartAProjectHooks {
   readonly folder: ProjectsFolder;
   readonly start: (title: string) => Promise<void>;
   readonly cancelled: () => void;
 }
 
-export interface StartRow {
+export interface StartAProject {
   readonly element: HTMLElement;
   focus(): void;
 }
 
-export const startRow = (hooks: StartRowHooks): StartRow => {
+export const renderStartAProject = (hooks: StartAProjectHooks): StartAProject => {
   const form = document.createElement('form');
   const label = document.createElement('label');
   label.htmlFor = 'start-a-project-title';

@@ -100,7 +100,7 @@ const drawingAndReadingAsAllowed = [
   '',
 ].join('\n');
 
-const theAppsOwnFile = 'src/ui/app/app.dom.ts';
+const theAppsOwnFile = 'src/ui/project/project.dom.ts';
 
 const outsideTheRoot = (name: string) => `outside-${name.replaceAll('.', '-')}.dom.ts`;
 

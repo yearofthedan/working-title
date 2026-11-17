@@ -1,24 +1,24 @@
 import type { Driver } from '../../test-helpers/driver';
 import type { StepAction } from '../../test-helpers/steps';
 import {
-  folderQuestionSeesOn,
-  folderQuestionWriterOn,
-  type FolderQuestionSees,
-  type FolderQuestionWriter,
-} from './folder-question/folder-question.dsl';
+  projectsFolderSeesOn,
+  projectsFolderWriterOn,
+  type ProjectsFolderSees,
+  type ProjectsFolderWriter,
+} from './projects-folder/projects-folder.dsl';
 import { projectListWriterOn, type ProjectListWriter } from './project-list/project-list.dsl';
 
-export interface YourProjectsWriter extends FolderQuestionWriter, ProjectListWriter {}
+export interface YourProjectsWriter extends ProjectsFolderWriter, ProjectListWriter {}
 
-export interface YourProjectsSees extends FolderQuestionSees {}
+export interface YourProjectsSees extends ProjectsFolderSees {}
 
 export const yourProjectsWriterOn = (driver: Driver): YourProjectsWriter => ({
-  ...folderQuestionWriterOn(driver),
+  ...projectsFolderWriterOn(driver),
   ...projectListWriterOn(driver),
 });
 
 export const yourProjectsSeesOn = (driver: Driver): YourProjectsSees => ({
-  ...folderQuestionSeesOn(driver),
+  ...projectsFolderSeesOn(driver),
 });
 
 export const yourProjectsSteps = (writer: YourProjectsWriter): Record<string, StepAction> => ({

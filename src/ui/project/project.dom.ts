@@ -3,14 +3,14 @@ import type { TheShell } from '../../shell';
 import { renderGraph } from '../graph/graph.dom';
 import { renderPanel } from '../panel/panel.dom';
 
-export interface AppHooks {
+export interface ProjectHooks {
   readonly enterTheCurrentPiece?: boolean;
 }
 
-export const renderApp = async (
+export const renderProject = async (
   page: TheShell,
   project: OpenProject,
-  hooks: AppHooks = {},
+  hooks: ProjectHooks = {},
 ): Promise<() => void> => {
   const { main } = page;
   page.setTitle(project.title === '' ? untitledProjectTitle : project.title);

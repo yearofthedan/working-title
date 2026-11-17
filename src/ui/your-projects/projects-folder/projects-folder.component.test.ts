@@ -8,13 +8,13 @@ import {
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
-import { folderQuestionSeesOn, folderQuestionWriterOn } from './folder-question.dsl';
-import { mountFolderQuestion } from './folder-question.harness';
-import { whereTheProjectsAreKept } from './folder-question.test-page';
+import { projectsFolderSeesOn, projectsFolderWriterOn } from './projects-folder.dsl';
+import { mountFolderQuestion } from './projects-folder.harness';
+import { whereTheProjectsAreKept } from './projects-folder.test-page';
 
 const driver = vitestBrowserDriver();
-const writer = folderQuestionWriterOn(driver);
-const sees = folderQuestionSeesOn(driver);
+const writer = projectsFolderWriterOn(driver);
+const sees = projectsFolderSeesOn(driver);
 
 const theRefusal =
   "“The Ferryman” is a project's own folder, so it can't hold other projects. Choose the folder it sits in instead.";

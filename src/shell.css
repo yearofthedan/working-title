@@ -385,7 +385,7 @@ svg {
     font-size: var(--text-interface);
   }
 
-  .folder-question,
+  .projects-folder,
   .project-list {
     display: grid;
     gap: var(--space-4);
@@ -410,7 +410,7 @@ svg {
     margin: 0;
   }
 
-  .folder-question > p:last-child {
+  .projects-folder > p:last-child {
     color: var(--color-text-muted);
   }
 
@@ -471,7 +471,7 @@ svg {
     cursor: pointer;
   }
 
-  .folder-question > button,
+  .projects-folder > button,
   button[type='submit'] {
     border-color: var(--color-focus);
     background: var(--color-focus);

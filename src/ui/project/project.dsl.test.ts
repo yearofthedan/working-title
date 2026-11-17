@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { recording, storyDrawn } from '../../test-helpers/recording';
-import { appSeesOn, appSteps, appWriterOn } from './app.dsl';
+import { projectSeesOn, projectSteps, projectWriterOn } from './project.dsl';
 
 describe('the app language', () => {
   it('goes to a piece first when adding a scene under it', async () => {
     const { calls, driver, opening, reads } = recording(storyDrawn);
-    const add = appSteps(appWriterOn(driver, opening), appSeesOn(driver, reads))[
+    const add = projectSteps(projectWriterOn(driver, opening), projectSeesOn(driver, reads))[
       'the writer adds a scene under {beat}'
     ]!;
 
@@ -23,7 +23,7 @@ describe('the app language', () => {
       ['scene 2 under beat 2', 'Scene 2'],
     ] as const) {
       const { calls, driver, opening, reads } = recording(storyDrawn);
-      const opens = appSteps(appWriterOn(driver, opening), appSeesOn(driver, reads))[
+      const opens = projectSteps(projectWriterOn(driver, opening), projectSeesOn(driver, reads))[
         'opens {piece} beside the graph'
       ]!;
 
@@ -40,7 +40,7 @@ describe('the app language', () => {
   it('presses the path to a piece that is off the graph', async () => {
     const { calls, driver, opening } = recording(['- main:']);
 
-    await appWriterOn(driver, opening).makesCurrent('The story');
+    await projectWriterOn(driver, opening).makesCurrent('The story');
 
     expect(calls).toEqual([
       'click button "The story" in navigation "Where you are"',
@@ -50,7 +50,7 @@ describe('the app language', () => {
 
   it('refuses a scene that is not under the beat named', async () => {
     const { driver, opening, reads } = recording(storyDrawn);
-    const type = appSteps(appWriterOn(driver, opening), appSeesOn(driver, reads))[
+    const type = projectSteps(projectWriterOn(driver, opening), projectSeesOn(driver, reads))[
       'types "{text}" as {scene}\'s list line under {beat}'
     ]!;
 

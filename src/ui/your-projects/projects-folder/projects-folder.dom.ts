@@ -1,13 +1,13 @@
 import type { ProjectsFolder, ProjectsFolderChooser } from '../../../application/project';
 import { errorIcon } from '../../icons/error.dom';
-import { couldNotOpenTheFolder, noFolderPicker, refusalFor } from './folder-question';
+import { couldNotOpenTheFolder, noFolderPicker, refusalFor } from './projects-folder';
 
-export interface FolderQuestionHooks {
+export interface ProjectsFolderHooks {
   readonly chooser: ProjectsFolderChooser;
   readonly chosen: (folder: ProjectsFolder) => Promise<void>;
 }
 
-export interface FolderQuestion {
+export interface ProjectsFolderQuestion {
   readonly element: HTMLElement;
 }
 
@@ -17,11 +17,11 @@ const paragraph = (text: string): HTMLParagraphElement => {
   return said;
 };
 
-export const folderQuestion = (hooks: FolderQuestionHooks): FolderQuestion => {
+export const renderProjectsFolder = (hooks: ProjectsFolderHooks): ProjectsFolderQuestion => {
   const element = document.createElement('section');
-  element.className = 'folder-question';
+  element.className = 'projects-folder';
   const name = document.createElement('h2');
-  name.id = 'folder-question-heading';
+  name.id = 'projects-folder-heading';
   name.textContent = 'Choose where to keep your projects';
   element.setAttribute('aria-labelledby', name.id);
   const choose = document.createElement('button');

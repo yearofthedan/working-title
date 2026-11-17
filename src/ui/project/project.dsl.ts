@@ -28,7 +28,7 @@ import {
   type YourProjectsWriter,
 } from '../your-projects/your-projects.dsl';
 
-export interface AppWriter extends Writer, PanelWriter, YourProjectsWriter {
+export interface ProjectWriter extends Writer, PanelWriter, YourProjectsWriter {
   makesCurrent(piece: string): Promise<void>;
   addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
@@ -61,7 +61,7 @@ const nothingStaged: Staged = {
   choosesTheProjectFolder: refuses,
 };
 
-export interface AppSees extends Sees, YourProjectsSees {
+export interface ProjectSees extends Sees, YourProjectsSees {
   pathIs(pieces: readonly string[]): Promise<void>;
   panelIsOpenOn(piece: string): Promise<Evidence>;
   noPanelIsOpen(): Promise<Evidence>;
@@ -89,11 +89,11 @@ const openingBeside = async (driver: Driver, piece: string): Promise<void> => {
   await driver.click('button', 'Open beside', { role: 'group', name: named });
 };
 
-export const appWriterOn = (
+export const projectWriterOn = (
   driver: Driver,
   opening: Opening,
   startFrom?: (project: SeededProject) => Promise<void>,
-): AppWriter => ({
+): ProjectWriter => ({
   ...writerOn(driver, opening, startFrom),
   ...yourProjectsWriterOn(driver),
   makesCurrent: (piece) => reaching(driver, piece),
@@ -123,7 +123,7 @@ export const appWriterOn = (
     driver.type(text, at.facet, { role: 'complementary', name: pieceNamed(at.piece) }),
 });
 
-export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
+export const projectSeesOn = (driver: Driver, reads: AppReads): ProjectSees => ({
   ...yourProjectsSeesOn(driver),
   ...seesOn(driver, reads),
   pathIs: async (pieces) => {
@@ -181,9 +181,9 @@ export const appSeesOn = (driver: Driver, reads: AppReads): AppSees => ({
   filesInTheFolder: async (name) => reporting({ role: 'folder', name }),
 });
 
-export const appSteps = (
-  writer: AppWriter,
-  sees: AppSees,
+export const projectSteps = (
+  writer: ProjectWriter,
+  sees: ProjectSees,
   staged: Staged = nothingStaged,
 ): Record<string, StepAction> => ({
   ...graphSteps(writer, sees),

@@ -17,15 +17,15 @@ import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-a
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { type NewVersion } from '../../shell';
 import {
-  appSeesOn,
-  appSteps,
-  appWriterOn,
-  type AppSees,
-  type AppWriter,
+  projectSeesOn,
+  projectSteps,
+  projectWriterOn,
+  type ProjectSees,
+  type ProjectWriter,
   type Staged,
-} from './app.dsl';
+} from './project.dsl';
 import { yourProjects } from '../your-projects/your-projects.test-page';
-import { theHeader } from './app.test-page';
+import { theHeader } from './project.test-page';
 
 const stagingTheAppAt = async (
   where: () => readonly string[],
@@ -53,7 +53,7 @@ const reachingTheProject = async (driver: Driver): Promise<void> => {
   await expect.element(theHeader().path).toBeInTheDocument();
 };
 
-const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
+const settlingOnTheProject = (writer: ProjectWriter): ProjectWriter => ({
   ...writer,
   startsAProjectTitled: async (title) => {
     await writer.startsAProjectTitled(title);
@@ -67,7 +67,7 @@ const settlingOnTheProject = (writer: AppWriter): AppWriter => ({
 
 const stagedTheWritersMachine = (
   driver: Driver,
-  writer: AppWriter,
+  writer: ProjectWriter,
   stages: {
     readonly at: (...segments: readonly string[]) => void;
     readonly stage: (width: number, on: Staging) => Promise<void>;
@@ -106,7 +106,7 @@ const stagedTheWritersMachine = (
   };
 };
 
-export const appScenarioHarness = (driver: Driver) => {
+export const projectScenarioHarness = (driver: Driver) => {
   const path: string[] = [theProjectsFolderName];
   const where = (): readonly string[] => path;
   const at = (...segments: readonly string[]): void => {
@@ -114,7 +114,7 @@ export const appScenarioHarness = (driver: Driver) => {
   };
   const stage = (width: number, on: Staging): Promise<void> => stagingTheAppAt(where, width, on);
   const reopen = (): Promise<void> => reopenTheApp(aPickerGivingWhatIsStaged(where));
-  const writer = appWriterOn(
+  const writer = projectWriterOn(
     driver,
     {
       fresh: async () => {
@@ -135,19 +135,19 @@ export const appScenarioHarness = (driver: Driver) => {
     stage,
     reopen,
     writer: settling,
-    sees: appSeesOn(driver, appReadsOnThePage()),
+    sees: projectSeesOn(driver, appReadsOnThePage()),
     staged: stagedTheWritersMachine(driver, settling, { at, stage }),
   };
 };
 
-export const appScenarioSteps = (driver: Driver) => {
-  const { writer, sees, staged } = appScenarioHarness(driver);
-  return appSteps(writer, sees, staged);
+export const projectScenarioSteps = (driver: Driver) => {
+  const { writer, sees, staged } = projectScenarioHarness(driver);
+  return projectSteps(writer, sees, staged);
 };
 
 export const theAppWithoutAProject = (
   on: Staging = {},
-): { stage: Opening; writer: AppWriter; sees: AppSees } => {
+): { stage: Opening; writer: ProjectWriter; sees: ProjectSees } => {
   const driver = vitestBrowserDriver(undefined, 'page');
   const stage: Opening = {
     fresh: () => stagingTheAppAt(theFolderThePickerGives, 1440, { store: inMemory(), ...on }),
@@ -155,8 +155,8 @@ export const theAppWithoutAProject = (
   };
   return {
     stage,
-    writer: appWriterOn(driver, stage),
-    sees: appSeesOn(driver, appReadsOnThePage()),
+    writer: projectWriterOn(driver, stage),
+    sees: projectSeesOn(driver, appReadsOnThePage()),
   };
 };
 
@@ -178,8 +178,8 @@ export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
   };
   return {
     stage,
-    writer: appWriterOn(driver, stage),
-    sees: appSeesOn(driver, appReadsOnThePage()),
+    writer: projectWriterOn(driver, stage),
+    sees: projectSeesOn(driver, appReadsOnThePage()),
     store,
   };
 };

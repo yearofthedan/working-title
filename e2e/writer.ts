@@ -8,7 +8,7 @@ import {
   playwrightReads,
 } from '../src/test-helpers/playwright.driver';
 import type { SeededProject } from '../src/test-helpers/seed';
-import { appSeesOn, type AppSees } from '../src/ui/app/app.dsl';
+import { projectSeesOn, type ProjectSees } from '../src/ui/project/project.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
 
 export interface ContrastFinding {
@@ -17,7 +17,7 @@ export interface ContrastFinding {
 }
 
 export interface Fixture extends Journey {
-  readonly sees: AppSees;
+  readonly sees: ProjectSees;
   contrastViolations(): Promise<readonly ContrastFinding[]>;
   readonly theHeaderHeading: Locator;
   opensWatchingTheGraph(): Promise<readonly string[]>;
@@ -49,7 +49,7 @@ const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
 
   return {
     ...journeyOn(driver, openingOn(page), startingFrom(page)),
-    sees: appSeesOn(driver, reads),
+    sees: projectSeesOn(driver, reads),
 
     contrastViolations: async () => {
       expect(await reads.drawn(), 'the graph is drawn').not.toHaveLength(0);

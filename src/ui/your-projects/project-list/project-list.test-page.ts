@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import { theStartRow } from '../start-row/start-row.test-page';
+import { theStartRow } from '../start-a-project/start-a-project.test-page';
 
 export const theProjectList = (folder: string) => {
   const screen = browser.page.getByRole('region', {
