@@ -3,7 +3,8 @@ import { projectStore } from './adapters/local-storage-project-store';
 import { openProject, startProject, type OpenProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
 import type { ProjectStore } from './ports/project-store';
-import { announceWhenWaiting, renderApp, thePageParts, type NewVersion } from './ui/app/app.dom';
+import { renderShell, type NewVersion } from './shell';
+import { renderApp } from './ui/app/app.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
 
 export interface StartUp {
@@ -12,10 +13,9 @@ export interface StartUp {
   readonly picker?: DirectoryPicker;
 }
 
-export const startApp = async (page: ParentNode, startUp: StartUp = {}): Promise<() => void> => {
+export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise<() => void> => {
   const { newVersion, store = projectStore(), picker = window } = startUp;
-  const { header, main, name } = thePageParts(page);
-  if (newVersion !== undefined) announceWhenWaiting(header, newVersion);
+  const page = renderShell(root, newVersion);
 
   let stop = (): void => {};
   let shown = false;
@@ -40,7 +40,7 @@ export const startApp = async (page: ParentNode, startUp: StartUp = {}): Promise
     chooser: fileSystemFolders(snowflakeExtended, picker),
     showingYourProjects: (draw) =>
       show(() => {
-        name.textContent = 'Your projects';
+        page.setTitle('Your projects');
         draw();
       }),
     start: async (title) => {
@@ -50,8 +50,8 @@ export const startApp = async (page: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheFirstScreen = (): Promise<void> =>
     show(() => {
-      name.textContent = 'working-title';
-      main.replaceChildren(screen.element);
+      page.setTitle('working-title');
+      page.main.replaceChildren(screen.element);
     });
 
   if ((await store.load()) === undefined) await showTheFirstScreen();

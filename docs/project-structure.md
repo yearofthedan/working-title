@@ -24,7 +24,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 | Suffix | Holds |
 | --- | --- |
 | `<component>.ts` | The component's logic, with no DOM |
-| `<component>.dom.ts` | The component's DOM code. Its one exported value is `render<Component>`, such as `renderGraph`, which builds the component and returns its handle; it exports types beside it and nothing else. The app's own is the one exception: `app.dom.ts` also exports what start-up places on the page |
+| `<component>.dom.ts` | The component's DOM code. Its one exported value is `render<Component>`, such as `renderGraph`, which builds the component and returns its handle; it exports types beside it and nothing else |
 | `<component>.test.ts` | Its unit test |
 | `<component>.component.test.ts` | Its component test |
 | `<component>.dsl.ts` | Its language |
@@ -37,7 +37,7 @@ A component used only inside another sits in a folder inside the one that holds 
 
 A folder holds the files it needs, not all of them: [src/ui/app/](../src/ui/app/) has no `app.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
-A component reaches another only through that component's `render<Component>`, and a type from its plain modules: their values are the component's own. Tests, test pages, harnesses and languages reach across. `./do check-names` refuses a `*.dom.ts` that exports anything else, the app's own excepted, and `./do layers` refuses the import.
+A component reaches another only through that component's `render<Component>`, and a type from its plain modules: their values are the component's own. Tests, test pages, harnesses and languages reach across. `./do check-names` refuses a `*.dom.ts` that exports anything else, and `./do layers` refuses the import.
 
 ## Test code
 
@@ -77,6 +77,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | --- | --- |
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderApp` |
+| [src/shell.ts](../src/shell.ts) | The page's furniture: the header with its title and path, the main, and the notice a new version waits behind; start-up renders it before a component does |
 | [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |

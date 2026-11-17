@@ -8,12 +8,7 @@ import { fading, laidOut, moving } from '../../test-helpers/graph-page';
 import { expectVisuallyHidden, expectVisuallyShown } from '../../test-helpers/look';
 import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import {
-  anInMemoryProject,
-  aProjectWithScenesUnderBeatFour,
-  holdingSaves,
-  inMemory,
-} from '../../test-helpers/seed';
+import { aProjectWithScenesUnderBeatFour, holdingSaves, inMemory } from '../../test-helpers/seed';
 import { theProjectsFolderName } from '../../test-helpers/folders';
 import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
@@ -21,7 +16,7 @@ import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
 import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { yourProjects } from '../your-projects/your-projects.test-page';
-import { renderApp } from './app.dom';
+import { renderShell } from '../../shell';
 import { type AppWriter } from './app.dsl';
 import {
   appScenarioHarness,
@@ -37,18 +32,12 @@ const theStory = "A widow hunts the man who sank her husband's ship";
 const boxes = (): readonly string[] => everyCard().map((card) => `${nameOf(card)} ${boxOf(card)}`);
 
 describe('starting the app', () => {
-  it('refuses a page with no main', async () => {
-    const { project } = await anInMemoryProject();
-
-    await expect(renderApp(aPageWithoutAMain(), project)).rejects.toThrow('the page has no <main>');
+  it('refuses a page with no main', () => {
+    expect(() => renderShell(aPageWithoutAMain())).toThrow('the page has no <main>');
   });
 
-  it('refuses a page with no header', async () => {
-    const { project } = await anInMemoryProject();
-
-    await expect(renderApp(aPageWithoutAHeader(), project)).rejects.toThrow(
-      'the page has no <header>',
-    );
+  it('refuses a page with no header', () => {
+    expect(() => renderShell(aPageWithoutAHeader())).toThrow('the page has no <header>');
   });
 });
 
