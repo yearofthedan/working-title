@@ -1,5 +1,5 @@
-import { untitledProjectTitle, type ProjectsFolder } from '../../../application/project';
-import { couldNotMakeTheFolder, couldNotOpenTheProject } from './start-a-project';
+import type { ProjectsFolder } from '../../../application/project';
+import { strings } from '../../strings';
 
 export const thePauseBeforeReading = 250;
 
@@ -15,24 +15,25 @@ export interface StartAProject {
 }
 
 export const renderStartAProject = (hooks: StartAProjectHooks): StartAProject => {
+  const { willMakeAFolder, madeAFolder } = strings.startAProject;
   const form = document.createElement('form');
   const label = document.createElement('label');
   label.htmlFor = 'start-a-project-title';
-  label.textContent = 'Title';
+  label.textContent = strings.startAProject.title;
   const title = document.createElement('input');
   title.id = 'start-a-project-title';
   title.type = 'text';
-  title.placeholder = untitledProjectTitle;
+  title.placeholder = strings.project.untitledTitle;
   title.autocomplete = 'off';
   const said = document.createElement('p');
   const named = document.createElement('b');
-  said.append('working-title will make a folder named ', named, ` in ${hooks.folder.name}.`);
+  said.append(willMakeAFolder.before, named, willMakeAFolder.after(hooks.folder.name));
   const start = document.createElement('button');
   start.type = 'submit';
-  start.textContent = 'Start project';
+  start.textContent = strings.startAProject.start;
   const cancel = document.createElement('button');
   cancel.type = 'button';
-  cancel.textContent = 'Cancel';
+  cancel.textContent = strings.startAProject.cancel;
   const actions = document.createElement('div');
   actions.className = 'actions';
   actions.append(start, cancel);
@@ -92,20 +93,16 @@ export const renderStartAProject = (hooks: StartAProjectHooks): StartAProject =>
         const name = await hooks.folder.start(typed);
         made = typed;
         title.value = made;
-        said.replaceChildren(
-          'working-title made a folder named ',
-          named,
-          ` in ${hooks.folder.name}.`,
-        );
+        said.replaceChildren(madeAFolder.before, named, madeAFolder.after(hooks.folder.name));
         showTheName(name);
       }
       try {
         await hooks.start(typed);
       } catch {
-        failed.textContent = couldNotOpenTheProject;
+        failed.textContent = strings.startAProject.couldNotOpenTheProject;
       }
     } catch {
-      failed.textContent = couldNotMakeTheFolder;
+      failed.textContent = strings.startAProject.couldNotMakeTheFolder;
       title.readOnly = false;
     } finally {
       starting = false;

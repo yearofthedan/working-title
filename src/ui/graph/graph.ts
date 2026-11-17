@@ -1,5 +1,6 @@
 import type { PieceView } from '../../application/project';
 import type { CardLook } from '../card/card';
+import { strings } from '../strings';
 
 export interface Entry {
   readonly piece: PieceView;
@@ -41,7 +42,7 @@ export interface Row {
 }
 
 export const nameOfRow = (row: Row): string =>
-  row.under === undefined ? row.named : `${row.named} under ${row.under}`;
+  row.under === undefined ? row.named : strings.graph.namedUnder(row.named, row.under);
 
 export const rowsAround = (entries: readonly Entry[], current: string): readonly Row[] => {
   const entry = entryOf(entries, current);

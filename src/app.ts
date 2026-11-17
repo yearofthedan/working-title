@@ -6,6 +6,7 @@ import type { ProjectStore } from './ports/project-store';
 import { renderShell, type NewVersion } from './shell';
 import { renderProject, type ProjectScreen } from './ui/project/project.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
+import { strings } from './ui/strings';
 
 export interface StartUp {
   readonly newVersion?: NewVersion;
@@ -43,7 +44,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
     chooser: fileSystemFolders(snowflakeExtended, picker),
     showingYourProjects: (draw) =>
       show(() => {
-        page.setTitle('Your projects');
+        page.setTitle(strings.shell.yourProjectsTitle);
         draw();
       }),
     start: async (title) => {
@@ -53,7 +54,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheFirstScreen = (): Promise<void> =>
     show(() => {
-      page.setTitle('working-title');
+      page.setTitle(strings.shell.appTitle);
       page.main.replaceChildren(screen.element);
     });
 

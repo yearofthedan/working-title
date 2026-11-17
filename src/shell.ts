@@ -1,4 +1,5 @@
 import type { PieceView } from './application/project';
+import { strings } from './ui/strings';
 
 export interface NewVersion {
   readonly waiting: Promise<void>;
@@ -26,9 +27,9 @@ export const renderShell = (root: ParentNode, newVersion?: NewVersion): TheShell
     void newVersion.waiting.then(() => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = 'Reload';
+      button.textContent = strings.shell.reload;
       button.addEventListener('click', () => newVersion.reload());
-      notice.append('A new version is ready. ', button);
+      notice.append(strings.shell.newVersionIsReady, button);
     });
   }
 
@@ -41,7 +42,7 @@ export const renderShell = (root: ParentNode, newVersion?: NewVersion): TheShell
       let nav = header.querySelector('nav');
       if (nav === null) {
         nav = document.createElement('nav');
-        nav.setAttribute('aria-label', 'Where you are');
+        nav.setAttribute('aria-label', strings.shell.whereYouAre);
         name.after(nav);
       }
 

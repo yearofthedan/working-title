@@ -1,4 +1,5 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
+import { strings } from '../strings';
 import { fieldsFor } from './panel';
 
 interface PanelHooks {
@@ -52,7 +53,7 @@ export const renderPanel = (hooks: PanelHooks): Panel => {
       element.setAttribute('aria-labelledby', name.id);
       const close = document.createElement('button');
       close.type = 'button';
-      close.textContent = 'Close';
+      close.textContent = strings.panel.close;
       close.addEventListener('click', () => hooks.close());
       const heading = document.createElement('div');
       heading.className = 'heading';
