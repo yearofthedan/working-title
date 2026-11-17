@@ -4,6 +4,7 @@ import { findElements } from './find-elements';
 import { compose } from './override';
 import { testThroughTheirOwner } from './test-through-owner';
 import { waitOnThePage } from './wait-on-the-page';
+import { wordsFromTheStrings } from './words-from-the-strings';
 
 export const overrides = compose([
   domInDomFiles,
@@ -11,4 +12,5 @@ export const overrides = compose([
   findElements,
   testThroughTheirOwner,
   waitOnThePage,
+  wordsFromTheStrings,
 ]);

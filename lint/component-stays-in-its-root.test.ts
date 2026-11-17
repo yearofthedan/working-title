@@ -36,7 +36,7 @@ const walkingFromAnElement: Record<string, string> = {
 const drawingTheDomAsAllowed: Record<string, string> = {
   createElement: "document.createElement('div')",
   createElementNS: "document.createElementNS('http://www.w3.org/2000/svg', 'svg')",
-  createTextNode: "document.createTextNode('x')",
+  createTextNode: 'document.createTextNode(strings.x)',
   createDocumentFragment: 'document.createDocumentFragment()',
   fonts: 'document.fonts',
   activeElement: 'document.activeElement',
@@ -44,6 +44,7 @@ const drawingTheDomAsAllowed: Record<string, string> = {
 };
 
 const drawingAndReadingAsAllowed = [
+  'declare const strings: Record<string, string>;',
   'export const sample = (el: HTMLElement): unknown => [',
   ...[...createsInTheDocument, ...readsFromTheDocument, readsTheViewport].map((name) => {
     const call = drawingTheDomAsAllowed[name];
