@@ -1,4 +1,5 @@
 import type { ProjectsFolder } from '../../../application/project';
+import { strings } from '../../strings/strings';
 import { renderStartAProject } from '../start-a-project/start-a-project.dom';
 
 export interface ProjectListHooks {
@@ -15,13 +16,13 @@ export const renderProjectList = (hooks: ProjectListHooks): ProjectList => {
   element.className = 'project-list';
   const name = document.createElement('h2');
   name.id = 'project-list-heading';
-  name.textContent = `In ${hooks.folder.name}`;
+  name.textContent = strings.projectList.inFolder(hooks.folder.name);
   element.setAttribute('aria-labelledby', name.id);
   const none = document.createElement('p');
-  none.textContent = 'No projects yet.';
+  none.textContent = strings.projectList.none;
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Start a project';
+  button.textContent = strings.projectList.startAProject;
   const row = document.createElement('li');
   const list = document.createElement('ul');
   list.append(row);

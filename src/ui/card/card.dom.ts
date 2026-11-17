@@ -1,5 +1,6 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
 import { openBesideIcon } from '../icons/open-beside.dom';
+import { strings } from '../strings/strings';
 import { whileMeasuring } from '../transition';
 import { keyOnTheCard, type CardLook } from './card';
 
@@ -102,7 +103,7 @@ const openBesideButton = (openBeside: () => void): HTMLElement => {
   button.type = 'button';
   button.className = 'open-beside';
   button.tabIndex = -1;
-  button.setAttribute('aria-label', 'Open beside');
+  button.setAttribute('aria-label', strings.card.openBeside);
   button.append(openBesideIcon());
   button.setAttribute('aria-pressed', 'false');
   button.addEventListener('mousedown', (event) => event.preventDefault());
@@ -128,18 +129,11 @@ const caps = (keys: readonly string[]): DocumentFragment => {
   return fragment;
 };
 
-const hintParts = [
-  { keys: ['Enter'], after: ' to write · ' },
-  { keys: ['Tab'], after: ' for the next row · ' },
-  { keys: ['←', '→'], after: ' along the row · ' },
-  { keys: ['↑', '↓'], after: ' a level' },
-] as const;
-
 const keysHint = (piece: PieceView): HTMLElement => {
   const hint = document.createElement('p');
   hint.className = 'keys';
   hint.id = `keys-${piece.id}`;
-  for (const { keys, after } of hintParts) hint.append(caps(keys), after);
+  for (const { keys, after } of strings.card.keyHints) hint.append(caps(keys), after);
   return hint;
 };
 
@@ -180,7 +174,7 @@ export const renderCard = (piece: PieceView, hooks: CardHooks): Card => {
     const button = document.createElement('button');
     button.type = 'button';
     button.tabIndex = -1;
-    button.textContent = `Add a ${piece.childKind.toLowerCase()}`;
+    button.textContent = strings.card.addA(piece.childKind);
     button.addEventListener('mousedown', (event) => event.preventDefault());
     button.addEventListener('click', (event) => {
       event.stopPropagation();

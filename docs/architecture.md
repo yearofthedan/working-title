@@ -18,7 +18,7 @@ UI ──► application ──► domain
 
 ### UI
 
-What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph arranges the pieces around the current piece, which it holds in memory alone. Each component builds and returns its own element and reports through hooks; the app, which creates them all, places them and is their one parent, and only start-up finds elements of the page ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
+What the writer sees and does, drawn in plain HTML and CSS with no framework. The app owns the header, the panel beside the graph, which holds another piece's facets for typing, and the project; the graph arranges the pieces around the current piece, which it holds in memory alone. Each component builds and returns its own element and reports through hooks; the app, which creates them all, places them and is their one parent, and only start-up finds elements of the page ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). Every sentence and label it shows is in `src/ui/strings/en.ts`, typed by `src/ui/strings/strings.ts`, so the code holds a property path, not the words. Why the graph is drawn in plain HTML and CSS is in [ADR 9](adr/0009-graph-drawn-in-plain-html-and-css.md).
 
 ### Application
 
@@ -46,7 +46,7 @@ Snowflake, extended, as data the engine reads. The code never names a method ([A
 
 ### Start-up
 
-Chooses the screen: it renders the page's furniture in `src/shell.ts` — the header with its title and path, the main, and the notice a new version waits behind — then opens the project with the method and the browser working copy and calls `renderProject` in `src/ui/project/project.dom.ts`, which places the panel it builds beside main, draws the app and returns the function that stops it; or, when no project is open yet, it places the component in `src/ui/your-projects/`, which asks where the writer keeps their projects and starts a project in that folder ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it.
+Chooses the screen: it renders the page's furniture in `src/shell.ts` — the header with its title and path, the main, and the notice a new version waits behind — then opens the project with the method and the browser working copy and calls `renderProject` in `src/ui/project/project.dom.ts`, which places the panel it builds beside main, draws the app and returns the function that stops it; or, when no project is open yet, it places the component in `src/ui/your-projects/`, which asks where the writer keeps their projects and starts a project in that folder ([ADR 10](adr/0010-a-component-builds-its-own-element-and-the-app-places-it.md)). It sits outside the layers, so it may import each of them and the method definition. The entry registers the service worker, and hands `startApp` the promise a new version resolves and the reload that moves the tab onto it. The words it shows it reads through `src/ui/strings/strings.ts`, as a component does.
 
 ### Service worker
 
