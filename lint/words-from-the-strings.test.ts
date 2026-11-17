@@ -86,6 +86,31 @@ refused(
   "el.textContent = 'Add ' + id;",
 );
 refused(
+  'a literal as the fallback of ||',
+  'literal-fallback-or.dom.ts',
+  "el.textContent = id || 'Untitled';",
+);
+refused(
+  'a literal as the fallback of ??',
+  'literal-fallback-nullish.dom.ts',
+  "el.textContent = id ?? 'Untitled';",
+);
+refused(
+  'a literal separator between two values',
+  'literal-separator.dom.ts',
+  "el.textContent = strings.close + ': ' + id;",
+);
+refused(
+  'a template literal in one branch of a conditional',
+  'template-in-a-conditional.dom.ts',
+  "el.textContent = id === '' ? `Close ${id}` : strings.close;",
+);
+refused(
+  'a template literal added to a value',
+  'template-added-in-textContent.dom.ts',
+  'el.textContent = strings.close + `, ${id}`;',
+);
+refused(
   'a template literal given to setAttribute',
   'template-in-setAttribute.dom.ts',
   "el.setAttribute('aria-label', `Close ${id}`);",
