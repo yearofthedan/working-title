@@ -208,5 +208,12 @@ stage
 names
 expect_status 1 "a default export is refused"
 rm -r "$project/src/ui/word-count"
+
+write src/ui/app/app.dom.ts "export const renderApp = (): void => undefined;
+export const thePageParts = (): number => 1;"
+stage
+names
+expect_status 0 "the app's own app.dom.ts may export more than its render"
+rm -r "$project/src/ui/app"
 stage
 finish

@@ -12,7 +12,7 @@ export interface YourProjects {
   readonly element: HTMLElement;
 }
 
-export const yourProjects = (hooks: YourProjectsHooks): YourProjects => {
+export const renderYourProjects = (hooks: YourProjectsHooks): YourProjects => {
   const element = document.createElement('div');
   element.className = 'your-projects';
 
