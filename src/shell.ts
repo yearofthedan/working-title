@@ -1,5 +1,5 @@
 import type { PieceView } from './application/project';
-import { strings } from './ui/strings';
+import { strings } from './ui/strings/strings';
 
 export interface NewVersion {
   readonly waiting: Promise<void>;

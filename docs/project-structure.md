@@ -78,7 +78,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderProject` |
 | [src/shell.ts](../src/shell.ts) | The page's furniture: the header with its title and path, the main, and the notice a new version waits behind; start-up renders it before a component does |
-| [src/ui/strings.ts](../src/ui/strings.ts) and [src/ui/strings.en.ts](../src/ui/strings.en.ts) | The app's words: `strings.en.ts` holds every sentence and label the UI and start-up show, and `strings.ts` types them, so a file that shows one imports `strings` |
+| [src/ui/strings/](../src/ui/strings/) | The app's words: `en.ts` holds every sentence and label the UI and start-up show, and `strings.ts` types them, so a file that shows one imports `strings` from it |
 | [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |

@@ -61,7 +61,7 @@ export default {
       },
       to: {
         path: '^src/ui/[^/]+/',
-        pathNot: ['^src/ui/$1/', '\\.dom\\.ts$'],
+        pathNot: ['^src/ui/$1/', '^src/ui/strings/', '\\.dom\\.ts$'],
         dependencyTypesNot: ['type-only'],
       },
     },

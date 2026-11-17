@@ -1,5 +1,5 @@
 import type { ProjectsFolder } from '../../../application/project';
-import { strings } from '../../strings';
+import { strings } from '../../strings/strings';
 
 export const thePauseBeforeReading = 250;
 

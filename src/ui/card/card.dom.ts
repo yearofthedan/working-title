@@ -1,6 +1,6 @@
 import type { FacetView, OpenProject, PieceView } from '../../application/project';
 import { openBesideIcon } from '../icons/open-beside.dom';
-import { strings } from '../strings';
+import { strings } from '../strings/strings';
 import { whileMeasuring } from '../transition';
 import { keyOnTheCard, type CardLook } from './card';
 

@@ -6,7 +6,7 @@ import type { ProjectStore } from './ports/project-store';
 import { renderShell, type NewVersion } from './shell';
 import { renderProject, type ProjectScreen } from './ui/project/project.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
-import { strings } from './ui/strings';
+import { strings } from './ui/strings/strings';
 
 export interface StartUp {
   readonly newVersion?: NewVersion;

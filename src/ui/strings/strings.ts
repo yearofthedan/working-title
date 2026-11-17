@@ -1,4 +1,4 @@
-import { en } from './strings.en';
+import { en } from './en';
 
 export type Strings = typeof en;
 

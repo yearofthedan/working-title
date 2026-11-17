@@ -1,6 +1,6 @@
 import type { ProjectsFolder, ProjectsFolderChooser } from '../../../application/project';
 import { errorIcon } from '../../icons/error.dom';
-import { strings } from '../../strings';
+import { strings } from '../../strings/strings';
 import { refusalFor } from './projects-folder';
 
 export interface ProjectsFolderHooks {
