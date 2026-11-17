@@ -4,7 +4,7 @@ import { openProject, startProject, type OpenProject } from './application/proje
 import { snowflakeExtended } from './methods/snowflake-extended';
 import type { ProjectStore } from './ports/project-store';
 import { renderShell, type NewVersion } from './shell';
-import { renderApp } from './ui/app/app.dom';
+import { renderProject } from './ui/project/project.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
 
 export interface StartUp {
@@ -32,7 +32,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheProject = async (opened: OpenProject, entered = false): Promise<void> => {
     await show(async () => {
-      stop = await renderApp(page, opened, { enterTheCurrentPiece: entered });
+      stop = await renderProject(page, opened, { enterTheCurrentPiece: entered });
     });
   };
 

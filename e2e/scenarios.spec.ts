@@ -3,7 +3,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { playScenarios, type Runner } from '../src/test-helpers/play';
 import { readScenarioFile } from '../src/test-helpers/scenario-file';
-import type { AppSees } from '../src/ui/app/app.dsl';
+import type { ProjectSees } from '../src/ui/project/project.dsl';
 import { journeySteps } from './journey.dsl';
 import { newVersionSteps } from './new-version.dsl';
 import { privateBuildOn, test as privateBuildTest } from './private-build';
@@ -13,7 +13,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const approvingPath = process.env.SCENARIO_APPROVE ?? '';
 
-const runnerFor = (sees: Pick<AppSees, 'tree'>): Runner => ({
+const runnerFor = (sees: Pick<ProjectSees, 'tree'>): Runner => ({
   tree: (markFocus) => sees.tree(markFocus),
   ...(approvingPath === ''
     ? {}

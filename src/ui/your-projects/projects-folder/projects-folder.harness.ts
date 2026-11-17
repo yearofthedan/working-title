@@ -1,7 +1,7 @@
 import type { ProjectsFolder, ProjectsFolderChooser } from '../../../application/project';
 import { aChooserGivingTheFolder, theProjectsFolderName } from '../../../test-helpers/folders';
 import { root } from '../../../test-helpers/staging';
-import { folderQuestion } from './folder-question.dom';
+import { renderProjectsFolder } from './projects-folder.dom';
 
 export interface Staged {
   readonly chooser?: ProjectsFolderChooser;
@@ -9,7 +9,7 @@ export interface Staged {
 }
 
 export const mountFolderQuestion = (staged: Staged = {}): void => {
-  const mounted = folderQuestion({
+  const mounted = renderProjectsFolder({
     chooser: staged.chooser ?? aChooserGivingTheFolder(theProjectsFolderName),
     chosen: staged.chosen ?? (() => Promise.resolve()),
   });

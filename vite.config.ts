@@ -203,7 +203,7 @@ export default defineConfig({
         rules: { 'eslint-js/no-restricted-syntax': ['error', ...outsideLookups] },
       },
       {
-        files: ['src/ui/app/app.dom.ts'],
+        files: ['src/ui/project/project.dom.ts'],
         rules: { 'eslint-js/no-restricted-syntax': 'off' },
       },
       {

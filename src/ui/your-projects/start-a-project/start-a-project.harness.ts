@@ -1,7 +1,7 @@
 import type { ProjectsFolder } from '../../../application/project';
 import { aProjectsFolder } from '../../../test-helpers/folders';
 import { root } from '../../../test-helpers/staging';
-import { startRow } from './start-row.dom';
+import { renderStartAProject } from './start-a-project.dom';
 
 export interface Staged {
   readonly folder?: ProjectsFolder;
@@ -10,7 +10,7 @@ export interface Staged {
 }
 
 export const mountStartRow = (staged: Staged = {}): void => {
-  const mounted = startRow({
+  const mounted = renderStartAProject({
     folder: staged.folder ?? aProjectsFolder(),
     start: staged.start ?? (() => Promise.resolve()),
     cancelled: staged.cancelled ?? (() => undefined),

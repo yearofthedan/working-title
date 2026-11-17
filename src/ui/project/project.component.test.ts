@@ -17,15 +17,15 @@ import { everyCard } from '../graph/graph.test-page';
 import { thePanelOn } from '../panel/panel.test-page';
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { renderShell } from '../../shell';
-import { type AppWriter } from './app.dsl';
+import { type ProjectWriter } from './project.dsl';
 import {
-  appScenarioHarness,
-  appScenarioSteps,
+  projectScenarioHarness,
+  projectScenarioSteps,
   pageWith,
   theAppWaitingForANewVersion,
   theAppWithoutAProject,
-} from './app.harness';
-import { theHeader } from './app.test-page';
+} from './project.harness';
+import { theHeader } from './project.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
@@ -467,7 +467,7 @@ describe('opening a piece beside the graph', () => {
 
 const moves: ReadonlyArray<{
   readonly what: string;
-  readonly play: (writer: AppWriter) => Promise<void>;
+  readonly play: (writer: ProjectWriter) => Promise<void>;
 }> = [
   {
     what: 'a step of the path',
@@ -616,7 +616,9 @@ describe('the page drawn again', () => {
   });
 
   it('gives the chosen folder from the path the harness holds when the page is drawn again', async () => {
-    const { stage, reopen, staged } = appScenarioHarness(vitestBrowserDriver(undefined, 'page'));
+    const { stage, reopen, staged } = projectScenarioHarness(
+      vitestBrowserDriver(undefined, 'page'),
+    );
     await stage(1440, { store: inMemory() });
 
     await reopen();
@@ -626,10 +628,10 @@ describe('the page drawn again', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob('/src/ui/app/scenarios/*.approved.md', {
+const files = (import.meta as unknown as RawGlob).glob('/src/ui/project/scenarios/*.approved.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 });
 
-playScenarioFiles(files, () => vitestBrowserDriver(undefined, 'page'), appScenarioSteps);
+playScenarioFiles(files, () => vitestBrowserDriver(undefined, 'page'), projectScenarioSteps);

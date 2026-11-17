@@ -1,6 +1,6 @@
 import type { ProjectsFolder, ProjectsFolderChooser } from '../../application/project';
-import { folderQuestion } from './folder-question/folder-question.dom';
-import { projectList } from './project-list/project-list.dom';
+import { renderProjectsFolder } from './projects-folder/projects-folder.dom';
+import { renderProjectList } from './project-list/project-list.dom';
 
 export interface YourProjectsHooks {
   readonly chooser: ProjectsFolderChooser;
@@ -17,11 +17,11 @@ export const renderYourProjects = (hooks: YourProjectsHooks): YourProjects => {
   element.className = 'your-projects';
 
   const showTheList = (folder: ProjectsFolder): void => {
-    element.replaceChildren(projectList({ folder, start: hooks.start }).element);
+    element.replaceChildren(renderProjectList({ folder, start: hooks.start }).element);
   };
 
   element.replaceChildren(
-    folderQuestion({
+    renderProjectsFolder({
       chooser: hooks.chooser,
       chosen: (folder) => hooks.showingYourProjects(() => showTheList(folder)),
     }).element,

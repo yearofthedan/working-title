@@ -1,14 +1,17 @@
 import type { Driver } from '../../../test-helpers/driver';
-import { startRowWriterOn, type StartRowWriter } from '../start-row/start-row.dsl';
+import {
+  startAProjectWriterOn,
+  type StartAProjectWriter,
+} from '../start-a-project/start-a-project.dsl';
 
-export interface ProjectListWriter extends StartRowWriter {
+export interface ProjectListWriter extends StartAProjectWriter {
   startsAProject(): Promise<void>;
   startsAProjectTitled(title: string): Promise<void>;
   startsAProjectWithNoTitle(): Promise<void>;
 }
 
 export const projectListWriterOn = (driver: Driver): ProjectListWriter => {
-  const row = startRowWriterOn(driver);
+  const row = startAProjectWriterOn(driver);
   const startsAProject = (): Promise<void> => driver.click('button', 'Start a project');
   return {
     ...row,

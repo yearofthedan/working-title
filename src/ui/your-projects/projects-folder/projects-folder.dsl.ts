@@ -1,20 +1,20 @@
 import type { Driver } from '../../../test-helpers/driver';
 import { reporting, type Evidence } from '../../../test-helpers/steps';
 
-export interface FolderQuestionWriter {
+export interface ProjectsFolderWriter {
   choosesAFolder(): Promise<void>;
 }
 
-export interface FolderQuestionSees {
+export interface ProjectsFolderSees {
   tree(markFocus?: boolean): Promise<readonly string[]>;
   says(text: string): Promise<Evidence>;
 }
 
-export const folderQuestionWriterOn = (driver: Driver): FolderQuestionWriter => ({
+export const projectsFolderWriterOn = (driver: Driver): ProjectsFolderWriter => ({
   choosesAFolder: () => driver.click('button', 'Choose a folder…'),
 });
 
-export const folderQuestionSeesOn = (driver: Driver): FolderQuestionSees => ({
+export const projectsFolderSeesOn = (driver: Driver): ProjectsFolderSees => ({
   tree: (markFocus = false) => driver.tree(markFocus),
   says: async (text) => {
     const said = (await driver.tree())
