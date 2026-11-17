@@ -202,10 +202,7 @@ export default defineConfig({
         files: ['src/ui/**/*.dom.ts'],
         rules: { 'eslint-js/no-restricted-syntax': ['error', ...outsideLookups] },
       },
-      {
-        files: ['src/ui/project/project.dom.ts'],
-        rules: { 'eslint-js/no-restricted-syntax': 'off' },
-      },
+
       {
         files: ['src/ui/**/*.harness.ts'],
         rules: { 'eslint-js/no-restricted-syntax': ['error', waitsOnThePage] },

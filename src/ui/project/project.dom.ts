@@ -7,11 +7,16 @@ export interface ProjectHooks {
   readonly enterTheCurrentPiece?: boolean;
 }
 
+export interface ProjectScreen {
+  keys(event: KeyboardEvent): void;
+  stop(): void;
+}
+
 export const renderProject = async (
   page: TheShell,
   project: OpenProject,
   hooks: ProjectHooks = {},
-): Promise<() => void> => {
+): Promise<ProjectScreen> => {
   const { main } = page;
   page.setTitle(project.title === '' ? untitledProjectTitle : project.title);
   let held = project;
@@ -62,21 +67,18 @@ export const renderProject = async (
   await graph.draw();
   if (hooks.enterTheCurrentPiece === true) graph.enter();
 
-  const documentKeys = new AbortController();
-  document.addEventListener(
-    'keydown',
-    (event) => {
-      const target = event.target instanceof Node ? event.target : null;
-      if (graph.element.contains(target)) return;
-      graph.keys(event);
-    },
-    { signal: documentKeys.signal },
-  );
+  const keys = (event: KeyboardEvent): void => {
+    const target = event.target instanceof Node ? event.target : null;
+    if (graph.element.contains(target)) return;
+    graph.keys(event);
+  };
 
-  return () => {
-    documentKeys.abort();
-    graph.stop();
-    graph.element.remove();
-    panel.element.remove();
+  return {
+    keys,
+    stop: () => {
+      graph.stop();
+      graph.element.remove();
+      panel.element.remove();
+    },
   };
 };

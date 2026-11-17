@@ -4,7 +4,7 @@ import { openProject, startProject, type OpenProject } from './application/proje
 import { snowflakeExtended } from './methods/snowflake-extended';
 import type { ProjectStore } from './ports/project-store';
 import { renderShell, type NewVersion } from './shell';
-import { renderProject } from './ui/project/project.dom';
+import { renderProject, type ProjectScreen } from './ui/project/project.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
 
 export interface StartUp {
@@ -17,7 +17,10 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
   const { newVersion, store = projectStore(), picker = window } = startUp;
   const page = renderShell(root, newVersion);
 
-  let stop = (): void => {};
+  const keys = new AbortController();
+  document.addEventListener('keydown', (event) => app?.keys(event), { signal: keys.signal });
+
+  let app: ProjectScreen | undefined;
   let shown = false;
 
   // shortcut: a change of screen fades only after the first one, and only its DOM swap is inside the transition; upgrade when a screen's own work belongs inside its fade.
@@ -32,7 +35,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheProject = async (opened: OpenProject, entered = false): Promise<void> => {
     await show(async () => {
-      stop = await renderProject(page, opened, { enterTheCurrentPiece: entered });
+      app = await renderProject(page, opened, { enterTheCurrentPiece: entered });
     });
   };
 
@@ -57,5 +60,8 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
   if ((await store.load()) === undefined) await showTheFirstScreen();
   else await showTheProject(await openProject(snowflakeExtended, store));
 
-  return () => stop();
+  return () => {
+    keys.abort();
+    app?.stop();
+  };
 };
