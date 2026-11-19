@@ -14,7 +14,7 @@ erDiagram
   METHOD ||--|{ PIECE_DEFINITION : defines
   METHOD ||--|{ STAGE : "defines, in a suggested order (the flow)"
   PIECE_DEFINITION ||--|{ FACET_DEFINITION : "has, in order"
-  PIECE_DEFINITION |o--o| PIECE_DEFINITION : "names the definition under it"
+  PIECE_DEFINITION }o--o| PIECE_DEFINITION : "names the definition under it"
   PIECE_DEFINITION ||--o{ TAG : "offers its children, in order"
   STAGE }o--o| FACET_DEFINITION : "fills (elaborate)"
   STAGE }o--o| FACET_DEFINITION : "splits into children (branch)"

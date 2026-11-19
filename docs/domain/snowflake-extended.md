@@ -50,7 +50,7 @@ No stage is built: the method definition has no stages or needs, every facet can
 
 A stage's needs suggest the next move and lock nothing ([product principle 4](../product.md#4-the-method-offers-the-writer-decides)).
 
-In Snowflake, as [Ingermanson sets it out](https://www.advancedfictionwriting.com/articles/snowflake-method), the story's one-sentence summary is expanded into a one-paragraph summary of five sentences. Here the writer writes that paragraph, then splits it into beats, each tagged Setup, a disaster or Ending as the writer chooses. Once every sentence is split, the paragraph is made entirely of the beats' sentences, while the one-sentence summary stays the story's own.
+In Snowflake, as [Ingermanson sets it out](https://www.advancedfictionwriting.com/articles/snowflake-method), the story's one-sentence summary is expanded into a one-paragraph summary of about five sentences. Here the writer writes that paragraph, then splits it into beats, each tagged Setup, a disaster or Ending as the writer chooses. Once every sentence is split, the paragraph is made entirely of the beats' sentences, while the one-sentence summary stays the story's own.
 
 ## Rules
 
