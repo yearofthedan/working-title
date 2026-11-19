@@ -14,7 +14,7 @@ erDiagram
   METHOD ||--|{ PIECE_DEFINITION : defines
   METHOD ||--|{ STAGE : "defines, in a suggested order (the flow)"
   PIECE_DEFINITION ||--|{ FACET_DEFINITION : "has, in order"
-  PIECE_DEFINITION |o--o{ PIECE_DEFINITION : "sits under (none = outside the tree)"
+  PIECE_DEFINITION |o--o| PIECE_DEFINITION : "names the definition under it"
   PIECE_DEFINITION ||--o{ TAG : "offers its children, in order"
   STAGE }o--o| FACET_DEFINITION : "fills (elaborate)"
   STAGE }o--o| FACET_DEFINITION : "splits into children (branch)"
@@ -30,7 +30,7 @@ erDiagram
 6. A stage is one step of the flow. It elaborates a piece, filling its next facet; branches it, splitting a facet's parts out into children; or adds a piece of a definition outside the tree.
 7. A stage needs zero or more facets, on the piece itself or on its parent. Each piece gets its own copy of these needs, so the stages and needs form a dependency graph that follows the tree.
 8. The flow is one suggested order through the graph. The next moves are the stages whose needs are all filled, and the tags no child carries yet, in their suggested order. A branching stage stays a next move while its facet has text not yet split.
-9. Structure is enforced: a piece sits only under a parent of the definition its own definition names, so the chain from the story down always exists, even where nothing in it is written.
+9. Structure is enforced: a piece sits only under a parent whose definition names its own definition, so the chain from the story down always exists, even where nothing in it is written.
 10. Content is never enforced: a facet may be empty, or filled before the facets it needs. Needs decide what is offered, never what is allowed, and the method never flags the writer's content or structure.
 11. A method whose stages need each other in a cycle is refused, since nothing in it could ever be offered. This checks the method's author, never the writer.
 

@@ -5,7 +5,7 @@
 
 ## How the terms relate
 
-A **project** follows one **method**, and holds one **story**, zero or more **chapters** and zero or more **notes**. The method has **piece definitions**, each with its **facet definitions** in order and the **tags** it offers its children, and **stages**, whose order is the **flow**. **Pieces** form one tree under the story, each under one parent, in order among its siblings, and some pieces sit outside the tree. **Links** and **mentions** connect pieces. **Chapters** order the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **current piece** is the piece the graph is centred on, and the **next moves** are what the method offers from there. The [domain model](model.md) holds the statements behind this.
+A **project** follows one **method**, and holds one **story**, zero or more **chapters** and zero or more **notes**. The method has **piece definitions**, each with its **facet definitions** in order and the **tags** it offers its children, and **stages**, whose order is the **flow**. **Pieces** form one tree under the story, each under one parent, in order among its siblings, and some pieces sit outside the tree. **Links** and **mentions** connect pieces. **Chapters** order the pieces that hold **prose** in the order a reader meets them, apart from the tree. The **current piece** is the piece the graph is centred on, and the **next moves** are what the method offers from there. The domain model, `docs/domain/model.md`, holds the statements behind this.
 
 ```
 Project ── follows ──► Method: piece definitions, facet definitions, tags, stages (the flow)
