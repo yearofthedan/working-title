@@ -16,15 +16,15 @@
 
 ## Tags
 
-The story offers its beats five tags, each with its guidance, in the order the writer meets them.
+The story offers its beats five tags, in the order the writer meets them. Each carries guidance, which epic [#4](https://github.com/yearofthedan/working-title/issues/4) settles.
 
-| Tag | Guidance | Built |
-| --- | --- | --- |
-| Setup | The situation the story opens in, and the problem it sets up | No |
-| Disaster 1 | The first disaster, which ends the opening and turns the story | No |
-| Disaster 2 | The second disaster, at the middle of the book | No |
-| Disaster 3 | The third disaster, which sets up the ending | No |
-| Ending | How the story ends | No |
+| Tag | Built |
+| --- | --- |
+| Setup | No |
+| Disaster 1 | No |
+| Disaster 2 | No |
+| Disaster 3 | No |
+| Ending | No |
 
 ## Stages
 
