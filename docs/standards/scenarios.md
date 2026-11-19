@@ -18,7 +18,7 @@ A scenario is a story's acceptance criteria in the writer's words, agreed one at
 
 ## The words
 
-- **Every word is one the [ubiquitous language](../domain/ubiquitous-language.md) gives**, and a word its table lists as taken — `node` for a piece, `stage` for a level — is not used.
+- **Every word is one the [ubiquitous language](../domain/ubiquitous-language.md) gives**, and a word its table lists as taken — `node` for a piece, `kind` for a piece definition — is not used.
 - **The browser's vocabulary is not used**: the place Tab sits is never `the cursor`, and a step names what the writer is working with, in the method's words.
 - **A key is the only thing capitalised**: `Tab`, `Shift+Tab`, `Enter`, `Esc`, `←`, `→`, `↑`, `↓`. Everything else is lowercase — `beat two`, `one-sentence summary` — except a name the writer reads on screen, quoted as it reads: `Then focus moves to "Add a scene"`.
 

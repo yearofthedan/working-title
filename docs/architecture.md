@@ -3,7 +3,7 @@
 **Audience:** anyone changing code or deciding where something new belongs.
 **Purpose:** shows the shape of the system and how its decisions fit together. Why each decision was made is in its [record](adr/README.md); terms are in the [ubiquitous language](domain/ubiquitous-language.md).
 
-working-title is a web app that runs entirely in the writer's desktop browser. The writer chooses once where their projects are kept; each project is a folder there holding readable Markdown, and the app saves their work in browser storage as they type and writes it to the folder in the background. What the writer plans with (piece types, their facets, the stages of the method) comes from a method definition the app reads, not from code.
+working-title is a web app that runs entirely in the writer's desktop browser. The writer chooses once where their projects are kept; each project is a folder there holding readable Markdown, and the app saves their work in browser storage as they type and writes it to the folder in the background. What the writer plans with (piece definitions, their facets, the stages of the method) comes from a method definition the app reads, not from code.
 
 ## The layers
 
@@ -22,7 +22,7 @@ What the writer sees and does, drawn in plain HTML and CSS with no framework. Th
 
 ### Application
 
-The use cases (move, elaborate, branch, link, capture) and queries (next moves, upstream, what links here).
+The use cases (move, elaborate, branch, link) and queries (next moves, upstream, what links here).
 
 ### Domain
 
@@ -78,7 +78,7 @@ Design size is about 300 pieces and 2,000 links.
 | Durability | A crash loses at most about 2 s of typing | [`your-words-survive-a-reload`](../e2e/your-words-survive-a-reload.approved.md) | Medium: a reload is checked, a crash mid-typing is not |
 | Disaster recovery | The folder is at most about 10 s behind while typing | nothing yet | Low: writing to the folder is not built |
 | Typing | Every keystroke renders within one frame (16 ms) | nothing yet | Low: no test times a keystroke at the design size |
-| Movement | A change of the current piece or of level starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | nothing yet | Low: nothing times a move or a frame at the design size; the motion a move brings is built, and the test below checks how long it takes, but not the 100 ms or the frame time |
+| Movement | A change of the current piece, such as moving to its parent or children, starts within 100 ms, and every frame of the motion it brings renders within one frame (16 ms), at the design size | nothing yet | Low: nothing times a move or a frame at the design size; the motion a move brings is built, and the test below checks how long it takes, but not the 100 ms or the frame time |
 | Motion | Motion meets WCAG 2.2 at AA, and stops when the writer's system asks for reduced motion (2.3.3), as the [motion standard](standards/motion.md) sets out | [`graph.component.test.ts`](../src/ui/graph/graph.component.test.ts), [`project.component.test.ts`](../src/ui/project/project.component.test.ts), [`motion.spec.ts`](../e2e/motion.spec.ts) | Medium: every kind of move is timed in the browser — no animation over 400 ms, each easing out — the panel's slide is timed and ends where a resize at rest does, and nothing moves at open or under reduced motion; motion on an action that is not a move, such as a card's field taking focus, is not checked |
 | Data | Filtering and querying the whole project takes under 100 ms | nothing yet | Low: no test times a query at the design size |
 | Start-up | Usable within 2 s, and fully offline after the first load | [`e2e/offline.spec.ts`](../e2e/offline.spec.ts) | Medium: offline is checked, the 2 s is not |
