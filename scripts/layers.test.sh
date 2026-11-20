@@ -219,4 +219,123 @@ write src/ui/focus/focus.test.ts 'const glob = "/src/ui/focus/scenarios/*.approv
 run_layers
 refused "a test that is not a component test is refused"
 
+rm -rf "$project/src" "$project/e2e"
+write src/domain/story.ts 'export type Story = { summary: string };'
+write src/test-helpers/measures/box.ts 'export const topOf = (element: Element): number => element.clientTop;'
+write src/ui/graph/test-helpers/measures.ts 'export const heightOf = (element: Element): number => element.clientHeight;'
+write src/ui/graph/graph.component.test.ts "import { heightOf } from './test-helpers/measures';
+export const judged = heightOf;"
+run_layers
+allowed "a component's own file reaching its test-helpers/ is allowed"
+not_out 'helpers-of-' "the folder's rule says nothing where the folder itself reads its helper"
+
+write src/ui/panel/panel.component.test.ts "import { heightOf } from '../graph/test-helpers/measures';
+export const judged = heightOf;"
+run_layers
+refused "a sibling component reaching another's test-helpers/ is refused"
+expect_out 'helpers-of-src-ui-graph: src/ui/panel/panel.component.test.ts → src/ui/graph/test-helpers/measures.ts' \
+  "the folder it reached is named"
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+rm -f "$project/src/ui/panel/panel.component.test.ts"
+write src/ui/above.ts "import { heightOf } from './graph/test-helpers/measures';
+export const measured = heightOf;"
+run_layers
+refused "a file above a component reaching its test-helpers/ is refused"
+
+rm -f "$project/src/ui/above.ts"
+write src/ui/your-projects/start-a-project/test-helpers/seed.ts 'export const aProject = (): number => 1;'
+write src/ui/your-projects/start-a-project/start-a-project.harness.ts "import { aProject } from './test-helpers/seed';
+export const staged = aProject;"
+run_layers
+allowed "the component that holds the test-helpers/ reaches it"
+
+write src/ui/your-projects/your-projects.harness.ts "import { aProject } from './start-a-project/test-helpers/seed';
+export const staged = aProject;"
+run_layers
+refused "a parent reaching a child's test-helpers/ is refused"
+
+rm -f "$project/src/ui/your-projects/your-projects.harness.ts"
+write src/domain/project.test.ts "import { topOf } from '../test-helpers/measures/box';
+export const judged = topOf;"
+run_layers
+allowed "a file anywhere in src/ reaching src/test-helpers/ is allowed"
+
+write e2e/journey.spec.ts "import { topOf } from '../src/test-helpers/measures/box';
+export const measured = topOf;"
+run_layers
+allowed "e2e/ reaching src/test-helpers/ is allowed"
+
+write e2e/journey.spec.ts "import { heightOf } from '../src/ui/graph/test-helpers/measures';
+export const measured = heightOf;"
+run_layers
+refused "e2e/ reaching a folder's test-helpers/ is refused"
+expect_out 'helpers-of-src-ui-graph: e2e/journey.spec.ts' "the file in e2e/ is named"
+
+rm -rf "$project/src" "$project/e2e"
+write src/test-helpers/drivers/driver.ts 'export interface Driver { fresh(): Promise<void> }'
+write src/test-helpers/staging/staging.ts 'export const root = (tag: string): string => tag;'
+write src/test-helpers/drivers/vitest-browser.driver.ts "import { root } from '../staging/staging';
+export const vitestBrowserDriver = root;"
+run_layers
+refused "a driver importing a staging helper is refused"
+expect_out 'test-helpers-kind-drivers: src/test-helpers/drivers/vitest-browser.driver.ts → src/test-helpers/staging/staging.ts' \
+  "the two helpers it joins are named"
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+write src/test-helpers/drivers/vitest-browser.driver.ts 'export const vitestBrowserDriver = (): number => 1;'
+write src/adapters/file-system-folders.ts 'export interface DirectoryPicker { pick(): Promise<void> }
+export const fileSystemFolders = (): DirectoryPicker => ({ pick: async () => undefined });'
+write src/test-helpers/staging/staging.ts "import { fileSystemFolders } from '../../adapters/file-system-folders';
+export const root = fileSystemFolders;"
+run_layers
+refused "a staging helper importing an adapter is refused"
+expect_out 'test-helpers-kind-staging: src/test-helpers/staging/staging.ts → src/adapters/file-system-folders.ts' \
+  "the adapter it reached is named"
+
+write src/test-helpers/staging/staging.ts "import type { DirectoryPicker } from '../../adapters/file-system-folders';
+export const root = (picker: DirectoryPicker): DirectoryPicker => picker;"
+run_layers
+allowed "a staging helper importing a type from an adapter is allowed"
+not_out 'test-helpers-kind-staging' "the staging rule lets a type-only import through"
+
+write src/test-helpers/folders/folders.ts "import { root } from '../staging/staging';
+export const theEntriesIn = root;"
+run_layers
+refused "a folders helper importing a staging helper is refused"
+expect_out 'test-helpers-kind-folders: src/test-helpers/folders/folders.ts → src/test-helpers/staging/staging.ts' \
+  "the staging helper it reached is named"
+
+write src/test-helpers/folders/folders.ts 'export const theEntriesIn = (): readonly string[] => [];'
+write src/test-helpers/runner/play.ts "import { aProject } from '../seed/seed';
+export const playScenarios = aProject;"
+write src/test-helpers/seed/seed.ts 'export const aProject = (): number => 1;'
+run_layers
+refused "a runner helper importing a seed helper is refused"
+expect_out 'test-helpers-kind-runner: src/test-helpers/runner/play.ts → src/test-helpers/seed/seed.ts' \
+  "the seed helper it reached is named"
+
+write src/test-helpers/runner/play.ts 'export const playScenarios = (): number => 1;'
+write src/test-helpers/seed/seed.ts "import { root } from '../staging/staging';
+export const aProject = root;"
+run_layers
+refused "a seed helper importing a staging helper is refused"
+expect_out 'test-helpers-kind-seed: src/test-helpers/seed/seed.ts → src/test-helpers/staging/staging.ts' \
+  "the staging helper it reached is named"
+
+write src/test-helpers/seed/seed.ts 'export const aProject = (): number => 1;'
+write src/test-helpers/seed/seed.test.ts "import { root } from '../staging/staging';
+export const judged = root;"
+run_layers
+allowed "a test beside a helper importing another kind is allowed"
+not_out 'test-helpers-kind-' "the kind rules say nothing of a test"
+
+rm -rf "$project/src"
+write src/ui/card/card.test-page.ts 'export const nameOf = (): string => "card";'
+write src/ui/graph/test-helpers/measures.ts "import { nameOf } from '../card/card.test-page';
+export const heightOf = (): string => nameOf();"
+run_layers
+allowed "a test-helper reaching a component's test page is allowed"
+not_out 'a-component-through-its-render' "the render rule says nothing of a test-helper"
+
 finish
