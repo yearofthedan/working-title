@@ -7,9 +7,7 @@ export const snowflakeExtended: Method = {
     id: 'story',
     label: 'The story',
     facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary' }],
-  },
-  startingChildren: {
-    definition: {
+    childDefinition: {
       id: 'beat',
       label: 'Beat',
       plural: 'Beats',
@@ -29,6 +27,5 @@ export const snowflakeExtended: Method = {
         ],
       },
     },
-    count: 5,
   },
 };

@@ -52,7 +52,7 @@ stage src/ui/focus/scenarios/focus-interactions.approved.md
 precommit
 ran check "a scenario file under src/ runs ./do check"
 
-stage e2e/the-story-starts-with-five-beats.approved.md
+stage e2e/scenes-under-a-beat.approved.md
 precommit
 ran check "a scenario file under e2e/ runs ./do check"
 

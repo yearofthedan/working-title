@@ -787,7 +787,7 @@ describe('moving the current piece', () => {
     await stage.fresh();
     await writer.clicks('Beat 1');
 
-    const held = await buttonsFocused(() => writer.addsASceneUnder('Beat 1'));
+    const held = await buttonsFocused(() => writer.addsUnder('Beat 1', 'scene'));
 
     expect(held).toEqual([]);
   });
@@ -796,7 +796,7 @@ describe('moving the current piece', () => {
     const { stage, sees, writer } = graphWith(aProject(story(beat())));
     await stage.fresh();
     await writer.clicks('Beat 1');
-    await writer.addsASceneUnder('Beat 1');
+    await writer.addsUnder('Beat 1', 'scene');
 
     await expect.element(graph.card('current', 'Scene 1').card).toBeCurrent();
     await sees.focusIsIn('Scene 1', 'List line');
@@ -957,13 +957,13 @@ describe('the motion of a move', () => {
   it('changes a card’s look without starting a transition of its own, ending at a fresh draw’s size', async () => {
     const atRest = graphWith(aProject(story(beat())));
     await atRest.stage.fresh();
-    await atRest.writer.addsASceneUnder('Beat 1');
+    await atRest.writer.addsUnder('Beat 1', 'scene');
     await settled();
     const rest = boxes();
 
     const moved = graphWith(aProject(story(beat())));
     await moved.stage.fresh();
-    await moved.writer.addsASceneUnder('Beat 1');
+    await moved.writer.addsUnder('Beat 1', 'scene');
     const started = startedTransitions();
     await settled();
     await laidOut();

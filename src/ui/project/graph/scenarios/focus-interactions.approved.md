@@ -12,6 +12,7 @@ Then the writer sees
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
+      - button "Add a beat"
 ```
 
 ### Scenario: the writer types into one beat

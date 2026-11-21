@@ -56,6 +56,6 @@ In Snowflake, as [Ingermanson sets it out](https://www.advancedfictionwriting.co
 
 - **Views, not copies.** Once split, the story's paragraph is made of the beats' sentences, and a beat's scene list is made of its scenes' list lines ([model statements 19–23](model.md#branching-splitting-a-facet-into-children)). The four-page synopsis is still the beat pages read together, not stored, so nothing drifts.
 - **Needs are local.** A stage needs a facet on the piece itself or on its parent, never project-wide. Beat 1 can reach scenes and prose while beat 4 is still a sentence.
-- **Beats start at five.** Ingermanson's five sentences — the setup, three disasters and the ending — are the five tags the story offers, and a project starts with the story alone. Built differently today: a new project starts with five empty beats. Removing a beat asks first and takes its scenes with it.
+- **Beats start at five.** Ingermanson's five sentences — the setup, three disasters and the ending — are the five tags the story offers, and a project starts with the story alone. Removing a beat asks first and takes its scenes with it.
 - **Scaffold fields are prompts.** The writer can leave any field empty or clear the scaffold. A stage completes on its facet, so a scene with no POV character is fine.
 - **POV is a mention.** When filled, it links the scene to a character. Who appears in a scene comes from mentions in its prose.

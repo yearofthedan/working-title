@@ -8,7 +8,8 @@ import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
 const summary = snowflakeExtended.rootDefinition.facets[0]?.id ?? '';
-const listLine = snowflakeExtended.startingChildren.definition.childDefinition?.facets[0]?.id ?? '';
+const listLine =
+  snowflakeExtended.rootDefinition.childDefinition?.childDefinition?.facets[0]?.id ?? '';
 const storing = new Map<string, string>();
 
 const storage: Storage = {

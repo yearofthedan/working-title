@@ -13,8 +13,8 @@ export interface PieceSeed {
 }
 
 const rootDefinition = snowflakeExtended.rootDefinition.id;
-const beatDefinition = snowflakeExtended.startingChildren.definition.id;
-const sceneDefinition = snowflakeExtended.startingChildren.definition.childDefinition!.id;
+const beatDefinition = snowflakeExtended.rootDefinition.childDefinition!.id;
+const sceneDefinition = snowflakeExtended.rootDefinition.childDefinition!.childDefinition!.id;
 
 export const story = (...beats: readonly PieceSeed[]): PieceSeed => ({
   definition: rootDefinition,
