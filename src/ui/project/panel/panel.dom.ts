@@ -1,5 +1,5 @@
-import type { FacetView, OpenProject, PieceView } from '../../application/project';
-import { strings } from '../strings/strings';
+import type { FacetView, OpenProject, PieceView } from '../../../application/project';
+import { strings } from '../../strings/strings';
 import { fieldsFor } from './panel';
 
 interface PanelHooks {

@@ -13,22 +13,22 @@ import {
   showsAllItsText,
   topOf,
   widthOf,
-} from '../../test-helpers/box';
-import { settled } from '../../test-helpers/driver';
-import { arrivalStep, easesOut, movedBy } from '../../test-helpers/frames';
+} from '../../../test-helpers/box';
+import { settled } from '../../../test-helpers/driver';
+import { arrivalStep, easesOut, movedBy } from '../../../test-helpers/frames';
 import {
   laidOut,
   moving,
   partWay,
   recorded,
   startedTransitions,
-} from '../../test-helpers/graph-page';
-import { expectRingDrawn } from '../../test-helpers/look';
-import type { RawGlob } from '../../test-helpers/raw-glob';
-import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { narrowThePane, setStyleOn, theViewport } from '../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { nameOf } from '../card/card.test-page';
+} from '../../../test-helpers/graph-page';
+import { expectRingDrawn } from '../../../test-helpers/look';
+import type { RawGlob } from '../../../test-helpers/raw-glob';
+import { playScenarioFiles } from '../../../test-helpers/scenario-entry';
+import { narrowThePane, setStyleOn, theViewport } from '../../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
+import { nameOf } from './card/card.test-page';
 import { type Writer } from './graph.dsl';
 import { graphScenarioSteps, graphWith } from './graph.harness';
 import {
@@ -1070,10 +1070,13 @@ describe('the motion of a move', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob('/src/ui/graph/scenarios/*.approved.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
+const files = (import.meta as unknown as RawGlob).glob(
+  '/src/ui/project/graph/scenarios/*.approved.md',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+);
 
 playScenarioFiles(files, () => vitestBrowserDriver(), graphScenarioSteps);

@@ -9,7 +9,7 @@ const theRecordedKeysLine = (): string => {
   const recorded = readFileSync(
     join(
       dirname(fileURLToPath(import.meta.url)),
-      '../src/ui/card/scenarios/inside-the-current-card.approved.md',
+      '../src/ui/project/graph/card/scenarios/inside-the-current-card.approved.md',
     ),
     'utf8',
   );

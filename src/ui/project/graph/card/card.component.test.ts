@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
-import type { PieceView } from '../../application/project';
-import { bottomOf, topOf } from '../../test-helpers/box';
-import type { RawGlob } from '../../test-helpers/raw-glob';
-import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import type { PieceView } from '../../../../application/project';
+import { bottomOf, topOf } from '../../../../test-helpers/box';
+import type { RawGlob } from '../../../../test-helpers/raw-glob';
+import { playScenarioFiles } from '../../../../test-helpers/scenario-entry';
+import { vitestBrowserDriver } from '../../../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
 import { theCard, timesDrawn } from './card.test-page';
 import {
@@ -132,11 +132,14 @@ describe('the card mounted alone', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob('/src/ui/card/scenarios/*.approved.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
+const files = (import.meta as unknown as RawGlob).glob(
+  '/src/ui/project/graph/card/scenarios/*.approved.md',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+);
 
 playScenarioFiles(
   files,

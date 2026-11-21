@@ -1,4 +1,4 @@
-import type { OpenProject, PieceView } from '../../application/project';
+import type { OpenProject, PieceView } from '../../../application/project';
 import { renderPanel, type Panel } from './panel.dom';
 
 export const theBeat: PieceView = {

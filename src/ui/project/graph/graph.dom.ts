@@ -1,5 +1,5 @@
-import type { OpenProject, PieceView } from '../../application/project';
-import { renderCard, type Card } from '../card/card.dom';
+import type { OpenProject, PieceView } from '../../../application/project';
+import { renderCard, type Card } from './card/card.dom';
 import {
   along,
   drawnAs,

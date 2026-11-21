@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
-import type { PieceView } from '../../application/project';
-import { cardLooks } from '../card/card';
+import type { PieceView } from '../../../application/project';
+import { cardLooks } from './card/card';
 import {
   along,
   drawnAs,

@@ -18,8 +18,8 @@ import {
   writerOn,
   type Sees,
   type Writer,
-} from '../graph/graph.dsl';
-import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
+} from './graph/graph.dsl';
+import { panelWriterOn, type PanelWriter } from './panel/panel.dsl';
 import {
   yourProjectsSeesOn,
   yourProjectsSteps,

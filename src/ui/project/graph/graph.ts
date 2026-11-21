@@ -1,6 +1,6 @@
-import type { PieceView } from '../../application/project';
-import type { CardLook } from '../card/card';
-import { strings } from '../strings/strings';
+import type { PieceView } from '../../../application/project';
+import type { CardLook } from './card/card';
+import { strings } from '../../strings/strings';
 
 export interface Entry {
   readonly piece: PieceView;

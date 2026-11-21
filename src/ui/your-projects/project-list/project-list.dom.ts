@@ -1,6 +1,6 @@
 import type { ProjectsFolder } from '../../../application/project';
 import { strings } from '../../strings/strings';
-import { renderStartAProject } from '../start-a-project/start-a-project.dom';
+import { renderStartAProject } from './start-a-project/start-a-project.dom';
 
 export interface ProjectListHooks {
   readonly folder: ProjectsFolder;

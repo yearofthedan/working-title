@@ -1,7 +1,7 @@
 import type { OpenProject, PieceView } from '../../application/project';
 import type { TheShell } from '../../shell';
-import { renderGraph } from '../graph/graph.dom';
-import { renderPanel } from '../panel/panel.dom';
+import { renderGraph } from './graph/graph.dom';
+import { renderPanel } from './panel/panel.dom';
 import { strings } from '../strings/strings';
 
 export interface ProjectHooks {

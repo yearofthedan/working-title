@@ -1,6 +1,6 @@
-import type { ProjectsFolder } from '../../../application/project';
-import { aProjectsFolder } from '../../../test-helpers/folders';
-import { root } from '../../../test-helpers/staging';
+import type { ProjectsFolder } from '../../../../application/project';
+import { aProjectsFolder } from '../../../../test-helpers/folders';
+import { root } from '../../../../test-helpers/staging';
 import { renderStartAProject } from './start-a-project.dom';
 
 export interface Staged {

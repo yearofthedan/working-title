@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import type { PieceView } from '../../application/project';
+import type { PieceView } from '../../../application/project';
 import { fieldsFor } from './panel';
 
 const theBeat: PieceView = {
