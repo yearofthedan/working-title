@@ -37,7 +37,7 @@ A component's folder holds the component and its test code, each file named afte
 
 A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/project/](../src/ui/project/) holds [graph/](../src/ui/project/graph/) and [panel/](../src/ui/project/panel/), and `graph/` holds [card/](../src/ui/project/graph/card/); [src/ui/your-projects/](../src/ui/your-projects/) holds [projects-folder/](../src/ui/your-projects/projects-folder/) and [project-list/](../src/ui/your-projects/project-list/), and `project-list/` holds [start-a-project/](../src/ui/your-projects/project-list/start-a-project/).
 
-A folder holds the files it needs, not all of them: [src/ui/project/](../src/ui/project/) has no `project.ts`, and [src/ui/project/graph/](../src/ui/project/graph/) adds [layout.ts](../src/ui/project/graph/layout.ts) and its test. [src/ui/header/](../src/ui/header/) adds [header.css](../src/ui/header/header.css), its styles, which [src/page.css](../src/page.css) imports; a component with no stylesheet of its own has its styles in `src/page.css`. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/project/](../src/ui/project/) has no `project.ts`, and [src/ui/project/graph/](../src/ui/project/graph/) adds [layout.ts](../src/ui/project/graph/layout.ts) and its test. [src/ui/header/](../src/ui/header/) adds [header.css](../src/ui/header/header.css), its styles. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 A component reaches another only through that component's `render<Component>`, and a type from its plain modules: their values are the component's own. Tests, test pages, harnesses and languages reach across. `./do check-names` refuses a `*.dom.ts` that exports anything else, and `./do layers` refuses the import.
 
@@ -80,7 +80,7 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderProject` |
 | [src/ui/strings/](../src/ui/strings/) | The app's words: `en.ts` holds every sentence and label the UI and start-up show, and `strings.ts` types them, so a file that shows one imports `strings` from it |
-| [src/page.css](../src/page.css) | The page's layout and the styles of the components with none of their own, importing the tokens, the reset and the header's styles |
+| [src/page.css](../src/page.css) | The page's layout, the rules every screen shares (the icon size and the move between screens), and the styles of each component but the header, which has its own in `header.css`; it imports the tokens, the reset and `header.css` |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |
 
