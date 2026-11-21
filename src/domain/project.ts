@@ -40,20 +40,6 @@ export interface Project {
   readonly pieces: readonly Piece[];
 }
 
-export interface ProjectWithoutTitle {
-  readonly method: string;
-  readonly version: number;
-  readonly pieces: readonly Piece[];
-}
-
-export interface ProjectFromVersion1 {
-  readonly method: string;
-  readonly version: number;
-  readonly root: { readonly definition: string; readonly facets: FacetText };
-}
-
-export type StoredProject = Project | ProjectWithoutTitle | ProjectFromVersion1;
-
 const startingChildren = (method: Method, root: Piece, newId: () => string): readonly Piece[] =>
   Array.from({ length: method.startingChildren.count }, (_, order) => ({
     id: newId(),
@@ -85,10 +71,11 @@ const isFacetText = (value: unknown): value is FacetText =>
   Object.values(value).every((text) => typeof text === 'string');
 
 // shortcut: the method and version a stored value names are not compared, until #2 acts on them.
-const hasProjectShape = (value: unknown): value is ProjectWithoutTitle => {
-  if (value === null) return false;
-  const { method, version, pieces } = value as Project;
+export const isProject = (value: unknown): value is Project => {
+  if (value === null || typeof value !== 'object') return false;
+  const { method, version, pieces, title } = value as Project;
   if (typeof method !== 'string' || typeof version !== 'number') return false;
+  if (typeof title !== 'string') return false;
   if (!Array.isArray(pieces)) return false;
   return pieces.every(
     (piece: Piece) =>
@@ -96,41 +83,6 @@ const hasProjectShape = (value: unknown): value is ProjectWithoutTitle => {
       typeof piece.definition === 'string' &&
       isFacetText(piece.facets),
   );
-};
-
-export const isProject = (value: unknown): value is Project =>
-  hasProjectShape(value) && 'title' in value && typeof value.title === 'string';
-
-export const isProjectWithoutTitle = (value: unknown): value is ProjectWithoutTitle =>
-  hasProjectShape(value) && !('title' in value);
-
-export const isProjectFromVersion1 = (value: unknown): value is ProjectFromVersion1 => {
-  if (typeof value !== 'object' || value === null) return false;
-  const { method, version, root } = value as ProjectFromVersion1;
-  if (typeof method !== 'string' || typeof version !== 'number') return false;
-  return typeof root?.definition === 'string' && isFacetText(root.facets);
-};
-
-export const readProject = (
-  stored: StoredProject | undefined,
-  method: Method,
-  newId: () => string,
-): Project | undefined => {
-  if (stored === undefined) return undefined;
-  if (!isProjectFromVersion1(stored)) return { title: '', ...stored };
-  const root: Piece = {
-    id: newId(),
-    definition: stored.root.definition,
-    parent: null,
-    order: 0,
-    facets: stored.root.facets,
-  };
-  return {
-    title: '',
-    method: stored.method,
-    version: method.version,
-    pieces: [root, ...startingChildren(method, root, newId)],
-  };
 };
 
 export const elaborate = (

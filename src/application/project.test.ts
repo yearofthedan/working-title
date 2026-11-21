@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { elaborate, newProject, type Project, type StoredProject } from '../domain/project';
+import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
@@ -10,7 +10,7 @@ const rootName = 'Root';
 const names = ['Item 1', 'Item 2'];
 const typed = 'a title with "quotes" and a line\nbreak';
 
-const storeOf = (project?: StoredProject): ProjectStore => ({
+const storeOf = (project?: Project): ProjectStore => ({
   load: async () => project,
   save: async () => undefined,
 });
@@ -189,21 +189,6 @@ describe('opening a project', () => {
 
     const reopened = await openProject(toyMethod, store, ids());
     expect(reopened.root.children[1]?.facets[0]?.text).toBe(typed);
-  });
-
-  it('opens a version 1 save, its text kept and nothing under the pieces under the root', async () => {
-    const saved = {
-      method: 'toy',
-      version: 1,
-      root: { definition: 'root', facets: { note: 'the first' } },
-    };
-
-    const opened = await openProject(toyMethod, storeOf(saved), ids());
-
-    expect(opened.root.name).toBe(rootName);
-    expect(opened.root.children.map(({ name }) => name)).toEqual(names);
-    expect(opened.root.facets[0]?.text).toBe('the first');
-    expect(opened.root.children.flatMap(({ children: under }) => under)).toEqual([]);
   });
 
   it('opens an untitled project as untitled', async () => {
