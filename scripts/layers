@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, a plain src/ui/ file importing a *.dom.ts, a component importing a value from another component other than through its *.dom.ts, a file importing a test-helpers/ folder from outside the folder that holds it, and a helper of one kind importing another kind's, in the files given (src, and e2e when it is there, when none are); with none given it also refuses a scenarios/ folder with no test beside it. The rules are .dependency-cruiser.mjs.
+# help: Refuse a layer importing another out of turn, any cycle, a scenario file outside its layer, a plain src/ui/ file importing a *.dom.ts, a component importing a value from another component other than through its *.dom.ts, a file importing a test-helpers/ folder from outside the folder that holds it, a helper of one kind importing another kind's, and a component's test code importing another component's outside one it holds, in the files given (src, and e2e when it is there, when none are); with none given it also refuses a scenarios/ folder with no test beside it. The rules are .dependency-cruiser.mjs.
 
 set -eu
 

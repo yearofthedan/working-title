@@ -71,7 +71,7 @@ export default {
       name: `layer-direction-${layer}`,
       severity: 'error',
       comment: `The ${layer} layer may not import ${others.join(', ')}, because a layer's dependencies point inward (docs/adr/0002-hexagonal-layers.md).`,
-      from: { path: `^src/${layer}/` },
+      from: { path: `^src/${layer}/`, pathNot: '/test-helpers/' },
       to: { path: others.map((other) => `^src/${other}/`) },
     })),
     ...helperFolderRules,
@@ -93,13 +93,14 @@ export default {
         path: '^src/',
         pathNot: [
           '\\.test\\.ts$',
+          '\\.test-page\\.ts$',
           '\\.dsl\\.ts$',
           '\\.driver\\.ts$',
           '\\.harness\\.ts$',
-          '^src/test-helpers/',
+          '/test-helpers/',
         ],
       },
-      to: { path: '(\\.dsl\\.ts$|\\.driver\\.ts$|test-helpers/driver\\.ts$|\\.harness\\.ts$)' },
+      to: { path: '(\\.dsl\\.ts$|\\.driver\\.ts$|\\.harness\\.ts$|/test-helpers/)' },
     },
     {
       name: 'logic-not-on-the-dom',
@@ -128,6 +129,19 @@ export default {
         path: '^src/ui/[^/]+/',
         pathNot: ['^$1[^/]+$', '^src/ui/strings/', '\\.dom\\.ts$'],
         dependencyTypesNot: ['type-only'],
+      },
+    },
+    {
+      name: 'test-code-of-its-own-component',
+      severity: 'error',
+      comment:
+        "A component's test code reaches another component's only in a component it holds, never one above it or beside it (docs/standards/testing.md). shortcut: the exception below lets any component's test code reach your-projects' test page and language, not only project's, which tests start-up; narrow it when start-up has test code of its own.",
+      from: {
+        path: '^(src/ui/.+/)((?:test-helpers/)?[^/]+\\.(?:test-page|harness|dsl|test)\\.ts|test-helpers/[^/]+\\.ts)$',
+      },
+      to: {
+        path: '^src/ui/.+/[^/]+.(?:test-page|harness|dsl|test).ts$',
+        pathNot: ['^$1', '^src/ui/your-projects/your-projects.(?:test-page|dsl).ts$'],
       },
     },
     {

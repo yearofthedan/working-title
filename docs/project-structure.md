@@ -43,7 +43,7 @@ A component reaches another only through that component's `render<Component>`, a
 
 ## Test code
 
-A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it: a component's own folder where one component uses it, `src/ui/` where several do, and [src/test-helpers/](../src/test-helpers/) for what reaches beyond `src/ui/`, such as `e2e/` and the app's own layers. Each folder holds one file per kind it needs — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. [Testing](standards/testing.md#where-test-code-goes) lists every kind and what it holds, and `./do layers` refuses a file that reaches a `test-helpers/` folder from outside the folder holding it.
+A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it: a component's own folder where one component uses it, `src/ui/` where several do, and [src/test-helpers/](../src/test-helpers/) for what reaches beyond `src/ui/`, such as `e2e/` and the app's own layers. Each folder holds one file per kind it needs — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. [Testing](standards/testing.md#where-test-code-goes) lists every kind and what it holds, and `./do layers` refuses a file that reaches a `test-helpers/` folder from outside the folder holding it. It also refuses a component's test code reaching another component's test code outside one it holds, except `src/ui/project/`'s reach into `src/ui/your-projects/`'s test page and language, which tests start-up.
 
 [src/test-helpers/](../src/test-helpers/) is a folder per kind:
 

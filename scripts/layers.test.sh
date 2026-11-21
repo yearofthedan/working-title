@@ -361,11 +361,91 @@ allowed "a test beside a helper importing another kind is allowed"
 not_out 'test-helpers-kind-' "the kind rules say nothing of a test"
 
 rm -rf "$project/src"
-write src/ui/card/card.test-page.ts 'export const nameOf = (): string => "card";'
-write src/ui/graph/test-helpers/measures.ts "import { nameOf } from '../card/card.test-page';
+write src/ui/project/graph/card/card.test-page.ts 'export const nameOf = (): string => "card";'
+write src/ui/project/graph/test-helpers/measures.ts "import { nameOf } from '../card/card.test-page';
 export const heightOf = (): string => nameOf();"
 run_layers
-allowed "a test-helper reaching a component's test page is allowed"
+allowed "a test-helper reaching a component it holds is allowed"
+not_out 'test-code-of-its-own-component' "the direction rule says nothing of a held component"
 not_out 'a-component-through-its-render' "the render rule says nothing of a test-helper"
+
+write src/ui/card/card.test-page.ts 'export const nameOf = (): string => "card";'
+write src/ui/graph/test-helpers/measures.ts "import { nameOf } from '../../card/card.test-page';
+export const heightOf = (): string => nameOf();"
+run_layers
+refused "a test-helper reaching a sibling component's test page is refused"
+not_out 'a-component-through-its-render' "the render rule says it is not that rule"
+
+expect_out 'test-code-of-its-own-component: src/ui/graph/test-helpers/measures.ts → src/ui/card/card.test-page.ts' \
+  "the test page it reached is shown"
+
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+rm -rf "$project/src"
+write src/domain/story.ts 'export type Story = { summary: string };'
+write src/ports/project-store.ts "import type { Story } from '../domain/story';
+export interface ProjectStore { load(): Promise<Story | undefined> }"
+write src/adapters/file-system-folders.ts 'export interface DirectoryPicker { pick(): Promise<void> }
+export const fileSystemFolders = (): DirectoryPicker => ({ pick: async () => undefined });'
+write src/ui/project/test-helpers/seed.ts "import { fileSystemFolders } from '../../../adapters/file-system-folders';
+import type { Story } from '../../../domain/story';
+import type { ProjectStore } from '../../../ports/project-store';
+export const stored = async (store: ProjectStore, story: Story): Promise<ProjectStore> => {
+  void story;
+  void fileSystemFolders;
+  return store;
+};"
+run_layers
+allowed "a test-helper reaching the domain, the ports and an adapter is allowed"
+not_out 'layer-direction' "the layer rules say nothing of a test-helper"
+
+write src/ui/project/test-helpers/measures.ts 'export const heightOf = (element: Element): number => element.clientHeight;'
+write src/ui/project/project.dom.ts "import { heightOf } from './test-helpers/measures';
+export const renderProject = heightOf;"
+run_layers
+refused "a plain src/ui/ file importing a test-helpers/ file is refused"
+expect_out 'scenario-code-in-test-helpers: src/ui/project/project.dom.ts → src/ui/project/test-helpers/measures.ts' \
+  "the helper it reached is shown"
+
+rm -f "$project/src/ui/project/project.dom.ts"
+write src/ui/project/project.test-page.ts "import { heightOf } from './test-helpers/measures';
+export const measured = heightOf;"
+run_layers
+allowed "a test page reaching its own component's test-helpers/ is allowed"
+not_out 'scenario-code-in-test-helpers' "the rule says nothing of a test page"
+
+rm -rf "$project/src"
+write src/ui/project/panel/panel.test-page.ts 'export const thePanelOn = (): string => "panel";'
+write src/ui/project/graph/graph.test-page.ts "import { thePanelOn } from '../panel/panel.test-page';
+export const everyCard = thePanelOn;"
+run_layers
+refused "a component's test page reaching its sibling's is refused"
+expect_out 'test-code-of-its-own-component: src/ui/project/graph/graph.test-page.ts → src/ui/project/panel/panel.test-page.ts' \
+  "the sibling's test page is named"
+
+expect_out 'standards/testing.md' "the refusal links the standard"
+
+rm -f "$project/src/ui/project/graph/graph.test-page.ts"
+write src/ui/project/project.test-page.ts 'export const thePageHolds = (): string => "page";'
+write src/ui/project/panel/panel.test-page.ts "import { thePageHolds } from '../project.test-page';
+export const thePanelOn = thePageHolds;"
+run_layers
+refused "a held component's test page reaching its holder's is refused"
+expect_out 'test-code-of-its-own-component: src/ui/project/panel/panel.test-page.ts → src/ui/project/project.test-page.ts' \
+  "the holder's test page is named"
+
+write src/ui/project/panel/panel.test-page.ts 'export const thePanelOn = (): string => "panel";'
+write src/ui/project/project.test-page.ts "import { thePanelOn } from './panel/panel.test-page';
+export const thePageHolds = thePanelOn;"
+run_layers
+allowed "a holder's test page reaching its held component's is allowed"
+not_out 'test-code-of-its-own-component' "the rule says nothing where the component is held"
+
+write src/ui/your-projects/your-projects.test-page.ts 'export const yourProjects = (): string => "y";'
+write src/ui/project/project.test-page.ts "import { yourProjects } from '../your-projects/your-projects.test-page';
+export const thePageHolds = yourProjects;"
+run_layers
+allowed "project's test page reaching your-projects' is allowed, as it tests start-up"
+not_out 'test-code-of-its-own-component' "the exception is written in the rule"
 
 finish
