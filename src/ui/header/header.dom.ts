@@ -14,6 +14,7 @@ export interface Header {
 
 export const renderHeader = (newVersion?: NewVersion): Header => {
   const element = document.createElement('header');
+  element.className = 'header';
   const name = document.createElement('h1');
   element.append(name);
 

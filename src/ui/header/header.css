@@ -1,54 +1,57 @@
-header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-  margin: var(--space-8) var(--space-8) 0;
-}
+@scope (.header) {
+  :scope {
+    grid-area: header;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    margin: var(--space-8) var(--space-8) 0;
+  }
 
-header h1 {
-  margin: 0;
-}
+  h1 {
+    margin: 0;
+  }
 
-header nav {
-  font-size: var(--text-small);
-}
+  nav {
+    font-size: var(--text-small);
+  }
 
-header nav ol {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  nav ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-header nav li + li::before {
-  content: '›' / '';
-  margin-right: var(--space-2);
-  color: var(--color-text-muted);
-}
+  nav li + li::before {
+    content: '›' / '';
+    margin-right: var(--space-2);
+    color: var(--color-text-muted);
+  }
 
-header [role='status'] {
-  margin: 0 0 0 auto;
-  font-size: var(--text-small);
-  color: var(--color-text-muted);
-}
+  [role='status'] {
+    margin: 0 0 0 auto;
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
 
-header :is(nav, [role='status']) button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
+  :is(nav, [role='status']) button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
-header :is(nav, [role='status']) button:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: var(--space-1);
-}
+  :is(nav, [role='status']) button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
 
-header nav [aria-current] {
-  color: var(--color-text-muted);
+  nav [aria-current] {
+    color: var(--color-text-muted);
+  }
 }
