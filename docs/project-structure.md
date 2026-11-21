@@ -7,7 +7,8 @@
 
 | Folder | Part |
 | --- | --- |
-| [src/ui/](../src/ui/) | UI: one folder per component, shaped [as below](#a-components-folder) |
+| [src/ui/](../src/ui/) | UI: the folders of the components the app places, shaped [as below](#a-components-folder), and the files they share |
+| [src/ui/project/](../src/ui/project/) | UI: the screen shown once a project is open, and the components inside it |
 | [src/ui/your-projects/](../src/ui/your-projects/) | UI: the screens shown before a project is open |
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
@@ -19,7 +20,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 
 ## A component's folder
 
-A component's folder holds the component and its test code, each file named after the component. It sits in `src/ui/`, or inside the folder of the component that renders it. What a language, a test page and a harness are is in [where test code goes](standards/testing.md#where-test-code-goes).
+A component's folder holds the component and its test code, each file named after the component. What a language, a test page and a harness are is in [where test code goes](standards/testing.md#where-test-code-goes).
 
 | Suffix | Holds |
 | --- | --- |
