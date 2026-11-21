@@ -119,12 +119,10 @@ describe('the project in browser storage', () => {
     expect(storage.getItem(key)).toBe('{not json');
   });
 
-  it.each([['a root-shaped save', '{"method":"m","version":1,"root":{"definition":"root"}}']])(
-    'refuses %s, leaving it where it is',
-    async (_, stored) => {
-      storage.setItem(key, stored);
-      await expect(projectStore(storage).load()).rejects.toThrow('is not a project');
-      expect(storage.getItem(key)).toBe(stored);
-    },
-  );
+  it('refuses a save in the root shape, leaving it where it is', async () => {
+    const stored = '{"method":"m","version":1,"root":{"definition":"root"}}';
+    storage.setItem(key, stored);
+    await expect(projectStore(storage).load()).rejects.toThrow('is not a project');
+    expect(storage.getItem(key)).toBe(stored);
+  });
 });
