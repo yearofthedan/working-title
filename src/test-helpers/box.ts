@@ -1,7 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { nameOf } from '../ui/card/card.test-page';
-import { everyCard } from '../ui/graph/graph.test-page';
+import { nameOf } from '../ui/project/graph/card/card.test-page';
+import { everyCard } from '../ui/project/graph/graph.test-page';
 
 export const heightOf = (element: Element): number => element.getBoundingClientRect().height;
 

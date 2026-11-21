@@ -1,7 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { inThePage, partsOf, theCard } from '../card/card.test-page';
-import { type CardLook } from '../card/card';
+import { inThePage, partsOf, theCard } from './card/card.test-page';
+import { type CardLook } from './card/card';
 
 export const everyCard = (): HTMLElement[] =>
   inThePage(browser.page.getByRole('group', { includeHidden: true }).elements());

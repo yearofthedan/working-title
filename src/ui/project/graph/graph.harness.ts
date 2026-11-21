@@ -1,14 +1,14 @@
 import * as browser from 'vite-plus/test/browser';
-import { type OpenProject } from '../../application/project';
-import { type Driver, type Opening } from '../../test-helpers/driver';
-import { readsIn } from '../../test-helpers/graph-page';
+import { type OpenProject } from '../../../application/project';
+import { type Driver, type Opening } from '../../../test-helpers/driver';
+import { readsIn } from '../../../test-helpers/graph-page';
 import {
   anInMemoryProject,
   aProjectWithScenesUnderBeatFour,
   type SeededProject,
-} from '../../test-helpers/seed';
-import { root } from '../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+} from '../../../test-helpers/seed';
+import { root } from '../../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
 import { renderGraph } from './graph.dom';
 import { blurTheFocus } from './graph.test-page';

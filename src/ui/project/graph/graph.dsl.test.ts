@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { recording, storyDrawn } from '../../test-helpers/recording';
-import type { SeededProject } from '../../test-helpers/seed';
+import { recording, storyDrawn } from '../../../test-helpers/recording';
+import type { SeededProject } from '../../../test-helpers/seed';
 import { graphSteps, seesOn, writerOn } from './graph.dsl';
 
 describe('the graph language', () => {

@@ -12,9 +12,9 @@ import { aProjectWithScenesUnderBeatFour, holdingSaves, inMemory } from '../../t
 import { theProjectsFolderName } from '../../test-helpers/folders';
 import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { nameOf, theCard, timesDrawn } from '../card/card.test-page';
-import { everyCard } from '../graph/graph.test-page';
-import { thePanelOn } from '../panel/panel.test-page';
+import { nameOf, theCard, timesDrawn } from './graph/card/card.test-page';
+import { everyCard } from './graph/graph.test-page';
+import { thePanelOn } from './panel/panel.test-page';
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { renderShell } from '../../shell';
 import { type ProjectWriter } from './project.dsl';

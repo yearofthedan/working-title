@@ -1,4 +1,4 @@
-import type { DrawnCard, Driver, Opening, Part, Reads } from '../../test-helpers/driver';
+import type { DrawnCard, Driver, Opening, Part, Reads } from '../../../test-helpers/driver';
 import {
   aProject,
   aProjectWithScenesUnder,
@@ -6,13 +6,13 @@ import {
   scene,
   story,
   type SeededProject,
-} from '../../test-helpers/seed';
+} from '../../../test-helpers/seed';
 import {
   reporting,
   reportingFocus,
   type Evidence,
   type StepAction,
-} from '../../test-helpers/steps';
+} from '../../../test-helpers/steps';
 
 const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',

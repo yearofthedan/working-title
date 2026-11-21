@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
-import type { PieceView } from '../../application/project';
+import type { PieceView } from '../../../application/project';
 import {
   focusWithoutScrolling,
   heightOf,
@@ -10,11 +10,11 @@ import {
   whatCoversTheTopOf,
   widthOf,
   writerCanScroll,
-} from '../../test-helpers/box';
-import { settled } from '../../test-helpers/driver';
-import { bottomOfTheTextIn, caretOf } from '../../test-helpers/field';
-import { theViewport } from '../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+} from '../../../test-helpers/box';
+import { settled } from '../../../test-helpers/driver';
+import { bottomOfTheTextIn, caretOf } from '../../../test-helpers/field';
+import { theViewport } from '../../../test-helpers/staging';
+import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
 import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
 import { keysHeardOnThePage, thePanelOn } from './panel.test-page';

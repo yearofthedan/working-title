@@ -2,7 +2,7 @@ import type { Driver } from '../../../test-helpers/driver';
 import {
   startAProjectWriterOn,
   type StartAProjectWriter,
-} from '../start-a-project/start-a-project.dsl';
+} from './start-a-project/start-a-project.dsl';
 
 export interface ProjectListWriter extends StartAProjectWriter {
   startsAProject(): Promise<void>;

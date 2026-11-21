@@ -1,5 +1,5 @@
-import type { ProjectsFolder } from '../../../application/project';
-import { strings } from '../../strings/strings';
+import type { ProjectsFolder } from '../../../../application/project';
+import { strings } from '../../../strings/strings';
 import { thePauseBeforeReading } from './start-a-project';
 
 export interface StartAProjectHooks {
