@@ -497,7 +497,7 @@ const moves: ReadonlyArray<{
     play: async (writer) => {
       await writer.clicks('Beat 1');
       await settled();
-      await writer.addsASceneUnder('Beat 1');
+      await writer.addsUnder('Beat 1', 'scene');
     },
   },
 ];

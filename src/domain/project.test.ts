@@ -11,9 +11,16 @@ const everyPiece = [
   { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: {} },
 ];
 
+const theRootAlone = [{ id: 'id-1', definition: 'root', parent: null, order: 0, facets: {} }];
+
+const theItem = toyMethod.rootDefinition.childDefinition!;
+
+const withTwoItems = (): Project =>
+  branch(branch(project(), 'id-1', theItem, 'id-2'), 'id-1', theItem, 'id-3');
+
 describe('newProject', () => {
-  it('starts the project untitled, with a root, and the children it starts with, in order', () => {
-    expect(project()).toEqual({ title: '', method: 'toy', version: 1, pieces: everyPiece });
+  it('starts the project untitled, with the root alone', () => {
+    expect(project()).toEqual({ title: '', method: 'toy', version: 1, pieces: theRootAlone });
   });
 
   it('starts the project under the title it is given', () => {
@@ -24,7 +31,12 @@ describe('newProject', () => {
 describe('elaborate', () => {
   it('changes the facet it names, and leaves every other piece and facet', () => {
     const typed = elaborate(
-      elaborate(elaborate(project(), 'id-1', 'note', 'the root'), 'id-2', 'title', 'the first'),
+      elaborate(
+        elaborate(withTwoItems(), 'id-1', 'note', 'the root'),
+        'id-2',
+        'title',
+        'the first',
+      ),
       'id-3',
       'note',
       'the second',
@@ -39,8 +51,8 @@ describe('elaborate', () => {
 
 describe('branch', () => {
   it('adds a piece under its parent, after the pieces already under it, leaving every other piece alone', () => {
-    const childDefinition = toyMethod.startingChildren.definition.childDefinition!;
-    const one = branch(project(), 'id-2', childDefinition, 'id-4');
+    const childDefinition = theItem.childDefinition!;
+    const one = branch(withTwoItems(), 'id-2', childDefinition, 'id-4');
     const two = branch(one, 'id-2', childDefinition, 'id-5');
 
     expect(one.pieces).toEqual([
@@ -58,7 +70,7 @@ describe('branch', () => {
 describe('isProject', () => {
   it('reads a project, with its facets filled in or not', () => {
     expect(isProject(project())).toBe(true);
-    expect(isProject(elaborate(project(), 'id-2', 'title', 'the first'))).toBe(true);
+    expect(isProject(elaborate(withTwoItems(), 'id-2', 'title', 'the first'))).toBe(true);
   });
 
   it.each([

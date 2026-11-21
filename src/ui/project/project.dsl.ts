@@ -30,7 +30,6 @@ import {
 
 export interface ProjectWriter extends Writer, PanelWriter, YourProjectsWriter {
   makesCurrent(piece: string): Promise<void>;
-  addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
   clicksThePathTo(piece: string): Promise<void>;
   hovers(piece: string): Promise<void>;
@@ -97,10 +96,10 @@ export const projectWriterOn = (
   ...writerOn(driver, opening, startFrom),
   ...yourProjectsWriterOn(driver),
   makesCurrent: (piece) => reaching(driver, piece),
-  addsASceneUnder: async (beat) => {
-    const named = pieceNamed(beat);
-    await reaching(driver, beat);
-    await driver.click('button', 'Add a scene', { role: 'group', name: named });
+  addsUnder: async (piece, child) => {
+    const named = pieceNamed(piece);
+    await reaching(driver, piece);
+    await driver.click('button', `Add a ${child}`, { role: 'group', name: named });
   },
   opensBeside: (piece) => openingBeside(driver, piece),
   clicksThePathTo: (piece) => clickingThePathTo(driver, piece),
@@ -233,11 +232,9 @@ export const projectSteps = (
       : writer.types(text, { piece, facet }),
   '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
     sees.readsBeside(piece, facet, text),
-  'the writer adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),
-  'adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),
   'the writer adds two scenes under {beat}': async ({ beat }) => {
-    await writer.addsASceneUnder(beat);
-    await writer.addsASceneUnder(beat);
+    await writer.addsUnder(beat, 'scene');
+    await writer.addsUnder(beat, 'scene');
   },
   'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
     await writer.makesCurrent(beat);

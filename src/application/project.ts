@@ -43,9 +43,10 @@ const definitionsOf = (method: Method): ReadonlyMap<string, PieceDefinition> => 
       ? [definition]
       : [definition, ...withChildren(definition.childDefinition)];
   return new Map(
-    [method.rootDefinition, method.startingChildren.definition]
-      .flatMap(withChildren)
-      .map((definition): [string, PieceDefinition] => [definition.id, definition]),
+    withChildren(method.rootDefinition).map((definition): [string, PieceDefinition] => [
+      definition.id,
+      definition,
+    ]),
   );
 };
 

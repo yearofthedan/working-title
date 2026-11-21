@@ -1,50 +1,5 @@
 Rule: the writer moves the current piece by clicking a piece's card or with the arrow keys (↑ to its parent, ↓ to a child, ← and → to the previous or next piece in the row, which becomes current with focus on its card), and the graph is arranged around the current piece: its parent above, its siblings beside it and its children below.
 
-### Scenario: a new project opens with the story current
-
-```
-Given a new project
-When the writer opens the app
-Then the story is current, with beats 1 to 5 under it
-- main:
-  - toolbar "The story":
-    - group "The story" [current]:
-      - heading "The story" [level=2]
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-  - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-```
-
 ### Scenario: clicking a scene's card makes it current
 
 ```

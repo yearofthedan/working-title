@@ -18,7 +18,6 @@ export interface Method {
   readonly name: string;
   readonly version: number;
   readonly rootDefinition: PieceDefinition;
-  readonly startingChildren: { readonly definition: PieceDefinition; readonly count: number };
 }
 
 export interface FacetText {
@@ -40,15 +39,6 @@ export interface Project {
   readonly pieces: readonly Piece[];
 }
 
-const startingChildren = (method: Method, root: Piece, newId: () => string): readonly Piece[] =>
-  Array.from({ length: method.startingChildren.count }, (_, order) => ({
-    id: newId(),
-    definition: method.startingChildren.definition.id,
-    parent: root.id,
-    order,
-    facets: {},
-  }));
-
 export const newProject = (method: Method, newId: () => string, title = ''): Project => {
   const root: Piece = {
     id: newId(),
@@ -61,7 +51,7 @@ export const newProject = (method: Method, newId: () => string, title = ''): Pro
     title,
     method: method.name,
     version: method.version,
-    pieces: [root, ...startingChildren(method, root, newId)],
+    pieces: [root],
   };
 };
 

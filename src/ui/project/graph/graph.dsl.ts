@@ -3,6 +3,7 @@ import { aProject, beat, scene, story, type SeededProject } from '../../../test-
 import {
   reporting,
   reportingFocus,
+  wholeTree,
   type Evidence,
   type StepAction,
 } from '../../../test-helpers/steps';
@@ -28,7 +29,7 @@ export interface Writer {
   clicksTheSentenceOf(piece: string): Promise<void>;
   clicksTheNameOf(piece: string): Promise<void>;
   clicksTheBorderOf(piece: string): Promise<void>;
-  addsASceneUnder(piece: string): Promise<void>;
+  addsUnder(piece: string, child: string): Promise<void>;
   presses(key: string): Promise<void>;
   moves(direction: string): Promise<void>;
   tabsForward(): Promise<void>;
@@ -61,6 +62,7 @@ const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
   'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
+  'the story': 'The story',
 };
 
 // shortcut: a scene under a beat is named by its number alone, so the beat in the words is not checked, until a piece's name carries its beat.
@@ -117,9 +119,9 @@ export const writerOn = (
     // shortcut: the legend's left border, 16 px down, since a click names a part or a point on one and the card's own parts are its fields; upgrade when the card names its border.
     clicksTheBorderOf: (piece) =>
       driver.click('group', pieceNamed(piece), undefined, { x: 0, y: 16 }),
-    addsASceneUnder: async (piece) => {
+    addsUnder: async (piece, child) => {
       await clicking(driver, piece);
-      await driver.click('button', 'Add a scene', { role: 'group', name: pieceNamed(piece) });
+      await driver.click('button', `Add a ${child}`, { role: 'group', name: pieceNamed(piece) });
     },
     presses: (key) => driver.press(key === 'Esc' ? 'Escape' : key),
     moves: (direction) => driver.press(keys[direction] ?? direction),
@@ -363,15 +365,12 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.isNoLongerCurrentAndHasNoFocus('Beat 1'),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
-  'the story is current, with beats 1 to 5 under it': () =>
-    sees.currentIs('The story', { under: ['Beat 1', 'Beat 2', 'Beat 3', 'Beat 4', 'Beat 5'] }),
-  'beat 2 is current, with the story above it and beats 1, 3, 4 and 5 beside it': () =>
-    sees.currentIs('Beat 2', {
-      above: 'The story',
-      beside: ['Beat 1', 'Beat 3', 'Beat 4', 'Beat 5'],
-    }),
-  'beat 3 is current, with beats 1, 2, 4 and 5 beside it': () =>
-    sees.currentIs('Beat 3', { beside: ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5'] }),
+  'the writer adds a {child} under {piece}': ({ child, piece }) => writer.addsUnder(piece, child),
+  'adds a {child} under {piece}': ({ child, piece }) => writer.addsUnder(piece, child),
+  'the writer sees the story, with its one-sentence summary and a button to add a beat, and no beats':
+    () => wholeTree(),
+  'a beat appears under the story, with its one-sentence summary': () =>
+    sees.currentIs('Beat 1', { above: 'The story' }),
   'scene 1 under beat 1 is current, with beat 1 above it and scene 2 beside it': () =>
     sees.currentIs('Scene 1', { above: 'Beat 1', beside: ['Scene 2'] }),
   'beat 1 is current, with scenes 1 and 2 under it': () =>
