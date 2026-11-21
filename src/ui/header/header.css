@@ -1,6 +1,5 @@
 @scope (.header) {
   :scope {
-    grid-area: header;
     display: flex;
     align-items: baseline;
     gap: var(--space-4);

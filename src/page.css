@@ -17,6 +17,10 @@ body {
   font-size: var(--text-interface);
 }
 
+.header {
+  grid-area: header;
+}
+
 main {
   grid-area: main;
   min-height: 0;
