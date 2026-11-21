@@ -232,8 +232,6 @@ export const projectSteps = (
       : writer.types(text, { piece, facet }),
   '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
     sees.readsBeside(piece, facet, text),
-  'the writer adds a scene under {beat}': ({ beat }) => writer.addsUnder(beat, 'scene'),
-  'adds a scene under {beat}': ({ beat }) => writer.addsUnder(beat, 'scene'),
   'the writer adds two scenes under {beat}': async ({ beat }) => {
     await writer.addsUnder(beat, 'scene');
     await writer.addsUnder(beat, 'scene');

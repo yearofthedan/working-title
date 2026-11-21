@@ -62,6 +62,7 @@ const pieces: Readonly<Record<string, string>> = {
   'beat two': 'Beat 2',
   'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
+  'the story': 'The story',
 };
 
 // shortcut: a scene under a beat is named by its number alone, so the beat in the words is not checked, until a piece's name carries its beat.
@@ -364,7 +365,8 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     sees.isNoLongerCurrentAndHasNoFocus('Beat 1'),
   'the writer types "{text}" into {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
-  'the writer adds a beat under the story': () => writer.addsUnder('The story', 'beat'),
+  'the writer adds a {child} under {piece}': ({ child, piece }) => writer.addsUnder(piece, child),
+  'adds a {child} under {piece}': ({ child, piece }) => writer.addsUnder(piece, child),
   'the writer sees the story, with its one-sentence summary and a button to add a beat, and no beats':
     () => wholeTree(),
   'a beat appears under the story, with its one-sentence summary': () =>
