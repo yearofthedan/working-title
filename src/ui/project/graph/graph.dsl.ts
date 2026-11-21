@@ -1,12 +1,5 @@
 import type { DrawnCard, Driver, Opening, Part, Reads } from '../../../test-helpers/driver';
-import {
-  aProject,
-  aProjectWithScenesUnder,
-  beat,
-  scene,
-  story,
-  type SeededProject,
-} from '../../../test-helpers/seed';
+import { aProject, beat, scene, story, type SeededProject } from '../../../test-helpers/seed';
 import {
   reporting,
   reportingFocus,
@@ -63,6 +56,8 @@ export interface Sees {
 }
 
 const pieces: Readonly<Record<string, string>> = {
+  'beat one': 'Beat 1',
+  'beat 1': 'Beat 1',
   'beat two': 'Beat 2',
   'beat 2': 'Beat 2',
   "the first scene's card": 'Scene 1',
@@ -319,13 +314,12 @@ export const seesOn = (driver: Driver, reads: Reads): Sees => {
 };
 
 const twoBeats = story(beat(), beat());
-const aBeatWithTwoScenes = story(beat(), beat(scene(), scene()));
-const theSecondBeat = 'Beat 2';
+const aBeatWithTwoScenes = story(beat(scene(), scene()));
 
 export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepAction> => ({
   'a new project': () => writer.opensANewProject(),
   'the writer opens the app': () => writer.opensANewProject(),
-  'the story is on screen': () => writer.opensANewProject(),
+  'the story is on screen': () => writer.startsFrom(aProject(story())),
   '{piece} is in focus': ({ piece }) => sees.focusIsOn(piece),
   'the writer types "{text}" as {piece}\'s {facet}': ({ text, piece, facet }) =>
     writer.types(text, { piece, facet }),
@@ -336,12 +330,14 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer presses {key}': ({ key }) => writer.moves(key),
   'the writer tabs forward': () => writer.tabsForward(),
   'the writer tabs backward': () => writer.tabsBackward(),
-  'a project with two scenes under {beat}': async ({ beat: name }) =>
-    writer.startsFrom(await aProjectWithScenesUnder(pieceNamed(name), 2)),
-  'beat two is current with tab focus': () => writer.clicks('beat two'),
+  'a project with a beat': () => writer.startsFrom(aProject(story(beat()))),
+  'a project with two beats': () => writer.startsFrom(aProject(story(beat(), beat()))),
+  'a project with two scenes under {beat}': () =>
+    writer.startsFrom(aProject(story(beat(scene(), scene())))),
+  'beat one is current with tab focus': () => writer.clicks('beat one'),
   'a current beat with two scenes': async () => {
     await writer.startsFrom(aProject(aBeatWithTwoScenes));
-    await writer.clicks(theSecondBeat);
+    await writer.clicks('Beat 1');
   },
   'two beats, the first current with tab focus': async () => {
     await writer.startsFrom(aProject(twoBeats));
@@ -349,14 +345,14 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   },
   'a beat with two scenes, the beat current': async () => {
     await writer.startsFrom(aProject(aBeatWithTwoScenes));
-    await writer.clicks(theSecondBeat);
+    await writer.clicks('Beat 1');
   },
   'focus on its first scene': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
   'the first scene has focus': () => writer.putsTheFocusOnNameButtonOf('Scene 1'),
-  'focus moves to scene one under beat two': () => sees.focusIsOnTheName('Scene 1'),
+  'focus moves to scene one under beat one': () => sees.focusIsOnTheName('Scene 1'),
   'focus moves to the story': () => sees.focusIsOnTheName('The story'),
   'focus moves to its card': () => sees.focusIsOnTheCard(),
-  'beat two stays current': () => sees.currentIs('Beat 2'),
+  'beat one stays current': () => sees.currentIs('Beat 1'),
   'the first scene becomes current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 1'),
   'the second scene becomes current, and has focus': () =>
     sees.becomesCurrentAndHasFocus('Scene 2'),
@@ -374,9 +370,9 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
     }),
   'beat 3 is current, with beats 1, 2, 4 and 5 beside it': () =>
     sees.currentIs('Beat 3', { beside: ['Beat 1', 'Beat 2', 'Beat 4', 'Beat 5'] }),
-  'scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it': () =>
-    sees.currentIs('Scene 1', { above: 'Beat 2', beside: ['Scene 2'] }),
-  'beat 2 is current, with scenes 1 and 2 under it': () =>
-    sees.currentIs('Beat 2', { under: ['Scene 1', 'Scene 2'] }),
-  'scene 2 under beat 2 is current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 2'),
+  'scene 1 under beat 1 is current, with beat 1 above it and scene 2 beside it': () =>
+    sees.currentIs('Scene 1', { above: 'Beat 1', beside: ['Scene 2'] }),
+  'beat 1 is current, with scenes 1 and 2 under it': () =>
+    sees.currentIs('Beat 1', { under: ['Scene 1', 'Scene 2'] }),
+  'scene 2 under beat 1 is current, and has focus': () => sees.becomesCurrentAndHasFocus('Scene 2'),
 });

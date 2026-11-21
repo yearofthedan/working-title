@@ -12,44 +12,13 @@ Then the writer sees
       - heading "The story" [level=2]
       - text: One-sentence summary
       - textbox "One-sentence summary": A widow hunts the man who sank her husband's ship
-  - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
-      - text: One-sentence summary
-      - textbox "One-sentence summary"
-      - button "Open beside"
 ```
 
 ### Scenario: the writer types into one beat
 
 ```
-Given the story is on screen
-When the writer types "Maren finds the ship's log and learns the sinking was no accident" into beat 2's one-sentence summary
+Given a project with a beat
+When the writer types "Maren finds the ship's log and learns the sinking was no accident" into beat 1's one-sentence summary
 Then the writer sees
 - main:
   - toolbar "The story":
@@ -59,22 +28,10 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
       - button "Add a scene"
       - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
 ```

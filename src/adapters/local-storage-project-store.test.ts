@@ -121,7 +121,7 @@ describe('the project in browser storage', () => {
     const beat2 = beats.find(({ order }) => order === 1);
     const scenes = project?.pieces.filter(({ parent }) => parent === beat2?.id) ?? [];
 
-    expect(project?.pieces).toHaveLength(1 + snowflakeExtended.startingChildren.count + 2);
+    expect(project?.pieces).toHaveLength(8);
     expect((story?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect((beat2?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect((scenes[0]?.facets[listLine] ?? '').length).toBeGreaterThanOrEqual(150);
@@ -140,7 +140,7 @@ describe('the project in browser storage', () => {
     const beat4 = beats.find(({ order }) => order === 3);
     const scenes = project?.pieces.filter(({ parent }) => parent === beat4?.id) ?? [];
 
-    expect(beats).toHaveLength(snowflakeExtended.startingChildren.count);
+    expect(beats).toHaveLength(5);
     expect((beat4?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect(scenes.map(({ order }) => order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     expect(scenes.filter(({ facets }) => (facets[listLine] ?? '').length >= 150)).toHaveLength(1);

@@ -1,5 +1,5 @@
 import type { AppReads, Driver, Opening } from '../../test-helpers/driver';
-import type { SeededProject } from '../../test-helpers/seed';
+import { aProject, beat, story, type SeededProject } from '../../test-helpers/seed';
 import {
   reporting,
   reportingFocus,
@@ -188,10 +188,13 @@ export const projectSteps = (
 ): Record<string, StepAction> => ({
   ...graphSteps(writer, sees),
   ...yourProjectsSteps(writer),
-  // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
-  'beat 2 is open beside the graph': async () => {
-    await writer.opensANewProject();
-    await writer.opensBeside('beat 2');
+  'beat 1 is open beside the graph': async () => {
+    await writer.startsFrom(aProject(story(beat())));
+    await writer.opensBeside('beat 1');
+  },
+  'a project with two beats, beat 1 is open beside the graph': async () => {
+    await writer.startsFrom(aProject(story(beat(), beat())));
+    await writer.opensBeside('beat 1');
   },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
   '{scene} under {beat} is open beside the graph, with its narrative and then its prose': ({

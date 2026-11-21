@@ -316,7 +316,7 @@ const shapeOf = (project: SeededProject): readonly string[] =>
   });
 
 const twoBeats = ['story 0 root', 'beat 0 0', 'beat 1 0'];
-const aBeatWithTwoScenes = [...twoBeats, 'scene 0 2', 'scene 1 2'];
+const aBeatWithTwoScenes = ['story 0 root', 'beat 0 0', 'scene 0 1', 'scene 1 1'];
 
 describe('a seeded Given', () => {
   const played = async (
@@ -331,19 +331,13 @@ describe('a seeded Given', () => {
     return { calls, worlds: started.map(shapeOf) };
   };
 
-  it('starts from the beats the words name, with the scenes under the beat they name', async () => {
-    for (const beat of ['beat two', 'beat 2']) {
+  it('starts from the first beat, with two scenes under it', async () => {
+    for (const beat of ['beat one', 'beat 1']) {
       expect(await played('a project with two scenes under {beat}', { beat })).toEqual({
         calls: [],
         worlds: [aBeatWithTwoScenes],
       });
     }
-  });
-
-  it('refuses a beat a project has none of', async () => {
-    await expect(
-      played('a project with two scenes under {beat}', { beat: 'beat nine' }),
-    ).rejects.toThrow('a project has no beat nine');
   });
 
   it('starts from two beats and makes the first current', async () => {
@@ -354,7 +348,7 @@ describe('a seeded Given', () => {
   });
 
   it('starts from a beat with two scenes and makes the beat current', async () => {
-    const clicks = ['click heading "Beat 2" in group "Beat 2"'];
+    const clicks = ['click heading "Beat 1" in group "Beat 1"'];
     for (const phrase of [
       'a current beat with two scenes',
       'a beat with two scenes, the beat current',

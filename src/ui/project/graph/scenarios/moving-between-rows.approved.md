@@ -3,23 +3,23 @@ Rule: Tabbing moves focus to the next or previous row's first piece, and never c
 ### Scenario: tabbing forward moves focus to the next row
 
 ```
-Given a project with two scenes under beat two
-And beat two is current with tab focus
+Given a project with two scenes under beat one
+And beat one is current with tab focus
 When the writer tabs forward
-Then focus moves to scene one under beat two
+Then focus moves to scene one under beat one
 - main:
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1" [active]
       - text: List line
       - textbox "List line"
       - button "Open beside"
-But beat two stays current
+But beat one stays current
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
@@ -29,8 +29,8 @@ But beat two stays current
 ### Scenario: tabbing backward moves focus to the previous row
 
 ```
-Given a project with two scenes under beat two
-And beat two is current with tab focus
+Given a project with two scenes under beat one
+And beat one is current with tab focus
 When the writer tabs backward
 Then focus moves to the story
 - main:
@@ -40,11 +40,11 @@ Then focus moves to the story
         - button "The story" [active]
       - text: One-sentence summary
       - textbox "One-sentence summary"
-But beat two stays current
+But beat one stays current
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
