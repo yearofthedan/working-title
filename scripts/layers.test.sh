@@ -197,6 +197,36 @@ run_layers
 allowed "another component's *.dom.ts, a type from its plain module, its own plain module and a test reaching across are allowed"
 not_out 'a-component-through-its-render' "the rule says nothing where a component goes through the render"
 
+rm -rf "$project/src/ui"
+write src/ui/project/graph/card/card.ts "export type CardLook = 'card' | 'chip';
+export const looks: readonly CardLook[] = ['card', 'chip'];"
+write src/ui/project/graph/card/card.dom.ts "export const renderCard = (): string => 'card';"
+write src/ui/project/graph/graph.dom.ts "import { looks } from './card/card';
+export const renderGraph = (): number => looks.length;"
+run_layers
+refused "a component nested in another importing its own nested component's plain module is refused"
+expect_out 'a-component-through-its-render: src/ui/project/graph/graph.dom.ts → src/ui/project/graph/card/card.ts' \
+  "the two nested files it joins are named"
+
+write src/ui/project/graph/graph.dom.ts "import { p } from '../panel/panel';
+export const renderGraph = (): number => p;"
+write src/ui/project/panel/panel.ts "export const p = 1;"
+write src/ui/project/panel/panel.dom.ts "export const renderPanel = (): number => 1;"
+run_layers
+refused "a nested component importing its sibling's plain module is refused"
+expect_out 'a-component-through-its-render: src/ui/project/graph/graph.dom.ts → src/ui/project/panel/panel.ts' \
+  "the two files it joins are named"
+
+rm -rf "$project/src/ui/project/panel"
+write src/ui/project/graph/graph.dom.ts "import { renderCard } from './card/card.dom';
+import type { CardLook } from './card/card';
+import { looks } from './graph';
+export const renderGraph = (look: CardLook): string => renderCard() + looks.length + look;"
+write src/ui/project/graph/graph.ts "export const looks: readonly string[] = ['graph'];"
+run_layers
+allowed "a nested component's own plain module, a nested component's *.dom.ts and a type from its plain module are allowed"
+not_out 'a-component-through-its-render' "the rule says nothing where a nested component goes through the render"
+
 rm -rf "$project/src" "$project/e2e"
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/test-helpers/raw-glob.ts 'export interface RawGlob { glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, string>; }'

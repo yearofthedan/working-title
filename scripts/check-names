@@ -77,8 +77,8 @@ echo "every file naming StepAction is a *.dsl.ts, outside src/test-helpers/"
 
 : >"$work/renders"
 git ls-files -- 'src/ui/*/*.dom.ts' | while IFS= read -r file; do
-  folder=${file#src/ui/}
-  folder=${folder%%/*}
+  folder=${file%/*}
+  folder=${folder##*/}
   [ "${file##*/}" = "$folder.dom.ts" ] || continue
   wanted=render$(printf '%s' "$folder" | awk -F- '{ for (i = 1; i <= NF; i++) printf "%s%s", toupper(substr($i, 1, 1)), substr($i, 2) }')
   values=$(git show ":$file" | grep -E '^export ' | grep -v -E '^export (type|interface) ' |
