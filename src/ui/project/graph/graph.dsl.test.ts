@@ -312,7 +312,7 @@ describe('what only the app can play', () => {
 const shapeOf = (project: SeededProject): readonly string[] =>
   project.pieces.map((piece) => {
     const parent = project.pieces.findIndex((other) => other.id === piece.parent);
-    return `${piece.kind} ${piece.order} ${piece.parent === null ? 'root' : parent}`;
+    return `${piece.definition} ${piece.order} ${piece.parent === null ? 'root' : parent}`;
   });
 
 const twoBeats = ['story 0 root', 'beat 0 0', 'beat 1 0'];

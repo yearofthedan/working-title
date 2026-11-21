@@ -170,11 +170,11 @@ export const renderCard = (piece: PieceView, hooks: CardHooks): Card => {
   const facets = piece.facets.map((facet) => field(piece.id, facet, hooks.elaborate));
   element.append(legend, ...facets.map(({ element: one }) => one));
 
-  if (piece.childKind !== undefined) {
+  if (piece.childLabel !== undefined) {
     const button = document.createElement('button');
     button.type = 'button';
     button.tabIndex = -1;
-    button.textContent = strings.card.addA(piece.childKind);
+    button.textContent = strings.card.addA(piece.childLabel);
     button.addEventListener('mousedown', (event) => event.preventDefault());
     button.addEventListener('click', (event) => {
       event.stopPropagation();

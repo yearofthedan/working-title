@@ -7,25 +7,25 @@ import { ids } from './ids';
 export type SeededProject = Project;
 
 export interface PieceSeed {
-  readonly kind: string;
+  readonly definition: string;
   readonly facets?: FacetText;
   readonly children?: readonly PieceSeed[];
 }
 
-const rootKind = snowflakeExtended.rootKind.id;
-const beatKind = snowflakeExtended.startingChildren.kind.id;
-const sceneKind = snowflakeExtended.startingChildren.kind.childKind!.id;
+const rootDefinition = snowflakeExtended.rootDefinition.id;
+const beatDefinition = snowflakeExtended.startingChildren.definition.id;
+const sceneDefinition = snowflakeExtended.startingChildren.definition.childDefinition!.id;
 
 export const story = (...beats: readonly PieceSeed[]): PieceSeed => ({
-  kind: rootKind,
+  definition: rootDefinition,
   children: beats,
 });
 export const beat = (...scenes: readonly PieceSeed[]): PieceSeed => ({
-  kind: beatKind,
+  definition: beatDefinition,
   children: scenes,
 });
-export const scene = (overrides: Omit<PieceSeed, 'kind'> = {}): PieceSeed => ({
-  kind: sceneKind,
+export const scene = (overrides: Omit<PieceSeed, 'definition'> = {}): PieceSeed => ({
+  definition: sceneDefinition,
   ...overrides,
 });
 
@@ -35,8 +35,8 @@ const piecesOf = (
   order: number,
   newId: () => string,
 ): readonly Piece[] => {
-  const { kind, facets = {}, children = [] } = seed;
-  const piece: Piece = { id: newId(), kind, parent, order, facets };
+  const { definition, facets = {}, children = [] } = seed;
+  const piece: Piece = { id: newId(), definition, parent, order, facets };
   return [piece, ...children.flatMap((child, at) => piecesOf(child, piece.id, at, newId))];
 };
 

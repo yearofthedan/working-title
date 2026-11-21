@@ -25,14 +25,14 @@ describe('reading the folder the writer chose', () => {
     await wroteInto(
       beats,
       'Alpha.md',
-      '---\nkind: beat\n---\n\n## One-sentence summary\n\nMaren rows out\n',
+      '---\ndefinition: beat\n---\n\n## One-sentence summary\n\nMaren rows out\n',
     );
 
     expect(printing(await theEntriesIn(folder))).toEqual([
       '- folder "beats":',
       '  - file "Alpha.md":',
       '    ---',
-      '    kind: beat',
+      '    definition: beat',
       '    ---',
       '',
       '    ## One-sentence summary',

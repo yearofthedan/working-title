@@ -3,13 +3,13 @@ import type { Method } from '../domain/project';
 export const snowflakeExtended: Method = {
   name: 'snowflake-extended',
   version: 2,
-  rootKind: {
+  rootDefinition: {
     id: 'story',
     label: 'The story',
     facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary' }],
   },
   startingChildren: {
-    kind: {
+    definition: {
       id: 'beat',
       label: 'Beat',
       plural: 'Beats',
@@ -18,7 +18,7 @@ export const snowflakeExtended: Method = {
         { id: 'paragraph', label: 'Paragraph', long: true },
         { id: 'page', label: 'Page', long: true },
       ],
-      childKind: {
+      childDefinition: {
         id: 'scene',
         label: 'Scene',
         plural: 'Scenes',

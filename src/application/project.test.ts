@@ -147,12 +147,12 @@ describe('opening a project', () => {
 
     expect([one.added, two.added, elsewhere.added]).toEqual(['id-4', 'id-5', 'id-6']);
     expect(store.saved()?.pieces).toEqual([
-      { id: 'id-1', kind: 'root', parent: null, order: 0, facets: {} },
-      { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: {} },
-      { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: {} },
-      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
-      { id: 'id-5', kind: 'child', parent: 'id-2', order: 1, facets: {} },
-      { id: 'id-6', kind: 'child', parent: 'id-3', order: 0, facets: {} },
+      { id: 'id-1', definition: 'root', parent: null, order: 0, facets: {} },
+      { id: 'id-2', definition: 'item', parent: 'id-1', order: 0, facets: {} },
+      { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: {} },
+      { id: 'id-4', definition: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'id-5', definition: 'child', parent: 'id-2', order: 1, facets: {} },
+      { id: 'id-6', definition: 'child', parent: 'id-3', order: 0, facets: {} },
     ]);
   });
 
@@ -176,7 +176,10 @@ describe('opening a project', () => {
       longFacets: [],
       children: [],
     });
-    expect(two.project.root.children.map(({ childKind }) => childKind)).toEqual(['Child', 'Child']);
+    expect(two.project.root.children.map(({ childLabel }) => childLabel)).toEqual([
+      'Child',
+      'Child',
+    ]);
   });
 
   it('reads the text back on the next open', async () => {
@@ -192,7 +195,7 @@ describe('opening a project', () => {
     const saved = {
       method: 'toy',
       version: 1,
-      root: { kind: 'root', facets: { note: 'the first' } },
+      root: { definition: 'root', facets: { note: 'the first' } },
     };
 
     const opened = await openProject(toyMethod, storeOf(saved), ids());
