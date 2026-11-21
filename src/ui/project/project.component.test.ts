@@ -10,13 +10,13 @@ import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { aProjectWithScenesUnderBeatFour, holdingSaves, inMemory } from '../../test-helpers/seed';
 import { theProjectsFolderName } from '../../test-helpers/folders';
-import { aPageWithoutAHeader, aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
+import { aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from './graph/card/card.test-page';
 import { everyCard } from './graph/graph.test-page';
 import { thePanelOn } from './panel/panel.test-page';
 import { yourProjects } from '../your-projects/your-projects.test-page';
-import { renderShell } from '../../shell';
+import { startApp } from '../../app';
 import { type ProjectWriter } from './project.dsl';
 import {
   projectScenarioHarness,
@@ -25,19 +25,21 @@ import {
   theAppWaitingForANewVersion,
   theAppWithoutAProject,
 } from './project.harness';
-import { theHeader } from './project.test-page';
+import { theHeader, thePageHolds } from './project.test-page';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 
 const boxes = (): readonly string[] => everyCard().map((card) => `${nameOf(card)} ${boxOf(card)}`);
 
 describe('starting the app', () => {
-  it('refuses a page with no main', () => {
-    expect(() => renderShell(aPageWithoutAMain())).toThrow('the page has no <main>');
+  it('refuses a page with no main', async () => {
+    await expect(startApp(aPageWithoutAMain())).rejects.toThrow('the page has no <main>');
   });
 
-  it('refuses a page with no header', () => {
-    expect(() => renderShell(aPageWithoutAHeader())).toThrow('the page has no <header>');
+  it('places the banner before the main', async () => {
+    await theAppWithoutAProject().stage.fresh();
+
+    expect(thePageHolds()).toEqual(['header', 'main']);
   });
 });
 

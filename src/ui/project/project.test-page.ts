@@ -10,4 +10,7 @@ export const theHeader = () => ({
   noticeReload: theBanner.getByRole('status').getByRole('button', { name: 'Reload' }),
 });
 
+export const thePageHolds = (): readonly string[] =>
+  [...document.body.children].map((child) => child.tagName.toLowerCase());
+
 export const thePanelBesideTheGraph = () => ({ panels: browser.page.getByElement('aside') });

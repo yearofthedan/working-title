@@ -10,11 +10,9 @@ export const thePage = async (width: number): Promise<Document> => {
   await laidOut();
   await settled();
   document.body.replaceChildren();
-  const header = document.createElement('header');
-  header.append(document.createElement('h1'));
   const main = document.createElement('main');
   main.style.width = `${width}px`;
-  document.body.append(header, main);
+  document.body.append(main);
   return document;
 };
 
@@ -45,11 +43,6 @@ export const theViewport = async (width: number, height: number): Promise<void> 
   await browser.page.viewport(width, height);
 };
 export const aPageWithoutAMain = (): Document => {
-  document.body.replaceChildren(document.createElement('header'));
-  return document;
-};
-
-export const aPageWithoutAHeader = (): Document => {
-  document.body.replaceChildren(document.createElement('main'));
+  document.body.replaceChildren();
   return document;
 };

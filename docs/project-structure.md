@@ -8,6 +8,7 @@
 | Folder | Part |
 | --- | --- |
 | [src/ui/](../src/ui/) | UI: the folders of the components the app places, shaped [as below](#a-components-folder), and the files they share |
+| [src/ui/header/](../src/ui/header/) | UI: the header the app places on every screen: the title, the path, and the notice a new version waits behind |
 | [src/ui/project/](../src/ui/project/) | UI: the screen shown once a project is open, and the components inside it |
 | [src/ui/your-projects/](../src/ui/your-projects/) | UI: the screens shown before a project is open |
 | [src/domain/](../src/domain/) | Domain |
@@ -78,9 +79,8 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | --- | --- |
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderProject` |
-| [src/shell.ts](../src/shell.ts) | The page's furniture: the header with its title and path, the main, and the notice a new version waits behind; start-up renders it before a component does |
 | [src/ui/strings/](../src/ui/strings/) | The app's words: `en.ts` holds every sentence and label the UI and start-up show, and `strings.ts` types them, so a file that shows one imports `strings` from it |
-| [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
+| [src/page.css](../src/page.css) | The page's layout, importing the tokens, the reset and the header's styles |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |
 

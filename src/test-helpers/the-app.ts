@@ -1,7 +1,7 @@
 import type { DirectoryPicker } from '../adapters/file-system-folders';
 import { startApp } from '../app';
 import type { ProjectStore } from '../ports/project-store';
-import type { NewVersion } from '../shell';
+import type { NewVersion } from '../ui/header/header.dom';
 import { inMemory } from './seed';
 
 const stops = new Map<ParentNode, () => void>();
@@ -35,13 +35,10 @@ export const reopenTheApp = async (picker: DirectoryPicker): Promise<void> => {
   const width = main?.style.width ?? '';
   const label = main?.getAttribute('aria-label');
 
-  const header = document.createElement('header');
-  header.append(document.createElement('h1'));
   const freshMain = document.createElement('main');
   freshMain.style.width = width;
   if (label !== null && label !== undefined) freshMain.setAttribute('aria-label', label);
 
-  document.querySelector('header')?.replaceWith(header);
   main?.replaceWith(freshMain);
 
   await openTheApp(document, {}, picker);

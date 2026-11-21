@@ -1,48 +1,45 @@
-import type { PieceView } from './application/project';
-import { strings } from './ui/strings/strings';
+import type { PieceView } from '../../application/project';
+import { strings } from '../strings/strings';
 
 export interface NewVersion {
   readonly waiting: Promise<void>;
   reload(): void;
 }
 
-export interface TheShell {
-  readonly main: HTMLElement;
+export interface Header {
+  readonly element: HTMLElement;
   setTitle(title: string): void;
   showPath(path: readonly PieceView[], onGoTo: (pieceId: string) => void): void;
 }
 
-export const renderShell = (root: ParentNode, newVersion?: NewVersion): TheShell => {
-  const header = root.querySelector<HTMLElement>('header');
-  if (header === null) throw new Error('the page has no <header>');
-  const main = root.querySelector<HTMLElement>('main');
-  if (main === null) throw new Error('the page has no <main>');
-  const name = header.querySelector<HTMLElement>('h1');
-  if (name === null) throw new Error('the page has no <h1>');
+export const renderHeader = (newVersion?: NewVersion): Header => {
+  const element = document.createElement('header');
+  const name = document.createElement('h1');
+  element.append(name);
 
   if (newVersion !== undefined) {
     const notice = document.createElement('p');
     notice.setAttribute('role', 'status');
-    header.append(notice);
+    element.append(notice);
     void newVersion.waiting.then(() => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = strings.shell.reload;
+      button.textContent = strings.header.reload;
       button.addEventListener('click', () => newVersion.reload());
-      notice.append(strings.shell.newVersionIsReady, button);
+      notice.append(strings.header.newVersionIsReady, button);
     });
   }
 
   return {
-    main,
+    element,
     setTitle: (title) => {
       name.textContent = title;
     },
     showPath: (path, onGoTo) => {
-      let nav = header.querySelector('nav');
+      let nav = element.querySelector('nav');
       if (nav === null) {
         nav = document.createElement('nav');
-        nav.setAttribute('aria-label', strings.shell.whereYouAre);
+        nav.setAttribute('aria-label', strings.header.whereYouAre);
         name.after(nav);
       }
 

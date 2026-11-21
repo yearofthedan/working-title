@@ -1,5 +1,5 @@
 export const en = {
-  shell: {
+  header: {
     appTitle: 'working-title',
     yourProjectsTitle: 'Your projects',
     reload: 'Reload',
