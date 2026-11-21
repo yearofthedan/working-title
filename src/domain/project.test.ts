@@ -63,6 +63,7 @@ describe('isProject', () => {
 
   it.each([
     ['null', null],
+    ['undefined', undefined],
     ['a number', 0],
     ['a string', 'x'],
     ['an array', []],
