@@ -2,7 +2,6 @@ import {
   branch as withBranch,
   elaborate as withFacet,
   newProject,
-  readProject,
   type Method,
   type Piece,
   type PieceDefinition,
@@ -94,7 +93,7 @@ export const openProject = async (
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<OpenProject> => {
-  let project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
+  let project = (await store.load()) ?? newProject(method, newId);
   const save = () => store.save(project);
 
   const projectOf = (): OpenProject => ({
