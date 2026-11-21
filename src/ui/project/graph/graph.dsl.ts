@@ -332,8 +332,10 @@ export const graphSteps = (writer: Writer, sees: Sees): Record<string, StepActio
   'the writer tabs backward': () => writer.tabsBackward(),
   'a project with a beat': () => writer.startsFrom(aProject(story(beat()))),
   'a project with two beats': () => writer.startsFrom(aProject(story(beat(), beat()))),
-  'a project with two scenes under {beat}': () =>
-    writer.startsFrom(aProject(story(beat(scene(), scene())))),
+  'a project with two scenes under {beat}': ({ beat: named }) => {
+    if (pieceNamed(named) !== 'Beat 1') throw new Error(`a project has no ${named}`);
+    return writer.startsFrom(aProject(aBeatWithTwoScenes));
+  },
   'beat one is current with tab focus': () => writer.clicks('beat one'),
   'a current beat with two scenes': async () => {
     await writer.startsFrom(aProject(aBeatWithTwoScenes));

@@ -577,7 +577,7 @@ describe('the motion of the panel beside the graph', () => {
   });
 
   it('ends with every visible card where a pane narrowed at rest puts it, with the panel open', async () => {
-    const withPanel = pageWith(aProject(story(beat())));
+    const withPanel = pageWith(aProject(story(beat(), beat())));
     await withPanel.stage.fresh();
     await withPanel.writer.clicks('Beat 1');
     await withPanel.writer.opensBeside('Beat 1');
@@ -586,7 +586,7 @@ describe('the motion of the panel beside the graph', () => {
     await settled();
     const opened = boxes();
 
-    const atRest = pageWith(aProject(story(beat())));
+    const atRest = pageWith(aProject(story(beat(), beat())));
     await atRest.stage.fresh();
     await atRest.writer.clicks('Beat 1');
     narrowThePane(880);

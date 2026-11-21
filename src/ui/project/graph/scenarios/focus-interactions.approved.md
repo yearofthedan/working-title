@@ -17,7 +17,7 @@ Then the writer sees
 ### Scenario: the writer types into one beat
 
 ```
-Given a project with a beat
+Given a project with two beats
 When the writer types "Maren finds the ship's log and learns the sinking was no accident" into beat 1's one-sentence summary
 Then the writer sees
 - main:
@@ -34,4 +34,7 @@ Then the writer sees
       - textbox "One-sentence summary": Maren finds the ship's log and learns the sinking was no accident
       - button "Add a scene"
       - button "Open beside"
+    - group "Beat 2":
+      - heading "Beat 2" [level=3]:
+        - button "Beat 2"
 ```

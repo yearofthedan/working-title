@@ -180,7 +180,7 @@ describe('the graph around the current piece', () => {
   });
 
   it("keeps the current piece's card whole and centred when main narrows, with no move", async () => {
-    const { stage } = graphWith(aProject(story()));
+    const { stage } = graphWith(aProject(story(beat(), beat(), beat())));
     await stage.fresh();
 
     for (const width of [720, 320]) {
@@ -948,7 +948,7 @@ describe('the motion of a move', () => {
   });
 
   it('draws the page without moving anything', async () => {
-    const { stage } = graphWith(aProject(story()));
+    const { stage } = graphWith(aProject(story(beat(scene()))));
     await stage.fresh();
 
     expect(moving()).toEqual([]);

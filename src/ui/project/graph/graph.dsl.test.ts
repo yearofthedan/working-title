@@ -340,6 +340,12 @@ describe('a seeded Given', () => {
     }
   });
 
+  it('refuses a beat a project has none of', async () => {
+    await expect(
+      played('a project with two scenes under {beat}', { beat: 'beat nine' }),
+    ).rejects.toThrow('a project has no beat nine');
+  });
+
   it('starts from two beats and makes the first current', async () => {
     expect(await played('two beats, the first current with tab focus')).toEqual({
       calls: ['click heading "Beat 1" in group "Beat 1"'],
