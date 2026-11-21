@@ -60,7 +60,6 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheFirstScreen = (): Promise<void> =>
     show(() => {
-      header.setTitle(strings.header.appTitle);
       main.replaceChildren(screen.element);
     });
 

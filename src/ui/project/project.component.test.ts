@@ -10,7 +10,7 @@ import type { RawGlob } from '../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { aProjectWithScenesUnderBeatFour, holdingSaves, inMemory } from '../../test-helpers/seed';
 import { theProjectsFolderName } from '../../test-helpers/folders';
-import { aPageWithoutAMain, narrowThePane } from '../../test-helpers/staging';
+import { aPageWithoutAMain, narrowThePane, thePage } from '../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from './graph/card/card.test-page';
 import { everyCard } from './graph/graph.test-page';
@@ -40,6 +40,19 @@ describe('starting the app', () => {
     await theAppWithoutAProject().stage.fresh();
 
     expect(thePageHolds()).toEqual(['header', 'main']);
+  });
+
+  it('shows the app’s title in the header before the first screen is ready', async () => {
+    const page = await thePage(1440);
+    const loading = Promise.withResolvers<undefined>();
+    const started = startApp(page, {
+      store: { load: () => loading.promise, save: async () => undefined },
+    });
+
+    await expect.element(theHeader().heading).toHaveTextContent('working-title');
+
+    loading.resolve(undefined);
+    (await started)();
   });
 });
 

@@ -34,6 +34,7 @@ A component's folder holds the component and its test code, each file named afte
 | `<component>.test-page.ts` | Its test page |
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
+| `<component>.css` | Its styles, imported by `src/page.css`, such as `header.css` |
 
 A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/project/](../src/ui/project/) holds [graph/](../src/ui/project/graph/) and [panel/](../src/ui/project/panel/), and `graph/` holds [card/](../src/ui/project/graph/card/); [src/ui/your-projects/](../src/ui/your-projects/) holds [projects-folder/](../src/ui/your-projects/projects-folder/) and [project-list/](../src/ui/your-projects/project-list/), and `project-list/` holds [start-a-project/](../src/ui/your-projects/project-list/start-a-project/).
 
