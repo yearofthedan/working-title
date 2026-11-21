@@ -1,7 +1,7 @@
 import type { ProjectsFolder } from '../../../application/project';
 import { strings } from '../../strings/strings';
 
-export const thePauseBeforeReading = 250;
+const thePauseBeforeReading = 250;
 
 export interface StartAProjectHooks {
   readonly folder: ProjectsFolder;

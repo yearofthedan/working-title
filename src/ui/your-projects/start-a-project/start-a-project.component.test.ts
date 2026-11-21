@@ -8,11 +8,11 @@ import {
   theProjectsFolderName,
 } from '../../../test-helpers/folders';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
-import { thePauseBeforeReading } from './start-a-project.dom';
 import { startAProjectWriterOn } from './start-a-project.dsl';
 import { mountStartRow } from './start-a-project.harness';
 import { theStartRow } from './start-a-project.test-page';
 
+const thePauseBeforeReading = 250;
 const driver = vitestBrowserDriver();
 const writer = startAProjectWriterOn(driver);
 

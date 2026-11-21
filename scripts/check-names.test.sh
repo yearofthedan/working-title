@@ -209,4 +209,20 @@ names
 expect_status 1 "a default export is refused"
 rm -r "$project/src/ui/word-count"
 stage
+
+write src/ui/focus/count/nested-count/nested-count.dom.ts "export const renderNestedCount = (): number => 1;
+export const tidy = (): void => undefined;"
+stage
+names
+expect_status 1 "a nested component's *.dom.ts exporting a helper beside its render is refused"
+expect_out '^src/ui/focus/count/nested-count/nested-count\.dom\.ts exports renderNestedCount tidy, not renderNestedCount alone$' \
+  "the nested file and what it exports are named"
+expect_err 'exports one value, render followed by the component' "the failure states the rule"
+
+write src/ui/focus/count/nested-count/nested-count.dom.ts "export const renderNestedCount = (): number => 1;"
+stage
+names
+expect_status 0 "a nested component's *.dom.ts exporting its render alone passes"
+rm -r "$project/src/ui/focus"
+stage
 finish
