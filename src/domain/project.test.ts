@@ -67,36 +67,47 @@ describe('isProject', () => {
     ['a string', 'x'],
     ['an array', []],
     ['an empty object', {}],
-    ['no pieces', { method: 'toy', version: 1 }],
-    ['pieces that are not a list', { method: 'toy', version: 1, pieces: {} }],
+    ['no pieces', { title: '', method: 'toy', version: 1 }],
+    ['pieces that are not a list', { title: '', method: 'toy', version: 1, pieces: {} }],
     [
       'a piece with no id',
-      { method: 'toy', version: 1, pieces: [{ definition: 'item', facets: {} }] },
+      { title: '', method: 'toy', version: 1, pieces: [{ definition: 'item', facets: {} }] },
     ],
     [
       'a piece with no definition',
-      { method: 'toy', version: 1, pieces: [{ id: 'id-1', facets: {} }] },
+      { title: '', method: 'toy', version: 1, pieces: [{ id: 'id-1', facets: {} }] },
     ],
-    ['no facets', { method: 'toy', version: 1, pieces: [{ id: 'id-1', definition: 'item' }] }],
+    [
+      'no facets',
+      { title: '', method: 'toy', version: 1, pieces: [{ id: 'id-1', definition: 'item' }] },
+    ],
     [
       'a facet that is not text',
       {
+        title: '',
         method: 'toy',
         version: 1,
         pieces: [{ id: 'id-1', definition: 'item', facets: { note: { a: 1 } } }],
       },
     ],
-    ['no method', { version: 1, pieces: [] }],
-    ['no version', { method: 'toy', pieces: [] }],
+    ['no method', { title: '', version: 1, pieces: [] }],
+    ['no version', { title: '', method: 'toy', pieces: [] }],
+    ['no title', { method: 'toy', version: 1, pieces: [] }],
     ['a title that is not text', { title: 7, method: 'toy', version: 1, pieces: [] }],
-    ['a piece that is nothing', { method: 'toy', version: 1, pieces: [null] }],
+    ['a piece that is nothing', { title: '', method: 'toy', version: 1, pieces: [null] }],
     [
       'facets that are nothing',
-      { method: 'toy', version: 1, pieces: [{ id: 'id-1', definition: 'item', facets: null }] },
+      {
+        title: '',
+        method: 'toy',
+        version: 1,
+        pieces: [{ id: 'id-1', definition: 'item', facets: null }],
+      },
     ],
     [
       'a piece the writer filled in beside one that names no definition',
       {
+        title: '',
         method: 'toy',
         version: 1,
         pieces: [
