@@ -22,6 +22,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const header = renderHeader(newVersion);
   main.before(header.element);
+  header.setTitle(strings.header.appTitle);
 
   const keys = new AbortController();
   document.addEventListener('keydown', (event) => app?.keys(event), { signal: keys.signal });
