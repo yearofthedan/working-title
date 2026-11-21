@@ -5,7 +5,9 @@ describe('a seeded project', () => {
   it('holds the beats the seed names, in their place', () => {
     const { pieces } = aProject(story(beat(), beat(), beat()));
 
-    expect(pieces.map(({ kind, order, parent }) => `${kind} ${order} ${parent}`)).toEqual([
+    expect(
+      pieces.map(({ definition, order, parent }) => `${definition} ${order} ${parent}`),
+    ).toEqual([
       'story 0 null',
       `beat 0 ${pieces[0]!.id}`,
       `beat 1 ${pieces[0]!.id}`,
@@ -17,7 +19,7 @@ describe('a seeded project', () => {
     const facets = { 'list-line': 'Maren rows out' };
     const { pieces } = aProject(story(beat(scene({ facets }))));
 
-    expect(pieces.map(({ kind, facets: text }) => [kind, text])).toEqual([
+    expect(pieces.map(({ definition, facets: text }) => [definition, text])).toEqual([
       ['story', {}],
       ['beat', {}],
       ['scene', facets],
@@ -26,7 +28,7 @@ describe('a seeded project', () => {
 
   it('puts a beat its scenes, one after another, and no scenes under the others', () => {
     const { pieces } = aProject(story(beat(), beat(scene(), scene()), beat()));
-    const scenes = pieces.filter(({ kind }) => kind === 'scene');
+    const scenes = pieces.filter(({ definition }) => definition === 'scene');
 
     expect(scenes.map(({ order }) => order)).toEqual([0, 1]);
     expect(scenes.map(({ parent }) => parent)).toEqual([pieces[2]!.id, pieces[2]!.id]);
@@ -36,13 +38,13 @@ describe('a seeded project', () => {
     const six = Array.from({ length: 6 }, () => beat());
     const { pieces } = aProject(story(...six));
 
-    expect(pieces.filter(({ kind }) => kind === 'beat')).toHaveLength(6);
+    expect(pieces.filter(({ definition }) => definition === 'beat')).toHaveLength(6);
   });
 
   it('takes the beat the name says, by its place among the beats', async () => {
     const { pieces } = await aProjectWithScenesUnder('Beat 4', 1);
 
-    expect(pieces.map(({ kind, order }) => `${kind} ${order}`)).toEqual([
+    expect(pieces.map(({ definition, order }) => `${definition} ${order}`)).toEqual([
       'story 0',
       'beat 0',
       'beat 1',

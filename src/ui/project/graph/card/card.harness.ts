@@ -9,7 +9,7 @@ export const theBeat: PieceView = {
   facets: [{ id: 'one-sentence-summary', label: 'One-sentence summary', text: '' }],
   longFacets: [{ id: 'paragraph', label: 'Paragraph', text: '' }],
   children: [],
-  childKind: 'Scene',
+  childLabel: 'Scene',
 };
 
 export interface CardHooks {

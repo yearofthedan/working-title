@@ -7,8 +7,8 @@ import type { RawGlob } from '../test-helpers/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
-const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
-const listLine = snowflakeExtended.startingChildren.kind.childKind?.facets[0]?.id ?? '';
+const summary = snowflakeExtended.rootDefinition.facets[0]?.id ?? '';
+const listLine = snowflakeExtended.startingChildren.definition.childDefinition?.facets[0]?.id ?? '';
 const storing = new Map<string, string>();
 
 const storage: Storage = {
@@ -84,7 +84,7 @@ describe('the project in browser storage', () => {
       JSON.stringify({
         method: 'snowflake-extended',
         version: 2,
-        pieces: [{ id: 'id-1', kind: 'story', parent: null, order: 0, facets: {} }],
+        pieces: [{ id: 'id-1', definition: 'story', parent: null, order: 0, facets: {} }],
       }),
     );
 
@@ -98,7 +98,7 @@ describe('the project in browser storage', () => {
       JSON.stringify({
         method: 'snowflake-extended',
         version: 1,
-        root: { kind: 'story', facets: { [summary]: sentence } },
+        root: { definition: 'story', facets: { [summary]: sentence } },
       }),
     );
 
@@ -157,12 +157,15 @@ describe('the project in browser storage', () => {
     ['null', 'null'],
     ['an empty object', '{}'],
     ['an array', '[]'],
-    ['a root with no facets', '{"method":"m","version":1,"root":{"kind":"root"}}'],
+    ['a root with no facets', '{"method":"m","version":1,"root":{"definition":"root"}}'],
     [
       'a facet that is not text',
-      '{"method":"m","version":1,"root":{"kind":"root","facets":{"a":{"b":1}}}}',
+      '{"method":"m","version":1,"root":{"definition":"root","facets":{"a":{"b":1}}}}',
     ],
-    ['a piece with no id', '{"method":"m","version":2,"pieces":[{"kind":"beat","facets":{}}]}'],
+    [
+      'a piece with no id',
+      '{"method":"m","version":2,"pieces":[{"definition":"beat","facets":{}}]}',
+    ],
   ])('refuses %s, leaving it where it is', async (_, stored) => {
     storage.setItem(key, stored);
     await expect(projectStore(storage).load()).rejects.toThrow('is not a project');

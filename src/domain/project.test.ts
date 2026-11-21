@@ -15,9 +15,9 @@ import {
 const project = (): Project => newProject(toyMethod, ids());
 
 const everyPiece = [
-  { id: 'id-1', kind: 'root', parent: null, order: 0, facets: {} },
-  { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: {} },
-  { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: {} },
+  { id: 'id-1', definition: 'root', parent: null, order: 0, facets: {} },
+  { id: 'id-2', definition: 'item', parent: 'id-1', order: 0, facets: {} },
+  { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: {} },
 ];
 
 describe('newProject', () => {
@@ -39,27 +39,27 @@ describe('elaborate', () => {
       'the second',
     );
     expect(typed.pieces).toEqual([
-      { id: 'id-1', kind: 'root', parent: null, order: 0, facets: { note: 'the root' } },
-      { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: { title: 'the first' } },
-      { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: { note: 'the second' } },
+      { id: 'id-1', definition: 'root', parent: null, order: 0, facets: { note: 'the root' } },
+      { id: 'id-2', definition: 'item', parent: 'id-1', order: 0, facets: { title: 'the first' } },
+      { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: { note: 'the second' } },
     ]);
   });
 });
 
 describe('branch', () => {
   it('adds a piece under its parent, after the pieces already under it, leaving every other piece alone', () => {
-    const childKind = toyMethod.startingChildren.kind.childKind!;
-    const one = branch(project(), 'id-2', childKind, 'id-4');
-    const two = branch(one, 'id-2', childKind, 'id-5');
+    const childDefinition = toyMethod.startingChildren.definition.childDefinition!;
+    const one = branch(project(), 'id-2', childDefinition, 'id-4');
+    const two = branch(one, 'id-2', childDefinition, 'id-5');
 
     expect(one.pieces).toEqual([
       ...everyPiece,
-      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'id-4', definition: 'child', parent: 'id-2', order: 0, facets: {} },
     ]);
     expect(two.pieces).toEqual([
       ...everyPiece,
-      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
-      { id: 'id-5', kind: 'child', parent: 'id-2', order: 1, facets: {} },
+      { id: 'id-4', definition: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'id-5', definition: 'child', parent: 'id-2', order: 1, facets: {} },
     ]);
   });
 });
@@ -89,23 +89,23 @@ describe('readProject', () => {
     const saved = {
       method: 'toy',
       version: 1,
-      root: { kind: 'root', facets: { note: 'the root' } },
+      root: { definition: 'root', facets: { note: 'the root' } },
     };
     expect(readProject(saved, toyMethod, ids())).toEqual({
       title: '',
       method: 'toy',
       version: 1,
       pieces: [
-        { id: 'id-1', kind: 'root', parent: null, order: 0, facets: { note: 'the root' } },
-        { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: {} },
-        { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: {} },
+        { id: 'id-1', definition: 'root', parent: null, order: 0, facets: { note: 'the root' } },
+        { id: 'id-2', definition: 'item', parent: 'id-1', order: 0, facets: {} },
+        { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: {} },
       ],
     });
   });
 
   it("records the method's version, reading a save the version 1 wrote", () => {
     const atVersion2 = { ...toyMethod, version: 2 };
-    const fromVersion1 = { method: 'toy', version: 1, root: { kind: 'root', facets: {} } };
+    const fromVersion1 = { method: 'toy', version: 1, root: { definition: 'root', facets: {} } };
     expect(readProject(fromVersion1, atVersion2, ids())?.version).toBe(2);
   });
 });
@@ -124,15 +124,21 @@ describe('isProject', () => {
     ['an empty object', {}],
     ['no pieces', { method: 'toy', version: 1 }],
     ['pieces that are not a list', { method: 'toy', version: 1, pieces: {} }],
-    ['a piece with no id', { method: 'toy', version: 1, pieces: [{ kind: 'item', facets: {} }] }],
-    ['a piece with no kind', { method: 'toy', version: 1, pieces: [{ id: 'id-1', facets: {} }] }],
-    ['no facets', { method: 'toy', version: 1, pieces: [{ id: 'id-1', kind: 'item' }] }],
+    [
+      'a piece with no id',
+      { method: 'toy', version: 1, pieces: [{ definition: 'item', facets: {} }] },
+    ],
+    [
+      'a piece with no definition',
+      { method: 'toy', version: 1, pieces: [{ id: 'id-1', facets: {} }] },
+    ],
+    ['no facets', { method: 'toy', version: 1, pieces: [{ id: 'id-1', definition: 'item' }] }],
     [
       'a facet that is not text',
       {
         method: 'toy',
         version: 1,
-        pieces: [{ id: 'id-1', kind: 'item', facets: { note: { a: 1 } } }],
+        pieces: [{ id: 'id-1', definition: 'item', facets: { note: { a: 1 } } }],
       },
     ],
     ['no method', { version: 1, pieces: [] }],
@@ -141,15 +147,15 @@ describe('isProject', () => {
     ['a piece that is nothing', { method: 'toy', version: 1, pieces: [null] }],
     [
       'facets that are nothing',
-      { method: 'toy', version: 1, pieces: [{ id: 'id-1', kind: 'item', facets: null }] },
+      { method: 'toy', version: 1, pieces: [{ id: 'id-1', definition: 'item', facets: null }] },
     ],
     [
-      'a piece the writer filled in beside one that names no kind',
+      'a piece the writer filled in beside one that names no definition',
       {
         method: 'toy',
         version: 1,
         pieces: [
-          { id: 'id-1', kind: 'item', facets: { note: 'the first' } },
+          { id: 'id-1', definition: 'item', facets: { note: 'the first' } },
           { id: 'id-2', facets: {} },
         ],
       },
@@ -166,7 +172,9 @@ describe('isProjectWithoutTitle', () => {
       isProjectWithoutTitle({
         method: 'toy',
         version: 1,
-        pieces: [{ id: 'id-1', kind: 'root', parent: null, order: 0, facets: { note: 'a note' } }],
+        pieces: [
+          { id: 'id-1', definition: 'root', parent: null, order: 0, facets: { note: 'a note' } },
+        ],
       }),
     ).toBe(true);
   });
@@ -186,13 +194,17 @@ describe('isProjectWithoutTitle', () => {
 describe('isProjectFromVersion1', () => {
   it('reads a save in the shape version 1 wrote, its facets filled in or not', () => {
     expect(
-      isProjectFromVersion1({ method: 'toy', version: 1, root: { kind: 'root', facets: {} } }),
+      isProjectFromVersion1({
+        method: 'toy',
+        version: 1,
+        root: { definition: 'root', facets: {} },
+      }),
     ).toBe(true);
     expect(
       isProjectFromVersion1({
         method: 'toy',
         version: 1,
-        root: { kind: 'root', facets: { note: 'the root' } },
+        root: { definition: 'root', facets: { note: 'the root' } },
       }),
     ).toBe(true);
   });
@@ -203,22 +215,25 @@ describe('isProjectFromVersion1', () => {
     ['a string', 'x'],
     ['an array', []],
     ['an empty object', {}],
-    ['a root with no facets', { method: 'toy', version: 1, root: { kind: 'root' } }],
-    ['a method that is not text', { method: 7, version: 1, root: { kind: 'root', facets: {} } }],
-    ['no version', { method: 'toy', root: { kind: 'root', facets: {} } }],
+    ['a root with no facets', { method: 'toy', version: 1, root: { definition: 'root' } }],
+    [
+      'a method that is not text',
+      { method: 7, version: 1, root: { definition: 'root', facets: {} } },
+    ],
+    ['no version', { method: 'toy', root: { definition: 'root', facets: {} } }],
     [
       'a version that is not a number',
-      { method: 'toy', version: '1', root: { kind: 'root', facets: {} } },
+      { method: 'toy', version: '1', root: { definition: 'root', facets: {} } },
     ],
     ['no root', { method: 'toy', version: 1 }],
-    ['a root with no kind', { method: 'toy', version: 1, root: { facets: {} } }],
+    ['a root with no definition', { method: 'toy', version: 1, root: { facets: {} } }],
     [
       'a facet that is not text',
-      { method: 'toy', version: 1, root: { kind: 'root', facets: { note: { a: 1 } } } },
+      { method: 'toy', version: 1, root: { definition: 'root', facets: { note: { a: 1 } } } },
     ],
     [
       'facets that are nothing',
-      { method: 'toy', version: 1, root: { kind: 'root', facets: null } },
+      { method: 'toy', version: 1, root: { definition: 'root', facets: null } },
     ],
   ])('refuses %s, which parses but is not a save version 1 wrote', (_, value) => {
     expect(isProjectFromVersion1(value)).toBe(false);

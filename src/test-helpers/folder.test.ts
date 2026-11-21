@@ -86,13 +86,13 @@ describe('naming the ids in a printed block', () => {
       namingIds([
         'id: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d',
         'parent: aa11bb22-cc33-4dd4-9ee5-ff6677889900',
-        'kind: beat',
+        'definition: beat',
         'child: 3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d',
       ]),
     ).toEqual([
       'id: placeholder_id_1',
       'parent: placeholder_id_2',
-      'kind: beat',
+      'definition: beat',
       'child: placeholder_id_1',
     ]);
   });

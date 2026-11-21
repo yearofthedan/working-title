@@ -1,24 +1,24 @@
 export const untitledProjectTitle = 'Untitled project';
 
-export interface Facet {
+export interface FacetDefinition {
   readonly id: string;
   readonly label: string;
   readonly long?: boolean;
 }
 
-export interface PieceKind {
+export interface PieceDefinition {
   readonly id: string;
   readonly label: string;
   readonly plural?: string;
-  readonly facets: readonly Facet[];
-  readonly childKind?: PieceKind;
+  readonly facets: readonly FacetDefinition[];
+  readonly childDefinition?: PieceDefinition;
 }
 
 export interface Method {
   readonly name: string;
   readonly version: number;
-  readonly rootKind: PieceKind;
-  readonly startingChildren: { readonly kind: PieceKind; readonly count: number };
+  readonly rootDefinition: PieceDefinition;
+  readonly startingChildren: { readonly definition: PieceDefinition; readonly count: number };
 }
 
 export interface FacetText {
@@ -27,7 +27,7 @@ export interface FacetText {
 
 export interface Piece {
   readonly id: string;
-  readonly kind: string;
+  readonly definition: string;
   readonly parent: string | null;
   readonly order: number;
   readonly facets: FacetText;
@@ -49,7 +49,7 @@ export interface ProjectWithoutTitle {
 export interface ProjectFromVersion1 {
   readonly method: string;
   readonly version: number;
-  readonly root: { readonly kind: string; readonly facets: FacetText };
+  readonly root: { readonly definition: string; readonly facets: FacetText };
 }
 
 export type StoredProject = Project | ProjectWithoutTitle | ProjectFromVersion1;
@@ -57,14 +57,20 @@ export type StoredProject = Project | ProjectWithoutTitle | ProjectFromVersion1;
 const startingChildren = (method: Method, root: Piece, newId: () => string): readonly Piece[] =>
   Array.from({ length: method.startingChildren.count }, (_, order) => ({
     id: newId(),
-    kind: method.startingChildren.kind.id,
+    definition: method.startingChildren.definition.id,
     parent: root.id,
     order,
     facets: {},
   }));
 
 export const newProject = (method: Method, newId: () => string, title = ''): Project => {
-  const root: Piece = { id: newId(), kind: method.rootKind.id, parent: null, order: 0, facets: {} };
+  const root: Piece = {
+    id: newId(),
+    definition: method.rootDefinition.id,
+    parent: null,
+    order: 0,
+    facets: {},
+  };
   return {
     title,
     method: method.name,
@@ -86,7 +92,9 @@ const hasProjectShape = (value: unknown): value is ProjectWithoutTitle => {
   if (!Array.isArray(pieces)) return false;
   return pieces.every(
     (piece: Piece) =>
-      typeof piece?.id === 'string' && typeof piece.kind === 'string' && isFacetText(piece.facets),
+      typeof piece?.id === 'string' &&
+      typeof piece.definition === 'string' &&
+      isFacetText(piece.facets),
   );
 };
 
@@ -100,7 +108,7 @@ export const isProjectFromVersion1 = (value: unknown): value is ProjectFromVersi
   if (typeof value !== 'object' || value === null) return false;
   const { method, version, root } = value as ProjectFromVersion1;
   if (typeof method !== 'string' || typeof version !== 'number') return false;
-  return typeof root?.kind === 'string' && isFacetText(root.facets);
+  return typeof root?.definition === 'string' && isFacetText(root.facets);
 };
 
 export const readProject = (
@@ -112,7 +120,7 @@ export const readProject = (
   if (!isProjectFromVersion1(stored)) return { title: '', ...stored };
   const root: Piece = {
     id: newId(),
-    kind: stored.root.kind,
+    definition: stored.root.definition,
     parent: null,
     order: 0,
     facets: stored.root.facets,
@@ -140,7 +148,7 @@ export const elaborate = (
 export const branch = (
   project: Project,
   parentId: string,
-  kind: PieceKind,
+  definition: PieceDefinition,
   id: string,
 ): Project => ({
   ...project,
@@ -148,7 +156,7 @@ export const branch = (
     ...project.pieces,
     {
       id,
-      kind: kind.id,
+      definition: definition.id,
       parent: parentId,
       order: project.pieces.filter((piece) => piece.parent === parentId).length,
       facets: {},

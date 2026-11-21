@@ -51,7 +51,7 @@ export const en = {
 
   card: {
     openBeside: 'Open beside',
-    addA: (kind: string) => `Add a ${kind.toLowerCase()}`,
+    addA: (label: string) => `Add a ${label.toLowerCase()}`,
     keyHints: [
       { keys: ['Enter'], after: ' to write · ' },
       { keys: ['Tab'], after: ' for the next row · ' },

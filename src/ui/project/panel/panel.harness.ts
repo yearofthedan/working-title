@@ -10,7 +10,7 @@ export const theBeat: PieceView = {
     { id: 'page', label: 'Page', text: '' },
   ],
   children: [],
-  childKind: 'Scene',
+  childLabel: 'Scene',
 };
 
 export interface PanelHooks {
