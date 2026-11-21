@@ -28,6 +28,7 @@ export const domInDomFiles: Override[] = [
       'src/ui/**/*.test.ts',
       'src/ui/**/*.test-page.ts',
       'src/ui/**/*.harness.ts',
+      'src/ui/**/test-helpers/**/*.ts',
     ],
     rules: { 'no-restricted-globals': 'off' },
   },
