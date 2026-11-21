@@ -8,7 +8,7 @@ And the first scene has focus
 When the writer presses Enter
 Then the first scene becomes current, and has focus
 - main:
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1" [active] [current]:
       - heading "Scene 1" [level=4]
       - text: List line

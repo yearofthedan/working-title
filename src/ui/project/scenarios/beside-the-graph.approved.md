@@ -3,11 +3,11 @@ Rule: the writer opens a beat or a scene in the panel beside the graph and types
 ### Scenario: a beat opens with its paragraph and its page
 
 ```
-Given a new project
-When the writer opens beat 2 beside the graph
-Then beat 2 is open beside the graph, with its paragraph and then its page
-- complementary "Beat 2":
-  - heading "Beat 2" [level=2]
+Given a project with a beat
+When the writer opens beat 1 beside the graph
+Then beat 1 is open beside the graph, with its paragraph and then its page
+- complementary "Beat 1":
+  - heading "Beat 1" [level=2]
   - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -20,44 +20,44 @@ Then beat 2 is open beside the graph, with its paragraph and then its page
 ### Scenario: the one-sentence summary is typed beside the graph
 
 ```
-Given beat 2 is open beside the graph
-When the writer types "Maren learns the sinking was no accident" as beat 2's one-sentence summary beside the graph
-Then beat 2's one-sentence summary on its card reads "Maren learns the sinking was no accident"
+Given beat 1 is open beside the graph
+When the writer types "Maren learns the sinking was no accident" as beat 1's one-sentence summary beside the graph
+Then beat 1's one-sentence summary on its card reads "Maren learns the sinking was no accident"
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 2" [current]:
+    - group "Beat 1" [current]:
       - textbox "One-sentence summary": Maren learns the sinking was no accident
 ```
 
 ### Scenario: the one-sentence summary is typed on its card while the panel is open
 
 ```
-Given beat 2 is open beside the graph
-When the writer types "Maren learns the sinking was no accident" as beat 2's one-sentence summary
-Then beat 2's one-sentence summary beside the graph reads "Maren learns the sinking was no accident"
-- complementary "Beat 2":
+Given beat 1 is open beside the graph
+When the writer types "Maren learns the sinking was no accident" as beat 1's one-sentence summary
+Then beat 1's one-sentence summary beside the graph reads "Maren learns the sinking was no accident"
+- complementary "Beat 1":
   - textbox "One-sentence summary": Maren learns the sinking was no accident
 ```
 
 ### Scenario: the panel keeps its beat while the focus moves
 
 ```
-Given beat 2 is open beside the graph
-When the writer clicks beat 2
+Given a project with two beats, beat 1 is open beside the graph
+When the writer clicks beat 1
 And presses →
-Then beat 3 is in focus
+Then beat 2 is in focus
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 3" [active] [current]:
-      - heading "Beat 3" [level=3]
+    - group "Beat 2" [active] [current]:
+      - heading "Beat 2" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-And beat 2 is still open beside the graph
-- complementary "Beat 2":
-  - heading "Beat 2" [level=2]
+And beat 1 is still open beside the graph
+- complementary "Beat 1":
+  - heading "Beat 1" [level=2]
   - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -70,11 +70,11 @@ And beat 2 is still open beside the graph
 ### Scenario: opening another beat replaces the one beside
 
 ```
-Given beat 2 is open beside the graph
-When the writer opens beat 4 beside the graph
-Then beat 4's paragraph is open beside the graph
-- complementary "Beat 4":
-  - heading "Beat 4" [level=2]
+Given a project with two beats, beat 1 is open beside the graph
+When the writer opens beat 2 beside the graph
+Then beat 2's paragraph is open beside the graph
+- complementary "Beat 2":
+  - heading "Beat 2" [level=2]
   - button "Close"
   - text: One-sentence summary
   - textbox "One-sentence summary"
@@ -87,7 +87,7 @@ Then beat 4's paragraph is open beside the graph
 ### Scenario: closing the panel
 
 ```
-Given beat 2 is open beside the graph
+Given beat 1 is open beside the graph
 When the writer closes the panel
 Then nothing is open beside the graph
 - banner:
@@ -96,7 +96,7 @@ Then nothing is open beside the graph
     - list:
       - listitem:
         - button "The story"
-      - listitem: ›" / "Beat 2
+      - listitem: ›" / "Beat 1
 - main:
   - toolbar "The story":
     - group "The story":
@@ -105,30 +105,18 @@ Then nothing is open beside the graph
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
 ```
 
 ### Scenario: Esc closes the panel
 
 ```
-Given beat 2 is open beside the graph
+Given beat 1 is open beside the graph
 When the writer presses Esc
 Then nothing is open beside the graph
 - banner:
@@ -137,7 +125,7 @@ Then nothing is open beside the graph
     - list:
       - listitem:
         - button "The story"
-      - listitem: ›" / "Beat 2
+      - listitem: ›" / "Beat 1
 - main:
   - toolbar "The story":
     - group "The story":
@@ -146,34 +134,22 @@ Then nothing is open beside the graph
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
-    - group "Beat 3":
-      - heading "Beat 3" [level=3]:
-        - button "Beat 3"
-    - group "Beat 4":
-      - heading "Beat 4" [level=3]:
-        - button "Beat 4"
-    - group "Beat 5":
-      - heading "Beat 5" [level=3]:
-        - button "Beat 5"
 ```
 
 ### Scenario: a scene opens with its narrative and its prose
 
 ```
-Given a project with two scenes under beat 2
-When the writer clicks beat 2
+Given a project with two scenes under beat 1
+When the writer clicks beat 1
 And presses ↓
-And opens scene 1 under beat 2 beside the graph
-Then scene 1 under beat 2 is open beside the graph, with its narrative and then its prose
+And opens scene 1 under beat 1 beside the graph
+Then scene 1 under beat 1 is open beside the graph, with its narrative and then its prose
 - complementary "Scene 1":
   - heading "Scene 1" [level=2]
   - button "Close"

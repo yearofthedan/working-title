@@ -3,6 +3,7 @@ import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
+import { aProject, beat, story } from '../test-helpers/seed';
 import { toyMethod } from '../test-helpers/toy-method';
 import { openProject, startProject } from './project';
 
@@ -29,6 +30,17 @@ const copyingStore = (): ProjectStore & { saved: () => Project | undefined } => 
 const item2Of = (children: readonly { readonly id: string }[]): { readonly id: string } => {
   const item = children[1];
   if (item === undefined) throw new Error('the project has no item 2');
+  return item;
+};
+
+const addedIds = (): (() => string) => {
+  let made = 0;
+  return () => `added-${(made += 1)}`;
+};
+
+const firstOf = (children: readonly { readonly id: string }[]): { readonly id: string } => {
+  const item = children[0];
+  if (item === undefined) throw new Error('the project has no first piece');
   return item;
 };
 
@@ -78,13 +90,14 @@ describe('opening a project', () => {
 
   it("saves a scene's narrative, line breaks and all, and reads it back on the next open", async () => {
     const store = copyingStore();
-    const first = await openProject(snowflakeExtended, store, ids());
-    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await store.save(aProject(story(beat())));
+    const first = await openProject(snowflakeExtended, store, addedIds());
+    const { project, added } = await first.branch(firstOf(first.root.children).id);
     await project.elaborate(added, 'narrative', typed);
 
     const reopened = await openProject(snowflakeExtended, store, ids());
 
-    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+    expect(reopened.root.children[0]?.children[0]?.longFacets).toEqual([
       { id: 'narrative', label: 'Narrative', text: typed },
       { id: 'prose', label: 'Prose', text: '' },
     ]);
@@ -92,13 +105,14 @@ describe('opening a project', () => {
 
   it("saves a scene's prose, line breaks and all, and reads it back on the next open", async () => {
     const store = copyingStore();
-    const first = await openProject(snowflakeExtended, store, ids());
-    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await store.save(aProject(story(beat())));
+    const first = await openProject(snowflakeExtended, store, addedIds());
+    const { project, added } = await first.branch(firstOf(first.root.children).id);
     await project.elaborate(added, 'prose', typed);
 
     const reopened = await openProject(snowflakeExtended, store, ids());
 
-    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+    expect(reopened.root.children[0]?.children[0]?.longFacets).toEqual([
       { id: 'narrative', label: 'Narrative', text: '' },
       { id: 'prose', label: 'Prose', text: typed },
     ]);

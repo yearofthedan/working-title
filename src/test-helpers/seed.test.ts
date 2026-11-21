@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { aProject, aProjectWithScenesUnder, beat, scene, story } from './seed';
+import { aProject, beat, scene, story } from './seed';
 
 describe('a seeded project', () => {
   it('holds the beats the seed names, in their place', () => {
@@ -39,23 +39,5 @@ describe('a seeded project', () => {
     const { pieces } = aProject(story(...six));
 
     expect(pieces.filter(({ definition }) => definition === 'beat')).toHaveLength(6);
-  });
-
-  it('takes the beat the name says, by its place among the beats', async () => {
-    const { pieces } = await aProjectWithScenesUnder('Beat 4', 1);
-
-    expect(pieces.map(({ definition, order }) => `${definition} ${order}`)).toEqual([
-      'story 0',
-      'beat 0',
-      'beat 1',
-      'beat 2',
-      'beat 3',
-      'scene 0',
-    ]);
-    expect(pieces.at(-1)!.parent).toBe(pieces[4]!.id);
-  });
-
-  it('refuses a beat a project has none of', async () => {
-    await expect(aProjectWithScenesUnder('Beat 9', 1)).rejects.toThrow('a project has no Beat 9');
   });
 });

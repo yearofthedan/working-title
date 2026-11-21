@@ -2,11 +2,7 @@ import * as browser from 'vite-plus/test/browser';
 import { type OpenProject } from '../../../application/project';
 import { type Driver, type Opening } from '../../../test-helpers/driver';
 import { readsIn } from '../../../test-helpers/graph-page';
-import {
-  anInMemoryProject,
-  aProjectWithScenesUnderBeatFour,
-  type SeededProject,
-} from '../../../test-helpers/seed';
+import { anInMemoryProject, type SeededProject } from '../../../test-helpers/seed';
 import { root } from '../../../test-helpers/staging';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { graphSteps, seesOn, writerOn, type Sees, type Writer } from './graph.dsl';
@@ -41,20 +37,17 @@ const drawOn = async (main: HTMLElement, project: OpenProject): Promise<void> =>
 export const mountTheGraph = async (
   stage: {
     readonly width?: number;
-    readonly scenes?: number;
     readonly project?: SeededProject;
   } = {},
 ): Promise<void> => {
-  const { width = 1440, scenes = 0, project } = stage;
+  const { width = 1440, project } = stage;
   await browser.page.viewport(width, 900);
   stopTheGraphs();
 
   const main = root('main');
   main.style.width = `${width}px`;
 
-  const { project: opened } = await anInMemoryProject(
-    scenes > 0 ? aProjectWithScenesUnderBeatFour(scenes) : project,
-  );
+  const { project: opened } = await anInMemoryProject(project);
   await drawOn(main, opened);
 };
 
@@ -77,13 +70,13 @@ const graphDriver = (name?: string): Driver => ({
 });
 
 export const graphWith = (
-  scenes = 0,
+  project: SeededProject,
   width = 1440,
 ): { stage: Opening; writer: Writer; sees: Sees } => {
   const driver = graphDriver();
   const stage: Opening = {
     fresh: async () => {
-      await mountTheGraph({ width, scenes });
+      await mountTheGraph({ width, project });
     },
     reopen: () => reopenTheGraph(),
   };

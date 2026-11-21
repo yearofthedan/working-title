@@ -52,7 +52,7 @@ Given a current beat with two scenes
 When the writer clicks the first scene's card
 Then the first scene becomes current, and has focus
 - main:
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1" [active] [current]:
       - heading "Scene 1" [level=4]
       - text: List line
@@ -92,7 +92,7 @@ And focus on its first scene
 When the writer presses →
 Then the second scene becomes current, and has focus
 - main:
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 2" [active] [current]:
       - heading "Scene 2" [level=4]
       - text: List line
@@ -104,19 +104,19 @@ Then the second scene becomes current, and has focus
 ### Scenario: stepping down to a scene
 
 ```
-Given a project with two scenes under beat 2
-When the writer clicks beat 2
+Given a project with two scenes under beat 1
+When the writer clicks beat 1
 And presses ↓
-Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
+Then scene 1 under beat 1 is current, with beat 1 above it and scene 2 beside it
 - main:
-  - toolbar "Beat 2":
-    - group "Beat 2":
-      - heading "Beat 2" [level=3]:
-        - button "Beat 2"
+  - toolbar "Beat 1":
+    - group "Beat 1":
+      - heading "Beat 1" [level=3]:
+        - button "Beat 1"
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Open beside"
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1" [current]:
       - heading "Scene 1" [level=4]
       - text: List line
@@ -131,21 +131,21 @@ Then scene 1 under beat 2 is current, with beat 2 above it and scene 2 beside it
 ### Scenario: stepping back up to the beat
 
 ```
-Given a project with two scenes under beat 2
-When the writer clicks beat 2
+Given a project with two scenes under beat 1
+When the writer clicks beat 1
 And presses ↓
 And presses ↑
-Then beat 2 is current, with scenes 1 and 2 under it
+Then beat 1 is current, with scenes 1 and 2 under it
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
@@ -161,8 +161,8 @@ Then beat 2 is current, with scenes 1 and 2 under it
 And focus moves to its card
 - main:
   - toolbar "Beats under The story":
-    - group "Beat 2" [active] [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [active] [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
@@ -173,15 +173,15 @@ And focus moves to its card
 ### Scenario: stepping down returns to the scene the writer left
 
 ```
-Given a project with two scenes under beat 2
-When the writer clicks beat 2
+Given a project with two scenes under beat 1
+When the writer clicks beat 1
 And presses ↓
 And presses →
 And presses ↑
 And presses ↓
-Then scene 2 under beat 2 is current, and has focus
+Then scene 2 under beat 1 is current, and has focus
 - main:
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 2" [active] [current]:
       - heading "Scene 2" [level=4]
       - text: List line

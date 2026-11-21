@@ -85,25 +85,3 @@ export const anInMemoryProject = async (
   if (seed !== undefined) await store.save(seed);
   return { store, project: await openProject(snowflakeExtended, store) };
 };
-
-const placeOfBeat = async (beatName: string): Promise<number> => {
-  const { root } = await openProject(snowflakeExtended, inMemory());
-  const place = root.children.findIndex((child) => child.name === beatName) + 1;
-  if (place === 0) throw new Error(`a project has no ${beatName}`);
-  return place;
-};
-
-export const aProjectWithScenesUnder = async (
-  beatName: string,
-  scenes: number,
-): Promise<SeededProject> => {
-  const place = await placeOfBeat(beatName);
-  const under = beat(...Array.from({ length: scenes }, () => scene()));
-  return aProject(story(...Array.from({ length: place - 1 }, () => beat()), under));
-};
-
-// shortcut: the story holds the five beats the method starts a project with, the fourth carrying the scenes, until a case needs the scenes under another beat.
-export const aProjectWithScenesUnderBeatFour = (scenes: number): SeededProject =>
-  aProject(
-    story(beat(), beat(), beat(), beat(...Array.from({ length: scenes }, () => scene())), beat()),
-  );

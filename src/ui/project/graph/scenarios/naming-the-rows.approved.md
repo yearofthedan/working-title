@@ -13,17 +13,14 @@ Then the writer sees
       - text: One-sentence summary
       - textbox "One-sentence summary"
   - toolbar "Beats under The story":
-    - group "Beat 1":
-      - heading "Beat 1" [level=3]:
-        - button "Beat 1"
-    - group "Beat 2" [current]:
-      - heading "Beat 2" [level=3]
+    - group "Beat 1" [current]:
+      - heading "Beat 1" [level=3]
       - text: One-sentence summary
       - textbox "One-sentence summary"
       - button "Add a scene"
       - button "Open beside"
       - paragraph: Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level
-  - toolbar "Scenes under Beat 2":
+  - toolbar "Scenes under Beat 1":
     - group "Scene 1":
       - heading "Scene 1" [level=4]:
         - button "Scene 1"
