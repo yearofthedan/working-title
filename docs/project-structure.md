@@ -7,7 +7,9 @@
 
 | Folder | Part |
 | --- | --- |
-| [src/ui/](../src/ui/) | UI: one folder per component, shaped [as below](#a-components-folder) |
+| [src/ui/](../src/ui/) | UI: the folders of the components the app places, shaped [as below](#a-components-folder), and the files they share |
+| [src/ui/header/](../src/ui/header/) | UI: the header the app places on every screen: the title, the path, and the notice a new version waits behind |
+| [src/ui/project/](../src/ui/project/) | UI: the screen shown once a project is open, and the components inside it |
 | [src/ui/your-projects/](../src/ui/your-projects/) | UI: the screens shown before a project is open |
 | [src/domain/](../src/domain/) | Domain |
 | [src/application/](../src/application/) | Application |
@@ -19,7 +21,7 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 
 ## A component's folder
 
-`src/ui/<component>/` holds the component and its test code, each file named after the component. What a language, a test page and a harness are is in [where test code goes](standards/testing.md#where-test-code-goes).
+A component's folder holds the component and its test code, each file named after the component. What a language, a test page and a harness are is in [where test code goes](standards/testing.md#where-test-code-goes).
 
 | Suffix | Holds |
 | --- | --- |
@@ -33,9 +35,9 @@ The [layers](architecture.md#the-layers), the [method definition](architecture.m
 | `<component>.harness.ts` | Its harness |
 | `scenarios/` | Its approved scenario files |
 
-A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/your-projects/](../src/ui/your-projects/) holds [projects-folder/](../src/ui/your-projects/projects-folder/), [project-list/](../src/ui/your-projects/project-list/) and [start-a-project/](../src/ui/your-projects/start-a-project/).
+A component used only inside another sits in a folder inside the one that holds it, shaped as above: [src/ui/project/](../src/ui/project/) holds [graph/](../src/ui/project/graph/) and [panel/](../src/ui/project/panel/), and `graph/` holds [card/](../src/ui/project/graph/card/); [src/ui/your-projects/](../src/ui/your-projects/) holds [projects-folder/](../src/ui/your-projects/projects-folder/) and [project-list/](../src/ui/your-projects/project-list/), and `project-list/` holds [start-a-project/](../src/ui/your-projects/project-list/start-a-project/).
 
-A folder holds the files it needs, not all of them: [src/ui/project/](../src/ui/project/) has no `project.ts`, and [src/ui/graph/](../src/ui/graph/) adds [layout.ts](../src/ui/graph/layout.ts) and its test. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
+A folder holds the files it needs, not all of them: [src/ui/project/](../src/ui/project/) has no `project.ts`, and [src/ui/project/graph/](../src/ui/project/graph/) adds [layout.ts](../src/ui/project/graph/layout.ts) and its test. [src/ui/header/](../src/ui/header/) adds [header.css](../src/ui/header/header.css), its styles. [src/ui/icons/](../src/ui/icons/) holds one icon per file, each a function returning its `SVGElement`, and [svg.dom.ts](../src/ui/icons/svg.dom.ts), the drawing they are built with; [src/ui/transition.ts](../src/ui/transition.ts) and its test sit at the top of `src/ui/`, outside any component's folder.
 
 A component reaches another only through that component's `render<Component>`, and a type from its plain modules: their values are the component's own. Tests, test pages, harnesses and languages reach across. `./do check-names` refuses a `*.dom.ts` that exports anything else, and `./do layers` refuses the import.
 
@@ -79,8 +81,8 @@ One file per `./do` task, named for it: `./do check` runs [scripts/check](../scr
 | --- | --- |
 | [src/main.ts](../src/main.ts) | The entry: registers the service worker and starts the app |
 | [src/app.ts](../src/app.ts) | Start-up: places the component for the screen, opening a project with `renderProject` |
-| [src/shell.ts](../src/shell.ts) | The page's furniture: the header with its title and path, the main, and the notice a new version waits behind; start-up renders it before a component does |
-| [src/shell.css](../src/shell.css) | The page's layout, importing the tokens and the reset |
+| [src/ui/strings/](../src/ui/strings/) | The app's words: `en.ts` holds every sentence and label the UI and start-up show, and `strings.ts` types them, so a file that shows one imports `strings` from it |
+| [src/page.css](../src/page.css) | The page's layout, the rules every screen shares (the icon size and the move between screens), and the styles of each component but the header, which has its own in `header.css`; it imports the tokens, the reset and `header.css` |
 | [src/tokens.css](../src/tokens.css) | The design tokens: colours, typefaces, text sizes, spacing and motion timing |
 | [src/reset.css](../src/reset.css) | The browser defaults the app resets |
 

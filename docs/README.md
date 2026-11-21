@@ -8,7 +8,7 @@
 | Page or folder | Holds |
 | --- | --- |
 | [product.md](product.md) | What the product is for, and its design principles |
-| [domain/](domain/) | The writer's world: the [ubiquitous language](domain/ubiquitous-language.md) and each method's design |
+| [domain/](domain/) | The writer's world: the [ubiquitous language](domain/ubiquitous-language.md), the [domain model](domain/model.md), and each method's design |
 | [architecture.md](architecture.md) | The shape of the system |
 | [project-structure.md](project-structure.md) | Where each folder and file suffix lives |
 | [adr/](adr/README.md) | Why each architecture decision was made |

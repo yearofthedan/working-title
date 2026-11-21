@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
-import { elaborate, newProject, readProject, type Project } from '../domain/project';
+import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
@@ -7,8 +7,9 @@ import type { RawGlob } from '../test-helpers/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
-const summary = snowflakeExtended.rootKind.facets[0]?.id ?? '';
-const listLine = snowflakeExtended.startingChildren.kind.childKind?.facets[0]?.id ?? '';
+const summary = snowflakeExtended.rootDefinition.facets[0]?.id ?? '';
+const listLine =
+  snowflakeExtended.rootDefinition.childDefinition?.childDefinition?.facets[0]?.id ?? '';
 const storing = new Map<string, string>();
 
 const storage: Storage = {
@@ -27,7 +28,7 @@ beforeEach(() => {
 });
 
 const opened = async (store: ProjectStore = projectStore(storage)): Promise<Project | undefined> =>
-  readProject(await store.load(), snowflakeExtended, ids());
+  store.load();
 
 const longSentences = (import.meta as unknown as RawGlob).glob(
   '/scripts/_screenshot-long-sentences.json',
@@ -78,40 +79,6 @@ describe('the project in browser storage', () => {
     expect(await projectStore(storage).load()).toBeUndefined();
   });
 
-  it('opens a project saved before it held a title, untitled', async () => {
-    storage.setItem(
-      key,
-      JSON.stringify({
-        method: 'snowflake-extended',
-        version: 2,
-        pieces: [{ id: 'id-1', kind: 'story', parent: null, order: 0, facets: {} }],
-      }),
-    );
-
-    expect((await opened())?.title).toBe('');
-  });
-
-  it('opens a save in the shape version 1 wrote, keeping its sentence and adding its beats', async () => {
-    const sentence = "A widow hunts the man's ship";
-    storage.setItem(
-      key,
-      JSON.stringify({
-        method: 'snowflake-extended',
-        version: 1,
-        root: { kind: 'story', facets: { [summary]: sentence } },
-      }),
-    );
-
-    expect((await opened())?.pieces.map(({ facets }) => facets[summary] ?? '')).toEqual([
-      sentence,
-      '',
-      '',
-      '',
-      '',
-      '',
-    ]);
-  });
-
   it('opens the project the screenshots load, its story, Beat 2 and a scene holding long sentences', async () => {
     storage.setItem(key, projectIn(longSentences));
 
@@ -121,7 +88,7 @@ describe('the project in browser storage', () => {
     const beat2 = beats.find(({ order }) => order === 1);
     const scenes = project?.pieces.filter(({ parent }) => parent === beat2?.id) ?? [];
 
-    expect(project?.pieces).toHaveLength(1 + snowflakeExtended.startingChildren.count + 2);
+    expect(project?.pieces).toHaveLength(8);
     expect((story?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect((beat2?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect((scenes[0]?.facets[listLine] ?? '').length).toBeGreaterThanOrEqual(150);
@@ -140,7 +107,7 @@ describe('the project in browser storage', () => {
     const beat4 = beats.find(({ order }) => order === 3);
     const scenes = project?.pieces.filter(({ parent }) => parent === beat4?.id) ?? [];
 
-    expect(beats).toHaveLength(snowflakeExtended.startingChildren.count);
+    expect(beats).toHaveLength(5);
     expect((beat4?.facets[summary] ?? '').length).toBeGreaterThanOrEqual(150);
     expect(scenes.map(({ order }) => order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     expect(scenes.filter(({ facets }) => (facets[listLine] ?? '').length >= 150)).toHaveLength(1);
@@ -153,17 +120,8 @@ describe('the project in browser storage', () => {
     expect(storage.getItem(key)).toBe('{not json');
   });
 
-  it.each([
-    ['null', 'null'],
-    ['an empty object', '{}'],
-    ['an array', '[]'],
-    ['a root with no facets', '{"method":"m","version":1,"root":{"kind":"root"}}'],
-    [
-      'a facet that is not text',
-      '{"method":"m","version":1,"root":{"kind":"root","facets":{"a":{"b":1}}}}',
-    ],
-    ['a piece with no id', '{"method":"m","version":2,"pieces":[{"kind":"beat","facets":{}}]}'],
-  ])('refuses %s, leaving it where it is', async (_, stored) => {
+  it('refuses a save in the root shape, leaving it where it is', async () => {
+    const stored = '{"method":"m","version":1,"root":{"definition":"root"}}';
     storage.setItem(key, stored);
     await expect(projectStore(storage).load()).rejects.toThrow('is not a project');
     expect(storage.getItem(key)).toBe(stored);

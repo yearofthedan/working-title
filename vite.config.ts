@@ -84,7 +84,7 @@ export default defineConfig({
           include: ['**/*.component.test.ts'],
           exclude: ['src/ui/lint-sample-*/**'],
           setupFiles: [
-            'src/shell.css',
+            'src/page.css',
             'src/test-helpers/locators.ts',
             'src/test-helpers/matchers.ts',
           ],

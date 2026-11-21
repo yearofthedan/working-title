@@ -115,7 +115,7 @@ export default {
       comment:
         "A component reaches another only through that component's *.dom.ts, whose one export renders it; its plain modules are its own (docs/project-structure.md).",
       from: {
-        path: '^src/ui/([^/]+)/',
+        path: '^(src/ui/.+/)[^/]+$',
         pathNot: [
           '\\.test\\.ts$',
           '\\.test-page\\.ts$',
@@ -126,7 +126,7 @@ export default {
       },
       to: {
         path: '^src/ui/[^/]+/',
-        pathNot: ['^src/ui/$1/', '\\.dom\\.ts$'],
+        pathNot: ['^$1[^/]+$', '^src/ui/strings/', '\\.dom\\.ts$'],
         dependencyTypesNot: ['type-only'],
       },
     },

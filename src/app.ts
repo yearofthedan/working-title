@@ -3,9 +3,10 @@ import { projectStore } from './adapters/local-storage-project-store';
 import { openProject, startProject, type OpenProject } from './application/project';
 import { snowflakeExtended } from './methods/snowflake-extended';
 import type { ProjectStore } from './ports/project-store';
-import { renderShell, type NewVersion } from './shell';
+import { renderHeader, type NewVersion } from './ui/header/header.dom';
 import { renderProject, type ProjectScreen } from './ui/project/project.dom';
 import { renderYourProjects } from './ui/your-projects/your-projects.dom';
+import { strings } from './ui/strings/strings';
 
 export interface StartUp {
   readonly newVersion?: NewVersion;
@@ -15,7 +16,13 @@ export interface StartUp {
 
 export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise<() => void> => {
   const { newVersion, store = projectStore(), picker = window } = startUp;
-  const page = renderShell(root, newVersion);
+
+  const main = root.querySelector<HTMLElement>('main');
+  if (main === null) throw new Error('the page has no <main>');
+
+  const header = renderHeader(newVersion);
+  main.before(header.element);
+  header.setTitle(strings.header.appTitle);
 
   const keys = new AbortController();
   document.addEventListener('keydown', (event) => app?.keys(event), { signal: keys.signal });
@@ -35,7 +42,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheProject = async (opened: OpenProject, entered = false): Promise<void> => {
     await show(async () => {
-      app = await renderProject(page, opened, { enterTheCurrentPiece: entered });
+      app = await renderProject(header, main, opened, { enterTheCurrentPiece: entered });
     });
   };
 
@@ -43,7 +50,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
     chooser: fileSystemFolders(snowflakeExtended, picker),
     showingYourProjects: (draw) =>
       show(() => {
-        page.setTitle('Your projects');
+        header.setTitle(strings.header.yourProjectsTitle);
         draw();
       }),
     start: async (title) => {
@@ -53,8 +60,7 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
 
   const showTheFirstScreen = (): Promise<void> =>
     show(() => {
-      page.setTitle('working-title');
-      page.main.replaceChildren(screen.element);
+      main.replaceChildren(screen.element);
     });
 
   if ((await store.load()) === undefined) await showTheFirstScreen();
@@ -63,5 +69,6 @@ export const startApp = async (root: ParentNode, startUp: StartUp = {}): Promise
   return () => {
     keys.abort();
     app?.stop();
+    header.element.remove();
   };
 };

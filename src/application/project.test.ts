@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { elaborate, newProject, type Project, type StoredProject } from '../domain/project';
+import { branch, elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/ids';
+import { aProject, beat, story } from '../test-helpers/seed';
 import { toyMethod } from '../test-helpers/toy-method';
 import { openProject, startProject } from './project';
 
@@ -10,10 +11,15 @@ const rootName = 'Root';
 const names = ['Item 1', 'Item 2'];
 const typed = 'a title with "quotes" and a line\nbreak';
 
-const storeOf = (project?: StoredProject): ProjectStore => ({
+const storeOf = (project?: Project): ProjectStore => ({
   load: async () => project,
   save: async () => undefined,
 });
+
+const theItem = toyMethod.rootDefinition.childDefinition!;
+
+const twoItems = (): Project =>
+  branch(branch(newProject(toyMethod, ids()), 'id-1', theItem, 'id-2'), 'id-1', theItem, 'id-3');
 
 const copyingStore = (): ProjectStore & { saved: () => Project | undefined } => {
   let kept: Project | undefined;
@@ -32,9 +38,20 @@ const item2Of = (children: readonly { readonly id: string }[]): { readonly id: s
   return item;
 };
 
+const addedIds = (): (() => string) => {
+  let made = 0;
+  return () => `added-${(made += 1)}`;
+};
+
+const firstOf = (children: readonly { readonly id: string }[]): { readonly id: string } => {
+  const item = children[0];
+  if (item === undefined) throw new Error('the project has no first piece');
+  return item;
+};
+
 describe('opening a project', () => {
   it('lists the root and its children in order, named for what they are, each with an empty first facet', async () => {
-    const project = await openProject(toyMethod, storeOf(), ids());
+    const project = await openProject(toyMethod, storeOf(twoItems()), ids());
     expect(project.root.name).toBe(rootName);
     expect(project.root.children.map(({ name }) => name)).toEqual(names);
     expect(project.root.facets[0]?.text).toBe('');
@@ -48,14 +65,14 @@ describe('opening a project', () => {
   });
 
   it('lists the long facets apart from the ones the card draws', async () => {
-    const project = await openProject(toyMethod, storeOf(), ids());
+    const project = await openProject(toyMethod, storeOf(twoItems()), ids());
     const [item] = project.root.children;
     expect(item?.facets.map(({ id }) => id)).toEqual(['title', 'note']);
     expect(item?.longFacets).toEqual([{ id: 'body', label: 'Body', text: '' }]);
   });
 
   it('reads one piece of the project as it is now, holding the text typed since', async () => {
-    const project = await openProject(toyMethod, storeOf(), ids());
+    const project = await openProject(toyMethod, storeOf(twoItems()), ids());
     const item2 = item2Of(project.root.children).id;
     await project.elaborate(item2, 'title', typed);
 
@@ -68,6 +85,7 @@ describe('opening a project', () => {
 
   it('saves the text typed into a long facet and reads it back on the next open', async () => {
     const store = copyingStore();
+    await store.save(twoItems());
     const first = await openProject(toyMethod, store, ids());
     await first.elaborate(item2Of(first.root.children).id, 'body', typed);
 
@@ -78,13 +96,14 @@ describe('opening a project', () => {
 
   it("saves a scene's narrative, line breaks and all, and reads it back on the next open", async () => {
     const store = copyingStore();
-    const first = await openProject(snowflakeExtended, store, ids());
-    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await store.save(aProject(story(beat())));
+    const first = await openProject(snowflakeExtended, store, addedIds());
+    const { project, added } = await first.branch(firstOf(first.root.children).id);
     await project.elaborate(added, 'narrative', typed);
 
     const reopened = await openProject(snowflakeExtended, store, ids());
 
-    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+    expect(reopened.root.children[0]?.children[0]?.longFacets).toEqual([
       { id: 'narrative', label: 'Narrative', text: typed },
       { id: 'prose', label: 'Prose', text: '' },
     ]);
@@ -92,20 +111,21 @@ describe('opening a project', () => {
 
   it("saves a scene's prose, line breaks and all, and reads it back on the next open", async () => {
     const store = copyingStore();
-    const first = await openProject(snowflakeExtended, store, ids());
-    const { project, added } = await first.branch(item2Of(first.root.children).id);
+    await store.save(aProject(story(beat())));
+    const first = await openProject(snowflakeExtended, store, addedIds());
+    const { project, added } = await first.branch(firstOf(first.root.children).id);
     await project.elaborate(added, 'prose', typed);
 
     const reopened = await openProject(snowflakeExtended, store, ids());
 
-    expect(reopened.root.children[1]?.children[0]?.longFacets).toEqual([
+    expect(reopened.root.children[0]?.children[0]?.longFacets).toEqual([
       { id: 'narrative', label: 'Narrative', text: '' },
       { id: 'prose', label: 'Prose', text: typed },
     ]);
   });
 
   it('lists the root first and its children by their order, however the store holds them', async () => {
-    const started = newProject(toyMethod, ids());
+    const started = twoItems();
     const shuffled = { ...started, pieces: [...started.pieces].reverse() };
     const project = await openProject(toyMethod, storeOf(shuffled), ids());
     expect(project.root.id).toBe('id-1');
@@ -128,6 +148,7 @@ describe('opening a project', () => {
 
   it('saves the text typed into a child under the ids the app mints, leaving the root and the other child alone', async () => {
     const store = copyingStore();
+    await store.save(twoItems());
     const project = await openProject(toyMethod, store);
     await project.elaborate(item2Of(project.root.children).id, 'title', typed);
     expect(store.saved()?.pieces.map(({ facets }) => facets['title'] ?? '')).toEqual([
@@ -139,25 +160,26 @@ describe('opening a project', () => {
 
   it('branches under a piece, saving the new piece after the ones already under it', async () => {
     const store = copyingStore();
-    const opened = await openProject(toyMethod, store, ids());
+    await store.save(twoItems());
+    const opened = await openProject(toyMethod, store, addedIds());
 
     const one = await opened.branch('id-2');
     const two = await one.project.branch('id-2');
     const elsewhere = await two.project.branch('id-3');
 
-    expect([one.added, two.added, elsewhere.added]).toEqual(['id-4', 'id-5', 'id-6']);
+    expect([one.added, two.added, elsewhere.added]).toEqual(['added-1', 'added-2', 'added-3']);
     expect(store.saved()?.pieces).toEqual([
-      { id: 'id-1', kind: 'root', parent: null, order: 0, facets: {} },
-      { id: 'id-2', kind: 'item', parent: 'id-1', order: 0, facets: {} },
-      { id: 'id-3', kind: 'item', parent: 'id-1', order: 1, facets: {} },
-      { id: 'id-4', kind: 'child', parent: 'id-2', order: 0, facets: {} },
-      { id: 'id-5', kind: 'child', parent: 'id-2', order: 1, facets: {} },
-      { id: 'id-6', kind: 'child', parent: 'id-3', order: 0, facets: {} },
+      { id: 'id-1', definition: 'root', parent: null, order: 0, facets: {} },
+      { id: 'id-2', definition: 'item', parent: 'id-1', order: 0, facets: {} },
+      { id: 'id-3', definition: 'item', parent: 'id-1', order: 1, facets: {} },
+      { id: 'added-1', definition: 'child', parent: 'id-2', order: 0, facets: {} },
+      { id: 'added-2', definition: 'child', parent: 'id-2', order: 1, facets: {} },
+      { id: 'added-3', definition: 'child', parent: 'id-3', order: 0, facets: {} },
     ]);
   });
 
   it('lists the new pieces under their own parent, in order, numbered within that parent', async () => {
-    const opened = await openProject(toyMethod, storeOf(), ids());
+    const opened = await openProject(toyMethod, storeOf(twoItems()), addedIds());
     const one = await opened.branch('id-2');
     const two = await one.project.branch('id-2');
     const elsewhere = await two.project.branch('id-3');
@@ -170,37 +192,42 @@ describe('opening a project', () => {
       'Child 1',
     ]);
     expect(two.project.root.children[0]?.children[0]).toEqual({
-      id: 'id-4',
+      id: 'added-1',
       name: 'Child 1',
       facets: [{ id: 'note', label: 'Note', text: '' }],
       longFacets: [],
       children: [],
     });
-    expect(two.project.root.children.map(({ childKind }) => childKind)).toEqual(['Child', 'Child']);
+    expect(two.project.root.children.map(({ childLabel }) => childLabel)).toEqual([
+      'Child',
+      'Child',
+    ]);
+  });
+
+  it("names the root's child and branches the first child under it", async () => {
+    const store = copyingStore();
+    const opened = await openProject(snowflakeExtended, store, ids());
+
+    expect(opened.root.childLabel).toBe('Beat');
+
+    const { project, added } = await opened.branch('id-1');
+
+    expect(added).toBe('id-2');
+    expect(project.root.children.map(({ name }) => name)).toEqual(['Beat 1']);
+    expect(store.saved()?.pieces).toEqual([
+      { id: 'id-1', definition: 'story', parent: null, order: 0, facets: {} },
+      { id: 'id-2', definition: 'beat', parent: 'id-1', order: 0, facets: {} },
+    ]);
   });
 
   it('reads the text back on the next open', async () => {
     const store = copyingStore();
+    await store.save(twoItems());
     const first = await openProject(toyMethod, store, ids());
     await first.elaborate(item2Of(first.root.children).id, 'title', typed);
 
     const reopened = await openProject(toyMethod, store, ids());
     expect(reopened.root.children[1]?.facets[0]?.text).toBe(typed);
-  });
-
-  it('opens a version 1 save, its text kept and nothing under the pieces under the root', async () => {
-    const saved = {
-      method: 'toy',
-      version: 1,
-      root: { kind: 'root', facets: { note: 'the first' } },
-    };
-
-    const opened = await openProject(toyMethod, storeOf(saved), ids());
-
-    expect(opened.root.name).toBe(rootName);
-    expect(opened.root.children.map(({ name }) => name)).toEqual(names);
-    expect(opened.root.facets[0]?.text).toBe('the first');
-    expect(opened.root.children.flatMap(({ children: under }) => under)).toEqual([]);
   });
 
   it('opens an untitled project as untitled', async () => {

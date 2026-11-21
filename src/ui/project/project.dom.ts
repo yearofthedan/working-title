@@ -1,7 +1,8 @@
-import { untitledProjectTitle, type OpenProject, type PieceView } from '../../application/project';
-import type { TheShell } from '../../shell';
-import { renderGraph } from '../graph/graph.dom';
-import { renderPanel } from '../panel/panel.dom';
+import type { OpenProject, PieceView } from '../../application/project';
+import type { Header } from '../header/header.dom';
+import { renderGraph } from './graph/graph.dom';
+import { renderPanel } from './panel/panel.dom';
+import { strings } from '../strings/strings';
 
 export interface ProjectHooks {
   readonly enterTheCurrentPiece?: boolean;
@@ -13,12 +14,12 @@ export interface ProjectScreen {
 }
 
 export const renderProject = async (
-  page: TheShell,
+  header: Header,
+  main: HTMLElement,
   project: OpenProject,
   hooks: ProjectHooks = {},
 ): Promise<ProjectScreen> => {
-  const { main } = page;
-  page.setTitle(project.title === '' ? untitledProjectTitle : project.title);
+  header.setTitle(project.title === '' ? strings.project.untitledTitle : project.title);
   let held = project;
   let open: string | undefined;
 
@@ -41,7 +42,7 @@ export const renderProject = async (
   main.after(panel.element);
 
   const pathNav = (path: readonly PieceView[]): void => {
-    page.showPath(path, (pieceId) => graph.goTo(pieceId));
+    header.showPath(path, (pieceId) => graph.goTo(pieceId));
   };
 
   const graph = renderGraph(held.root, {

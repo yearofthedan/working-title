@@ -1,3 +1,4 @@
+import { aProject, beat, story } from '../src/test-helpers/seed';
 import { expect, test } from './writer';
 
 const longSentence =
@@ -12,19 +13,19 @@ test("all text on a new project's graph meets 4.5:1 contrast", async ({ writer }
 test('all text on the graph meets 4.5:1 contrast with long sentences in the story and a beat', async ({
   writer,
 }) => {
-  await writer.opensANewProject();
+  await writer.startsFrom(aProject(story(beat(), beat())));
   await writer.types(longSentence, { piece: 'The story', facet: 'One-sentence summary' });
   expect(await writer.contrastViolations()).toEqual([]);
 
-  await writer.types(longSentence, { piece: 'Beat 2', facet: 'One-sentence summary' });
+  await writer.types(longSentence, { piece: 'Beat 1', facet: 'One-sentence summary' });
   expect(await writer.contrastViolations()).toEqual([]);
 });
 
 test("all text on the graph meets 4.5:1 contrast with a scene's long list line", async ({
   writer,
 }) => {
-  await writer.opensANewProject();
-  await writer.addsASceneUnder('Beat 2');
+  await writer.startsFrom(aProject(story(beat())));
+  await writer.addsUnder('Beat 1', 'scene');
   await writer.types(longSentence, { piece: 'Scene 1', facet: 'List line' });
 
   expect(await writer.contrastViolations()).toEqual([]);

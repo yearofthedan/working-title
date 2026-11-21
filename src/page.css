@@ -1,0 +1,566 @@
+@import './tokens.css';
+@import './reset.css';
+@import './ui/header/header.css';
+
+body {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    'header panel'
+    'main panel';
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-interface);
+  font-size: var(--text-interface);
+}
+
+main {
+  grid-area: main;
+  min-height: 0;
+  max-inline-size: 100%;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-prose);
+  font-size: var(--text-prose);
+  line-height: var(--leading-prose);
+}
+
+@scope (main) {
+  .graph {
+    position: absolute;
+    inset: 0;
+  }
+
+  [role='toolbar'] {
+    display: contents;
+  }
+
+  fieldset {
+    --name: var(--space-8);
+    position: absolute;
+    box-sizing: border-box;
+    margin: 0;
+    padding: var(--name) 0 0;
+    border: none;
+    min-inline-size: 0;
+    translate: -50% -50%;
+    overflow: hidden;
+  }
+
+  fieldset.hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  legend {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    height: var(--name);
+    padding: var(--space-3) var(--space-4) 0;
+    border: 1px solid var(--color-edge);
+    border-bottom: none;
+    border-radius: var(--space-2) var(--space-2) 0 0;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  legend :is(h2, h3, h4) {
+    margin: 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  legend button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  legend button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  .chip {
+    padding: 0;
+  }
+
+  .chip legend {
+    position: static;
+    height: auto;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-radius: var(--space-2);
+  }
+
+  .chip .facet {
+    display: none;
+  }
+
+  .facet {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-top: none;
+    border-radius: 0 0 var(--space-2) var(--space-2);
+    background: var(--color-surface);
+  }
+
+  .facet label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .card .facet label,
+  .hidden .facet label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .facet textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    resize: none;
+    field-sizing: content;
+    min-height: 1lh;
+  }
+
+  .card .facet textarea {
+    height: 2lh;
+    min-height: 0;
+    overflow: hidden;
+    field-sizing: fixed;
+    opacity: 0;
+  }
+
+  .shown {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-4);
+    right: var(--space-4);
+    min-height: 1lh;
+    /* shortcut: the cut at two lines uses the prefixed property, which MDN does not mark Baseline; upgrade it once line-clamp is Baseline. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    pointer-events: none;
+  }
+
+  .current .shown {
+    opacity: 0;
+  }
+
+  .card .shown {
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .card:has(.facet textarea:focus) .facet textarea {
+    height: auto;
+    min-height: 2lh;
+    field-sizing: content;
+    opacity: 1;
+  }
+
+  .card:has(.facet textarea:focus) .shown {
+    display: none;
+  }
+
+  .current .facet textarea:hover {
+    outline: 1px solid var(--color-edge);
+  }
+
+  .facet textarea:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  fieldset:focus {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-2);
+  }
+
+  .facet button {
+    display: none;
+    justify-self: start;
+    margin-top: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .current .facet button {
+    display: block;
+  }
+
+  .keys {
+    display: none;
+  }
+
+  .current .keys {
+    display: block;
+    visibility: hidden;
+    margin: var(--space-2) var(--space-4) 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .current:focus .keys {
+    visibility: visible;
+  }
+
+  .keys kbd {
+    padding: 0 var(--space-1);
+    border: 1px solid var(--color-line);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
+  .facet button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  fieldset:not(.chip):has(.open-beside) legend {
+    padding-inline-end: calc(var(--space-4) + 1.5rem);
+  }
+
+  .open-beside {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .open-beside[aria-pressed='true'] {
+    color: var(--color-focus);
+  }
+
+  fieldset:hover .open-beside,
+  fieldset:focus-within .open-beside,
+  .open-beside[aria-pressed='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .chip .open-beside {
+    display: none;
+  }
+
+  .open-beside:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    fieldset {
+      transition:
+        left var(--move) var(--move-ease),
+        top var(--move) var(--move-ease),
+        width var(--move) var(--move-ease),
+        height var(--move) var(--move-ease),
+        opacity var(--move) var(--move-ease),
+        visibility var(--move);
+    }
+
+    .shown,
+    .facet textarea {
+      transition: opacity var(--move) var(--move-ease);
+    }
+  }
+}
+
+svg {
+  width: var(--text-interface);
+  height: var(--text-interface);
+}
+
+@scope (.your-projects) {
+  :scope {
+    box-sizing: border-box;
+    width: min(38rem, 100%);
+    margin: 12vh auto 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  .projects-folder,
+  .project-list {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .project-list {
+    gap: 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .project-list h2 {
+    font-size: var(--text-interface);
+    font-weight: 600;
+    padding-bottom: var(--space-4);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .projects-folder > p:last-child {
+    color: var(--color-text-muted);
+  }
+
+  .project-list > p {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+  }
+
+  .project-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .project-list li {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .project-list form {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .project-list label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .project-list input {
+    font-family: var(--font-prose);
+    font-size: 1.5rem;
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--color-focus);
+    padding: 0 0 var(--space-1);
+  }
+
+  .project-list .actions {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+    margin-top: var(--space-2);
+  }
+
+  button {
+    justify-self: start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.4em;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .projects-folder > button,
+  button[type='submit'] {
+    border-color: var(--color-focus);
+    background: var(--color-focus);
+    color: var(--color-surface);
+  }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  [role='alert'] {
+    color: var(--color-error);
+  }
+
+  [role='alert'] svg {
+    margin-right: var(--space-2);
+    vertical-align: -0.125em;
+  }
+}
+
+@scope (aside) {
+  :scope {
+    --panel-heading: 4.5rem;
+    --field-box: calc(2 * var(--space-1) + 2px);
+    grid-area: panel;
+    box-sizing: border-box;
+    display: none;
+    width: 0;
+    overflow: auto;
+    background: var(--color-surface);
+    font-family: var(--font-prose);
+    font-size: var(--text-prose);
+    line-height: var(--leading-prose);
+  }
+
+  :scope.open {
+    display: flex;
+    flex-direction: column;
+    width: 560px;
+    border-left: 1px solid var(--color-edge);
+    scroll-padding-top: var(--panel-heading);
+  }
+
+  .heading {
+    position: sticky;
+    top: 0;
+    flex: none;
+    box-sizing: border-box;
+    height: var(--panel-heading);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-8) var(--space-6) 0;
+    background: var(--color-surface);
+  }
+
+  h2 {
+    margin: 0;
+    font-family: var(--font-interface);
+    font-size: var(--text-interface);
+  }
+
+  .facet {
+    flex: none;
+    display: grid;
+    gap: var(--space-1);
+    padding: 0 var(--space-6) var(--space-4);
+  }
+
+  .facet label {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .facet textarea {
+    box-sizing: border-box;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 1px solid var(--color-edge);
+    border-radius: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    resize: none;
+    field-sizing: content;
+    min-height: calc(2lh + var(--field-box));
+    max-height: calc(6lh + var(--field-box));
+    overflow: auto;
+  }
+
+  .fills {
+    flex: 1;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .fills textarea {
+    field-sizing: fixed;
+    height: 100%;
+    min-height: calc(8lh + var(--field-box));
+    max-height: none;
+  }
+
+  button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-interface);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  :scope :is(textarea, button):focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: var(--space-1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :scope {
+      /* shortcut: the slide animates `display` with `transition-behavior: allow-discrete`, which MDN marks limited availability because its data still lists Firefox as unable to transition `display`; upgrade it once MDN marks it Baseline. */
+      transition:
+        width var(--move) var(--move-ease),
+        display var(--move) allow-discrete;
+    }
+
+    @starting-style {
+      :scope.open {
+        width: 0;
+      }
+    }
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--move);
+  animation-timing-function: var(--move-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}

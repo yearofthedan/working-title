@@ -1,5 +1,5 @@
 import type { AppReads, Driver, Opening } from '../../test-helpers/driver';
-import type { SeededProject } from '../../test-helpers/seed';
+import { aProject, beat, story, type SeededProject } from '../../test-helpers/seed';
 import {
   reporting,
   reportingFocus,
@@ -18,8 +18,8 @@ import {
   writerOn,
   type Sees,
   type Writer,
-} from '../graph/graph.dsl';
-import { panelWriterOn, type PanelWriter } from '../panel/panel.dsl';
+} from './graph/graph.dsl';
+import { panelWriterOn, type PanelWriter } from './panel/panel.dsl';
 import {
   yourProjectsSeesOn,
   yourProjectsSteps,
@@ -30,7 +30,6 @@ import {
 
 export interface ProjectWriter extends Writer, PanelWriter, YourProjectsWriter {
   makesCurrent(piece: string): Promise<void>;
-  addsASceneUnder(beat: string): Promise<void>;
   opensBeside(piece: string): Promise<void>;
   clicksThePathTo(piece: string): Promise<void>;
   hovers(piece: string): Promise<void>;
@@ -97,10 +96,10 @@ export const projectWriterOn = (
   ...writerOn(driver, opening, startFrom),
   ...yourProjectsWriterOn(driver),
   makesCurrent: (piece) => reaching(driver, piece),
-  addsASceneUnder: async (beat) => {
-    const named = pieceNamed(beat);
-    await reaching(driver, beat);
-    await driver.click('button', 'Add a scene', { role: 'group', name: named });
+  addsUnder: async (piece, child) => {
+    const named = pieceNamed(piece);
+    await reaching(driver, piece);
+    await driver.click('button', `Add a ${child}`, { role: 'group', name: named });
   },
   opensBeside: (piece) => openingBeside(driver, piece),
   clicksThePathTo: (piece) => clickingThePathTo(driver, piece),
@@ -188,10 +187,13 @@ export const projectSteps = (
 ): Record<string, StepAction> => ({
   ...graphSteps(writer, sees),
   ...yourProjectsSteps(writer),
-  // shortcut: beat 2 is named here, until the phrase table can tell a piece's name from a facet's in "beat 4's paragraph is open beside the graph".
-  'beat 2 is open beside the graph': async () => {
-    await writer.opensANewProject();
-    await writer.opensBeside('beat 2');
+  'beat 1 is open beside the graph': async () => {
+    await writer.startsFrom(aProject(story(beat())));
+    await writer.opensBeside('beat 1');
+  },
+  'a project with two beats, beat 1 is open beside the graph': async () => {
+    await writer.startsFrom(aProject(story(beat(), beat())));
+    await writer.opensBeside('beat 1');
   },
   '{piece} is still open beside the graph': ({ piece }) => sees.panelIsOpenOn(piece),
   '{scene} under {beat} is open beside the graph, with its narrative and then its prose': ({
@@ -230,11 +232,9 @@ export const projectSteps = (
       : writer.types(text, { piece, facet }),
   '{piece}\'s {facet} beside the graph reads "{text}"': ({ piece, facet, text }) =>
     sees.readsBeside(piece, facet, text),
-  'the writer adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),
-  'adds a scene under {beat}': ({ beat }) => writer.addsASceneUnder(beat),
   'the writer adds two scenes under {beat}': async ({ beat }) => {
-    await writer.addsASceneUnder(beat);
-    await writer.addsASceneUnder(beat);
+    await writer.addsUnder(beat, 'scene');
+    await writer.addsUnder(beat, 'scene');
   },
   'types "{text}" as {scene}\'s list line under {beat}': async ({ text, scene, beat }) => {
     await writer.makesCurrent(beat);

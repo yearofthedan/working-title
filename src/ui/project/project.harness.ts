@@ -1,11 +1,7 @@
 import { expect } from 'vite-plus/test';
 import { type Driver, type Opening } from '../../test-helpers/driver';
 import { appReadsOnThePage } from '../../test-helpers/graph-page';
-import {
-  aProjectWithScenesUnderBeatFour,
-  inMemory,
-  type SeededProject,
-} from '../../test-helpers/seed';
+import { inMemory, type SeededProject } from '../../test-helpers/seed';
 import {
   aFolderHoldingProjects,
   aPickerGivingWhatIsStaged,
@@ -15,7 +11,7 @@ import {
 import { thePage } from '../../test-helpers/staging';
 import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
-import { type NewVersion } from '../../shell';
+import { type NewVersion } from '../header/header.dom';
 import {
   projectSeesOn,
   projectSteps,
@@ -165,12 +161,12 @@ export const theAppWaitingForANewVersion = (
   store = inMemory(),
 ): Promise<void> => theAppWithoutAProject({ newVersion, store }).stage.fresh();
 
-export const pageWith = (scenes = 0, width = 1440, store = inMemory()) => {
+export const pageWith = (project: SeededProject, width = 1440, store = inMemory()) => {
   const driver = vitestBrowserDriver(undefined, 'page');
   const stage: Opening = {
     fresh: async () => {
       if ((await store.load()) === undefined) {
-        await store.save(aProjectWithScenesUnderBeatFour(scenes));
+        await store.save(project);
       }
       await stagingTheAppAt(theFolderThePickerGives, width, { store });
     },

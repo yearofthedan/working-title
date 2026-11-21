@@ -6,10 +6,10 @@ describe('the app language', () => {
   it('goes to a piece first when adding a scene under it', async () => {
     const { calls, driver, opening, reads } = recording(storyDrawn);
     const add = projectSteps(projectWriterOn(driver, opening), projectSeesOn(driver, reads))[
-      'the writer adds a scene under {beat}'
+      'the writer adds a {child} under {piece}'
     ]!;
 
-    await add({ beat: 'Beat 4' });
+    await add({ child: 'scene', piece: 'Beat 4' });
 
     expect(calls).toEqual([
       'click heading "Beat 4" in group "Beat 4"',

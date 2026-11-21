@@ -2,15 +2,13 @@ import {
   branch as withBranch,
   elaborate as withFacet,
   newProject,
-  readProject,
   type Method,
   type Piece,
-  type PieceKind,
+  type PieceDefinition,
   type Project,
 } from '../domain/project';
 import type { ProjectStore } from '../ports/project-store';
 
-export { untitledProjectTitle } from '../domain/project';
 export type { ProjectsFolder, ProjectsFolderChooser } from '../ports/projects-folder';
 
 export interface FacetView {
@@ -26,7 +24,7 @@ export interface PieceView {
   readonly longFacets: readonly FacetView[];
   readonly children: readonly PieceView[];
   readonly plural?: string;
-  readonly childKind?: string;
+  readonly childLabel?: string;
 }
 
 export interface OpenProject {
@@ -39,42 +37,47 @@ export interface OpenProject {
   ) => Promise<{ readonly project: OpenProject; readonly added: string }>;
 }
 
-const kindsOf = (method: Method): ReadonlyMap<string, PieceKind> => {
-  const withChildren = (kind: PieceKind): readonly PieceKind[] =>
-    kind.childKind === undefined ? [kind] : [kind, ...withChildren(kind.childKind)];
+const definitionsOf = (method: Method): ReadonlyMap<string, PieceDefinition> => {
+  const withChildren = (definition: PieceDefinition): readonly PieceDefinition[] =>
+    definition.childDefinition === undefined
+      ? [definition]
+      : [definition, ...withChildren(definition.childDefinition)];
   return new Map(
-    [method.rootKind, method.startingChildren.kind]
-      .flatMap(withChildren)
-      .map((kind): [string, PieceKind] => [kind.id, kind]),
+    withChildren(method.rootDefinition).map((definition): [string, PieceDefinition] => [
+      definition.id,
+      definition,
+    ]),
   );
 };
 
-// shortcut: a child is named for its kind and its place, until the method's own names arrive with their guidance in #4.
+// shortcut: a child is named for its definition and its place, until the method's own names arrive with their guidance in #4.
 const listed = (project: Project, method: Method): PieceView => {
-  const kinds = kindsOf(method);
+  const definitions = definitionsOf(method);
 
-  const listedUnder = (piece: Piece, kind: PieceKind, name: string): PieceView => ({
+  const listedUnder = (piece: Piece, definition: PieceDefinition, name: string): PieceView => ({
     id: piece.id,
     name,
-    facets: kind.facets
+    facets: definition.facets
       .filter(({ long }) => long !== true)
       .map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
-    longFacets: kind.facets
+    longFacets: definition.facets
       .filter(({ long }) => long === true)
       .map(({ id, label }) => ({ id, label, text: piece.facets[id] ?? '' })),
-    ...(kind.plural === undefined ? {} : { plural: kind.plural }),
-    ...(kind.childKind === undefined ? {} : { childKind: kind.childKind.label }),
+    ...(definition.plural === undefined ? {} : { plural: definition.plural }),
+    ...(definition.childDefinition === undefined
+      ? {}
+      : { childLabel: definition.childDefinition.label }),
     children: project.pieces
       .filter(({ parent }) => parent === piece.id)
       .sort((one, other) => one.order - other.order)
       .map((child, at) => {
-        const childKind = kinds.get(child.kind)!;
-        return listedUnder(child, childKind, `${childKind.label} ${at + 1}`);
+        const childDefinition = definitions.get(child.definition)!;
+        return listedUnder(child, childDefinition, `${childDefinition.label} ${at + 1}`);
       }),
   });
 
   const root = project.pieces.find(({ parent }) => parent === null)!;
-  return listedUnder(root, method.rootKind, method.rootKind.label);
+  return listedUnder(root, method.rootDefinition, method.rootDefinition.label);
 };
 
 const pieceIn = (root: PieceView, pieceId: string): PieceView | undefined => {
@@ -91,7 +94,7 @@ export const openProject = async (
   store: ProjectStore,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<OpenProject> => {
-  let project = readProject(await store.load(), method, newId) ?? newProject(method, newId);
+  let project = (await store.load()) ?? newProject(method, newId);
   const save = () => store.save(project);
 
   const projectOf = (): OpenProject => ({
@@ -111,9 +114,9 @@ export const openProject = async (
 
     branch: async (pieceId) => {
       const piece = project.pieces.find(({ id }) => id === pieceId)!;
-      const kind = kindsOf(method).get(piece.kind)!.childKind!;
+      const definition = definitionsOf(method).get(piece.definition)!.childDefinition!;
       const id = newId();
-      project = withBranch(project, pieceId, kind, id);
+      project = withBranch(project, pieceId, definition, id);
       await save();
       return { project: projectOf(), added: id };
     },

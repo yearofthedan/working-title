@@ -14,6 +14,7 @@ The words to use in code, tests, scenarios and UI:
 ## Read before writing a story or making a call
 
 - [docs/product.md](docs/product.md): what the product is for, and the design principles that decide calls no story or epic covers.
+- [docs/domain/model.md](docs/domain/model.md): the numbered statements a story cites.
 - [docs/domain/snowflake-extended.md](docs/domain/snowflake-extended.md): the built-in method's pieces, facets and stages, and the rules between them.
 
 ## Read before changing code

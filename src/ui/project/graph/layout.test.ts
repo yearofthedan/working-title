@@ -1,0 +1,318 @@
+import { describe, expect, it } from 'vite-plus/test';
+import type { PieceView } from '../../../application/project';
+import { treeOf } from './graph';
+import {
+  centresOf,
+  onScreen,
+  slideFor,
+  widthOf,
+  type Pane,
+  type Sizes,
+  type Widths,
+} from './layout';
+
+const piece = (name: string, children: readonly PieceView[] = []): PieceView => ({
+  id: name,
+  name,
+  facets: [],
+  longFacets: [],
+  children,
+});
+
+const story = piece('The story', [
+  piece('Beat 1'),
+  piece('Beat 2', [piece('Scene 1', [piece('Line 1')]), piece('Scene 2')]),
+  piece('Beat 3'),
+]);
+
+const fiveBeats = piece('The story', [
+  piece('Beat 1'),
+  piece('Beat 2'),
+  piece('Beat 3'),
+  piece('Beat 4'),
+  piece('Beat 5'),
+]);
+
+const eightScenes = piece('The story', [
+  piece(
+    'Beat 4',
+    Array.from({ length: 8 }, (_, at) => piece(`Scene ${at + 1}`)),
+  ),
+]);
+
+const sizes: Sizes = { current: 560, gap: 32 };
+
+const pane = (over: Partial<Pane> = {}): Pane => ({
+  width: 1440,
+  middle: 450,
+  ...over,
+});
+
+const measured =
+  (widths: Readonly<Record<string, number>>, heights: Readonly<Record<string, number>> = {}) =>
+  (id: string): { width: number; height: number } => ({
+    width: widths[id]!,
+    height: heights[id] ?? 100,
+  });
+
+const eightWidths = {
+  'The story': 200,
+  'Beat 4': 560,
+  'Scene 1': 120,
+  'Scene 2': 120,
+  'Scene 3': 120,
+  'Scene 4': 120,
+  'Scene 5': 120,
+  'Scene 6': 120,
+  'Scene 7': 120,
+  'Scene 8': 120,
+};
+
+const storyWidths = {
+  'The story': 200,
+  'Beat 1': 180,
+  'Beat 2': 560,
+  'Beat 3': 180,
+  'Scene 1': 120,
+  'Scene 2': 120,
+  'Line 1': 120,
+};
+
+const storyHeights = {
+  'The story': 100,
+  'Beat 1': 40,
+  'Beat 2': 200,
+  'Beat 3': 40,
+  'Scene 1': 100,
+  'Scene 2': 100,
+  'Line 1': 60,
+};
+
+describe('the width of a piece', () => {
+  const entries = treeOf(story);
+  const cardWidths: Readonly<Record<string, number>> = {
+    'The story': 240,
+    'Beat 2': 260,
+    'Line 1': 280,
+  };
+  const widths: Widths = {
+    chip: (): number => 137,
+    card: (id: string): number => cardWidths[id]!,
+  };
+
+  it('gives the current piece the current width, or main when that is narrower', () => {
+    expect(widthOf(entries, 'Beat 2', 'Beat 2', pane(), sizes, widths)).toBe(560);
+    expect(widthOf(entries, 'Beat 2', 'Beat 2', pane({ width: 400 }), sizes, widths)).toBe(400);
+  });
+
+  it('gives a card the width its own piece is given, so its level does not decide it', () => {
+    expect(widthOf(entries, 'Beat 2', 'The story', pane(), sizes, widths)).toBe(240);
+    expect(widthOf(entries, 'Scene 1', 'Line 1', pane(), sizes, widths)).toBe(280);
+  });
+
+  it('measures a chip', () => {
+    expect(widthOf(entries, 'Beat 2', 'Beat 1', pane(), sizes, widths)).toBe(137);
+  });
+
+  it('measures a hidden piece at the width its shown ancestor is given', () => {
+    expect(widthOf(entries, 'Beat 1', 'Scene 1', pane(), sizes, widths)).toBe(260);
+  });
+
+  it('gives a hidden piece that is its own shown ancestor the width of its own piece', () => {
+    expect(widthOf(entries, 'Scene 1', 'The story', pane(), sizes, widths)).toBe(240);
+  });
+});
+
+describe('where the pieces are centred', () => {
+  const entries = treeOf(story);
+  const size = measured(storyWidths, storyHeights);
+
+  it('centres the current piece on the pane’s width, its middle on the pane’s middle when there is room', () => {
+    const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
+
+    expect(centres.get('Beat 2')).toEqual({ x: 720, y: 450 });
+  });
+
+  it('puts the parent straight above the current piece, a gap between them', () => {
+    const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
+
+    expect(centres.get('The story')).toEqual({ x: 720, y: 268 });
+  });
+
+  it('puts the children in one row a gap below the current piece, centred on it and a gap apart', () => {
+    const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
+
+    expect(centres.get('Scene 1')).toEqual({ x: 644, y: 632 });
+    expect(centres.get('Scene 2')).toEqual({ x: 796, y: 632 });
+  });
+
+  it("holds the current piece's row below the top of main and the parent when the window is too short to centre it", () => {
+    const centres = centresOf(entries, 'Beat 2', size, pane({ middle: 100 }), sizes);
+
+    expect(centres.get('Beat 2')).toEqual({ x: 720, y: 232 });
+    expect(centres.get('The story')).toEqual({ x: 720, y: 50 });
+  });
+
+  it('holds the story a gap below the top of main when it has no parent to clear', () => {
+    const centres = centresOf(
+      entries,
+      'The story',
+      measured(
+        {
+          'The story': 560,
+          'Beat 1': 180,
+          'Beat 2': 180,
+          'Beat 3': 180,
+          'Scene 1': 120,
+          'Scene 2': 120,
+          'Line 1': 120,
+        },
+        { 'The story': 200 },
+      ),
+      pane({ middle: 100 }),
+      sizes,
+    );
+
+    expect(centres.get('The story')).toEqual({ x: 720, y: 132 });
+    expect([...centres.keys()].sort()).toEqual([
+      'Beat 1',
+      'Beat 2',
+      'Beat 3',
+      'Line 1',
+      'Scene 1',
+      'Scene 2',
+      'The story',
+    ]);
+  });
+
+  it("centres the later siblings on the current piece's middle when it is the first of them", () => {
+    const centres = centresOf(
+      treeOf(fiveBeats),
+      'Beat 1',
+      measured(
+        {
+          'The story': 200,
+          'Beat 1': 560,
+          'Beat 2': 180,
+          'Beat 3': 180,
+          'Beat 4': 180,
+          'Beat 5': 180,
+        },
+        { 'The story': 100, 'Beat 1': 200, 'Beat 2': 40, 'Beat 3': 40, 'Beat 4': 40, 'Beat 5': 40 },
+      ),
+      pane(),
+      sizes,
+    );
+
+    expect(centres.get('Beat 2')).toEqual({ x: 1122, y: 450 });
+    expect(centres.get('Beat 3')).toEqual({ x: 1334, y: 450 });
+    expect(centres.get('Beat 4')).toEqual({ x: 1546, y: 450 });
+    expect(centres.get('Beat 5')).toEqual({ x: 1758, y: 450 });
+  });
+
+  it('puts a hidden piece at its shown ancestor’s centre', () => {
+    const centres = centresOf(entries, 'Beat 2', size, pane(), sizes);
+
+    expect(centres.get('Line 1')).toEqual({ x: 644, y: 632 });
+  });
+
+  it('leaves a hidden piece that is its own shown ancestor out of the map', () => {
+    const centres = centresOf(
+      entries,
+      'Scene 1',
+      measured(
+        { ...storyWidths, 'Beat 2': 180, 'Scene 1': 560 },
+        { ...storyHeights, 'Beat 2': 100, 'Scene 1': 200, 'Scene 2': 40, 'Line 1': 80 },
+      ),
+      pane(),
+      sizes,
+    );
+
+    expect([...centres.keys()].sort()).toEqual(['Beat 2', 'Line 1', 'Scene 1', 'Scene 2']);
+  });
+
+  it('puts the earlier siblings left of the current piece and the later ones right, on its row', () => {
+    const centres = centresOf(
+      treeOf(fiveBeats),
+      'Beat 3',
+      measured(
+        {
+          'The story': 200,
+          'Beat 1': 180,
+          'Beat 2': 180,
+          'Beat 3': 560,
+          'Beat 4': 180,
+          'Beat 5': 180,
+        },
+        { 'The story': 100, 'Beat 1': 40, 'Beat 2': 40, 'Beat 3': 200, 'Beat 4': 40, 'Beat 5': 40 },
+      ),
+      pane(),
+      sizes,
+    );
+
+    expect(centres.get('Beat 1')).toEqual({ x: 106, y: 450 });
+    expect(centres.get('Beat 2')).toEqual({ x: 318, y: 450 });
+    expect(centres.get('Beat 4')).toEqual({ x: 1122, y: 450 });
+    expect(centres.get('Beat 5')).toEqual({ x: 1334, y: 450 });
+  });
+
+  it('keeps a row of eight scenes inside the pane at 1440 px, and cuts it off evenly at 1100 px', () => {
+    const row = treeOf(eightScenes);
+    const size = measured(eightWidths, { 'The story': 100, 'Beat 4': 200 });
+
+    const inside = centresOf(row, 'Beat 4', size, pane(), sizes);
+    expect(inside.get('Scene 1')).toEqual({ x: 188, y: 632 });
+    expect(inside.get('Scene 8')).toEqual({ x: 1252, y: 632 });
+
+    const cut = centresOf(row, 'Beat 4', size, pane({ width: 1100 }), sizes);
+    const left = cut.get('Scene 1')!.x - 60;
+    const right = cut.get('Scene 8')!.x + 60;
+    expect(left).toBe(-42);
+    expect(right).toBe(1142);
+    expect(0 - left).toBe(right - 1100);
+  });
+});
+
+describe('whether a piece is on screen', () => {
+  const main = { width: 1000, height: 800 };
+
+  it('reads a box whose edge lies exactly on an edge of main as on screen', () => {
+    expect(onScreen({ x: 50, y: 50 }, { width: 100, height: 100 }, main)).toBe(true);
+    expect(onScreen({ x: 950, y: 750 }, { width: 100, height: 100 }, main)).toBe(true);
+    expect(onScreen({ x: 500, y: 400 }, { width: 1000, height: 800 }, main)).toBe(true);
+  });
+
+  it('reads a box one pixel over an edge as off screen', () => {
+    expect(onScreen({ x: 49, y: 50 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 951, y: 50 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 50, y: 49 }, { width: 100, height: 100 }, main)).toBe(false);
+    expect(onScreen({ x: 50, y: 751 }, { width: 100, height: 100 }, main)).toBe(false);
+  });
+});
+
+describe('the offset that brings a piece wholly inside main', () => {
+  const main = { width: 1000, height: 800 };
+  const size = { width: 120, height: 100 };
+
+  it('leaves a piece that is already on screen where it is', () => {
+    expect(slideFor({ x: 500, y: 400, ...size }, main)).toBe(0);
+    expect(slideFor({ x: 60, y: 400, ...size }, main)).toBe(0);
+    expect(slideFor({ x: 940, y: 400, ...size }, main)).toBe(0);
+  });
+
+  it('slides a piece over the left edge until its edge lies on main’s', () => {
+    expect(slideFor({ x: 10, y: 400, ...size }, main)).toBe(50);
+    expect(slideFor({ x: -60, y: 400, ...size }, main)).toBe(120);
+  });
+
+  it('slides a piece over the right edge back until its edge lies on main’s', () => {
+    expect(slideFor({ x: 990, y: 400, ...size }, main)).toBe(-50);
+    expect(slideFor({ x: 1060, y: 400, ...size }, main)).toBe(-120);
+  });
+
+  it('has no offset for a piece no slide can bring into view', () => {
+    expect(slideFor({ x: 500, y: 400, width: 1100, height: 100 }, main)).toBeUndefined();
+    expect(slideFor({ x: 500, y: 30, ...size }, main)).toBeUndefined();
+    expect(slideFor({ x: 500, y: 780, ...size }, main)).toBeUndefined();
+  });
+});
