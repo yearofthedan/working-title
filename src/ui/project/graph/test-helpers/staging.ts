@@ -51,11 +51,13 @@ export const holdMoves = (): void => {
   for (const move of moving()) move.pause();
 };
 
-export const holdNewMovesAtTheirStart = (): void => {
-  for (const move of moving().filter(({ playState }) => playState === 'running')) {
+export const holdNewMovesAtTheirStart = (): number => {
+  const started = moving().filter(({ playState }) => playState === 'running');
+  for (const move of started) {
     move.pause();
     move.currentTime = 0;
   }
+  return started.length;
 };
 
 export const finishMoves = (): void => {

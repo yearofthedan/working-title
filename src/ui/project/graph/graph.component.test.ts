@@ -1034,12 +1034,13 @@ describe('the motion of a move', () => {
     await writer.clicks('Beat 1');
     await partWay();
     holdMoves();
+    expect(moving().length).toBeGreaterThan(0);
     const storyName = nameOf(graph.card('card', 'The story').card.element());
     const before = frameNow();
 
     await writer.presses('ArrowRight');
     await laidOut();
-    holdNewMovesAtTheirStart();
+    expect(holdNewMovesAtTheirStart()).toBeGreaterThan(0);
     const restarted = frameNow();
     finishMoves();
     const landed = frameNow();
