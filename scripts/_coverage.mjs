@@ -61,19 +61,18 @@ export const mergeCoverage = (vitestData, journeysData) => {
   return vitest;
 };
 
-const underSource = (path) => path.startsWith(join(root, 'src') + sep);
-
-const journeysFrom = async (dir) => {
-  const covered = {};
+export const journeysFrom = async (dir, dist = join(root, 'dist'), source = join(root, 'src')) => {
+  const covered = libCoverage.createCoverageMap({});
 
   for (const file of readdirSync(dir)) {
     const entries = JSON.parse(readFileSync(join(dir, file), 'utf8'));
     for (const entry of entries) {
       if (!entry.url.endsWith('.js') || entry.source === undefined) continue;
       const { pathname } = new URL(entry.url);
-      const built = join(root, 'dist', pathname);
+      if (pathname === '/sw.js') continue;
+      const built = join(dist, pathname);
       const sourceMapPath = `${built}.map`;
-      if (pathname === '/sw.js' || !existsSync(sourceMapPath)) continue;
+      if (!existsSync(sourceMapPath)) throw new Error(`no source map at ${sourceMapPath}`);
 
       const ast = (await parse(built, entry.source)).program;
       const data = await convert({
@@ -84,7 +83,7 @@ const journeysFrom = async (dir) => {
         sourceMap: JSON.parse(readFileSync(sourceMapPath, 'utf8')),
       });
       for (const [path, coverage] of Object.entries(data)) {
-        if (underSource(path)) covered[path] = coverage;
+        if (path.startsWith(source + sep)) covered.addFileCoverage(coverage);
       }
     }
   }

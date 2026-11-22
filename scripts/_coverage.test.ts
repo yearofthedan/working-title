@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { transformWithOxc } from 'vite-plus';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 // @ts-expect-error the helper is plain JavaScript, so it has no types
-import { mergeCoverage } from './_coverage.mjs';
+import { journeysFrom, mergeCoverage } from './_coverage.mjs';
 
 const at = (line: number, column: number) => ({ line, column });
 
@@ -90,5 +95,85 @@ describe('merging the journeys into the node and browser tests', () => {
     expect(summary.statements).toMatchObject({ total: 1, covered: 1 });
     expect(summary.lines).toMatchObject({ total: 1, covered: 1 });
     expect(summary.branches).toMatchObject({ total: 2, covered: 0 });
+  });
+});
+
+const builtScript = async () => {
+  const root = mkdtempSync(join(tmpdir(), 'journey-coverage-'));
+  const source = [
+    "export const describe = (flag: boolean): string => (flag ? 'yes' : 'no');",
+    "console.log(describe(process.argv[2] === 'yes'));",
+    '',
+  ].join('\n');
+  const built = await transformWithOxc(source, join(root, 'src/example.ts'), { sourcemap: true });
+  mkdirSync(join(root, 'dist/assets'), { recursive: true });
+  writeFileSync(join(root, 'dist/assets/example.js'), built.code);
+  writeFileSync(join(root, 'dist/assets/example.js.map'), JSON.stringify(built.map));
+  writeFileSync(join(root, 'package.json'), '{"type": "module"}');
+  return { root, code: built.code };
+};
+
+const recordJourney = (root: string, code: string, argument: string) => {
+  const recorded = join(root, `v8-${argument}`);
+  execFileSync(process.execPath, [join(root, 'dist/assets/example.js'), argument], {
+    env: { ...process.env, NODE_V8_COVERAGE: recorded },
+  });
+  const [file] = readdirSync(recorded);
+  const { result } = JSON.parse(readFileSync(join(recorded, file), 'utf8'));
+  const entry = result.find((one: { url: string }) => one.url.endsWith('/assets/example.js'));
+  const journeys = join(root, 'journeys');
+  mkdirSync(journeys, { recursive: true });
+  writeFileSync(
+    join(journeys, `${argument}.json`),
+    JSON.stringify([
+      { url: 'http://localhost/assets/example.js', source: code, functions: entry.functions },
+    ]),
+  );
+};
+
+describe('reading the journeys', () => {
+  let root: string;
+  let code: string;
+
+  beforeAll(async () => {
+    ({ root, code } = await builtScript());
+    recordJourney(root, code, 'yes');
+    recordJourney(root, code, 'no');
+  });
+
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+
+  it('holds the branches of one source file that both journeys ran', async () => {
+    const covered = await journeysFrom(
+      join(root, 'journeys'),
+      join(root, 'dist'),
+      join(root, 'src'),
+    );
+
+    expect(covered.getCoverageSummary().branches).toMatchObject({ total: 2, covered: 2 });
+  });
+});
+
+describe('reading a journey of a build with no source map', () => {
+  let root: string;
+
+  beforeAll(() => {
+    root = mkdtempSync(join(tmpdir(), 'journey-coverage-'));
+    const journeys = join(root, 'journeys');
+    mkdirSync(journeys, { recursive: true });
+    writeFileSync(
+      join(journeys, 'one.json'),
+      JSON.stringify([
+        { url: 'http://localhost/assets/example.js', source: 'export {};', functions: [] },
+      ]),
+    );
+  });
+
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+
+  it('names the map it could not read', async () => {
+    const reading = journeysFrom(join(root, 'journeys'), join(root, 'dist'), join(root, 'src'));
+
+    await expect(reading).rejects.toThrow(join(root, 'dist/assets/example.js.map'));
   });
 });
