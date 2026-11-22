@@ -58,7 +58,7 @@ jobs:
           body=$(printf '%s\n\n## Coverage report\n\n```\n%s\n```\n\nRead the line and branch columns.\n\n%s\n' \
             "$marker" "$(cat "$table")" "$artifact")
           if [ "$(printf '%s' "$body" | wc -c)" -gt 65536 ]; then
-            body=$(printf '%s\n\n## Coverage report\n\n```\n%s\n```\n\nThe table is too long for a comment, so this is the totals row.\n\nRead the line and branch columns.\n\n%s\n' \
+            body=$(printf '%s\n\n## Coverage report\n\n```\n%s\n```\n\nThe table is too long for a comment, so this is its header and totals row.\n\nRead the line and branch columns.\n\n%s\n' \
               "$marker" "$totals" "$artifact")
           fi
           id=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
