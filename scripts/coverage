@@ -1,6 +1,12 @@
 #!/bin/sh
-# help: Report which lines of src/ the node and browser tests run, to coverage/.
+# help: Report which lines of src/ the node and browser tests and the journeys run, to coverage/.
 
 set -eu
 
-"$(dirname "$0")/test" --coverage "$@"
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+rm -rf "$root/coverage"
+
+"$root/scripts/test" --coverage "$@"
+COVERAGE_DIR="$root/coverage/raw/journeys" "$root/scripts/e2e"
+node "$root/scripts/_coverage.mjs"

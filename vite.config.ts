@@ -77,8 +77,8 @@ export default defineConfig({
         '**/test-helpers/**',
         'src/ui/lint-sample-*/**',
       ],
-      reporter: ['text', 'html'],
-      reportsDirectory: 'coverage',
+      reporter: ['json'],
+      reportsDirectory: 'coverage/raw/vitest',
     },
     projects: [
       {
