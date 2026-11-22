@@ -69,8 +69,8 @@ export default {
     }).map(([layer, others]) => ({
       name: `layer-direction-${layer}`,
       severity: 'error',
-      comment: `The ${layer} layer may not import ${others.join(', ')}, because a layer's dependencies point inward (docs/adr/0002-hexagonal-layers.md).`,
-      from: { path: `^src/${layer}/`, pathNot: '/test-helpers/' },
+      comment: `The ${layer} layer may not import ${others.join(', ')}, because a layer's dependencies point inward${layer === 'ui' ? ", except in a test-helpers/ folder, which is test code and none of the app's layers (docs/standards/testing.md)" : ''} (docs/adr/0002-hexagonal-layers.md).`,
+      from: { path: `^src/${layer}/`, ...(layer === 'ui' ? { pathNot: '/test-helpers/' } : {}) },
       to: { path: others.map((other) => `^src/${other}/`) },
     })),
     ...helperFolderRules,
@@ -136,7 +136,7 @@ export default {
       comment:
         "A component's test code reaches another component's only in a component it holds, never one above it or beside it (docs/standards/testing.md). shortcut: the exception below lets any component's test code reach your-projects' test page and language, not only project's, which tests start-up; narrow it when start-up has test code of its own.",
       from: {
-        path: '^(src/ui/.+/)((?:test-helpers/)?[^/]+\\.(?:test-page|harness|dsl|test)\\.ts|test-helpers/[^/]+\\.ts)$',
+        path: '^(src/ui/.+?/)(?:test-helpers/[^/]+|[^/]+\\.(?:test-page|harness|dsl|test))\\.ts$',
       },
       to: {
         path: '^src/ui/.+/[^/]+.(?:test-page|harness|dsl|test).ts$',

@@ -399,6 +399,21 @@ run_layers
 allowed "a test-helper reaching the domain, the ports and an adapter is allowed"
 not_out 'layer-direction' "the layer rules say nothing of a test-helper"
 
+write src/domain/test-helpers/story.ts "import { fileSystemFolders } from '../../adapters/file-system-folders';
+export const story = fileSystemFolders;"
+run_layers
+refused "a test-helpers/ folder outside src/ui/ keeps the layer direction"
+expect_out 'layer-direction-domain: src/domain/test-helpers/story.ts → src/adapters/file-system-folders.ts' \
+  "the adapter it reached is shown"
+
+rm -rf "$project/src/domain/test-helpers"
+write src/ui/project/graph/graph.test-page.ts 'export const everyCard = (): number => 1;'
+write src/ui/project/graph/test-helpers/frames.test.ts "import { everyCard } from '../graph.test-page';
+export const judged = everyCard;"
+run_layers
+allowed "a test inside a test-helpers/ folder reaches its own component's test page"
+not_out 'test-code-of-its-own-component' "the direction rule reads that test as its component's"
+
 write src/ui/project/test-helpers/measures.ts 'export const heightOf = (element: Element): number => element.clientHeight;'
 write src/ui/project/project.dom.ts "import { heightOf } from './test-helpers/measures';
 export const renderProject = heightOf;"
