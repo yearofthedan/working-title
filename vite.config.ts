@@ -66,6 +66,20 @@ export default defineConfig({
   test: {
     ...(approving ? { api: { allowWrite: true } } : {}),
     update: 'none',
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: [
+        '**/*.test.ts',
+        '**/*.dsl.ts',
+        '**/*.test-page.ts',
+        '**/*.harness.ts',
+        '**/test-helpers/**',
+        'src/ui/lint-sample-*/**',
+      ],
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
+    },
     projects: [
       {
         test: {
