@@ -1,29 +1,20 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
+import { bottomOf, heightOf, leftOf, rightOf, topOf, widthOf } from '../../../test-helpers/box';
+import { settled } from '../../../test-helpers/driver';
+import { easesOut } from '../../../test-helpers/frames';
 import {
-  bottomOf,
   boxes,
   centreOf,
-  heightOf,
+  expectRingDrawn,
   inMain,
-  leftOf,
   middleOf,
   offScreenFocus,
-  rightOf,
   showsAllItsText,
-  topOf,
-  widthOf,
-} from '../../../test-helpers/box';
-import { settled } from '../../../test-helpers/driver';
-import { arrivalStep, easesOut, movedBy } from '../../../test-helpers/frames';
-import {
-  laidOut,
-  moving,
-  partWay,
-  recorded,
-  startedTransitions,
-} from '../../../test-helpers/graph-page';
-import { expectRingDrawn } from '../../../test-helpers/look';
+} from './test-helpers/measures';
+import { arrivalStep, movedBy } from './test-helpers/frames';
+import { laidOut, moving } from '../../../test-helpers/graph-page';
+import { partWay, recorded, startedTransitions } from './test-helpers/staging';
 import type { RawGlob } from '../../../test-helpers/raw-glob';
 import { playScenarioFiles } from '../../../test-helpers/scenario-entry';
 import { aProject, beat, scene, story } from '../../../test-helpers/seed';

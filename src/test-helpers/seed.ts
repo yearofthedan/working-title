@@ -1,4 +1,3 @@
-import { openProject, type OpenProject } from '../application/project';
 import type { FacetText, Piece, Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
@@ -76,12 +75,4 @@ export const holdingSaves = (start?: Project): HoldingSaves => {
       for (const resolve of waiting.splice(0)) resolve();
     },
   };
-};
-
-export const anInMemoryProject = async (
-  seed?: SeededProject,
-): Promise<{ store: ProjectStore; project: OpenProject }> => {
-  const store = inMemory();
-  if (seed !== undefined) await store.save(seed);
-  return { store, project: await openProject(snowflakeExtended, store) };
 };
