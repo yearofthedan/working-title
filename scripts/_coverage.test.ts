@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { transformWithOxc } from 'vite-plus';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 // @ts-expect-error the helper is plain JavaScript, so it has no types
-import { journeysFrom, mergeCoverage } from './_coverage.mjs';
+import { journeysFrom, mergeCoverage, writeReport } from './_coverage.mjs';
 
 const at = (line: number, column: number) => ({ line, column });
 
@@ -95,6 +95,34 @@ describe('merging the journeys into the node and browser tests', () => {
     expect(summary.statements).toMatchObject({ total: 1, covered: 1 });
     expect(summary.lines).toMatchObject({ total: 1, covered: 1 });
     expect(summary.branches).toMatchObject({ total: 2, covered: 0 });
+  });
+});
+
+describe('writing the report', () => {
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'coverage-report-'));
+  });
+
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it('puts the table in summary.txt', () => {
+    writeReport(mergeCoverage(described(vitestFile()), described(fileOf({}))), dir);
+
+    const summary = readFileSync(join(dir, 'summary.txt'), 'utf8');
+
+    expect(summary).toBe(
+      [
+        '------------|---------|----------|---------|---------|-------------------',
+        'File        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s ',
+        '------------|---------|----------|---------|---------|-------------------',
+        'All files   |     100 |        0 |     100 |     100 |                   ',
+        ' example.ts |     100 |        0 |     100 |     100 | 3                 ',
+        '------------|---------|----------|---------|---------|-------------------',
+        '',
+      ].join('\n'),
+    );
   });
 });
 
