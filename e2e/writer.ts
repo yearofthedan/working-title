@@ -95,6 +95,7 @@ export const test = base.extend<{ writer: Fixture; treeRoot: 'main' | 'page' }>(
       await use(page);
       return;
     }
+    // shortcut: Playwright says resetOnNavigation false may still reset on a navigation (https://playwright.dev/docs/api/class-coverage#coverage-start-js-coverage), so a journey that navigates may lose coverage, until a journey is shown to lose some.
     await page.coverage.startJSCoverage({ resetOnNavigation: false });
     try {
       await use(page);
