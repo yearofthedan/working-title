@@ -26,14 +26,7 @@ browser.locators.extend({
   },
 });
 
-interface Aria {
-  generateAriaTree(element: Element): unknown;
-  renderAriaTree(node: unknown): string;
-}
-
-// workaround: @vitest/browser 5.1.0 leaves utils.aria untyped; remove when typed
-// oxlint-disable-next-line typescript/consistent-type-assertions
-const { utils } = browser as unknown as { utils: { aria: Aria } };
+const { utils } = browser;
 
 const keysFor = (key: string): string => {
   const [modifier, rest] = key.length > 1 ? key.split('+') : [key];
