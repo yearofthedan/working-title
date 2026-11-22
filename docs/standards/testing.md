@@ -33,8 +33,8 @@ A language names what the writer does over the driver contract, so one language 
 | Protocol driver | `drivers/*.driver.ts` | One per runner: Playwright here; Vitest's browser driver sits in `src/ui/test-helpers/`, since only `src/ui/` reads it |
 | Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
 | Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
-| Measures | `measures.ts` in a component's `test-helpers/` | Measuring a part for a style, geometry or timing case: its box, a field's caret, whether it is drawn shown or hidden, and the boxes sampled frame by frame for motion |
-| Staging | `staging/staging.ts`, `staging/graph-page.ts`, `staging/the-app.ts` | A page or a project the writer cannot make, and the helpers that open and read the app |
+| Measures | `measures.ts` and `frames.ts` in a component's `test-helpers/` | Measuring a part for a style, geometry or timing case: its box, a field's caret, whether it is drawn shown or hidden, and, in `frames.ts`, the boxes sampled frame by frame for motion |
+| Staging | `staging/staging.ts`, `staging/graph-page.ts`, `staging/the-app.ts` | A page or a project the writer cannot make, a wait for the page to lay out, and the app opened on it |
 | Folders | `folders/folder.ts`, `folders/folders.ts` | The folder the writer chose: what it holds, narrowed to the folder or file a step reported, and the folders on the writer's machine standing in for the one the writer picks |
 | Seed | `seed/seed.ts`, `seed/ids.ts`, `seed/toy-method.ts` | A project the writer cannot make, its ids, and a method the code runs in place of a real one |
 | Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/every-file.ts`, `runner/raw-glob.ts` | The scenario file, the step table, and what plays them; the entry beside a component's `scenarios/` folder sits in that component's `test-helpers/` |
@@ -44,12 +44,12 @@ The paths in the table start at the `test-helpers/` folder that holds the file.
 
 - **A component has one test page, one language and one harness.** One that holds another component builds on that component's own, and what the owner lacks is added to the owner's file.
 - **A component's test code reaches another component's only in a component it holds**, never one above it or beside it. One exception, for now: `src/ui/project/`'s harness, language and component test reach `src/ui/your-projects/`'s test page and its language, because they test start-up, which has no test code of its own yet.
-- **A `test-helpers/` file may read the domain, the ports and the adapters**, since test code is none of the app's layers; what it may not do is be read by anything the app is made of.
+- **A `test-helpers/` file under `src/ui/` may read the domain, the ports and the adapters**, since test code is none of the app's layers; what it may not do is be read by anything the app is made of.
 - **A component test reaches markup only through the test page, and acts only through its language**, never through `userEvent` or the driver. It asserts with `expect.element` and an aria matcher, and reads style or a box only when the case is about style, geometry or timing. It waits on the page only through `expect.element`; `expect.poll` and `vi.waitFor` are for what the page doesn't show, such as the folder on disk or a stand-in's calls.
 - **A test page returns Locators**, each found inside its part and grouped by what the writer does with them, such as a card's `actions`, so a check retries until the page settles.
 - **A spec and a language find no element; a driver finds one only by role or label**, as [the markup standard](markup.md) says.
 - **A language imports the driver contract and no driver, and the app imports no test code.**
-- **A helper of one kind imports no helper of a kind it is not written over**: a driver imports no staging, folder, runner or seed; staging imports no folder or runner, and no adapter or method beyond a type; the folders import no staging or runner; the runner imports no staging, seed, adapter, method, application or domain; seed imports no driver, staging, folder, runner, adapter or `src/ui/`. A `*.test.ts` is exempt, since the test beside a helper may hold two kinds together.
+- **A helper of one kind imports no helper of a kind it is not written over**: a driver imports no staging, folder, runner or seed; staging imports no folder, runner, adapter or method, except as a type; the folders import no staging or runner; the runner imports no staging, seed, adapter, method, application or domain; seed imports no driver, staging, folder, runner, adapter or `src/ui/`. A `*.test.ts` is exempt, since the test beside a helper may hold two kinds together.
 - **A registration every browser test shares** goes in a file `setupFiles` loads, such as `src/test-helpers/locators.ts`.
 
 ## Names and cases
