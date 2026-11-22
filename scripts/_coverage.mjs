@@ -101,10 +101,7 @@ const main = async () => {
     defaultSummarizer: 'nested',
   });
   reports.create('html').execute(context);
-
-  const { lines, branches } = merged.getCoverageSummary();
-  console.log(`Lines     : ${lines.pct}% (${lines.covered}/${lines.total})`);
-  console.log(`Branches  : ${branches.pct}% (${branches.covered}/${branches.total})`);
+  reports.create('text').execute(context);
 };
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
