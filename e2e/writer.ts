@@ -91,7 +91,7 @@ export const test = base.extend<{ writer: Fixture; treeRoot: 'main' | 'page' }>(
   treeRoot: ['main', { option: true }],
   page: async ({ page }, use, testInfo) => {
     const dir = process.env.COVERAGE_DIR;
-    if (dir === undefined) {
+    if (!dir) {
       await use(page);
       return;
     }
