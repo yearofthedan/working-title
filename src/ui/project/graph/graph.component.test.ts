@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
-import { settled } from '../../../test-helpers/driver';
-import { easesOut } from '../../../test-helpers/frames';
+import { settled } from '../../../test-helpers/drivers/driver';
+import { easesOut } from '../../../test-helpers/measures/frames';
 import {
   boxes,
   centreOf,
@@ -14,9 +14,9 @@ import {
 import { arrivalStep, movedBy } from './test-helpers/frames';
 import { laidOut } from '../../../test-helpers/staging/graph-page';
 import { partWay, recorded, startedTransitions } from './test-helpers/staging';
-import type { RawGlob } from '../../../test-helpers/raw-glob';
+import type { RawGlob } from '../../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from '../test-helpers/scenario-entry';
-import { aProject, beat, scene, story } from '../../../test-helpers/seed';
+import { aProject, beat, scene, story } from '../../../test-helpers/seed/seed';
 import { setStyleOn } from '../../../test-helpers/staging/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf } from './card/card.test-page';

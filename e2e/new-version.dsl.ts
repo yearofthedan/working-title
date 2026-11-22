@@ -1,5 +1,5 @@
-import type { Driver } from '../src/test-helpers/driver';
-import { reporting, type StepAction } from '../src/test-helpers/steps';
+import type { Driver } from '../src/test-helpers/drivers/driver';
+import { reporting, type StepAction } from '../src/test-helpers/runner/steps';
 
 export interface PrivateBuild {
   readonly driver: Driver;

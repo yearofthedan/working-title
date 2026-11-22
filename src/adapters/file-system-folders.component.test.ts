@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { snowflakeExtended } from '../methods/snowflake-extended';
-import { aChosenFolderAt, anEmptyFolderNamed } from '../test-helpers/folders';
+import { aChosenFolderAt, anEmptyFolderNamed } from '../test-helpers/folders/folders';
 import { fileSystemFolders, type DirectoryPicker } from './file-system-folders';
 
 const theFolderOnDisk = 'a folder on disk';

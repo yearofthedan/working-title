@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { ids } from '../test-helpers/ids';
-import { toyMethod } from '../test-helpers/toy-method';
+import { ids } from '../test-helpers/seed/ids';
+import { toyMethod } from '../test-helpers/seed/toy-method';
 import { branch, elaborate, isProject, newProject, type Project } from './project';
 
 const project = (): Project => newProject(toyMethod, ids());

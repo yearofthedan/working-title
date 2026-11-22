@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { aChooserGivingTheFolder } from '../../../test-helpers/folders';
+import { aChooserGivingTheFolder } from '../../../test-helpers/folders/folders';
 import {
   aChooserTheWriterCancels,
   aChooserThatFails,
@@ -10,7 +10,7 @@ import { projectsFolderSeesOn, projectsFolderWriterOn } from './projects-folder.
 import { mountFolderQuestion } from './projects-folder.harness';
 import { whereTheProjectsAreKept } from './projects-folder.test-page';
 import { aFolderHoldingProjects } from '../../test-helpers/folders';
-import { theProjectsFolderName } from '../../../test-helpers/folders';
+import { theProjectsFolderName } from '../../../test-helpers/folders/folders';
 
 const driver = vitestBrowserDriver();
 const writer = projectsFolderWriterOn(driver);

@@ -158,9 +158,9 @@ export default {
       name: 'dsl-on-the-driver-contract',
       severity: 'error',
       comment:
-        'A language file is written once over the driver contract, so every *.dsl.ts imports src/test-helpers/driver.ts (docs/standards/testing.md).',
+        'A language file is written once over the driver contract, so every *.dsl.ts imports src/test-helpers/drivers/driver.ts (docs/standards/testing.md).',
       module: { path: '\\.dsl\\.ts$' },
-      to: { path: '^src/test-helpers/driver\\.ts$' },
+      to: { path: '^src/test-helpers/drivers/driver\\.ts$' },
     },
   ],
   options: {

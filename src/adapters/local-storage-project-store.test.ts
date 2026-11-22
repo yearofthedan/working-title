@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
-import { ids } from '../test-helpers/ids';
-import type { RawGlob } from '../test-helpers/raw-glob';
+import { ids } from '../test-helpers/seed/ids';
+import type { RawGlob } from '../test-helpers/runner/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';

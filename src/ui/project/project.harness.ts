@@ -1,12 +1,12 @@
 import { expect } from 'vite-plus/test';
-import { type Driver, type Opening } from '../../test-helpers/driver';
+import { type Driver, type Opening } from '../../test-helpers/drivers/driver';
 import { appReadsOnThePage } from './test-helpers/staging';
-import { inMemory, type SeededProject } from '../../test-helpers/seed';
+import { inMemory, type SeededProject } from '../../test-helpers/seed/seed';
 import {
   aPickerGivingWhatIsStaged,
   anEmptyFolderNamed,
   theProjectsFolderName,
-} from '../../test-helpers/folders';
+} from '../../test-helpers/folders/folders';
 import { thePage } from '../../test-helpers/staging/staging';
 import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/staging/the-app';
 import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';

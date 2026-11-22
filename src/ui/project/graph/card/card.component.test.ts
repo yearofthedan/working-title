@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../../../application/project';
-import type { RawGlob } from '../../../../test-helpers/raw-glob';
+import type { RawGlob } from '../../../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';

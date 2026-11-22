@@ -1,5 +1,5 @@
-import type { AppReads, Driver, Opening } from '../../../test-helpers/driver';
-import type { SeededProject } from '../../../test-helpers/seed';
+import type { AppReads, Driver, Opening } from '../../../test-helpers/drivers/driver';
+import type { SeededProject } from '../../../test-helpers/seed/seed';
 
 export const storyDrawn = [
   '- main:',

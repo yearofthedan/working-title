@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { theProjectsFolderName } from '../../../test-helpers/folders';
+import { theProjectsFolderName } from '../../../test-helpers/folders/folders';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { projectListWriterOn } from './project-list.dsl';
 import { mountProjectList } from './project-list.harness';

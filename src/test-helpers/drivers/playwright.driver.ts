@@ -1,6 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
-import { projectStorageKey } from '../adapters/local-storage-project-store';
-import { cardLooks } from '../ui/project/graph/card/card';
+import { projectStorageKey } from '../../adapters/local-storage-project-store';
+import { cardLooks } from '../../ui/project/graph/card/card';
 import {
   clicking,
   drawn,

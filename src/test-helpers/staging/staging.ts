@@ -1,6 +1,6 @@
 import type { Locator } from 'vite-plus/test/browser';
 import * as browser from 'vite-plus/test/browser';
-import { settled } from '../driver';
+import { settled } from '../drivers/driver';
 import { laidOut } from './graph-page';
 import { stopTheApp } from './the-app';
 

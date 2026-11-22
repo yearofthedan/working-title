@@ -10,7 +10,7 @@ import {
   whatCoversTheTopOf,
   writerCanScroll,
 } from './test-helpers/measures';
-import { settled } from '../../../test-helpers/driver';
+import { settled } from '../../../test-helpers/drivers/driver';
 import { theViewport } from '../test-helpers/staging';
 import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';

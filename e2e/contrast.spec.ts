@@ -1,4 +1,4 @@
-import { aProject, beat, story } from '../src/test-helpers/seed';
+import { aProject, beat, story } from '../src/test-helpers/seed/seed';
 import { expect, test } from './writer';
 
 const longSentence =

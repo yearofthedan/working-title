@@ -1,12 +1,12 @@
-import type { DrawnCard, Driver, Opening, Part, Reads } from '../../../test-helpers/driver';
-import { aProject, beat, scene, story, type SeededProject } from '../../../test-helpers/seed';
+import type { DrawnCard, Driver, Opening, Part, Reads } from '../../../test-helpers/drivers/driver';
+import { aProject, beat, scene, story, type SeededProject } from '../../../test-helpers/seed/seed';
 import {
   reporting,
   reportingFocus,
   wholeTree,
   type Evidence,
   type StepAction,
-} from '../../../test-helpers/steps';
+} from '../../../test-helpers/runner/steps';
 
 const keys: Readonly<Record<string, string>> = {
   '↑': 'ArrowUp',

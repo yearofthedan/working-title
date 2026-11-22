@@ -1,4 +1,4 @@
-import { aChosenFolderAt, anEmptyFolderNamed } from '../../test-helpers/folders';
+import { aChosenFolderAt, anEmptyFolderNamed } from '../../test-helpers/folders/folders';
 
 export const aFolderHoldingProjects = async (
   name: string,

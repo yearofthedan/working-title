@@ -1,4 +1,4 @@
-import type { Method } from '../domain/project';
+import type { Method } from '../../domain/project';
 
 export const toyMethod: Method = {
   name: 'toy',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import type { Box, Frame } from '../../../../test-helpers/frames';
+import type { Box, Frame } from '../../../../test-helpers/measures/frames';
 import { arrivalStep, movedBy } from './frames';
 
 const box = (left: number, top = 0, width = 10, height = 10): Box => ({ left, top, width, height });

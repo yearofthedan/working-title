@@ -1,6 +1,9 @@
 import { fileSystemFolders } from '../../../../adapters/file-system-folders';
 import { snowflakeExtended } from '../../../../methods/snowflake-extended';
-import { aPickerThatFails, aPickerTheWriterCancels } from '../../../../test-helpers/folders';
+import {
+  aPickerThatFails,
+  aPickerTheWriterCancels,
+} from '../../../../test-helpers/folders/folders';
 
 export const aChooserTheWriterCancels = () =>
   fileSystemFolders(snowflakeExtended, aPickerTheWriterCancels);

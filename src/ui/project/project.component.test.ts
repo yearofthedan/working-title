@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
-import { settled } from '../../test-helpers/driver';
-import { easesOut } from '../../test-helpers/frames';
+import { settled } from '../../test-helpers/drivers/driver';
+import { easesOut } from '../../test-helpers/measures/frames';
 import { laidOut } from '../../test-helpers/staging/graph-page';
-import type { RawGlob } from '../../test-helpers/raw-glob';
+import type { RawGlob } from '../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from './test-helpers/scenario-entry';
-import { aProject, beat, inMemory, scene, story } from '../../test-helpers/seed';
-import { theProjectsFolderName } from '../../test-helpers/folders';
+import { aProject, beat, inMemory, scene, story } from '../../test-helpers/seed/seed';
+import { theProjectsFolderName } from '../../test-helpers/folders/folders';
 import { thePage } from '../../test-helpers/staging/staging';
 import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from './graph/card/card.test-page';

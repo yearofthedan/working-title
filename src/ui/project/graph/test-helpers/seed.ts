@@ -1,7 +1,7 @@
 import { openProject, type OpenProject } from '../../../../application/project';
 import { snowflakeExtended } from '../../../../methods/snowflake-extended';
 import type { ProjectStore } from '../../../../ports/project-store';
-import { inMemory, type SeededProject } from '../../../../test-helpers/seed';
+import { inMemory, type SeededProject } from '../../../../test-helpers/seed/seed';
 
 export const anInMemoryProject = async (
   seed?: SeededProject,

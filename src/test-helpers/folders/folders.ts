@@ -1,6 +1,6 @@
-import { fileSystemFolders, type DirectoryPicker } from '../adapters/file-system-folders';
-import { snowflakeExtended } from '../methods/snowflake-extended';
-import type { ProjectsFolder } from '../ports/projects-folder';
+import { fileSystemFolders, type DirectoryPicker } from '../../adapters/file-system-folders';
+import { snowflakeExtended } from '../../methods/snowflake-extended';
+import type { ProjectsFolder } from '../../ports/projects-folder';
 import type { Entry } from './folder';
 
 export const theProjectsFolderName = 'Writing';

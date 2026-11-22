@@ -1,4 +1,4 @@
-import { keyOfPart, refuseThePartsNotRead, type Part } from './narrowing';
+import { keyOfPart, refuseThePartsNotRead, type Part } from '../drivers/narrowing';
 
 export interface FolderEntry {
   readonly role: 'folder';

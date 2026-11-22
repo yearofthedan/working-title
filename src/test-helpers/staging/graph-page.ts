@@ -1,6 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
 import { cardLooks } from '../../ui/project/graph/card/card';
-import { drawn, settled, type AppReads, type Reads } from '../driver';
+import { drawn, settled, type AppReads, type Reads } from '../drivers/driver';
 
 export const readsIn = (root: () => ParentNode): Reads => ({
   drawn: async () => {

@@ -1,6 +1,6 @@
-import type { FacetText, Piece, Project } from '../domain/project';
-import { snowflakeExtended } from '../methods/snowflake-extended';
-import type { ProjectStore } from '../ports/project-store';
+import type { FacetText, Piece, Project } from '../../domain/project';
+import { snowflakeExtended } from '../../methods/snowflake-extended';
+import type { ProjectStore } from '../../ports/project-store';
 import { ids } from './ids';
 
 export type SeededProject = Project;

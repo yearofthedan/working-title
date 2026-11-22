@@ -1,5 +1,5 @@
 import * as browser from 'vite-plus/test/browser';
-import type { AppReads } from '../../../test-helpers/driver';
+import type { AppReads } from '../../../test-helpers/drivers/driver';
 import { appReadsIn } from '../../../test-helpers/staging/graph-page';
 
 export const narrowThePane = (width: number): void => {
