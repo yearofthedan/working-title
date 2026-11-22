@@ -3,10 +3,9 @@ import { heightOf, topOf } from '../../test-helpers/measures';
 
 export const textHeightOf = (field: Element): number => {
   const style = getComputedStyle(field);
-  const box = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce(
-    (sum, side) => sum + Number.parseFloat(style[side as 'paddingTop']),
-    0,
-  );
+  const box = (
+    ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'] as const
+  ).reduce((sum, side) => sum + Number.parseFloat(style[side]), 0);
   return heightOf(field) - box;
 };
 

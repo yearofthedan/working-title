@@ -23,7 +23,11 @@ export interface ScenarioFile {
 }
 
 const rank = { Given: 0, When: 1, Then: 2 } as const;
-const stepKeywords = Object.keys(rank) as (keyof typeof rank)[];
+const isRanked = (keyword: StepKeyword): keyword is 'Given' | 'When' | 'Then' =>
+  keyword === 'Given' || keyword === 'When' || keyword === 'Then';
+const stepKeywords = Object.keys(rank).filter(
+  (keyword): keyword is keyof typeof rank => keyword in rank,
+);
 
 const stepLine = /^(Given|When|Then|And|But) (.+)$/;
 const looksLikeAStep = new RegExp(`^(${stepKeywords.join('|')})\\b`, 'i');
@@ -46,7 +50,16 @@ export const kindOf = (steps: readonly Step[], at: number): StepKind => {
 const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
   const plain = stepLine.exec(line);
   if (plain) {
-    const keyword = plain[1] as StepKeyword;
+    const keyword = plain[1];
+    if (
+      keyword !== 'Given' &&
+      keyword !== 'When' &&
+      keyword !== 'Then' &&
+      keyword !== 'And' &&
+      keyword !== 'But'
+    ) {
+      throw new Error(`Line ${at} reads as a step but has no keyword: ${JSON.stringify(line)}`);
+    }
     if (keyword === 'And') {
       if (soFar.length === 0) throw new Error(`Line ${at} is an "and" with no step before it`);
       return { keyword, phrase: oneLine('A step phrase', plain[2]) };
@@ -60,9 +73,15 @@ const stepIn = (line: string, soFar: readonly Step[], at: number): Step => {
       }
       return { keyword, phrase: oneLine('A step phrase', plain[2]) };
     }
-    if (last && rank[keyword] < rank[last.keyword as keyof typeof rank]) {
+    const lastKeyword = last?.keyword;
+    if (
+      lastKeyword !== undefined &&
+      isRanked(lastKeyword) &&
+      isRanked(keyword) &&
+      rank[keyword] < rank[lastKeyword]
+    ) {
       throw new Error(
-        `Line ${at} is a ${keyword} after a ${last.keyword}: a scenario reads Given, When, Then`,
+        `Line ${at} is a ${keyword} after a ${lastKeyword}: a scenario reads Given, When, Then`,
       );
     }
     return { keyword, phrase: oneLine('A step phrase', plain[2]) };

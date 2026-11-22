@@ -63,7 +63,9 @@ const isFacetText = (value: unknown): value is FacetText =>
 // shortcut: the method and version a stored value names are not compared, until #2 acts on them.
 export const isProject = (value: unknown): value is Project => {
   if (value === null || typeof value !== 'object') return false;
-  const { method, version, pieces, title } = value as Project;
+  if (!('method' in value && 'version' in value && 'pieces' in value && 'title' in value))
+    return false;
+  const { method, version, pieces, title } = value;
   if (typeof method !== 'string' || typeof version !== 'number') return false;
   if (typeof title !== 'string') return false;
   if (!Array.isArray(pieces)) return false;

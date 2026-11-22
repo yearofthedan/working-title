@@ -30,7 +30,7 @@ describe('the test files a project runs', { timeout: 60_000 }, () => {
       ],
       { encoding: 'utf8' },
     );
-    const listed = JSON.parse(run.stdout) as { file: string; projectName: string }[];
+    const listed: { file: string; projectName: string }[] = JSON.parse(run.stdout);
     const projectOf = (file: string) =>
       listed.find((entry) => entry.file === resolve(testFileSamples, file))?.projectName;
 

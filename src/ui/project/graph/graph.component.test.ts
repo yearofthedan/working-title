@@ -22,7 +22,6 @@ import {
   recorded,
   startedTransitions,
 } from './test-helpers/staging';
-import type { RawGlob } from '../../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from '../test-helpers/scenario-entry';
 import { aProject, beat, scene, story } from '../../../test-helpers/seed/seed';
 import { setStyleOn } from '../../../test-helpers/staging/staging';
@@ -1087,13 +1086,10 @@ describe('the motion of a move', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob(
-  '/src/ui/project/graph/scenarios/*.approved.md',
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
-);
+const files = import.meta.glob<string>('/src/ui/project/graph/scenarios/*.approved.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 
 playScenarioFiles(files, () => vitestBrowserDriver(), graphScenarioSteps);

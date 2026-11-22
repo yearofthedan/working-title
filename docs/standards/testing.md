@@ -37,7 +37,7 @@ A language names what the writer does over the driver contract, so one language 
 | Staging | `staging/staging.ts`, `staging/graph-page.ts`, `staging/the-app.ts` | A page or a project the writer cannot make, a wait for the page to lay out, and the app opened on it |
 | Folders | `folders/folder.ts`, `folders/folders.ts` | The folder the writer chose: what it holds, narrowed to the folder or file a step reported, and the folders on the writer's machine standing in for the one the writer picks |
 | Seed | `seed/seed.ts`, `seed/ids.ts`, `seed/toy-method.ts` | A project the writer cannot make, its ids, and a method the code runs in place of a real one |
-| Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/every-file.ts`, `runner/raw-glob.ts` | The scenario file, the step table, and what plays them; the entry beside a component's `scenarios/` folder sits in that component's `test-helpers/` |
+| Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/every-file.ts` | The scenario file, the step table, and what plays them; the entry beside a component's `scenarios/` folder sits in that component's `test-helpers/` |
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
 The paths in the table start at the `test-helpers/` folder that holds the file.
