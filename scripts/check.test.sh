@@ -5,12 +5,6 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 
 make_copy
 run_copy check
-if [ "$status" -ne 0 ]; then
-  printf '\n--- check stdout ---\n' >&2
-  cat "$work/out" >&2
-  printf '\n--- check stderr ---\n' >&2
-  cat "$work/err" >&2
-fi
 expect_status 0 "check succeeds when vp does"
 expect_vp 'check' "check runs vp check from node_modules"
 expect_vp 'depcruise --config .*' "check refuses an import out of turn"
