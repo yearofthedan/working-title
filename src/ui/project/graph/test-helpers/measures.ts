@@ -1,7 +1,7 @@
 import { expect } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { Locator } from 'vite-plus/test/browser';
-import { boxOf } from '../../../../test-helpers/box';
+import { boxOf } from '../../test-helpers/measures';
 import { nameOf } from '../card/card.test-page';
 import { everyCard } from '../graph.test-page';
 

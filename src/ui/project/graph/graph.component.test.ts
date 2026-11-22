@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
-import { bottomOf, heightOf, leftOf, rightOf, topOf, widthOf } from '../../../test-helpers/box';
 import { settled } from '../../../test-helpers/driver';
 import { easesOut } from '../../../test-helpers/frames';
 import {
@@ -13,13 +12,13 @@ import {
   showsAllItsText,
 } from './test-helpers/measures';
 import { arrivalStep, movedBy } from './test-helpers/frames';
-import { laidOut, moving } from '../../../test-helpers/graph-page';
+import { laidOut } from '../../../test-helpers/staging/graph-page';
 import { partWay, recorded, startedTransitions } from './test-helpers/staging';
 import type { RawGlob } from '../../../test-helpers/raw-glob';
-import { playScenarioFiles } from '../../../test-helpers/scenario-entry';
+import { playScenarioFiles } from '../test-helpers/scenario-entry';
 import { aProject, beat, scene, story } from '../../../test-helpers/seed';
-import { narrowThePane, setStyleOn, theViewport } from '../../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
+import { setStyleOn } from '../../../test-helpers/staging/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { nameOf } from './card/card.test-page';
 import { type Writer } from './graph.dsl';
 import { graphScenarioSteps, graphWith } from './graph.harness';
@@ -30,6 +29,8 @@ import {
   theBodyHolds,
   theGraph,
 } from './graph.test-page';
+import { bottomOf, heightOf, leftOf, rightOf, topOf, widthOf } from '../test-helpers/measures';
+import { moving, narrowThePane, theViewport } from '../test-helpers/staging';
 
 const graph = theGraph();
 

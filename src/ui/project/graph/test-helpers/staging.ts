@@ -1,7 +1,8 @@
 import { type Frame } from '../../../../test-helpers/frames';
-import { laidOut, moving } from '../../../../test-helpers/graph-page';
+import { laidOut } from '../../../../test-helpers/staging/graph-page';
 import { nameOf } from '../card/card.test-page';
 import { everyCard } from '../graph.test-page';
+import { moving } from '../../test-helpers/staging';
 
 export interface StartedTransition {
   readonly property: string;

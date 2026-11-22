@@ -1,5 +1,5 @@
 import type { Locator } from 'vite-plus/test/browser';
-import { heightOf, topOf } from '../../../../test-helpers/box';
+import { heightOf, topOf } from '../../test-helpers/measures';
 
 export const textHeightOf = (field: Element): number => {
   const style = getComputedStyle(field);

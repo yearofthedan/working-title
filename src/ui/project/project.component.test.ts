@@ -1,17 +1,14 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
-import { bottomOf, boxOf, heightOf, leftOf, rightOf, topOf, widthOf } from '../../test-helpers/box';
 import { settled } from '../../test-helpers/driver';
 import { easesOut } from '../../test-helpers/frames';
-import { caretOf } from '../../test-helpers/field';
-import { fading, laidOut, moving } from '../../test-helpers/graph-page';
-import { expectVisuallyHidden, expectVisuallyShown } from '../../test-helpers/look';
+import { laidOut } from '../../test-helpers/staging/graph-page';
 import type { RawGlob } from '../../test-helpers/raw-glob';
-import { playScenarioFiles } from '../../test-helpers/scenario-entry';
-import { aProject, beat, holdingSaves, inMemory, scene, story } from '../../test-helpers/seed';
+import { playScenarioFiles } from './test-helpers/scenario-entry';
+import { aProject, beat, inMemory, scene, story } from '../../test-helpers/seed';
 import { theProjectsFolderName } from '../../test-helpers/folders';
-import { aPageWithoutAMain, narrowThePane, thePage } from '../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { thePage } from '../../test-helpers/staging/staging';
+import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';
 import { nameOf, theCard, timesDrawn } from './graph/card/card.test-page';
 import { everyCard } from './graph/graph.test-page';
 import { thePanelOn } from './panel/panel.test-page';
@@ -26,6 +23,20 @@ import {
   theAppWithoutAProject,
 } from './project.harness';
 import { theHeader, thePageHolds } from './project.test-page';
+import {
+  bottomOf,
+  boxOf,
+  caretOf,
+  expectVisuallyHidden,
+  expectVisuallyShown,
+  heightOf,
+  leftOf,
+  rightOf,
+  topOf,
+  widthOf,
+} from './test-helpers/measures';
+import { aPageWithoutAMain, fading, moving, narrowThePane } from './test-helpers/staging';
+import { holdingSaves } from './test-helpers/seed';
 
 const theStory = "A widow hunts the man who sank her husband's ship";
 

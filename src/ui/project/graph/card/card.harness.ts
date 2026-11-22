@@ -1,5 +1,5 @@
 import type { OpenProject, PieceView } from '../../../../application/project';
-import { root } from '../../../../test-helpers/staging';
+import { root } from '../../../test-helpers/staging';
 import type { CardLook } from './card';
 import { renderCard, type Card } from './card.dom';
 

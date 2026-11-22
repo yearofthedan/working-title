@@ -12,7 +12,7 @@ import {
   type Driver,
   type Role,
   type Within,
-} from './driver';
+} from '../../test-helpers/driver';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 import type { PieceView } from '../../../application/project';
-import { heightOf, widthOf } from '../../../test-helpers/box';
 import {
   bottomOfTheTextIn,
   focusWithoutScrolling,
@@ -12,12 +11,12 @@ import {
   writerCanScroll,
 } from './test-helpers/measures';
 import { settled } from '../../../test-helpers/driver';
-import { caretOf } from '../../../test-helpers/field';
-import { theViewport } from '../../../test-helpers/staging';
-import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
+import { theViewport } from '../test-helpers/staging';
+import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { panelWriterOn } from './panel.dsl';
 import { mountThePanel, theAppClosesThePanel, theAppSetsAField, theBeat } from './panel.harness';
 import { keysHeardOnThePage, thePanelOn } from './panel.test-page';
+import { caretOf, heightOf, widthOf } from '../test-helpers/measures';
 
 const writer = panelWriterOn(vitestBrowserDriver(), theBeat.name);
 

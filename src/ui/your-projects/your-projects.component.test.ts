@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { anEmptyFolderNamed, theProjectsFolderName } from '../../test-helpers/folders';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { anEmptyFolderNamed } from '../../test-helpers/folders';
+import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';
 import { yourProjectsWriterOn } from './your-projects.dsl';
 import { mountYourProjects } from './your-projects.harness';
 import { yourProjects } from './your-projects.test-page';
+import { theProjectsFolderName } from '../../test-helpers/folders';
 
 const driver = vitestBrowserDriver();
 const writer = yourProjectsWriterOn(driver);

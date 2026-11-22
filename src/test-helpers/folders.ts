@@ -24,20 +24,6 @@ export const theProjectsFolder = async (): Promise<FileSystemDirectoryHandle> =>
 
 export const anEmptyFolderNamed = async (name: string): Promise<FileSystemDirectoryHandle> =>
   await emptied(await theFolderAt([name]));
-
-export const aFolderHoldingProjects = async (
-  name: string,
-  titles: readonly string[],
-): Promise<void> => {
-  await anEmptyFolderNamed(name);
-  const projects = await aChosenFolderAt(name);
-  for (const title of titles) await projects.start(title);
-};
-
-export const aPickerGivingWhatIsStaged = (path: () => readonly string[]): DirectoryPicker => ({
-  showDirectoryPicker: () => theFolderAt(path()),
-});
-
 export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker =>
   aPickerGivingWhatIsStaged(() => path);
 
@@ -88,3 +74,7 @@ export const theEntriesIn = async (
   }
   return entries;
 };
+
+export const aPickerGivingWhatIsStaged = (path: () => readonly string[]): DirectoryPicker => ({
+  showDirectoryPicker: () => theFolderAt(path()),
+});

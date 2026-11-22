@@ -1,8 +1,0 @@
-import { expect } from 'vite-plus/test';
-import type { Locator } from 'vite-plus/test/browser';
-
-export const expectVisuallyShown = (part: Locator): Promise<void> =>
-  expect.element(part).toHaveStyle({ opacity: '1' });
-
-export const expectVisuallyHidden = (part: Locator): Promise<void> =>
-  expect.element(part).toHaveStyle({ opacity: '0' });

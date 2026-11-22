@@ -9,7 +9,7 @@ export const componentTestRefusals = [
 ];
 
 const theComponentHasATestPage =
-  'Reach the component’s markup through its *.test-page.ts beside its *.dom.ts, or stage the page in src/test-helpers/staging.ts (docs/standards/testing.md).';
+  'Reach the component’s markup through its *.test-page.ts beside its *.dom.ts, or stage the page in src/test-helpers/staging/staging.ts (docs/standards/testing.md).';
 const actsThroughTheWriter =
   'Act through the writer its language gives you, never userEvent (docs/standards/testing.md).';
 
