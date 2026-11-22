@@ -9,8 +9,7 @@ import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
 import { projectsFolderSeesOn, projectsFolderWriterOn } from './projects-folder.dsl';
 import { mountFolderQuestion } from './projects-folder.harness';
 import { whereTheProjectsAreKept } from './projects-folder.test-page';
-import { aFolderHoldingProjects } from '../../test-helpers/folders';
-import { theProjectsFolderName } from '../../../test-helpers/folders/folders';
+import { aFolderHoldingProjects, theProjectsFolderName } from '../../test-helpers/folders';
 
 const driver = vitestBrowserDriver();
 const writer = projectsFolderWriterOn(driver);

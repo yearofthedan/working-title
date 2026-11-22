@@ -1,4 +1,4 @@
-import { type Frame } from '../../../../test-helpers/measures/frames';
+import { type Frame } from '../../test-helpers/frames';
 import { laidOut } from '../../../../test-helpers/staging/graph-page';
 import { nameOf } from '../card/card.test-page';
 import { everyCard } from '../graph.test-page';

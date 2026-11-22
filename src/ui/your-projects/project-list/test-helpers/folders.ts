@@ -1,6 +1,6 @@
 import { folderNameFor } from '../../../../adapters/folder-name';
 import type { ProjectsFolder } from '../../../../ports/projects-folder';
-import { theProjectsFolderName } from '../../../../test-helpers/folders/folders';
+import { theProjectsFolderName } from '../../../test-helpers/folders';
 
 export const aProjectsFolder = (over: Partial<ProjectsFolder> = {}): ProjectsFolder => ({
   name: theProjectsFolderName,

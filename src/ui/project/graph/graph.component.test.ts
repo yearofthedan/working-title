@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 import { commands } from 'vite-plus/test/browser';
 import { settled } from '../../../test-helpers/drivers/driver';
-import { easesOut } from '../../../test-helpers/measures/frames';
+import { easesOut } from '../test-helpers/frames';
 import {
   boxes,
   centreOf,

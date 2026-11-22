@@ -1,4 +1,4 @@
-import { stepInto, type Frame } from '../../../../test-helpers/measures/frames';
+import { stepInto, type Frame } from '../../test-helpers/frames';
 
 export const movedBy = (before: Frame, now: Frame, what: string): number => {
   const was = before.boxes.get(what);

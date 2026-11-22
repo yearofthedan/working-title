@@ -1,4 +1,13 @@
-import { aChosenFolderAt, anEmptyFolderNamed } from '../../test-helpers/folders/folders';
+import {
+  aChosenFolderAt,
+  anEmptyFolderNamed,
+  theFolderAt,
+} from '../../test-helpers/folders/folders';
+
+export const theProjectsFolderName = 'Writing';
+
+export const theProjectsFolder = async (): Promise<FileSystemDirectoryHandle> =>
+  await theFolderAt([theProjectsFolderName]);
 
 export const aFolderHoldingProjects = async (
   name: string,

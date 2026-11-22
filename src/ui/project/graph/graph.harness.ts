@@ -1,7 +1,7 @@
 import * as browser from 'vite-plus/test/browser';
 import { type OpenProject } from '../../../application/project';
 import { type Driver, type Opening } from '../../../test-helpers/drivers/driver';
-import { readsIn } from '../../../test-helpers/staging/graph-page';
+import { readsIn } from '../test-helpers/staging';
 import { anInMemoryProject } from './test-helpers/seed';
 import { type SeededProject } from '../../../test-helpers/seed/seed';
 import { root } from '../../test-helpers/staging';

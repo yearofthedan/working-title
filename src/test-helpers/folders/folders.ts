@@ -3,9 +3,7 @@ import { snowflakeExtended } from '../../methods/snowflake-extended';
 import type { ProjectsFolder } from '../../ports/projects-folder';
 import type { Entry } from './folder';
 
-export const theProjectsFolderName = 'Writing';
-
-const theFolderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
+export const theFolderAt = async (path: readonly string[]): Promise<FileSystemDirectoryHandle> => {
   let folder = await navigator.storage.getDirectory();
   for (const name of path) folder = await folder.getDirectoryHandle(name, { create: true });
   return folder;
@@ -18,22 +16,10 @@ const emptied = async (folder: FileSystemDirectoryHandle): Promise<FileSystemDir
   return folder;
 };
 
-export const theProjectsFolder = async (): Promise<FileSystemDirectoryHandle> =>
-  await theFolderAt([theProjectsFolderName]);
-
 export const anEmptyFolderNamed = async (name: string): Promise<FileSystemDirectoryHandle> =>
   await emptied(await theFolderAt([name]));
 export const aPickerGivingTheFolder = (...path: readonly string[]): DirectoryPicker =>
   aPickerGivingWhatIsStaged(() => path);
-
-export const aPickerTheWriterCancels: DirectoryPicker = {
-  showDirectoryPicker: () => Promise.reject(new DOMException('nothing chosen', 'AbortError')),
-};
-
-export const aPickerThatFails: DirectoryPicker = {
-  showDirectoryPicker: () => Promise.reject(new Error('the folder could not be opened')),
-};
-
 export const aChooserGivingTheFolder = (...path: readonly string[]) =>
   fileSystemFolders(snowflakeExtended, aPickerGivingTheFolder(...path));
 

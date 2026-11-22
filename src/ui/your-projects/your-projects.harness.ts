@@ -2,7 +2,7 @@ import type { ProjectsFolderChooser } from '../../application/project';
 import { aChooserGivingTheFolder } from '../../test-helpers/folders/folders';
 import { root } from '../test-helpers/staging';
 import { renderYourProjects } from './your-projects.dom';
-import { theProjectsFolderName } from '../../test-helpers/folders/folders';
+import { theProjectsFolderName } from '../test-helpers/folders';
 
 export interface Staged {
   readonly chooser?: ProjectsFolderChooser;

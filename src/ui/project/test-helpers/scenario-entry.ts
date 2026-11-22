@@ -2,10 +2,11 @@ import { describe, it } from 'vite-plus/test';
 import * as browser from 'vite-plus/test/browser';
 import type { Driver } from '../../../test-helpers/drivers/driver';
 import { printing } from '../../../test-helpers/folders/folder';
-import { theEntriesIn, theProjectsFolder } from '../../../test-helpers/folders/folders';
+import { theEntriesIn } from '../../../test-helpers/folders/folders';
 import { playScenarios, type Runner } from '../../../test-helpers/runner/play';
 import { readScenarioFile } from '../../../test-helpers/runner/scenario-file';
 import type { StepAction } from '../../../test-helpers/runner/steps';
+import { theProjectsFolder } from '../../test-helpers/folders';
 
 declare const __SCENARIO_APPROVE__: string;
 

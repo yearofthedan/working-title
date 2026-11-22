@@ -3,15 +3,14 @@ import {
   aChosenFolderAt,
   anEmptyFolderNamed,
   theEntriesIn,
-  theProjectsFolder,
 } from '../../../../test-helpers/folders/folders';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { thePauseBeforeReading } from './start-a-project';
 import { startAProjectWriterOn } from './start-a-project.dsl';
 import { mountStartRow } from './start-a-project.harness';
 import { theStartRow } from './start-a-project.test-page';
-import { theProjectsFolderName } from '../../../../test-helpers/folders/folders';
 import { aProjectsFolder } from '../test-helpers/folders';
+import { theProjectsFolder, theProjectsFolderName } from '../../../test-helpers/folders';
 
 const driver = vitestBrowserDriver();
 const writer = startAProjectWriterOn(driver);

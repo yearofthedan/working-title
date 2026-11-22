@@ -1,6 +1,6 @@
 import * as browser from 'vite-plus/test/browser';
-import type { AppReads } from '../../../test-helpers/drivers/driver';
-import { appReadsIn } from '../../../test-helpers/staging/graph-page';
+import { cardLooks } from '../graph/card/card';
+import { drawn, settled, type AppReads, type Reads } from '../../../test-helpers/drivers/driver';
 
 export const narrowThePane = (width: number): void => {
   document.querySelector('main')!.style.width = `${width}px`;
@@ -14,6 +14,19 @@ export const aPageWithoutAMain = (): Document => {
   document.body.replaceChildren();
   return document;
 };
+
+export const readsIn = (root: () => ParentNode): Reads => ({
+  drawn: async () => {
+    await settled();
+    return drawn(cardLooks, root());
+  },
+});
+
+export const appReadsIn = (root: () => ParentNode): AppReads => ({
+  ...readsIn(root),
+  path: async () =>
+    browser.page.getByRole('navigation', { name: 'Where you are' }).element().textContent ?? '',
+});
 
 export const appReadsOnThePage = (): AppReads => appReadsIn(() => document);
 

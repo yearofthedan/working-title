@@ -251,7 +251,7 @@ refused "a test that is not a component test is refused"
 
 rm -rf "$project/src" "$project/e2e"
 write src/domain/story.ts 'export type Story = { summary: string };'
-write src/test-helpers/measures/frames.ts 'export const easesOut = (easing = ""): boolean => easing === "ease-out";'
+write src/test-helpers/frames.ts 'export const easesOut = (easing = ""): boolean => easing === "ease-out";'
 write src/ui/graph/test-helpers/measures.ts 'export const heightOf = (element: Element): number => element.clientHeight;'
 write src/ui/graph/graph.component.test.ts "import { heightOf } from './test-helpers/measures';
 export const judged = heightOf;"
@@ -286,12 +286,12 @@ run_layers
 refused "a parent reaching a child's test-helpers/ is refused"
 
 rm -f "$project/src/ui/your-projects/your-projects.harness.ts"
-write src/domain/project.test.ts "import { easesOut } from '../test-helpers/measures/frames';
+write src/domain/project.test.ts "import { easesOut } from '../test-helpers/frames';
 export const judged = easesOut;"
 run_layers
 allowed "a file anywhere in src/ reaching src/test-helpers/ is allowed"
 
-write e2e/journey.spec.ts "import { easesOut } from '../src/test-helpers/measures/frames';
+write e2e/journey.spec.ts "import { easesOut } from '../src/test-helpers/frames';
 export const measured = easesOut;"
 run_layers
 allowed "e2e/ reaching src/test-helpers/ is allowed"

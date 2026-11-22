@@ -33,7 +33,6 @@ const kindPaths = {
   folders: '^src/test-helpers/folders/',
   staging: '^src/test-helpers/staging/',
   seed: '^src/test-helpers/seed/',
-  measures: '^src/test-helpers/measures/',
   adapters: '^src/adapters/',
   methods: '^src/methods/',
   application: '^src/application/',
@@ -42,7 +41,7 @@ const kindPaths = {
 };
 
 const kindRules = Object.entries({
-  drivers: ['staging', 'folders', 'runner', 'seed', 'measures'],
+  drivers: ['staging', 'folders', 'runner', 'seed'],
   staging: ['folders', 'runner', 'adapters', 'methods'],
   folders: ['staging', 'runner'],
   runner: ['staging', 'seed', 'adapters', 'methods', 'application', 'domain'],

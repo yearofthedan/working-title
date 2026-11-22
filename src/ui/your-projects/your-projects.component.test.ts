@@ -4,7 +4,7 @@ import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';
 import { yourProjectsWriterOn } from './your-projects.dsl';
 import { mountYourProjects } from './your-projects.harness';
 import { yourProjects } from './your-projects.test-page';
-import { theProjectsFolderName } from '../../test-helpers/folders/folders';
+import { theProjectsFolderName } from '../test-helpers/folders';
 
 const driver = vitestBrowserDriver();
 const writer = yourProjectsWriterOn(driver);
