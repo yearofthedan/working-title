@@ -69,9 +69,11 @@ beforeAll(() => {
     ['lint', '-c', join(samples, '.oxlintrc.json'), '--format', 'json', ...files],
     { encoding: 'utf8' },
   );
-  const { diagnostics } = JSON.parse(run.stdout) as {
+  const {
+    diagnostics,
+  }: {
     diagnostics: { code: string; filename: string; labels: { span: { line: number } }[] }[];
-  };
+  } = JSON.parse(run.stdout);
   for (const { code, filename, labels } of diagnostics) {
     if (code === 'comments(allowed-prefix)') {
       refused.set(filename, [...(refused.get(filename) ?? []), labels[0]?.span.line ?? 0]);

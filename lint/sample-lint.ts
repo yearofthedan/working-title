@@ -10,7 +10,9 @@ export interface SampleLint {
 }
 
 const isRestriction = (code: string) =>
-  code.startsWith('eslint(no-restricted-') || code.startsWith('eslint-js(no-restricted-');
+  code.startsWith('eslint(no-restricted-') ||
+  code.startsWith('eslint-js(no-restricted-') ||
+  code === 'typescript(consistent-type-assertions)';
 
 const refusalOf = ({ code, help, message }: Diagnostic) =>
   code === 'eslint(no-restricted-globals)' || code.startsWith('eslint-js(') ? message : help;
@@ -24,7 +26,7 @@ export const lintSamples = (root: string, samples: Record<string, string>): Samp
     return path;
   });
   const run = spawnSync('vp', ['lint', '--format', 'json', ...files], { encoding: 'utf8' });
-  const { diagnostics } = JSON.parse(run.stdout) as { diagnostics: Diagnostic[] };
+  const { diagnostics }: { diagnostics: Diagnostic[] } = JSON.parse(run.stdout);
 
   const refusals = new Map<string, string[]>();
   for (const diagnostic of diagnostics) {

@@ -3,7 +3,6 @@ import { commands } from 'vite-plus/test/browser';
 import { settled } from '../../test-helpers/drivers/driver';
 import { easesOut } from './test-helpers/frames';
 import { laidOut } from '../../test-helpers/staging/graph-page';
-import type { RawGlob } from '../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from './test-helpers/scenario-entry';
 import { aProject, beat, inMemory, scene, story } from '../../test-helpers/seed/seed';
 import { theProjectsFolderName } from '../test-helpers/folders';
@@ -654,7 +653,7 @@ describe('the page drawn again', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob('/src/ui/project/scenarios/*.approved.md', {
+const files = import.meta.glob<string>('/src/ui/project/scenarios/*.approved.md', {
   query: '?raw',
   import: 'default',
   eager: true,

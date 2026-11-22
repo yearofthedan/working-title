@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../../../application/project';
-import type { RawGlob } from '../../../../test-helpers/runner/raw-glob';
 import { playScenarioFiles } from '../../test-helpers/scenario-entry';
 import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
@@ -132,14 +131,11 @@ describe('the card mounted alone', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob(
-  '/src/ui/project/graph/card/scenarios/*.approved.md',
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
-);
+const files = import.meta.glob<string>('/src/ui/project/graph/card/scenarios/*.approved.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 
 playScenarioFiles(
   files,

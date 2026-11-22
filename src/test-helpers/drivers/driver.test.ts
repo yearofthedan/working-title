@@ -116,6 +116,8 @@ describe('clicking a part', () => {
         return Promise.resolve();
       },
     };
+    // workaround: a partial stand-in for Finds; remove when the driver test constructs a real Finds
+    // oxlint-disable-next-line typescript/consistent-type-assertions
     const page = { getByRole: () => ({ ...part, getByRole: () => part }) } as unknown as Finds;
     await clicking(page)('group', 'Beat 2', undefined, at);
     return seen;

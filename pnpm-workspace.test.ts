@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs';
 import { expect, it } from 'vite-plus/test';
 
 it('the install cutoff and the update schedule wait the same span', () => {
-  const renovate = JSON.parse(readFileSync('renovate.json', 'utf8')) as {
+  const renovate: {
     minimumReleaseAge: string;
-  };
+  } = JSON.parse(readFileSync('renovate.json', 'utf8'));
   const cutoff = /^minimumReleaseAge:\s*(\d+)$/m.exec(readFileSync('pnpm-workspace.yaml', 'utf8'));
   const waited = /^(\d+) days?$/.exec(renovate.minimumReleaseAge);
   expect(cutoff?.[1], 'pnpm-workspace.yaml has no minimumReleaseAge').toBeDefined();

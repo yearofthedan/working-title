@@ -31,6 +31,8 @@ interface Aria {
   renderAriaTree(node: unknown): string;
 }
 
+// workaround: @vitest/browser 5.1.0 leaves utils.aria untyped; remove when typed
+// oxlint-disable-next-line typescript/consistent-type-assertions
 const { utils } = browser as unknown as { utils: { aria: Aria } };
 
 const keysFor = (key: string): string => {
@@ -67,7 +69,10 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     },
     click: clicking(within),
     focus: async (role, name, group) => {
-      (found(role, name, group).element() as HTMLElement).focus();
+      const element = found(role, name, group).element();
+      if (!(element instanceof HTMLElement))
+        throw new Error('the focused element is not an HTMLElement');
+      element.focus();
     },
     hover: async (role, name, group) => {
       await found(role, name, group).hover();
@@ -79,9 +84,12 @@ export const vitestBrowserDriver = (graph?: string, reads: 'main' | 'page' = 'ma
     clickAway: async () => {
       await browser.userEvent.click(browser.page.getByRole('banner').first());
     },
-    value: async (label, group) =>
-      (rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element() as HTMLTextAreaElement)
-        .value,
+    value: async (label, group) => {
+      const element = rootIn(group).getByLabel(wholeNameAnyCase(label)).first().element();
+      if (!(element instanceof HTMLTextAreaElement))
+        throw new Error('the value read is not a field the writer types in');
+      return element.value;
+    },
     focusIs: async (role, name, group) =>
       found(role, name, group).first().element() === document.activeElement,
     tree,

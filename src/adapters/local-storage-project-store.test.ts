@@ -3,7 +3,6 @@ import { elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
 import { ids } from '../test-helpers/seed/ids';
-import type { RawGlob } from '../test-helpers/runner/raw-glob';
 import { projectStore } from './local-storage-project-store';
 
 const key = 'working-title:project';
@@ -30,21 +29,23 @@ beforeEach(() => {
 const opened = async (store: ProjectStore = projectStore(storage)): Promise<Project | undefined> =>
   store.load();
 
-const longSentences = (import.meta as unknown as RawGlob).glob(
-  '/scripts/_screenshot-long-sentences.json',
-  { query: '?raw', import: 'default', eager: true },
-);
+const longSentences = import.meta.glob<string>('/scripts/_screenshot-long-sentences.json', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 
-const eightScenes = (import.meta as unknown as RawGlob).glob(
-  '/scripts/_screenshot-eight-scenes.json',
-  { query: '?raw', import: 'default', eager: true },
-);
+const eightScenes = import.meta.glob<string>('/scripts/_screenshot-eight-scenes.json', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 
 const projectIn = (files: Record<string, string>): string => {
   const [raw] = Object.values(files);
-  const state = JSON.parse(String(raw)) as {
+  const state: {
     origins: { localStorage: { name: string; value: string }[] }[];
-  };
+  } = JSON.parse(String(raw));
   return (
     state.origins.flatMap(({ localStorage: items }) => items).find(({ name }) => name === key)
       ?.value ?? ''

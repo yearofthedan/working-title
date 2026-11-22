@@ -95,7 +95,8 @@ export const narrowing = (lines: readonly string[], parts: readonly Part[]): rea
     if (found.length === 0) continue;
     read.add(keyOfPart(part));
     for (const at of found) {
-      const node = nodes[at] as Node;
+      const node = nodes[at];
+      if (node === undefined) continue;
       for (const line of thePathTo(node)) kept.add(line);
       for (let where = at; where < lines.length; where += 1) {
         if (under(belongs[where], node)) kept.add(where);
