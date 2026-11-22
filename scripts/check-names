@@ -62,7 +62,7 @@ echo "every name of the $count tracked files follows the convention"
 : >"$work/phrases"
 git grep -l --cached 'StepAction' -- '*.ts' | while IFS= read -r file; do
   case "$file" in
-  src/test-helpers/* | */test-helpers/* | *.dsl.ts) continue ;;
+  */test-helpers/* | *.dsl.ts) continue ;;
   esac
   echo "$file" >>"$work/phrases"
 done

@@ -30,8 +30,8 @@ beforeAll(() => {
   const samples: Record<string, string> = {
     'sample-no-locator.ts': callingOnPage('reload'),
     'driver-acting-on-a-locator/sample.driver.ts': actingOnALocator,
-    'finding/test-helpers/driver.ts': callingOnPage('getByText'),
-    'acting/test-helpers/driver.ts': actingOnALocator,
+    'finding/test-helpers/drivers/driver.ts': callingOnPage('getByText'),
+    'acting/test-helpers/drivers/driver.ts': actingOnALocator,
   };
   for (const call of calls) {
     samples[`sample-${call}.ts`] = callingOnPage(call);
@@ -98,12 +98,12 @@ describe('the language', { timeout: 60_000 }, () => {
 
 describe('the driver contract', { timeout: 60_000 }, () => {
   it('the driver contract calling page.getByText fails lint', () => {
-    expect(lint.errorsIn('finding/test-helpers/driver.ts')).toEqual([
+    expect(lint.errorsIn('finding/test-helpers/drivers/driver.ts')).toEqual([
       expect.stringContaining('by role or label'),
     ]);
   });
 
   it('the driver contract finding by role passes lint', () => {
-    expect(lint.errorsIn('acting/test-helpers/driver.ts')).toEqual([]);
+    expect(lint.errorsIn('acting/test-helpers/drivers/driver.ts')).toEqual([]);
   });
 });

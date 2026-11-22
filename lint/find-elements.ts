@@ -48,7 +48,8 @@ export const pageSelectorActions = [
 ];
 
 const theLanguageCallsTheDriver = 'The language calls the driver, and finds no element itself.';
-const findsElementsInADriver = 'Find elements in a driver, src/test-helpers/*.driver.ts.';
+const findsElementsInADriver =
+  'Find elements in a driver, src/test-helpers/drivers/driver.ts and any *.driver.ts.';
 const aDriverFindsByRoleOrLabel = 'A driver finds elements by role or label, as the writer does.';
 
 const restricted = (anyObject: string[], message: string) => [
@@ -96,7 +97,7 @@ export const findElements: Override[] = [
     },
   },
   {
-    files: ['**/*.driver.ts', '**/test-helpers/driver.ts'],
+    files: ['**/*.driver.ts', '**/test-helpers/drivers/driver.ts'],
     rules: {
       'no-restricted-properties': [
         'error',

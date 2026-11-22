@@ -30,14 +30,14 @@ A language names what the writer does over the driver contract, so one language 
 | --- | --- | --- |
 | Language | `*.dsl.ts` beside its component, `e2e/journey.dsl.ts` | What the writer does and sees, in the [ubiquitous language](../domain/ubiquitous-language.md). The app's builds on the graph's and the panel's |
 | Driver contract | `drivers/driver.ts`, `drivers/narrowing.ts` | What a language asks of a driver, and finding by role and label |
-| Protocol driver | `drivers/*.driver.ts` | One per runner: Vitest's browser mode, Playwright |
+| Protocol driver | `drivers/*.driver.ts` | One per runner: Playwright here; Vitest's browser driver sits in `src/ui/test-helpers/`, since only `src/ui/` reads it |
 | Test page | `*.test-page.ts` beside its component | A Locator for each part, by role or label where one exists |
 | Harness | `*.harness.ts` beside its component | The component mounted alone, with the data and hooks a test needs |
-| Measures | `measures/box.ts`, `measures/field.ts`, `measures/look.ts`, `measures/frames.ts` | Measuring a part for a style, geometry or timing case: its box and scrolling, a field's caret and text, and whether it is drawn shown or hidden |
+| Measures | `measures/frames.ts` | Measuring a part for a style, geometry or timing case; here, the boxes sampled frame by frame for motion |
 | Staging | `staging/staging.ts`, `staging/graph-page.ts`, `staging/the-app.ts` | A page or a project the writer cannot make, and the helpers that open and read the app |
 | Folders | `folders/folder.ts`, `folders/folders.ts` | The folder the writer chose: what it holds, narrowed to the folder or file a step reported, and the folders on the writer's machine standing in for the one the writer picks |
 | Seed | `seed/seed.ts`, `seed/ids.ts`, `seed/toy-method.ts` | A project the writer cannot make, its ids, and a method the code runs in place of a real one |
-| Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/scenario-entry.ts`, `runner/every-file.ts`, `runner/raw-glob.ts` | The scenario file, the step table, and what plays them |
+| Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/every-file.ts`, `runner/raw-glob.ts` | The scenario file, the step table, and what plays them; the entry beside a component's `scenarios/` folder sits in that component's `test-helpers/` |
 | Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
 
 The paths in the table start at the `test-helpers/` folder that holds the file.

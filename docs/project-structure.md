@@ -43,18 +43,18 @@ A component reaches another only through that component's `render<Component>`, a
 
 ## Test code
 
-A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it: a component's own folder where one component uses it, `src/ui/` where several do, and [src/test-helpers/](../src/test-helpers/) for what reaches beyond `src/ui/`, such as `e2e/` and the app's own layers. Each folder holds one file per kind it needs — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. [Testing](standards/testing.md#where-test-code-goes) lists every kind and what it holds, and `./do layers` refuses a file that reaches a `test-helpers/` folder from outside the folder holding it. It also refuses a component's test code reaching another component's test code outside one it holds, except `src/ui/project/`'s reach into `src/ui/your-projects/`'s test page and language, which tests start-up.
+A helper sits in the `test-helpers/` folder of the nearest folder that holds every file importing it: a component's own folder where one component uses it, `src/ui/` where several do, and [src/test-helpers/](../src/test-helpers/) for what reaches beyond `src/ui/`, such as `e2e/` and the app's own layers. Each folder holds one file per kind it needs — `measures.ts`, `seed.ts`, `staging.ts` — and a whole file that moves into one keeps its name, such as `graph-page.ts`. [Testing](standards/testing.md#where-test-code-goes) lists every kind and what it holds, and `./do layers` refuses a file that reaches a `test-helpers/` folder from outside the folder holding it. A `test-helpers/` file reads the domain, the ports and the adapters freely, since test code is none of the app's layers, and nothing the app is made of reads it. It also refuses a component's test code reaching another component's test code outside one it holds, except `src/ui/project/`'s reach into `src/ui/your-projects/`'s test page and language, which tests start-up.
 
 [src/test-helpers/](../src/test-helpers/) is a folder per kind:
 
 | Folder | Holds |
 | --- | --- |
-| `drivers/` | The driver contract and what a language reads by, and the Vitest browser and Playwright drivers |
-| `measures/` | The measures, including `frames.ts`, the boxes sampled frame by frame for motion |
+| `drivers/` | The driver contract and what a language reads by, and the Playwright driver; the Vitest browser driver sits in [src/ui/test-helpers/](../src/ui/test-helpers/), where only `src/ui/` reads it |
+| `measures/` | `frames.ts`, the boxes sampled frame by frame for motion; a component's own measures sit in its `test-helpers/measures.ts` |
 | `staging/` | `staging.ts` for a page, and `graph-page.ts` and `the-app.ts` for the app the writer cannot make |
 | `folders/` | `folder.ts`, which prints what the folder the writer chose holds and narrows it to the folder or file a step reported, and the folders on the writer's machine |
 | `seed/` | A project, its ids, and a method the code runs in place of a real one |
-| `runner/` | The scenario file, the step table and the runner, the entry each component test with a `scenarios/` folder calls, and the files they walk |
+| `runner/` | The scenario file, the step table and the runner, and the files they walk; the entry each component test with a `scenarios/` folder calls is that component's own `test-helpers/scenario-entry.ts` |
 
 [locators.ts](../src/test-helpers/locators.ts) and [matchers.ts](../src/test-helpers/matchers.ts) are the registrations every browser test loads, so they stay at the top of the folder.
 
