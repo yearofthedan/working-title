@@ -5,7 +5,7 @@
 
 - **A test sits beside the code it tests**, named after it: `piece.test.ts` beside `piece.ts`, `scripts/audit.test.sh` beside `scripts/audit`.
 - `./do test` runs the tests, `./do e2e` the journeys, and `./do check` every local check, the tests and the journeys among them. A shell suite beside a task runs under `./do test`, and so under `./do check`: `do.test.ts` spawns each one. What the checks are is `scripts/check`, which is what `./do` lists.
-- `./do coverage` runs the node and browser tests and writes a text summary and an HTML report of `src/` to `coverage/`. It measures that a line ran, not that a test checked its result; `./do mutate` checks that, for the files `stryker.config.mjs` names.
+- `./do coverage` runs the node and browser tests and the journeys, and writes one text summary and one HTML report of `src/` to `coverage/`. It measures that a line ran, not that a test checked its result; `./do mutate` checks that, for the files `stryker.config.mjs` names.
 - **Every commit runs the checks first**: all of them, or only the docs, links and names checks for a change to Markdown alone outside `src/` and `e2e/`. An agent's commit that would skip them is refused.
 
 ## Levels
@@ -39,7 +39,7 @@ A language names what the writer does over the driver contract, so one language 
 | Folders | `folders/folder.ts`, `folders/folders.ts` | The folder the writer chose: what it holds, narrowed to the folder or file a step reported, and the folders on the writer's machine standing in for the one the writer picks |
 | Seed | `seed/seed.ts`, `seed/ids.ts`, `seed/toy-method.ts` | A project the writer cannot make, its ids, and a method the code runs in place of a real one |
 | Runner | `runner/play.ts`, `runner/steps.ts`, `runner/scenario-file.ts`, `runner/every-file.ts` | The scenario file, the step table, and what plays them; the entry beside a component's `scenarios/` folder sits in that component's `test-helpers/` |
-| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build |
+| Spec fixture | `e2e/writer.ts`, `e2e/private-build.ts` | Playwright fixtures: the writer, and a served copy of the build; the writer collects each journey's coverage when asked |
 
 The paths in the table start at the `test-helpers/` folder that holds the file.
 

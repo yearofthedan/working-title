@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
 import { projectStorageKey } from '../src/adapters/local-storage-project-store';
@@ -87,6 +89,21 @@ const fixtureOn = (page: Page, treeRoot: 'main' | 'page'): Fixture => {
 
 export const test = base.extend<{ writer: Fixture; treeRoot: 'main' | 'page' }>({
   treeRoot: ['main', { option: true }],
+  page: async ({ page }, use, testInfo) => {
+    const dir = process.env.COVERAGE_DIR;
+    if (dir === undefined) {
+      await use(page);
+      return;
+    }
+    await page.coverage.startJSCoverage({ resetOnNavigation: false });
+    try {
+      await use(page);
+    } finally {
+      const coverage = await page.coverage.stopJSCoverage();
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, `${testInfo.testId}.json`), JSON.stringify(coverage));
+    }
+  },
   writer: async ({ page, treeRoot }, use) => {
     await use(fixtureOn(page, treeRoot));
   },
