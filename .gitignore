@@ -7,6 +7,7 @@ playwright-report/
 coverage/
 e2e/lint-sample-*/
 src/ui/lint-sample-*/
+lint/lint-sample-*/
 lint-comments-sample-*/
 reports/
 screenshots/

@@ -59,6 +59,7 @@ export default defineConfig({
     rules: {
       'comments/allowed-prefix': 'error',
       'unicorn/no-thenable': 'error',
+      'typescript/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
     },
     overrides,
   },

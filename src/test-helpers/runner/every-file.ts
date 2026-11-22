@@ -7,7 +7,7 @@ const entriesIn = (dir: string): Dirent[] => {
   try {
     return readdirSync(dir, { withFileTypes: true });
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return [];
     throw error;
   }
 };

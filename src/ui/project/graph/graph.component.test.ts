@@ -13,8 +13,15 @@ import {
 } from './test-helpers/measures';
 import { arrivalStep, movedBy } from './test-helpers/frames';
 import { laidOut } from '../../../test-helpers/staging/graph-page';
-import { partWay, recorded, startedTransitions } from './test-helpers/staging';
-import type { RawGlob } from '../../../test-helpers/runner/raw-glob';
+import {
+  finishMoves,
+  frameNow,
+  holdMoves,
+  holdNewMovesAtTheirStart,
+  partWay,
+  recorded,
+  startedTransitions,
+} from './test-helpers/staging';
 import { playScenarioFiles } from '../test-helpers/scenario-entry';
 import { aProject, beat, scene, story } from '../../../test-helpers/seed/seed';
 import { setStyleOn } from '../../../test-helpers/staging/staging';
@@ -1020,28 +1027,25 @@ describe('the motion of a move', () => {
     expect(arrivalStep(frames)).toBeLessThan(10);
   });
 
-  it('starts a second move part-way through the first without jumping a card', async () => {
+  it('starts a second move from where the first has got to, without jumping a card', async () => {
     const { stage, writer } = graphWith(aProject(story(beat(), beat())));
     await stage.fresh();
-
-    let pressed = 0;
-    const frames = await recorded(async () => {
-      await writer.clicks('Beat 1');
-      await laidOut();
-      pressed = performance.now();
-      await writer.presses('ArrowRight');
-      await settled();
-    });
-
+    await writer.clicks('Beat 1');
+    await partWay();
+    holdMoves();
+    expect(moving().length).toBeGreaterThan(0);
     const storyName = nameOf(graph.card('card', 'The story').card.element());
-    const before = frames.findLast((frame) => frame.at <= pressed)!;
-    const after = frames.find((frame) => frame.at > pressed)!;
-    const landing = frames.at(-1)!;
+    const before = frameNow();
 
-    const step = movedBy(before, after, storyName);
-    const stillToGo = movedBy(before, landing, storyName);
+    await writer.presses('ArrowRight');
+    await laidOut();
+    expect(holdNewMovesAtTheirStart()).toBeGreaterThan(0);
+    const restarted = frameNow();
+    finishMoves();
+    const landed = frameNow();
 
-    expect(step).toBeLessThan(stillToGo / 2);
+    expect(movedBy(before, restarted, storyName)).toBeLessThan(1);
+    expect(movedBy(before, landed, storyName)).toBeGreaterThan(1);
   });
 
   it('takes quick arrow presses while a move runs, landing on the piece the last one aims at and running to its end', async () => {
@@ -1082,13 +1086,10 @@ describe('the motion of a move', () => {
   });
 });
 
-const files = (import.meta as unknown as RawGlob).glob(
-  '/src/ui/project/graph/scenarios/*.approved.md',
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
-);
+const files = import.meta.glob<string>('/src/ui/project/graph/scenarios/*.approved.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 
 playScenarioFiles(files, () => vitestBrowserDriver(), graphScenarioSteps);

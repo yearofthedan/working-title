@@ -31,6 +31,6 @@ export const easesOut = (easing = ''): boolean => {
   if (easing === 'ease-out') return true;
   const curve = /^cubic-bezier\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)$/.exec(easing);
   if (curve === null) return false;
-  const [, x1, y1, x2, y2] = curve.map(Number) as [number, number, number, number, number];
+  const [, x1, y1, x2, y2] = curve.map(Number);
   return y1 >= x1 && y2 >= x2 && (y1 > x1 || y2 > x2);
 };

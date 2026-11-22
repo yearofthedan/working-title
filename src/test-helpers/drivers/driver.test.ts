@@ -116,6 +116,8 @@ describe('clicking a part', () => {
         return Promise.resolve();
       },
     };
+    // shortcut: a stand-in for Finds rather than the real one, until the driver test builds a real Finds
+    // oxlint-disable-next-line typescript/consistent-type-assertions
     const page = { getByRole: () => ({ ...part, getByRole: () => part }) } as unknown as Finds;
     await clicking(page)('group', 'Beat 2', undefined, at);
     return seen;
