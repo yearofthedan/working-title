@@ -18,16 +18,18 @@ export const startedTransitions = (): readonly StartedTransition[] =>
       easing: animation.effect?.getComputedTiming().easing ?? '',
     }));
 
+export const frameNow = (): Frame => ({
+  at: performance.now(),
+  running: moving().length,
+  boxes: new Map(everyCard().map((card) => [nameOf(card), card.getBoundingClientRect()])),
+});
+
 export const recorded = async (play: () => Promise<void>): Promise<readonly Frame[]> => {
   const frames: Frame[] = [];
   const { promise, resolve } = Promise.withResolvers<void>();
   let sampling = true;
   const tick = (): void => {
-    frames.push({
-      at: performance.now(),
-      running: moving().length,
-      boxes: new Map(everyCard().map((card) => [nameOf(card), card.getBoundingClientRect()])),
-    });
+    frames.push(frameNow());
     if (sampling) requestAnimationFrame(tick);
     else resolve();
   };
@@ -43,4 +45,19 @@ export const partWay = async (): Promise<void> => {
     await laidOut();
     if (moving().some((animation) => Number(animation.currentTime ?? 0) > 100)) return;
   }
+};
+
+export const holdMoves = (): void => {
+  for (const move of moving()) move.pause();
+};
+
+export const holdNewMovesAtTheirStart = (): void => {
+  for (const move of moving().filter(({ playState }) => playState === 'running')) {
+    move.pause();
+    move.currentTime = 0;
+  }
+};
+
+export const finishMoves = (): void => {
+  for (const move of moving()) move.finish();
 };
