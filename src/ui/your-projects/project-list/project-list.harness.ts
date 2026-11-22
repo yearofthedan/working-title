@@ -1,5 +1,5 @@
 import type { ProjectsFolder } from '../../../application/project';
-import { aProjectsFolder } from '../../../test-helpers/folders';
+import { aProjectsFolder } from './test-helpers/folders';
 import { root } from '../../test-helpers/staging';
 import { renderProjectList } from './project-list.dom';
 

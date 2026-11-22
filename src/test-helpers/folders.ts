@@ -1,5 +1,4 @@
 import { fileSystemFolders, type DirectoryPicker } from '../adapters/file-system-folders';
-import { folderNameFor } from '../adapters/folder-name';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectsFolder } from '../ports/projects-folder';
 import type { Entry } from './folder';
@@ -43,21 +42,6 @@ export const aChosenFolderAt = async (...path: readonly string[]): Promise<Proje
   if (chosen === undefined) throw new Error('the picker gave nothing');
   return chosen;
 };
-
-export const aChooserTheWriterCancels = () =>
-  fileSystemFolders(snowflakeExtended, aPickerTheWriterCancels);
-
-export const aChooserThatFails = () => fileSystemFolders(snowflakeExtended, aPickerThatFails);
-
-export const aChooserWithNoPicker = () => fileSystemFolders(snowflakeExtended, {});
-
-export const aProjectsFolder = (over: Partial<ProjectsFolder> = {}): ProjectsFolder => ({
-  name: theProjectsFolderName,
-  ownTitle: () => Promise.resolve(undefined),
-  freeNameFor: (title) => Promise.resolve(folderNameFor(title)),
-  start: (title) => Promise.resolve(folderNameFor(title)),
-  ...over,
-});
 
 export const theEntriesIn = async (
   folder: FileSystemDirectoryHandle,
