@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { aProject, beat, story } from '../src/test-helpers/seed';
+import { aProject, beat, story } from '../src/test-helpers/seed/seed';
 import { expect, test } from './writer';
 
 const theKeys = 'Enter to write · Tab for the next row · ← → along the row · ↑ ↓ a level';

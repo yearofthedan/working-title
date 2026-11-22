@@ -1,12 +1,12 @@
-import type { AppReads, Driver, Opening } from '../../test-helpers/driver';
-import { aProject, beat, story, type SeededProject } from '../../test-helpers/seed';
+import type { AppReads, Driver, Opening } from '../../test-helpers/drivers/driver';
+import { aProject, beat, story, type SeededProject } from '../../test-helpers/seed/seed';
 import {
   reporting,
   reportingFocus,
   wholeTree,
   type Evidence,
   type StepAction,
-} from '../../test-helpers/steps';
+} from '../../test-helpers/runner/steps';
 import {
   besideTheGraph,
   clicking,

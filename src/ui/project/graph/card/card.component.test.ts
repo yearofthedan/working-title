@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { PieceView } from '../../../../application/project';
-import { bottomOf, topOf } from '../../../../test-helpers/box';
-import type { RawGlob } from '../../../../test-helpers/raw-glob';
-import { playScenarioFiles } from '../../../../test-helpers/scenario-entry';
-import { vitestBrowserDriver } from '../../../../test-helpers/vitest-browser.driver';
+import type { RawGlob } from '../../../../test-helpers/runner/raw-glob';
+import { playScenarioFiles } from '../../test-helpers/scenario-entry';
+import { vitestBrowserDriver } from '../../../test-helpers/vitest-browser.driver';
 import { cardLooks } from './card';
 import { theCard, timesDrawn } from './card.test-page';
 import {
@@ -15,6 +14,7 @@ import {
   theCardSettles,
 } from './card.harness';
 import { cardSeesOn, cardSteps, cardWriterOn } from './card.dsl';
+import { bottomOf, topOf } from '../../test-helpers/measures';
 
 const theSentence = "A widow hunts the man who sank her husband's ship";
 

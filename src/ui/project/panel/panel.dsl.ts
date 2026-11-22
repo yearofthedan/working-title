@@ -1,4 +1,4 @@
-import type { Driver, Within } from '../../../test-helpers/driver';
+import type { Driver, Within } from '../../../test-helpers/drivers/driver';
 
 export interface PanelWriter {
   closesThePanel(): Promise<void>;

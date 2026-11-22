@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
 import type { Page } from '@playwright/test';
-import { playwrightDriver } from '../src/test-helpers/playwright.driver';
+import { playwrightDriver } from '../src/test-helpers/drivers/playwright.driver';
 import type { PrivateBuild } from './new-version.dsl';
 import { expect, test as base } from './writer';
 

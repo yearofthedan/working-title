@@ -1,13 +1,13 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as base, type Locator, type Page } from '@playwright/test';
 import { projectStorageKey } from '../src/adapters/local-storage-project-store';
-import type { Opening } from '../src/test-helpers/driver';
+import type { Opening } from '../src/test-helpers/drivers/driver';
 import {
   openingANewProjectOn,
   playwrightDriver,
   playwrightReads,
-} from '../src/test-helpers/playwright.driver';
-import type { SeededProject } from '../src/test-helpers/seed';
+} from '../src/test-helpers/drivers/playwright.driver';
+import type { SeededProject } from '../src/test-helpers/seed/seed';
 import { projectSeesOn, type ProjectSees } from '../src/ui/project/project.dsl';
 import { journeyOn, type Journey } from './journey.dsl';
 

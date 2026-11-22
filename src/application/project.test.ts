@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vite-plus/test';
 import { branch, elaborate, newProject, type Project } from '../domain/project';
 import { snowflakeExtended } from '../methods/snowflake-extended';
 import type { ProjectStore } from '../ports/project-store';
-import { ids } from '../test-helpers/ids';
-import { aProject, beat, story } from '../test-helpers/seed';
-import { toyMethod } from '../test-helpers/toy-method';
+import { ids } from '../test-helpers/seed/ids';
+import { aProject, beat, story } from '../test-helpers/seed/seed';
+import { toyMethod } from '../test-helpers/seed/toy-method';
 import { openProject, startProject } from './project';
 
 const rootName = 'Root';

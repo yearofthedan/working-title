@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { aPageFocusedOnSomethingUnnamed } from './staging';
+import { aPageFocusedOnSomethingUnnamed } from '../../test-helpers/staging/staging';
 import { vitestBrowserDriver } from './vitest-browser.driver';
 
 describe('reading a tree while something unnamed holds focus', () => {

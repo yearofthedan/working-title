@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { recording, storyDrawn } from '../../test-helpers/recording';
+import { recording, storyDrawn } from './test-helpers/recording';
 import { projectSeesOn, projectSteps, projectWriterOn } from './project.dsl';
 
 describe('the app language', () => {

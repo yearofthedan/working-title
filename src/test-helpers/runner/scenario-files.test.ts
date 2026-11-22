@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vite-plus/test';
 import { everyFile } from './every-file';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../../..');
 const skip = new Set(['node_modules', '.git', 'dist', 'test-results', '.vitest']);
 
 const anEntryReads = (path: string): boolean =>

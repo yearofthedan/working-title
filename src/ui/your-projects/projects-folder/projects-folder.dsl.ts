@@ -1,5 +1,5 @@
-import type { Driver } from '../../../test-helpers/driver';
-import { reporting, type Evidence } from '../../../test-helpers/steps';
+import type { Driver } from '../../../test-helpers/drivers/driver';
+import { reporting, type Evidence } from '../../../test-helpers/runner/steps';
 
 export interface ProjectsFolderWriter {
   choosesAFolder(): Promise<void>;

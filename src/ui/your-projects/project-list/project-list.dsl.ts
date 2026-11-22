@@ -1,4 +1,4 @@
-import type { Driver } from '../../../test-helpers/driver';
+import type { Driver } from '../../../test-helpers/drivers/driver';
 import {
   startAProjectWriterOn,
   type StartAProjectWriter,

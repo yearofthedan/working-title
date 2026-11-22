@@ -1,4 +1,4 @@
-import type { Part } from './narrowing';
+import type { Part } from '../drivers/narrowing';
 import type { Step } from './scenario-file';
 
 export type Evidence =

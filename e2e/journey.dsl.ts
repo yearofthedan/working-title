@@ -1,6 +1,6 @@
-import type { Opening, ReloadingDriver } from '../src/test-helpers/driver';
-import type { SeededProject } from '../src/test-helpers/seed';
-import type { StepAction } from '../src/test-helpers/steps';
+import type { Opening, ReloadingDriver } from '../src/test-helpers/drivers/driver';
+import type { SeededProject } from '../src/test-helpers/seed/seed';
+import type { StepAction } from '../src/test-helpers/runner/steps';
 import {
   projectSteps,
   projectWriterOn,

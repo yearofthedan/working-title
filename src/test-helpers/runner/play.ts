@@ -1,5 +1,5 @@
-import { narrowing as narrowingTheFolder, namingIds } from './folder';
-import { narrowing } from './narrowing';
+import { narrowing as narrowingTheFolder, namingIds } from '../folders/folder';
+import { narrowing } from '../drivers/narrowing';
 import { OBSERVED, kindOf, readScenarioFile, withObserved, type Scenario } from './scenario-file';
 import { stepTable, type Evidence, type StepAction } from './steps';
 

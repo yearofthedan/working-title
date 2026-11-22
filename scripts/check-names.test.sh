@@ -150,7 +150,7 @@ stage
 names
 expect_status 0 "a tree whose names follow the convention passes, before the step phrases are read"
 
-write src/ui/focus/actions.ts "import type { StepAction } from '../../test-helpers/steps';
+write src/ui/focus/actions.ts "import type { StepAction } from '../../test-helpers/runner/steps';
 export const actions: Record<string, StepAction> = {};"
 stage
 names
@@ -159,25 +159,32 @@ expect_out '^src/ui/focus/actions\.ts$' "the file that is not a language file is
 expect_err 'is a \*\.dsl\.ts' "the failure states the rule"
 
 rm "$project/src/ui/focus/actions.ts"
-write src/ui/focus/actions.dsl.ts "import type { StepAction } from '../../test-helpers/steps';
+write src/ui/focus/actions.dsl.ts "import type { StepAction } from '../../test-helpers/runner/steps';
 export const actions: Record<string, StepAction> = {};"
 stage
 names
 expect_status 0 "a language file naming StepAction passes"
-expect_out 'every file naming StepAction is a \*\.dsl\.ts, outside src/test-helpers/' \
+expect_out 'every file naming StepAction is a \*\.dsl\.ts, outside a test-helpers/ folder' \
   "a pass says the step phrases were read"
 
-write src/test-helpers/steps.ts 'export type StepAction = () => void;'
-write src/test-helpers/play.test.ts "import type { StepAction } from './steps';
+write src/test-helpers/runner/steps.ts 'export type StepAction = () => void;'
+write src/test-helpers/runner/play.test.ts "import type { StepAction } from './steps';
 export const actions: Record<string, StepAction> = {};"
 stage
 names
-expect_status 0 "src/test-helpers/ names StepAction and passes"
-if grep -q '^src/test-helpers/steps\.ts$' "$work/out"; then
+expect_status 0 "a kind folder under src/test-helpers/ names StepAction and passes"
+if grep -q '^src/test-helpers/runner/steps\.ts$' "$work/out"; then
   no "the runner is not named as a file in the wrong layer"
 else
   ok "the runner is not named as a file in the wrong layer"
 fi
+
+rm "$project/src/test-helpers/runner/steps.ts" "$project/src/test-helpers/runner/play.test.ts"
+write src/ui/project/test-helpers/scenario-entry.ts "import type { StepAction } from '../../../test-helpers/runner/steps';
+export const actions: Record<string, StepAction> = {};"
+stage
+names
+expect_status 0 "a component's test-helpers/ names StepAction and passes"
 
 write src/ui/word-count/word-count.dom.ts "export interface WordCount { readonly element: HTMLElement }
 export type Hooks = { readonly done: () => void };

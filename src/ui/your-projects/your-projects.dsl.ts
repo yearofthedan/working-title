@@ -1,5 +1,5 @@
-import type { Driver } from '../../test-helpers/driver';
-import type { StepAction } from '../../test-helpers/steps';
+import type { Driver } from '../../test-helpers/drivers/driver';
+import type { StepAction } from '../../test-helpers/runner/steps';
 import {
   projectsFolderSeesOn,
   projectsFolderWriterOn,

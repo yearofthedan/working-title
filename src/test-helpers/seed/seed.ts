@@ -1,7 +1,6 @@
-import { openProject, type OpenProject } from '../application/project';
-import type { FacetText, Piece, Project } from '../domain/project';
-import { snowflakeExtended } from '../methods/snowflake-extended';
-import type { ProjectStore } from '../ports/project-store';
+import type { FacetText, Piece, Project } from '../../domain/project';
+import { snowflakeExtended } from '../../methods/snowflake-extended';
+import type { ProjectStore } from '../../ports/project-store';
 import { ids } from './ids';
 
 export type SeededProject = Project;
@@ -60,28 +59,3 @@ export const inMemory = (): ProjectStore => {
 export interface HoldingSaves extends ProjectStore {
   release(): void;
 }
-
-export const holdingSaves = (start?: Project): HoldingSaves => {
-  let held: Project | undefined = start;
-  const waiting: (() => void)[] = [];
-  return {
-    load: async () => held,
-    save: async (project) => {
-      held = project;
-      const { promise, resolve } = Promise.withResolvers<void>();
-      waiting.push(resolve);
-      await promise;
-    },
-    release: () => {
-      for (const resolve of waiting.splice(0)) resolve();
-    },
-  };
-};
-
-export const anInMemoryProject = async (
-  seed?: SeededProject,
-): Promise<{ store: ProjectStore; project: OpenProject }> => {
-  const store = inMemory();
-  if (seed !== undefined) await store.save(seed);
-  return { store, project: await openProject(snowflakeExtended, store) };
-};

@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { playScenarios, type Runner } from '../src/test-helpers/play';
-import { readScenarioFile } from '../src/test-helpers/scenario-file';
+import { playScenarios, type Runner } from '../src/test-helpers/runner/play';
+import { readScenarioFile } from '../src/test-helpers/runner/scenario-file';
 import type { ProjectSees } from '../src/ui/project/project.dsl';
 import { journeySteps } from './journey.dsl';
 import { newVersionSteps } from './new-version.dsl';

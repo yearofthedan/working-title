@@ -1,5 +1,9 @@
-import type { Driver, Role, Within } from '../../../../test-helpers/driver';
-import { reportingFocus, type Evidence, type StepAction } from '../../../../test-helpers/steps';
+import type { Driver, Role, Within } from '../../../../test-helpers/drivers/driver';
+import {
+  reportingFocus,
+  type Evidence,
+  type StepAction,
+} from '../../../../test-helpers/runner/steps';
 
 const beat = 'Beat 2';
 const theCard: Within = { role: 'group', name: beat };

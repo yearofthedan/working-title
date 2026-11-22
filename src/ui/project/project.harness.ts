@@ -1,16 +1,11 @@
 import { expect } from 'vite-plus/test';
-import { type Driver, type Opening } from '../../test-helpers/driver';
-import { appReadsOnThePage } from '../../test-helpers/graph-page';
-import { inMemory, type SeededProject } from '../../test-helpers/seed';
-import {
-  aFolderHoldingProjects,
-  aPickerGivingWhatIsStaged,
-  anEmptyFolderNamed,
-  theProjectsFolderName,
-} from '../../test-helpers/folders';
-import { thePage } from '../../test-helpers/staging';
-import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/the-app';
-import { vitestBrowserDriver } from '../../test-helpers/vitest-browser.driver';
+import { type Driver, type Opening } from '../../test-helpers/drivers/driver';
+import { appReadsOnThePage } from './test-helpers/staging';
+import { inMemory, type SeededProject } from '../../test-helpers/seed/seed';
+import { aPickerGivingWhatIsStaged, anEmptyFolderNamed } from '../../test-helpers/folders/folders';
+import { thePage } from '../../test-helpers/staging/staging';
+import { openTheApp, reopenTheApp, type Staging } from '../../test-helpers/staging/the-app';
+import { vitestBrowserDriver } from '../test-helpers/vitest-browser.driver';
 import { type NewVersion } from '../header/header.dom';
 import {
   projectSeesOn,
@@ -22,6 +17,7 @@ import {
 } from './project.dsl';
 import { yourProjects } from '../your-projects/your-projects.test-page';
 import { theHeader } from './project.test-page';
+import { aFolderHoldingProjects, theProjectsFolderName } from '../test-helpers/folders';
 
 const stagingTheAppAt = async (
   where: () => readonly string[],
