@@ -3,9 +3,13 @@
 
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+. "$(dirname "$0")/_vp"
+
+root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 
 rm -rf "$root/coverage"
+
+playwright install --with-deps chromium
 
 "$root/scripts/test" --coverage "$@"
 COVERAGE_DIR="$root/coverage/raw/journeys" "$root/scripts/e2e"

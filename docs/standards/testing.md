@@ -5,7 +5,7 @@
 
 - **A test sits beside the code it tests**, named after it: `piece.test.ts` beside `piece.ts`, `scripts/audit.test.sh` beside `scripts/audit`.
 - `./do test` runs the tests, `./do e2e` the journeys, and `./do check` every local check, the tests and the journeys among them. A shell suite beside a task runs under `./do test`, and so under `./do check`: `do.test.ts` spawns each one. What the checks are is `scripts/check`, which is what `./do` lists.
-- `./do coverage` runs the node and browser tests and the journeys, prints a per-file table of `src/` and writes an HTML report of it to `coverage/`. It measures that a line ran, not that a test checked its result; `./do mutate` checks that, for the files `stryker.config.mjs` names. Read the line and branch columns: the journeys' statement and function counts did not line up with the tests' when the two were merged.
+- `./do coverage` runs the node and browser tests and the journeys, prints a per-file table of `src/` and writes an HTML report of it to `coverage/`. Every pull request gets the table as one comment, updated on each push. It measures that a line ran, not that a test checked its result; `./do mutate` checks that, for the files `stryker.config.mjs` names. Read the line and branch columns: the journeys' statement and function counts did not line up with the tests' when the two were merged.
 - **Every commit runs the checks first**: all of them, or only the docs, links and names checks for a change to Markdown alone outside `src/` and `e2e/`. An agent's commit that would skip them is refused.
 
 ## Levels
