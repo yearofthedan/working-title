@@ -1,8 +1,6 @@
 import type { CardLook } from '../../ui/project/graph/card/card';
 import { namedOn, same, type Named, type Role } from './narrowing';
 
-export type { Part, Role } from './narrowing';
-
 export interface Within {
   readonly role: Role;
   readonly name: string;

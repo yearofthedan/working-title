@@ -1,4 +1,5 @@
-import type { Driver, Role, Within } from '../../../../test-helpers/drivers/driver';
+import type { Driver, Within } from '../../../../test-helpers/drivers/driver';
+import type { Role } from '../../../../test-helpers/drivers/narrowing';
 import {
   reportingFocus,
   type Evidence,

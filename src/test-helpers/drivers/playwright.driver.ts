@@ -14,9 +14,9 @@ import {
   wholeNameAnyCase,
   type AppReads,
   type ReloadingDriver,
-  type Role,
   type Within,
 } from './driver';
+import type { Role } from './narrowing';
 
 export interface PlaywrightDriver extends ReloadingDriver {
   readonly theHeaderHeading: Locator;
