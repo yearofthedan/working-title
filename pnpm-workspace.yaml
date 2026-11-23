@@ -42,4 +42,6 @@ trustPolicyExclude:
 minimumReleaseAgeExclude:
   # Renovate security update: qs@6.16.1
   - qs@6.16.1
+  # shortcut: warp 0.2.0 is our own release, under three days old; drop the entry once it is three days old.
+  - '@yearofthedan/warp@0.2.0'
 saveExact: true
