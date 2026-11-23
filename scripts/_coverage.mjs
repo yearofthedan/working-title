@@ -91,17 +91,21 @@ export const journeysFrom = async (dir, dist = join(root, 'dist'), source = join
   return covered;
 };
 
-const main = async () => {
-  const vitest = JSON.parse(readFileSync(vitestPath, 'utf8'));
-  const merged = mergeCoverage(vitest, await journeysFrom(journeysPath));
-
+export const writeReport = (coverageMap, dir = reportPath, file = 'summary.txt') => {
   const context = libReport.createContext({
-    dir: reportPath,
-    coverageMap: merged,
+    dir,
+    coverageMap,
     defaultSummarizer: 'nested',
   });
   reports.create('html').execute(context);
   reports.create('text').execute(context);
+  reports.create('text', { file }).execute(context);
+};
+
+const main = async () => {
+  const vitest = JSON.parse(readFileSync(vitestPath, 'utf8'));
+  const merged = mergeCoverage(vitest, await journeysFrom(journeysPath));
+  writeReport(merged);
 };
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {

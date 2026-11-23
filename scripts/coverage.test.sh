@@ -24,6 +24,14 @@ else
   no "coverage runs the tests, then the journeys, then the merge"
 fi
 
+if awk '/^playwright install --with-deps chromium / { at = 1 }
+  at == 1 && /^test --coverage$/ { found = 1 }
+  END { exit !found }' "$VP_LOG"; then
+  ok "coverage installs the browser before the tests that need it"
+else
+  no "coverage installs the browser before the tests that need it"
+fi
+
 if [ -e "$copy/coverage/stale.json" ]; then
   no "coverage empties coverage/ first"
 else
