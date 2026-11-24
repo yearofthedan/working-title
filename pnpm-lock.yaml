@@ -222,8 +222,8 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@vitest/browser@5.1.0)(vitest@5.1.0)
       '@yearofthedan/warp':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@yearofthedan/weaver':
         specifier: 0.1.13
         version: 0.1.13
@@ -2214,8 +2214,8 @@ packages:
   '@vue/shared@3.5.44':
     resolution: {integrity: sha512-H82XLH0DjmSOdbEwO15x3QTo1f5PWEtv237eLpYKc0mqLu+B8hnq16lFWmuBmNurkeiG3wr+oM1FhOll/YVFRg==}
 
-  '@yearofthedan/warp@0.2.0':
-    resolution: {integrity: sha512-RQoJG91IK16FP4gAIhfKpf5C+NNB6mWzLvX/MTO+6bhOvJKq/mPgE+4cWvXAp5QqkFEe0C4GptU5QbUTc9W/RQ==}
+  '@yearofthedan/warp@0.3.0':
+    resolution: {integrity: sha512-RmVu8OXzxaj039/iX8XAnBcy+IDTpLEVSzYVf/PfdPIRA24Youa/OUKdy2j5Z58Jljy/ayWOCAVVFUDjv/d7GA==}
     engines: {node: '>=26'}
     hasBin: true
 
@@ -5924,7 +5924,7 @@ snapshots:
 
   '@vue/shared@3.5.44': {}
 
-  '@yearofthedan/warp@0.2.0':
+  '@yearofthedan/warp@0.3.0':
     dependencies:
       typescript: 7.1.0-beta
 
