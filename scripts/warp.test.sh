@@ -16,6 +16,10 @@ run_warp() {
   status=0
   (cd "$project" && "$root/scripts/warp") >"$work/out" 2>"$work/err" || status=$?
 }
+run_warp_in() {
+  status=0
+  (cd "$1" && "$root/scripts/warp") >"$work/out" 2>"$work/err" || status=$?
+}
 
 advisory() {
   if [ "$status" -eq 0 ]; then ok "$1"; else no "$1 (exit $status)"; fi
@@ -27,6 +31,14 @@ not_out() {
 run_do warp
 expect_status 0 "this repository is reported without refusing"
 expect_out 'findings' "the findings it carries are printed"
+not_out 'worsened' "the report is of the codebase, not of a change"
+
+run_do warp --fail
+expect_status 1 "adding --fail refuses"
+
+run_warp_in "$root/src"
+expect_status 0 "the repository is reported from inside one of its folders"
+expect_out 'findings' "the same report comes from there"
 
 write tsconfig.json '{
   "compilerOptions": { "strict": true },

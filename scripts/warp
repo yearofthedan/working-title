@@ -1,11 +1,18 @@
 #!/bin/sh
-# help: Report an import that crosses a boundary warp.config.ts declares: the layers, the test-helper kinds, the components and the app's own chrome. It reports and does not refuse; add --fail to refuse, or --ruleset <name> for a lighter set.
+# help: Report an import that crosses a boundary warp.config.ts declares: the layers, the test-helper kinds, the components and the app's own chrome. It reports and does not refuse; add --fail to refuse.
 
 set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 
 if ! command -v warp >/dev/null 2>&1; then
   echo "warp is not installed. Run pnpm install, then try again." >&2
   exit 1
 fi
 
-exec warp check "$@"
+# shortcut: a folder with a config of its own is read with it, so this task reads the repository when it is run from inside one of its folders; upgrade when warp takes a config and the folder to read apart.
+if [ -f warp.config.ts ]; then
+  exec warp check "$@"
+fi
+
+exec warp check --config "$root/warp.config.ts" "$@"
