@@ -235,11 +235,13 @@ const app = archetype('app')
     ]),
   );
 
-const base = ruleset().rules({
+const forTestCode = {
   'function-cohesion': false,
   'cognitive-complexity': false,
   'file-cohesion': false,
-});
+};
+
+const base = ruleset().on(app.modules.tests, forTestCode).on(component.modules.tests, forTestCode);
 
 export default defineConfig({
   root: app,
