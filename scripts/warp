@@ -1,0 +1,11 @@
+#!/bin/sh
+# help: Report an import that crosses a boundary warp.config.ts declares: the layers, the test-helper kinds, the components and the app's own chrome. It reports and does not refuse; add --fail to refuse, or --ruleset <name> for a lighter set.
+
+set -eu
+
+if ! command -v warp >/dev/null 2>&1; then
+  echo "warp is not installed. Run pnpm install, then try again." >&2
+  exit 1
+fi
+
+exec warp check "$@"
