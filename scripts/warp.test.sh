@@ -44,13 +44,14 @@ write tsconfig.json '{
   "compilerOptions": { "strict": true },
   "include": ["**/*.ts"]
 }'
-write warp.config.ts 'import { archetype, defineConfig, dir } from "@yearofthedan/warp";
+write warp.yaml 'root:
+  modules:
+    domain: { dir: src/domain }
+    ui: { dir: src/ui }
 
-const app = archetype("app").contains((c) =>
-  c.module("domain", dir("src/domain")).module("ui", dir("src/ui")),
-);
-
-export default defineConfig({ root: app });
+rulesets:
+  default:
+    extends: [warp:recommended]
 '
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/ui/card.ts 'export const card = (): string => "card";'
