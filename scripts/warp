@@ -3,16 +3,9 @@
 
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-
 if ! command -v warp >/dev/null 2>&1; then
   echo "warp is not installed. Run pnpm install, then try again." >&2
   exit 1
 fi
 
-# shortcut: a folder with a config of its own is read with it, so this task reads the repository when it is run from inside one of its folders; upgrade when warp takes a config and the folder to read apart.
-if [ -f warp.yaml ]; then
-  exec warp check "$@"
-fi
-
-exec warp check --config "$root/warp.yaml" "$@"
+exec warp check "$@"
