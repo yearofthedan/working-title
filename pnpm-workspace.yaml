@@ -42,9 +42,9 @@ trustPolicyExclude:
 minimumReleaseAgeExclude:
   # Renovate security update: qs@6.16.1
   - qs@6.16.1
-  # shortcut: warp 0.4.0 is in the lockfile until the 0.4.1 upgrade lands, and 0.4.1 is the upgrade;
+  # shortcut: warp 0.4.1 is in the lockfile until the 0.5.0 upgrade lands, and 0.5.0 is the upgrade;
   # both are our own releases, under three days old. Drop each entry once it is three days old, and
-  # the 0.4.0 one as soon as the lockfile moves.
-  - '@yearofthedan/warp@0.4.0'
+  # the 0.4.1 one as soon as the lockfile moves.
   - '@yearofthedan/warp@0.4.1'
+  - '@yearofthedan/warp@0.5.0'
 saveExact: true

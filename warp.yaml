@@ -1,4 +1,5 @@
 root:
+  ruleset: [warp:recommended]
   modules:
     domain: { dir: src/domain, exposes: all }
     ports: { dir: src/ports, dependencies: [domain], exposes: all }
@@ -26,6 +27,7 @@ root:
           'node:*',
         ]
   test:
+    ruleset: { rules: { function-cohesion: off, cognitive-complexity: off, file-cohesion: off } }
     provides:
       [
         seed,
@@ -102,8 +104,3 @@ archetypes:
       modules:
         testHelpers: { dir: test-helpers }
         tests: { files: '*.test.ts' }
-
-rulesets:
-  default:
-    extends: [warp:recommended]
-    test: { function-cohesion: off, cognitive-complexity: off, file-cohesion: off }

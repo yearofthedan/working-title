@@ -45,13 +45,10 @@ write tsconfig.json '{
   "include": ["**/*.ts"]
 }'
 write warp.yaml 'root:
+  ruleset: [warp:recommended]
   modules:
     domain: { dir: src/domain }
     ui: { dir: src/ui }
-
-rulesets:
-  default:
-    extends: [warp:recommended]
 '
 write src/domain/story.ts 'export type Story = { summary: string };'
 write src/ui/card.ts 'export const card = (): string => "card";'
