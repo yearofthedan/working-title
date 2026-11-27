@@ -42,4 +42,7 @@ trustPolicyExclude:
 minimumReleaseAgeExclude:
   # Renovate security update: qs@6.16.1
   - qs@6.16.1
+  # shortcut: warp is our own release, so every version of it installs without the three-day wait;
+  # drop the entry if the package ever stops being one we publish.
+  - '@yearofthedan/warp'
 saveExact: true

@@ -1,0 +1,106 @@
+root:
+  ruleset: [warp:recommended]
+  modules:
+    domain: { dir: src/domain, exposes: all }
+    ports: { dir: src/ports, dependencies: [domain], exposes: all }
+    methods: { dir: src/methods, dependencies: [domain], exposes: all }
+    application: { dir: src/application, dependencies: [domain, ports], exposes: all }
+    adapters:
+      dir: src/adapters
+      dependencies: [domain, ports]
+      exposes: { files: [file-system-folders.ts, local-storage-project-store.ts, folder-name.ts] }
+    ui: { dir: src/ui, archetype: ui, dependencies: [application, ports, adapters, methods] }
+    startUp:
+      files: src/*.ts
+      dependencies: [adapters, application, methods, ports, ui, 'virtual:pwa-register']
+      exposes: all
+    lint: { dir: lint, dependencies: ['node:*', npm:vite-plus], exposes: all }
+    tooling:
+      files: '*.ts'
+      dependencies:
+        [
+          lint,
+          npm:vite-plus,
+          npm:vite-plugin-pwa,
+          npm:@vitest/browser-playwright,
+          npm:@playwright/test,
+          'node:*',
+        ]
+  test:
+    ruleset: { rules: { function-cohesion: off, cognitive-complexity: off, file-cohesion: off } }
+    provides:
+      [
+        seed,
+        drivers,
+        folders,
+        runner,
+        staging,
+        registrations,
+        ui,
+        startUp,
+        npm:vite-plus,
+        npm:@playwright/test,
+        npm:@axe-core/playwright,
+        'node:*',
+      ]
+    modules:
+      seed: { dir: src/test-helpers/seed, dependencies: [domain, methods, ports] }
+      drivers: { dir: src/test-helpers/drivers, dependencies: [adapters, npm:@playwright/test] }
+      folders: { dir: src/test-helpers/folders, dependencies: [drivers, adapters, methods, ports] }
+      runner: { dir: src/test-helpers/runner, dependencies: [drivers, folders, 'node:*'] }
+      registrations: { files: src/test-helpers/*.ts, dependencies: [npm:vite-plus] }
+      staging:
+        {
+          dir: src/test-helpers/staging,
+          dependencies: [adapters, drivers, ports, seed, ui, startUp, npm:vite-plus],
+        }
+      tests: { files: 'src/**/*.test.ts' }
+      scripts: { files: 'scripts/*.test.ts' }
+      e2e: { dir: e2e, dependencies: [ui] }
+
+archetypes:
+  component:
+    marker: '{name}.dom.ts'
+    requires: [strings, icons, shared, header, ports, adapters, methods, application]
+    exposes: [render]
+    modules:
+      subcomponent:
+        {
+          dir: '*',
+          archetype: component,
+          dependencies: [strings, icons, shared, header, ports, adapters, methods, application],
+        }
+      logic: { files: '*.ts', dependencies: [strings, application, methods], exposes: all }
+      render:
+        files: '{name}.dom.ts'
+        dependencies:
+          [logic, subcomponent.render, strings, icons, shared, header, application, methods]
+        exposes: all
+    test:
+      exposes: [tests, subcomponent]
+      provides: [tests, helpers]
+      modules:
+        tests:
+          files: ['*.test.ts', '*.dsl.ts', '*.harness.ts', '*.test-page.ts']
+          dependencies: [helpers, application]
+        helpers: { dir: test-helpers }
+
+  ui:
+    exposes: all
+    requires: [application, ports, adapters, methods]
+    modules:
+      strings: { dir: strings, exposes: { files: [strings.ts] } }
+      icons: { dir: icons, exposes: all }
+      shared: { files: '*.ts', exposes: all }
+      header:
+        { dir: header, dependencies: [strings, application], exposes: { files: [header.dom.ts] } }
+      components:
+        dir: '*'
+        archetype: component
+        dependencies: [strings, icons, shared, header, ports, adapters, methods, application]
+    test:
+      exposes: [components]
+      provides: [testHelpers, components.tests]
+      modules:
+        testHelpers: { dir: test-helpers }
+        tests: { files: '*.test.ts' }

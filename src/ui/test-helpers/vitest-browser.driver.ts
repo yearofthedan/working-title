@@ -10,9 +10,9 @@ import {
   typing,
   wholeNameAnyCase,
   type Driver,
-  type Role,
   type Within,
 } from '../../test-helpers/drivers/driver';
+import type { Role } from '../../test-helpers/drivers/narrowing';
 
 declare module 'vite-plus/test/browser' {
   interface LocatorSelectors {

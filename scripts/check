@@ -1,5 +1,5 @@
 #!/bin/sh
-# help: Run every local check: secrets, format, lint and types, the direction of the layers, the dependency audit, the link check, the names, docs and comments checks, the journeys, then the tests.
+# help: Run every local check: secrets, format, lint and types, the direction of the layers and the module shape, the dependency audit, the link check, the names, docs and comments checks, the journeys, then the tests.
 
 set -eu
 
@@ -8,6 +8,7 @@ set -eu
 "$(dirname "$0")/../do" secrets
 vp check
 "$(dirname "$0")/../do" layers
+"$(dirname "$0")/../do" warp
 "$(dirname "$0")/../do" audit
 "$(dirname "$0")/../do" check-links
 "$(dirname "$0")/../do" check-names

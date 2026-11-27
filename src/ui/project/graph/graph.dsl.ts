@@ -1,4 +1,5 @@
-import type { DrawnCard, Driver, Opening, Part, Reads } from '../../../test-helpers/drivers/driver';
+import type { DrawnCard, Driver, Opening, Reads } from '../../../test-helpers/drivers/driver';
+import type { Part } from '../../../test-helpers/drivers/narrowing';
 import { aProject, beat, scene, story, type SeededProject } from '../../../test-helpers/seed/seed';
 import {
   reporting,
